@@ -3074,13 +3074,21 @@ function pripraviRisalno(){
   ctx = kanvas.getContext('2d');
   function prilagodi(){
     const r = svg.getBoundingClientRect();
-    if (!r.width) return;
+    if (!r.width || !r.height) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
-    kanvas.width = Math.round(r.width * dpr);
-    kanvas.height = Math.round(r.height * dpr);
-    kanvas.style.width = r.width + 'px';
-    kanvas.style.height = r.height + 'px';
-    P.k = (r.width * dpr) / P.sl.w;
+    /* Slika se v svojem okvirju ohrani v razmerju (xMidYMid meet), zato je
+       okoli nje lahko prazen prostor. Platno moramo postaviti NATANKO na
+       risbo, sicer barva pristane drugje, kot se pero dotakne zaslona –
+       pri zelo neujemajočih razmerjih pa celo zunaj platna in je ni videti. */
+    const m = Math.min(r.width / P.sl.w, r.height / P.sl.h);
+    const sir = P.sl.w * m, vis = P.sl.h * m;
+    kanvas.style.left = ((r.width - sir) / 2) + 'px';
+    kanvas.style.top = ((r.height - vis) / 2) + 'px';
+    kanvas.style.width = sir + 'px';
+    kanvas.style.height = vis + 'px';
+    kanvas.width = Math.max(1, Math.round(sir * dpr));
+    kanvas.height = Math.max(1, Math.round(vis * dpr));
+    P.k = (sir * dpr) / P.sl.w;
     izrisiPoteze();
   }
   if (opazovalec) opazovalec.disconnect();

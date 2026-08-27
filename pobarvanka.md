@@ -103,6 +103,13 @@ Pri svinčniku je posebej preverjeno: da pero sploh riše, da **močnejši priti
 da po uporabi peresa **dotik s prstom ne riše** (dlan na zaslonu), da pri vklopljeni omejitvi
 **nobena pika ne uide iz polja**, da radirka briše in da risba preživi zaprtje strani.
 
+Posebej se meri tudi **natančnost**: na 45 točkah (pet mest na sliki × tri razmerja slik ×
+ležeč iPad, pokončen iPad in telefon) se preveri, koliko je težišče narisane sledi oddaljeno
+od točke, kjer se je pero dotaknilo zaslona. Največji izmerjeni odmik je pod enim pikslom.
+Platno s potezami se namreč postavi natanko na risbo in ne na njen okvir – slika se v okvirju
+ohrani v razmerju, zato je okoli nje lahko prazen prostor, in če bi platno raztegnili čez ves
+okvir, bi barva pristala drugje, kot se pero dotakne zaslona.
+
 Vseh **95 slik na vseh 380 stopnjah** se samodejno preveri: da se zgradijo brez napake, da nimajo
 polj z ničelno površino ali pokvarjenih poti, da ima vsako polje veljavno barvo in da število
 polj z vsako stopnjo res raste. Izmerjen je tudi izris izbirnega zaslona z vsemi 95 sličicami
