@@ -90,6 +90,12 @@ h2.sec{font-size:16px;margin:18px 4px 9px;font-weight:900;color:var(--ink-soft);
 /* ---------- barvanje ---------- */
 .stage{background:#fff;border-radius:var(--r);padding:10px;box-shadow:0 8px 22px rgba(47,42,38,.10);
   display:flex;justify-content:center;align-items:center}
+/* platno s potezami leži NAD črtno risbo in se z njo množi – tako ostanejo
+   črte vidne skozi barvo, tako kot voščenka na natisnjeni pobarvanki */
+.platno{position:relative;isolation:isolate;width:100%;line-height:0}
+#risba{position:absolute;left:0;top:0;pointer-events:none;mix-blend-mode:multiply}
+.platno.risem #risba{pointer-events:auto;touch-action:none}
+.platno.risem svg{pointer-events:none}
 .stage svg{width:100%;height:auto;max-height:min(64vh,620px);display:block;touch-action:manipulation}
 /* barvo in obrobo zapiše sama slika (atributa fill/stroke); tu jih namenoma
    ne nastavljamo, ker bi lastnost CSS premagala atribut in bi polja ostala bela */
@@ -222,8 +228,8 @@ function smoothD(P, closed, nap){
   return d + (closed ? 'Z' : '');
 }
 function svetleje(hex, k){
-  const n = parseInt(hex.slice(1), 16);
-  const r = Math.min(255, ((n >> 16) & 255) + k), g = Math.min(255, ((n >> 8) & 255) + k), b = Math.min(255, (n & 255) + k);
+  const n = parseInt(hex.slice(1), 16), o = v => Math.max(0, Math.min(255, v + k));
+  const r = o((n >> 16) & 255), g = o((n >> 8) & 255), b = o(n & 255);
   return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
 const el = (cx,cy,rx,ry,rot) => ({ t:'e', cx, cy, rx, ry, rot: rot||0 });
@@ -339,7 +345,58 @@ function svgIz(sl, o){
 /* ======================= SLIKE ========================================== */
 /* Vsaka slika je funkcija stopnje (1–5): več kot je stopnja, več je polj.  */
 const SLIKE = [];
-function slika(id, nm, tema, stopnje, gradi){ SLIKE.push({ id:id, nm:nm, tema:tema, stopnje:stopnje, gradi:gradi }); }
+
+/* Groba očrtna škatla oblike – za iskanje največjih polj. */
+function pribBBox(s){
+  if (s.t === 'e') return [s.cx - s.rx, s.cy - s.ry, s.rx*2, s.ry*2];
+  if (s.t === 'r') return [s.x, s.y, s.w, s.h];
+  const n = s.d.match(/-?\d+(\.\d+)?/g) || [];
+  let x0=1e9, y0=1e9, x1=-1e9, y1=-1e9;
+  for (let i=0; i+1 < n.length; i += 2){
+    const x = +n[i], y = +n[i+1];
+    if (x < x0) x0 = x; if (x > x1) x1 = x;
+    if (y < y0) y0 = y; if (y > y1) y1 = y;
+  }
+  return x1 > x0 ? [x0, y0, x1-x0, y1-y0] : [0,0,0,0];
+}
+/* Če višja stopnja sama po sebi ne doda polj, sliko obogatimo z okrasnimi
+   pikami v njenih največjih poljih. Pike se vrinejo TAKOJ ZA svojim poljem,
+   da ne prekrijejo oči in drugih podrobnosti, ki se rišejo pozneje.        */
+function dodajPodrobnosti(sl, id, lv, koliko){
+  const r = nak(zrno(id + ':' + lv));
+  const kand = sl.R.map(function(o, i){
+    const bb = pribBBox(o.s);
+    return { i:i, o:o, bb:bb, a:bb[2]*bb[3] };
+  }).filter(function(k){
+    return !k.o.rez && k.bb[2] > 34 && k.bb[3] > 34 && /^#[0-9a-f]{6}$/i.test(k.o.c || '');
+  }).sort(function(a, b){ return b.a - a.a; }).slice(0, 6);
+  if (!kand.length) return;
+  const vrini = [];
+  for (let j = 0; j < koliko; j++){
+    const k = kand[j % kand.length], bb = k.bb;
+    const kot = r() * Math.PI * 2, odd = 0.16 + r() * 0.16;
+    const x = bb[0] + bb[2] * (0.5 + Math.cos(kot) * odd);
+    const y = bb[1] + bb[3] * (0.5 + Math.sin(kot) * odd);
+    const rr = Math.max(6, Math.min(bb[2], bb[3]) * (0.09 + r() * 0.06));
+    vrini.push({ i:k.i, o:obm(ci(x, y, rr), svetleje(k.o.c, j % 2 ? 38 : -34), { rez:k.o.s }) });
+  }
+  vrini.sort(function(a, b){ return b.i - a.i; });
+  vrini.forEach(function(v){ sl.R.splice(v.i + 1, 0, v.o); });
+}
+function slika(id, nm, tema, stopnje, gradi){
+  /* Primerjamo se s POLNO prejšnjo stopnjo (tudi če je bila sama obogatena),
+     sicer bi višja stopnja lahko imela manj polj od nižje. */
+  const polna = function(lv){
+    const sl = gradi(lv);
+    const k = stopnje.indexOf(lv);
+    if (k > 0){
+      const prej = polna(stopnje[k-1]).R.length;
+      if (sl.R.length <= prej) dodajPodrobnosti(sl, id, lv, prej - sl.R.length + 2 + k * 2);
+    }
+    return sl;
+  };
+  SLIKE.push({ id:id, nm:nm, tema:tema, stopnje:stopnje, gradi:polna });
+}
 
 /* ---------- RIBA ---------- */
 slika('riba','Riba','male', [1,2,3,4], function(lv){
@@ -1150,12 +1207,1375 @@ slika('mozaik','Mozaik','vzorci', [2,3,4], function(lv){
   return { w:W, h:H, R:R, L:L };
 });
 
+
+/* ======================= DRUŽINA: SEDEČE ŽIVALI ==========================
+   Ena zgradba (glava, telo, prsi, tačke, rep, ušesa), vrsta pa določi barve,
+   obliko ušes in repa ter svoje posebnosti. Tako je vsaka žival svoja slika,
+   koda pa se ne podvaja.                                                    */
+function zival(o){
+  return function(lv){
+    const R = [], L = [];
+    const gx = 150, gy = 104, gr = 62;
+    const telo = bl([[150,150],[98,178],[86,242],[150,262],[214,242],[202,178]], .9);
+    const glava = ci(gx, gy, gr);
+    if (lv >= 4){
+      R.push(obm(re(0,0,300,290,0), o.ozadje || '#eaf4e6'));
+      R.push(obm(bl([[0,254],[80,246],[160,256],[240,246],[300,254],[300,290],[0,290]], .8), '#8fbf6a'));
+    }
+    /* rep */
+    if (o.rep === 'dolg')   R.push(obm(trak([[210,244],[258,240],[272,196],[250,166]], o.repW || 26, 13), o.b2));
+    if (o.rep === 'tanek')  R.push(obm(trak([[210,246],[258,242],[274,200],[256,172]], 13, 6), o.b2));
+    if (o.rep === 'puhast') R.push(obm(bl([[198,232],[248,258],[288,216],[268,162],[214,182]], .9), o.b2));
+    if (o.rep === 'kratek') R.push(obm(ci(214,240,22), o.b2));
+    /* ušesa */
+    if (o.uho === 'trikotno'){
+      R.push(obm(po([[104,72],[92,14],[146,54]]), o.b2));
+      R.push(obm(po([[196,72],[208,14],[154,54]]), o.b2));
+      R.push(obm(po([[110,68],[102,32],[138,56]]), o.notri));
+      R.push(obm(po([[190,68],[198,32],[162,56]]), o.notri));
+    } else if (o.uho === 'okroglo'){
+      R.push(obm(ci(102,56,o.uhoR || 26), o.b2));
+      R.push(obm(ci(198,56,o.uhoR || 26), o.b2));
+      R.push(obm(ci(102,56,(o.uhoR || 26)*0.55), o.notri));
+      R.push(obm(ci(198,56,(o.uhoR || 26)*0.55), o.notri));
+    } else if (o.uho === 'dolgo'){
+      R.push(obm(el(122,40,18,48,-0.12), o.b2));
+      R.push(obm(el(178,40,18,48,0.12), o.b2));
+      R.push(obm(el(122,44,9,34,-0.12), o.notri));
+      R.push(obm(el(178,44,9,34,0.12), o.notri));
+    } else if (o.uho === 'visece'){
+      R.push(obm(bl([[104,72],[72,96],[76,156],[112,144]], .9), o.b2));
+      R.push(obm(bl([[196,72],[228,96],[224,156],[188,144]], .9), o.b2));
+    }
+    R.push(obm(telo, o.b));
+    R.push(obm(bl([[150,186],[116,208],[112,246],[150,256],[188,246],[184,208]], .9), o.svetlo));
+    R.push(obm(el(114,250,26,15), o.svetlo));
+    R.push(obm(el(186,250,26,15), o.svetlo));
+    R.push(obm(glava, o.b));
+    if (o.poseb) o.poseb(lv, R, L, { glava:glava, telo:telo });
+    /* gobec, oči, nos */
+    R.push(obm(el(gx, gy+26, o.gobecW || 32, 22), o.svetlo));
+    R.push(obm(ci(124,96,15), '#ffffff'));
+    R.push(obm(ci(176,96,15), '#ffffff'));
+    R.push(obm(ci(124,96,7), o.oko || '#3c8f4f'));
+    R.push(obm(ci(176,96,7), o.oko || '#3c8f4f'));
+    R.push(obm(ci(124,96,3.5), '#2f2a26'));
+    R.push(obm(ci(176,96,3.5), '#2f2a26'));
+    if (o.nos === 'oval') R.push(obm(el(gx,124,15,11), o.nosB || '#2f2a26'));
+    else R.push(obm(po([[gx,132],[gx-13,119],[gx+13,119]]), o.nosB || '#2f2a26'));
+    L.push(crt(cr([[gx,132],[gx,142]], .9)));
+    L.push(crt(cr([[gx,142],[gx-15,150]], .9)));
+    L.push(crt(cr([[gx,142],[gx+15,150]], .9)));
+    if (o.brki){
+      L.push(crt(cr([[118,128],[60,118]], .9))); L.push(crt(cr([[118,136],[62,140]], .9)));
+      L.push(crt(cr([[182,128],[240,118]], .9))); L.push(crt(cr([[182,136],[238,140]], .9)));
+    }
+    if (lv >= 3 && o.ovratnica){
+      R.push(obm(bl([[150,166],[112,160],[108,174],[150,182],[192,174],[188,160]], .8), '#e63946'));
+      R.push(obm(ci(150,184,11), '#ffd60a'));
+    }
+    return { w:300, h:290, R:R, L:L };
+  };
+}
+const proge = function(lv, R, L, d){
+  const n = lv >= 3 ? 5 : 3;
+  for (let i=0;i<n;i++){
+    R.push(obm(bl([[104+i*24,50],[112+i*24,74],[104+i*24,98],[96+i*24,74]], .9), '#7f4f24', { rez:d.glava }));
+    R.push(obm(bl([[98+i*27,176],[104+i*27,204],[98+i*27,232],[92+i*27,204]], .9), '#7f4f24', { rez:d.telo }));
+  }
+};
+slika('pes','Pes','zivali',[1,2,3,4], zival({ b:'#d8a165', b2:'#b8834a', svetlo:'#ffe8cf', notri:'#ffb3c6',
+  uho:'visece', rep:'dolg', nos:'oval', oko:'#5b3a1e', ovratnica:1 }));
+slika('medved','Medved','zivali',[1,2,3,4], zival({ b:'#8b5e34', b2:'#6d4526', svetlo:'#e8c9a0', notri:'#c98a5a',
+  uho:'okroglo', rep:'kratek', nos:'oval', oko:'#3a2a1a' }));
+slika('zajec','Zajec','zivali',[1,2,3,4], zival({ b:'#efefeb', b2:'#e2e2dc', svetlo:'#ffffff', notri:'#ffb3c6',
+  uho:'dolgo', rep:'kratek', nos:'oval', nosB:'#ff8fab', oko:'#7c5cff', brki:1 }));
+slika('lisica','Lisica','zivali',[1,2,3,4], zival({ b:'#f08a3c', b2:'#d96f22', svetlo:'#ffffff', notri:'#ffd6c2',
+  uho:'trikotno', rep:'puhast', nos:'oval', oko:'#3c8f4f', brki:1 }));
+slika('panda','Panda','zivali',[1,2,3,4], zival({ b:'#ffffff', b2:'#2f2a26', svetlo:'#ffffff', notri:'#5c5450',
+  uho:'okroglo', rep:'kratek', nos:'oval', oko:'#2f2a26',
+  poseb:function(lv,R,L,d){
+    R.push(obm(el(120,94,25,20,-0.35), '#2f2a26', { rez:d.glava }));
+    R.push(obm(el(180,94,25,20,0.35), '#2f2a26', { rez:d.glava }));
+    R.push(obm(bl([[150,150],[104,172],[100,206],[150,196],[200,206],[196,172]], .9), '#2f2a26', { rez:d.telo }));
+  } }));
+slika('tiger','Tiger','zivali',[1,2,3,4], zival({ b:'#f4a261', b2:'#e08b3f', svetlo:'#ffffff', notri:'#ffd6c2',
+  uho:'okroglo', uhoR:22, rep:'dolg', nos:'oval', oko:'#f77f00', brki:1, poseb:proge }));
+slika('prasic','Prašič','zivali',[1,2,3,4], zival({ b:'#ffb3c6', b2:'#f28fae', svetlo:'#ffd6e8', notri:'#ff8fab',
+  uho:'visece', rep:'kratek', nos:'oval', nosB:'#f06292', oko:'#5c4030', gobecW:26,
+  poseb:function(lv,R,L,d){
+    R.push(obm(el(150,126,26,19), '#ff8fab'));
+    R.push(obm(ci(142,126,4.5), '#c2185b'));
+    R.push(obm(ci(158,126,4.5), '#c2185b'));
+  } }));
+slika('ovca','Ovca','zivali',[1,2,3,4], zival({ b:'#f6f4f0', b2:'#5c5450', svetlo:'#ffe3c8', notri:'#c9b8a8',
+  uho:'visece', rep:'kratek', nos:'oval', oko:'#3a2a1a',
+  poseb:function(lv,R,L,d){
+    const n = lv >= 3 ? 13 : 9;
+    for (let i=0;i<n;i++){
+      const a = i*2*Math.PI/n;
+      R.push(obm(ci(150 + Math.cos(a)*64, 104 + Math.sin(a)*64, 24), '#ffffff'));
+    }
+    for (let i=0;i<(lv >= 3 ? 8 : 5); i++){
+      const a = Math.PI + i*Math.PI/((lv >= 3 ? 8 : 5)-1);
+      R.push(obm(ci(150 + Math.cos(a)*62, 214 + Math.sin(a)*46, 24), '#ffffff', { rez:d.telo }));
+    }
+    R.push(obm(ci(150,104,58), '#f6f4f0'));
+  } }));
+slika('miska','Miška','zivali',[1,2,3,4], zival({ b:'#b9b9c9', b2:'#a3a3b5', svetlo:'#ffd6e8', notri:'#ffb3c6',
+  uho:'okroglo', uhoR:34, rep:'tanek', nos:'oval', nosB:'#ff8fab', oko:'#2f2a26', brki:1 }));
+slika('koala','Koala','zivali',[1,2,3,4], zival({ b:'#9aa5b1', b2:'#7f8b98', svetlo:'#e8eef2', notri:'#c9d3da',
+  uho:'okroglo', uhoR:32, rep:'kratek', nos:'oval', oko:'#2f2a26',
+  poseb:function(lv,R,L,d){
+    R.push(obm(ci(102,56,34), '#c9d3da'));
+    R.push(obm(ci(198,56,34), '#c9d3da'));
+    R.push(obm(ci(102,56,24), '#9aa5b1'));
+    R.push(obm(ci(198,56,24), '#9aa5b1'));
+  } }));
+
+
+/* ======================= MORSKE ŽIVALI ================================== */
+function morje(lv, R, barva){
+  if (lv >= 3){
+    R.unshift(obm(bl([[0,236],[70,228],[150,238],[230,228],[300,236],[300,270],[0,270]], .8), '#f2d8a7'));
+    R.unshift(obm(re(0,0,300,270,0), barva || '#a8dcf0'));
+  }
+}
+function mehurcki(lv, R, x, y){
+  if (lv >= 2){ R.push(obm(ci(x,y,11), '#d6f2fb')); R.push(obm(ci(x+18,y-22,7.5), '#d6f2fb')); R.push(obm(ci(x-6,y-36,5), '#d6f2fb')); }
+}
+slika('hobotnica','Hobotnica','morje',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  morje(lv,R);
+  const krakov = lv >= 3 ? 8 : 6;
+  for (let i=0;i<krakov;i++){
+    const t = i/(krakov-1), x = 52 + t*196, smer = i%2 ? 1 : -1;
+    R.push(obm(trak([[x,158],[x+smer*10,196],[x-smer*14,224],[x+smer*8,246]], 26, 12, .8), i%2 ? '#c77dff' : '#b05ce6'));
+    if (lv >= 2) for (let j=0;j<3;j++) R.push(obm(ci(x + smer*(j%2?6:-8), 190+j*20, 5), '#ffd6e8'));
+  }
+  R.push(obm(bl([[150,44],[92,72],[80,132],[110,166],[190,166],[220,132],[208,72]], .9), '#c77dff'));
+  R.push(obm(ci(124,110,16), '#ffffff')); R.push(obm(ci(176,110,16), '#ffffff'));
+  R.push(obm(ci(126,110,7), '#2f2a26')); R.push(obm(ci(178,110,7), '#2f2a26'));
+  R.push(obm(el(150,142,18,10), '#ff8fab'));
+  if (lv >= 2){ R.push(obm(ci(104,132,9), '#ffb3c6')); R.push(obm(ci(196,132,9), '#ffb3c6')); }
+  mehurcki(lv,R,252,60);
+  return { w:300, h:270, R:R, L:L };
+});
+slika('konjicek','Morski konjiček','morje',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  morje(lv,R);
+  R.push(obm(trak([[168,74],[186,132],[168,190],[128,214],[120,244],[152,250]], 54, 18, .85), '#f7b32b'));
+  R.push(obm(bl([[168,42],[212,48],[236,74],[224,100],[186,106],[162,86]], .9), '#f7b32b'));
+  R.push(obm(bl([[224,78],[252,84],[254,98],[226,100]], .9), '#f7b32b'));
+  R.push(obm(bl([[168,44],[160,20],[178,26],[184,12],[196,40]], .8), '#e08b3f'));
+  R.push(obm(bl([[192,118],[214,138],[196,166],[184,140]], .9), '#ffd166'));
+  if (lv >= 2) for (let i=0;i<5;i++) R.push(obm(el(152 + (i%2?8:-6), 96 + i*26, 15, 9), '#ffd166'));
+  R.push(obm(ci(206,70,10), '#ffffff'));
+  R.push(obm(ci(208,70,5), '#2f2a26'));
+  mehurcki(lv,R,64,90);
+  return { w:300, h:270, R:R, L:L };
+});
+slika('delfin','Delfin','morje',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  morje(lv,R);
+  R.push(obm(po([[76,140],[20,102],[36,146],[16,182]]), '#4895ef'));
+  R.push(obm(bl([[74,142],[120,96],[196,88],[248,110],[268,134],[236,158],[160,176],[100,170]], .95), '#4cc9f0'));
+  R.push(obm(bl([[110,158],[170,176],[236,158],[240,172],[168,190],[108,172]], .9), '#e8f6ff'));
+  R.push(obm(po([[150,92],[164,50],[188,94]]), '#4895ef'));
+  R.push(obm(bl([[150,166],[176,196],[212,172]], .8), '#4895ef'));
+  R.push(obm(ci(238,120,11), '#ffffff'));
+  R.push(obm(ci(240,120,5.5), '#2f2a26'));
+  L.push(crt(cr([[262,140],[248,148],[256,154]], .9)));
+  mehurcki(lv,R,66,66);
+  return { w:300, h:270, R:R, L:L };
+});
+slika('kit','Kit','morje',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  morje(lv,R);
+  R.push(obm(po([[68,152],[16,112],[30,154],[14,192]]), '#3a86ff'));
+  R.push(obm(bl([[70,154],[112,104],[196,96],[254,124],[262,158],[210,186],[126,190],[80,178]], .95), '#4895ef'));
+  R.push(obm(bl([[96,172],[160,192],[224,178],[236,190],[160,206],[92,188]], .9), '#e8f6ff'));
+  R.push(obm(bl([[152,176],[186,204],[220,180]], .8), '#3a86ff'));
+  R.push(obm(ci(232,132,11), '#ffffff'));
+  R.push(obm(ci(234,132,5.5), '#2f2a26'));
+  if (lv >= 2){                                       /* vodni curek */
+    R.push(obm(bl([[186,96],[198,68],[190,44],[178,68]], .9), '#cfefff'));
+    R.push(obm(ci(170,48,12), '#cfefff'));
+    R.push(obm(ci(204,56,10), '#cfefff'));
+    R.push(obm(ci(188,22,9), '#cfefff'));
+  }
+  if (lv >= 3) for (let i=0;i<5;i++) L.push(crt(cr([[100+i*8,180],[104+i*8,196]], 1.6)));
+  return { w:300, h:270, R:R, L:L };
+});
+slika('rak','Rak','morje',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  morje(lv,R);
+  for (let i=0;i<3;i++){
+    R.push(obm(trak([[104,180],[74,196+i*16],[46,190+i*20]], 12, 8, .9), '#d62828'));
+    R.push(obm(trak([[196,180],[226,196+i*16],[254,190+i*20]], 12, 8, .9), '#d62828'));
+  }
+  R.push(obm(trak([[104,152],[64,140],[44,116]], 15, 11, .9), '#d62828'));
+  R.push(obm(trak([[196,152],[236,140],[256,116]], 15, 11, .9), '#d62828'));
+  R.push(obm(bl([[44,116],[26,96],[44,80],[58,96],[52,110],[62,104],[60,120]], .8), '#e63946'));
+  R.push(obm(bl([[256,116],[274,96],[256,80],[242,96],[248,110],[238,104],[240,120]], .8), '#e63946'));
+  R.push(obm(bl([[150,116],[96,136],[86,178],[150,198],[214,178],[204,136]], .9), '#e63946'));
+  R.push(obm(ci(124,146,15), '#ffffff')); R.push(obm(ci(176,146,15), '#ffffff'));
+  R.push(obm(ci(126,146,7), '#2f2a26')); R.push(obm(ci(178,146,7), '#2f2a26'));
+  L.push(crt(cr([[130,174],[150,182],[170,174]], 1.8)));
+  if (lv >= 2){ R.push(obm(ci(112,124,7), '#ffb3c6')); R.push(obm(ci(188,124,7), '#ffb3c6')); }
+  mehurcki(lv,R,254,58);
+  return { w:300, h:270, R:R, L:L };
+});
+slika('meduza','Meduza','morje',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  morje(lv,R,'#89c2d9');
+  const lovk = lv >= 3 ? 7 : 5;
+  for (let i=0;i<lovk;i++){
+    const x = 84 + i*(132/(lovk-1));
+    R.push(obm(trak([[x,140],[x-10,176],[x+12,206],[x-6,240]], 14, 7, .8), i%2 ? '#ffb3c6' : '#ff8fab'));
+  }
+  R.push(obm(bl([[150,40],[86,72],[76,124],[110,146],[190,146],[224,124],[214,72]], .95), '#ffb3c6'));
+  R.push(obm(bl([[110,140],[132,152],[150,140],[168,152],[190,140],[190,148],[150,158],[110,148]], .9), '#ff8fab'));
+  R.push(obm(ci(128,102,13), '#ffffff')); R.push(obm(ci(172,102,13), '#ffffff'));
+  R.push(obm(ci(130,102,6), '#2f2a26')); R.push(obm(ci(174,102,6), '#2f2a26'));
+  if (lv >= 2){ R.push(obm(ci(108,120,8), '#ff8fab')); R.push(obm(ci(192,120,8), '#ff8fab')); }
+  mehurcki(lv,R,258,72);
+  return { w:300, h:270, R:R, L:L };
+});
+slika('zvezda','Morska zvezda','morje',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  morje(lv,R);
+  R.push(obm(zvezda(150,140,104,5,.44), '#f77f00'));
+  R.push(obm(zvezda(150,140,72,5,.44), '#ffb703'));
+  if (lv >= 2){
+    const n = lv >= 3 ? 9 : 5;
+    for (let i=0;i<n;i++){
+      const a = i*2*Math.PI/n;
+      R.push(obm(ci(150 + Math.cos(a)*40, 140 + Math.sin(a)*40, 8), '#f77f00'));
+    }
+  }
+  R.push(obm(ci(132,124,12), '#ffffff')); R.push(obm(ci(168,124,12), '#ffffff'));
+  R.push(obm(ci(134,124,6), '#2f2a26')); R.push(obm(ci(170,124,6), '#2f2a26'));
+  L.push(crt(cr([[136,152],[150,160],[164,152]], 1.8)));
+  mehurcki(lv,R,258,66);
+  return { w:300, h:270, R:R, L:L };
+});
+slika('zelva','Želva','morje',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  morje(lv,R);
+  R.push(obm(trak([[118,176],[86,196],[62,192]], 26, 16, .9), '#8ac926'));
+  R.push(obm(trak([[182,176],[214,196],[238,192]], 26, 16, .9), '#8ac926'));
+  R.push(obm(trak([[122,132],[92,110],[66,108]], 24, 15, .9), '#8ac926'));
+  R.push(obm(trak([[178,132],[208,110],[234,108]], 24, 15, .9), '#8ac926'));
+  R.push(obm(bl([[150,74],[92,104],[86,158],[150,188],[214,158],[208,104]], .95), '#6aa84f'));
+  const plosc = lv >= 3 ? 7 : 4;
+  for (let i=0;i<plosc;i++){
+    const a = i*2*Math.PI/plosc;
+    R.push(obm(ci(150 + Math.cos(a)*46, 130 + Math.sin(a)*38, 24), '#a7c957'));
+  }
+  R.push(obm(ci(150,130,30), '#c5e17a'));
+  R.push(obm(bl([[214,120],[252,112],[268,132],[248,152],[212,146]], .9), '#8ac926'));
+  R.push(obm(ci(246,124,10), '#ffffff'));
+  R.push(obm(ci(248,124,5), '#2f2a26'));
+  mehurcki(lv,R,62,62);
+  return { w:300, h:270, R:R, L:L };
+});
+
+
+/* ======================= PTICE ========================================== */
+slika('sova','Sova','ptice',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 3){
+    R.push(obm(re(0,0,280,290,0), '#2b2d5e'));
+    R.push(obm(ci(228,48,24), '#fff3b0'));
+    const r=nak(zrno('sova'));
+    for (let i=0;i<8;i++) R.push(obm(zvezda(16+r()*250,12+r()*90,6,4,.4), '#ffe066'));
+  }
+  R.push(obm(trak([[70,236],[52,262]], 14, 12), '#8b5e34'));
+  R.push(obm(trak([[210,236],[228,262]], 14, 12), '#8b5e34'));
+  R.push(obm(bl([[140,44],[74,86],[62,178],[100,236],[180,236],[218,178],[206,86]], .95), '#a9744f'));
+  R.push(obm(bl([[140,118],[96,146],[92,204],[140,228],[188,204],[184,146]], .9), '#f2d8a7'));
+  R.push(obm(po([[74,86],[62,40],[108,66]]), '#a9744f'));
+  R.push(obm(po([[206,86],[218,40],[172,66]]), '#a9744f'));
+  R.push(obm(bl([[70,120],[46,164],[62,214],[86,190]], .9), '#8b5e34'));
+  R.push(obm(bl([[210,120],[234,164],[218,214],[194,190]], .9), '#8b5e34'));
+  R.push(obm(ci(112,110,32), '#ffffff')); R.push(obm(ci(168,110,32), '#ffffff'));
+  R.push(obm(ci(112,110,18), '#ffb703')); R.push(obm(ci(168,110,18), '#ffb703'));
+  R.push(obm(ci(112,110,9), '#2f2a26')); R.push(obm(ci(168,110,9), '#2f2a26'));
+  R.push(obm(po([[140,124],[128,142],[152,142]]), '#f77f00'));
+  if (lv >= 2) for (let i=0;i<(lv>=3?9:5);i++)
+    R.push(obm(bl([[104+(i%3)*36,150+Math.floor(i/3)*26],[120+(i%3)*36,164+Math.floor(i/3)*26],[104+(i%3)*36,178+Math.floor(i/3)*26],[88+(i%3)*36,164+Math.floor(i/3)*26]], .9), '#e8c9a0'));
+  return { w:280, h:290, R:R, L:L };
+});
+slika('papiga','Papiga','ptice',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 3){
+    R.push(obm(re(0,0,280,300,0), '#d9f2e6'));
+    R.push(obm(re(28,120,20,180,6), '#8b5e34'));
+    R.push(obm(bl([[38,150],[76,138],[104,150],[66,164]], .9), '#5aa83f'));
+  }
+  R.push(obm(trak([[150,192],[176,244],[172,294]], 34, 16, .9), '#43aa8b'));
+  R.push(obm(trak([[164,196],[196,244],[198,292]], 24, 12, .9), '#118ab2'));
+  const telo = bl([[150,96],[100,124],[94,190],[142,220],[192,196],[200,132]], .95);
+  R.push(obm(telo, '#8ac926'));
+  R.push(obm(bl([[126,124],[92,152],[98,198],[138,192],[148,150]], .9), '#118ab2'));
+  if (lv >= 2) for (let i=0;i<3;i++)
+    R.push(obm(bl([[104+i*4,150+i*18],[136+i*4,158+i*18],[104+i*4,172+i*18]], .9), '#4cc9f0', { rez:telo }));
+  R.push(obm(ci(158,86,46), '#ffd60a'));
+  R.push(obm(bl([[194,80],[224,86],[228,108],[204,122],[188,104]], .9), '#f2f2f2'));
+  R.push(obm(bl([[200,104],[224,106],[216,126],[196,120]], .9), '#5c5450'));
+  R.push(obm(ci(170,74,13), '#ffffff'));
+  R.push(obm(ci(172,74,6), '#2f2a26'));
+  R.push(obm(trak([[136,216],[132,250]], 11, 9), '#f77f00'));
+  R.push(obm(trak([[164,214],[170,250]], 11, 9), '#f77f00'));
+  if (lv >= 2){
+    R.push(obm(bl([[150,44],[136,16],[156,24],[166,4],[176,30],[184,44]], .8), '#e63946'));
+    R.push(obm(ci(136,100,9), '#ffb3c6'));
+  }
+  return { w:280, h:300, R:R, L:L };
+});
+slika('pingvin','Pingvin','ptice',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 3){
+    R.push(obm(re(0,0,280,300,0), '#cfeaf7'));
+    R.push(obm(bl([[0,244],[80,232],[170,246],[280,234],[280,300],[0,300]], .8), '#ffffff'));
+    for (let i=0;i<3;i++) R.push(obm(po([[10+i*96,244],[42+i*96,196],[74+i*96,244]]), '#e8f6ff'));
+  }
+  R.push(obm(bl([[140,40],[84,84],[74,190],[110,250],[170,250],[206,190],[196,84]], .95), '#2f2a3a'));
+  R.push(obm(bl([[140,86],[100,124],[96,204],[140,238],[184,204],[180,124]], .9), '#ffffff'));
+  R.push(obm(bl([[80,110],[54,168],[70,222],[96,190]], .9), '#2f2a3a'));
+  R.push(obm(bl([[200,110],[226,168],[210,222],[184,190]], .9), '#2f2a3a'));
+  R.push(obm(bl([[112,250],[92,270],[132,272],[142,254]], .8), '#f77f00'));
+  R.push(obm(bl([[168,250],[188,270],[148,272],[138,254]], .8), '#f77f00'));
+  R.push(obm(ci(122,92,13), '#ffffff')); R.push(obm(ci(158,92,13), '#ffffff'));
+  R.push(obm(ci(122,92,6), '#2f2a26')); R.push(obm(ci(158,92,6), '#2f2a26'));
+  R.push(obm(po([[140,104],[122,120],[158,120]]), '#f77f00'));
+  if (lv >= 2){
+    R.push(obm(bl([[140,44],[104,58],[122,30],[140,40],[158,30],[176,58]], .8), '#e63946'));
+    R.push(obm(ci(108,110,8), '#ffb3c6')); R.push(obm(ci(172,110,8), '#ffb3c6'));
+  }
+  return { w:280, h:300, R:R, L:L };
+});
+slika('raca','Raca','ptice',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 2){
+    R.push(obm(re(0,0,300,260,0), '#cfeaf7'));
+    R.push(obm(bl([[0,180],[70,172],[150,182],[230,172],[300,180],[300,260],[0,260]], .8), '#4cc9f0'));
+    if (lv >= 3) for (let i=0;i<4;i++) R.push(obm(bl([[20+i*70,204],[60+i*70,196],[100+i*70,204],[60+i*70,212]], .9), '#7fc6f2'));
+  }
+  R.push(obm(bl([[150,96],[92,116],[74,166],[120,196],[196,190],[224,150],[206,112]], .95), '#ffd60a'));
+  R.push(obm(bl([[128,120],[96,142],[104,180],[142,172]], .9), '#f7b32b'));
+  R.push(obm(trak([[196,124],[210,90],[214,64]], 40, 34, .9), '#ffd60a'));
+  R.push(obm(bl([[206,58],[240,52],[254,70],[236,86],[204,84]], .9), '#ffd60a'));
+  R.push(obm(bl([[240,62],[276,66],[276,82],[238,84]], .9), '#f77f00'));
+  R.push(obm(ci(226,66,10), '#ffffff'));
+  R.push(obm(ci(227,66,5), '#2f2a26'));
+  R.push(obm(po([[80,150],[54,138],[62,164]]), '#f7b32b'));
+  if (lv >= 3){ R.push(obm(ci(214,78,7), '#ffb3c6')); R.push(obm(ci(120,146,9), '#f7b32b')); }
+  return { w:300, h:260, R:R, L:L };
+});
+slika('petelin','Petelin','ptice',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 3){ R.push(obm(re(0,0,300,290,0), '#e6f0e0'));
+    R.push(obm(bl([[0,252],[80,244],[160,254],[240,244],[300,252],[300,290],[0,290]], .8), '#8fbf6a')); }
+  const perja = lv >= 2 ? 5 : 3;
+  for (let i=0;i<perja;i++){
+    const a = -0.5 - i*0.34;
+    R.push(obm(trak([[116,172],[80,140 - i*8],[48 + i*10, 88 + i*16]], 30, 13, .9),
+      ['#e63946','#f77f00','#ffd60a','#43aa8b','#7c5cff'][i]));
+  }
+  R.push(obm(bl([[160,116],[110,140],[104,196],[150,226],[200,208],[212,158]], .95), '#c1440e'));
+  R.push(obm(bl([[166,152],[132,176],[136,212],[176,208]], .9), '#f7b32b'));
+  R.push(obm(trak([[186,130],[196,96],[196,72]], 40, 34, .9), '#c1440e'));
+  R.push(obm(ci(196,62,30), '#c1440e'));
+  R.push(obm(bl([[196,32],[186,10],[200,18],[208,0],[216,16],[226,6],[222,34]], .8), '#e63946'));
+  R.push(obm(po([[222,66],[254,74],[222,84]]), '#ffd60a'));
+  R.push(obm(bl([[200,86],[210,102],[190,102]], .9), '#e63946'));
+  R.push(obm(ci(206,56,10), '#ffffff'));
+  R.push(obm(ci(208,56,5), '#2f2a26'));
+  R.push(obm(trak([[152,226],[150,258]], 9, 8), '#f77f00'));
+  R.push(obm(trak([[176,222],[182,258]], 9, 8), '#f77f00'));
+  return { w:300, h:290, R:R, L:L };
+});
+slika('flamingo','Flamingo','ptice',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 2){
+    R.push(obm(re(0,0,280,320,0), '#ffeef5'));
+    R.push(obm(bl([[0,246],[70,238],[150,248],[220,238],[280,246],[280,320],[0,320]], .8), '#7fc6f2'));
+  }
+  R.push(obm(trak([[136,244],[132,286],[128,306]], 12, 10), '#f77f00'));
+  R.push(obm(bl([[112,306],[152,306],[152,314],[110,314]], .5), '#f77f00'));
+  R.push(obm(bl([[140,132],[90,158],[86,214],[132,248],[186,232],[198,178]], .95), '#ff8fab'));
+  R.push(obm(bl([[176,196],[210,214],[222,190],[196,172]], .9), '#ffb3c6'));
+  R.push(obm(trak([[152,148],[186,102],[176,58],[136,42]], 26, 22, .9), '#ff8fab'));
+  R.push(obm(bl([[136,34],[104,38],[92,58],[116,72],[142,64]], .9), '#ff8fab'));
+  R.push(obm(bl([[112,56],[78,66],[82,84],[116,76]], .9), '#2f2a3a'));
+  R.push(obm(ci(126,50,10), '#ffffff'));
+  R.push(obm(ci(125,50,5), '#2f2a26'));
+  if (lv >= 3) for (let i=0;i<5;i++) R.push(obm(bl([[104+i*22,178],[118+i*22,196],[104+i*22,212],[92+i*22,196]], .9), '#ffb3c6'));
+  return { w:280, h:320, R:R, L:L };
+});
+
+/* ======================= ŽUŽELKE ======================================== */
+slika('cebela','Čebela','male',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 3){
+    R.push(obm(re(0,0,300,250,0), '#e6f4ff'));
+    for (let i=0;i<3;i++) R.push(obm(bl([[30+i*100,44],[46+i*100,26],[70+i*100,44],[46+i*100,58]], .9), '#ffb3c6'));
+  }
+  R.push(obm(bl([[136,86],[100,44],[54,52],[70,96],[122,110]], .9), '#cdeffd'));
+  R.push(obm(bl([[164,86],[200,44],[246,52],[230,96],[178,110]], .9), '#cdeffd'));
+  const telo = bl([[150,80],[92,112],[86,168],[150,200],[212,168],[206,112]], .95);
+  R.push(obm(telo, '#ffd60a'));
+  const prog = lv >= 3 ? 4 : 2, vis = 90/prog;
+  for (let i=0;i<prog;i++)
+    R.push(obm(re(80, 108 + i*vis, 140, vis*0.5, 0), '#2f2a26', { rez:telo }));
+  R.push(obm(ci(150,86,40), '#ffd60a'));
+  R.push(obm(ci(136,80,11), '#ffffff')); R.push(obm(ci(164,80,11), '#ffffff'));
+  R.push(obm(ci(136,80,5), '#2f2a26')); R.push(obm(ci(164,80,5), '#2f2a26'));
+  L.push(crt(cr([[134,60],[122,36]], 1.8))); L.push(crt(cr([[166,60],[178,36]], 1.8)));
+  R.push(obm(ci(120,32,7), '#2f2a26')); R.push(obm(ci(180,32,7), '#2f2a26'));
+  L.push(crt(cr([[138,100],[150,108],[162,100]], 1.8)));
+  R.push(obm(po([[150,200],[140,224],[160,224]]), '#2f2a26'));
+  return { w:300, h:250, R:R, L:L };
+});
+slika('pikapolonica','Pikapolonica','male',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 3){
+    R.push(obm(re(0,0,300,250,0), '#e8f6e0'));
+    R.push(obm(trak([[150,250],[146,200]], 16, 10), '#4b8f3a'));
+    R.push(obm(bl([[146,208],[100,196],[74,214],[124,226]], .9), '#5aa83f'));
+  }
+  const telo = ci(150,128,84);
+  R.push(obm(telo, '#e63946'));
+  R.push(obm(bl([[150,44],[120,54],[112,84],[150,96],[188,84],[180,54]], .9), '#2f2a26'));
+  R.push(obm(re(144,52,12,152,6), '#2f2a26', { rez:telo }));
+  const pik = lv >= 3 ? 8 : (lv >= 2 ? 6 : 4);
+  for (let i=0;i<pik;i++){
+    const a = i*2*Math.PI/pik + 0.4;
+    R.push(obm(ci(150 + Math.cos(a)*48, 132 + Math.sin(a)*44, 15), '#2f2a26', { rez:telo }));
+  }
+  R.push(obm(ci(136,68,10), '#ffffff')); R.push(obm(ci(164,68,10), '#ffffff'));
+  R.push(obm(ci(136,68,5), '#2f2a26')); R.push(obm(ci(164,68,5), '#2f2a26'));
+  L.push(crt(cr([[132,48],[120,26]], 1.8))); L.push(crt(cr([[168,48],[180,26]], 1.8)));
+  R.push(obm(ci(118,22,7), '#2f2a26')); R.push(obm(ci(182,22,7), '#2f2a26'));
+  return { w:300, h:250, R:R, L:L };
+});
+slika('polz','Polž','male',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 3){
+    R.push(obm(re(0,0,300,230,0), '#eaf6ff'));
+    R.push(obm(bl([[0,196],[80,188],[160,198],[240,188],[300,196],[300,230],[0,230]], .8), '#8fbf6a'));
+  }
+  R.push(obm(bl([[40,196],[64,158],[120,150],[190,158],[224,178],[232,196]], .9), '#f2d8a7'));
+  R.push(obm(trak([[196,168],[210,124],[200,96]], 20, 16, .9), '#f2d8a7'));
+  R.push(obm(bl([[196,92],[224,86],[236,104],[218,120],[194,112]], .9), '#f2d8a7'));
+  const h = ci(126,132,62);
+  R.push(obm(h, '#c1440e'));
+  const obr = lv >= 3 ? 4 : 2;
+  for (let i=1;i<=obr;i++) R.push(obm(ci(126 + i*7, 132, 62 - i*13), i%2 ? '#f7b32b' : '#e07a3f'));
+  R.push(obm(ci(126 + (obr+1)*7, 132, Math.max(8, 62 - (obr+1)*13)), '#ffd166'));
+  L.push(crt(cr([[206,86],[200,58]], 1.8))); L.push(crt(cr([[224,90],[236,64]], 1.8)));
+  R.push(obm(ci(198,52,7), '#2f2a26')); R.push(obm(ci(238,58,7), '#2f2a26'));
+  R.push(obm(ci(214,104,6), '#2f2a26'));
+  return { w:300, h:230, R:R, L:L };
+});
+slika('kacjipastir','Kačji pastir','male',[2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 3){ R.push(obm(re(0,0,300,240,0), '#e6f4ff')); }
+  R.push(obm(bl([[140,96],[92,54],[36,64],[60,104],[126,116]], .9), '#cdeffd'));
+  R.push(obm(bl([[160,96],[208,54],[264,64],[240,104],[174,116]], .9), '#cdeffd'));
+  R.push(obm(bl([[140,116],[96,110],[52,132],[92,146],[132,138]], .9), '#e6d6ff'));
+  R.push(obm(bl([[160,116],[204,110],[248,132],[208,146],[168,138]], .9), '#e6d6ff'));
+  const telo = trak([[150,84],[150,150],[148,214]], 26, 12, .9);
+  R.push(obm(telo, '#43aa8b'));
+  const obr = lv >= 3 ? 5 : 3;
+  for (let i=0;i<obr;i++) R.push(obm(re(130, 108 + i*(100/obr), 40, (100/obr)*0.45, 0), '#118ab2', { rez:telo }));
+  R.push(obm(ci(150,72,32), '#43aa8b'));
+  R.push(obm(ci(136,66,13), '#ffffff')); R.push(obm(ci(164,66,13), '#ffffff'));
+  R.push(obm(ci(136,66,6), '#2f2a26')); R.push(obm(ci(164,66,6), '#2f2a26'));
+  return { w:300, h:240, R:R, L:L };
+});
+slika('hrosc','Hrošč','male',[2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 3) R.push(obm(re(0,0,280,250,0), '#f0f4e0'));
+  for (let i=0;i<3;i++){
+    R.push(obm(trak([[100,120+i*36],[62,132+i*40],[40,124+i*44]], 11, 7, .9), '#2f2a26'));
+    R.push(obm(trak([[180,120+i*36],[218,132+i*40],[240,124+i*44]], 11, 7, .9), '#2f2a26'));
+  }
+  const telo = bl([[140,66],[86,102],[80,178],[140,220],[200,178],[194,102]], .95);
+  R.push(obm(telo, '#43aa8b'));
+  R.push(obm(re(132,66,16,156,6), '#2f6b52', { rez:telo }));
+  if (lv >= 3){
+    R.push(obm(el(108,130,22,30,0.2), '#8ac926', { rez:telo }));
+    R.push(obm(el(172,130,22,30,-0.2), '#8ac926', { rez:telo }));
+  }
+  R.push(obm(ci(140,62,34), '#2f6b52'));
+  R.push(obm(po([[126,34],[120,4],[140,30]]), '#2f6b52'));
+  R.push(obm(po([[154,34],[160,4],[140,30]]), '#2f6b52'));
+  R.push(obm(ci(128,58,10), '#ffffff')); R.push(obm(ci(152,58,10), '#ffffff'));
+  R.push(obm(ci(128,58,5), '#2f2a26')); R.push(obm(ci(152,58,5), '#2f2a26'));
+  return { w:280, h:250, R:R, L:L };
+});
+
+
+/* ======================= DINOZAVRI ====================================== */
+function dinoOzadje(lv, R, w, h){
+  if (lv >= 3){
+    R.push(obm(re(0,0,w,h,0), '#dff0d8'));
+    R.push(obm(bl([[0,h-34],[w*0.3,h-42],[w*0.6,h-32],[w,h-40],[w,h],[0,h]], .8), '#8fbf6a'));
+    R.push(obm(ci(w-46,44,24), '#ffd60a'));
+  }
+}
+slika('bronto','Brontozaver','dino',[1,2,3,4], function(lv){
+  const R=[],L=[]; dinoOzadje(lv,R,360,260);
+  R.push(obm(trak([[128,182],[64,196],[18,168]], 40, 8, .9), '#6aa84f'));
+  R.push(obm(bl([[140,140],[196,124],[254,140],[268,180],[210,206],[142,204],[118,172]], .95), '#8ac926'));
+  R.push(obm(trak([[248,150],[288,106],[300,58]], 44, 30, .9), '#8ac926'));
+  R.push(obm(bl([[288,50],[326,44],[342,64],[322,84],[288,76]], .9), '#8ac926'));
+  R.push(obm(ci(316,58,9), '#ffffff'));
+  R.push(obm(ci(318,58,4.5), '#2f2a26'));
+  [[160,200],[196,204],[228,202]].forEach(function(n){
+    R.push(obm(trak([[n[0],n[1]],[n[0],n[1]+34]], 30, 26, .9), '#6aa84f'));
+  });
+  if (lv >= 2) for (let i=0;i<(lv>=3?7:4);i++)
+    R.push(obm(ci(150 + i*18, 150 + (i%2)*16, 12), '#a7c957'));
+  return { w:360, h:260, R:R, L:L };
+});
+slika('triceratops','Triceratops','dino',[1,2,3,4], function(lv){
+  const R=[],L=[]; dinoOzadje(lv,R,340,250);
+  R.push(obm(trak([[100,168],[46,180],[16,164]], 34, 8, .9), '#43aa8b'));
+  R.push(obm(bl([[120,130],[180,116],[236,132],[244,178],[186,200],[118,196],[96,164]], .95), '#57cc99'));
+  [[136,192],[176,196],[212,192]].forEach(function(n){
+    R.push(obm(trak([[n[0],n[1]],[n[0],n[1]+38]], 28, 24, .9), '#43aa8b'));
+  });
+  R.push(obm(bl([[236,96],[288,88],[308,128],[286,176],[236,180]], .9), '#38a3a5'));
+  const rog = lv >= 3 ? 7 : 5;
+  for (let i=0;i<rog;i++){
+    const t=i/(rog-1), a=-1.1 + t*2.2;
+    R.push(obm(po([[286 + Math.cos(a)*44, 132 + Math.sin(a)*46],
+      [286 + Math.cos(a)*62, 132 + Math.sin(a)*64],[286 + Math.cos(a+0.3)*44, 132 + Math.sin(a+0.3)*46]]), '#f2e8cf'));
+  }
+  R.push(obm(bl([[240,124],[292,118],[300,158],[266,182],[236,172]], .9), '#57cc99'));
+  R.push(obm(po([[262,116],[254,72],[286,110]]), '#f2e8cf'));
+  R.push(obm(po([[288,120],[300,80],[308,118]]), '#f2e8cf'));
+  R.push(obm(po([[252,170],[240,150],[268,156]]), '#f2e8cf'));
+  R.push(obm(ci(276,140,10), '#ffffff'));
+  R.push(obm(ci(278,140,5), '#2f2a26'));
+  return { w:340, h:250, R:R, L:L };
+});
+slika('rex','Tiranozaver','dino',[1,2,3,4], function(lv){
+  const R=[],L=[]; dinoOzadje(lv,R,340,280);
+  R.push(obm(trak([[128,150],[62,150],[16,120]], 46, 8, .9), '#e07a3f'));
+  R.push(obm(bl([[142,96],[196,86],[232,116],[228,178],[176,204],[130,182],[118,136]], .95), '#f4a261'));
+  R.push(obm(bl([[160,150],[204,152],[212,186],[168,196]], .9), '#ffd6a8'));
+  R.push(obm(trak([[168,200],[160,236],[152,262]], 40, 28, .9), '#e07a3f'));
+  R.push(obm(bl([[128,262],[178,258],[186,272],[124,276]], .6), '#e07a3f'));
+  R.push(obm(trak([[206,196],[212,232],[206,258]], 34, 24, .9), '#f4a261'));
+  R.push(obm(bl([[176,258],[224,254],[232,270],[172,274]], .6), '#f4a261'));
+  R.push(obm(trak([[212,130],[240,146],[248,160]], 14, 10, .9), '#e07a3f'));
+  R.push(obm(bl([[200,58],[262,52],[298,72],[300,96],[254,110],[204,102]], .9), '#f4a261'));
+  R.push(obm(bl([[236,96],[300,92],[298,110],[234,110]], .8), '#ffd6a8'));
+  const zob = lv >= 3 ? 7 : 4;
+  for (let i=0;i<zob;i++) R.push(obm(po([[240+i*9,96],[244+i*9,110],[248+i*9,96]]), '#ffffff'));
+  R.push(obm(ci(266,72,11), '#ffffff'));
+  R.push(obm(ci(268,72,5.5), '#2f2a26'));
+  if (lv >= 2) for (let i=0;i<5;i++) R.push(obm(po([[146+i*20,90],[156+i*20,66],[166+i*20,90]]), '#e07a3f'));
+  return { w:340, h:280, R:R, L:L };
+});
+slika('stegozaver','Stegozaver','dino',[1,2,3,4], function(lv){
+  const R=[],L=[]; dinoOzadje(lv,R,360,250);
+  R.push(obm(trak([[118,164],[58,178],[20,158]], 38, 10, .9), '#7c5cff'));
+  R.push(obm(bl([[136,132],[196,116],[256,134],[268,176],[204,198],[132,194],[110,162]], .95), '#a78bfa'));
+  const plosc = lv >= 3 ? 7 : 5;
+  for (let i=0;i<plosc;i++){
+    const t = i/(plosc-1), x = 140 + t*116, y = 122 - Math.sin(t*Math.PI)*22;
+    R.push(obm(bl([[x-20,y],[x,y-40],[x+20,y]], .9), '#f77f00'));
+  }
+  [[152,192],[192,196],[228,192]].forEach(function(n){
+    R.push(obm(trak([[n[0],n[1]],[n[0],n[1]+34]], 28, 24, .9), '#7c5cff'));
+  });
+  R.push(obm(trak([[256,146],[292,132],[312,120]], 34, 26, .9), '#a78bfa'));
+  R.push(obm(bl([[300,108],[338,104],[348,124],[326,138],[298,132]], .9), '#a78bfa'));
+  R.push(obm(ci(328,118,9), '#ffffff'));
+  R.push(obm(ci(330,118,4.5), '#2f2a26'));
+  for (let i=0;i<2;i++) R.push(obm(po([[30+i*16,150],[24+i*16,124],[44+i*16,142]]), '#f2e8cf'));
+  return { w:360, h:250, R:R, L:L };
+});
+
+/* ======================= VOZILA ========================================= */
+function cesta(lv, R, w, h){
+  if (lv >= 2){
+    R.push(obm(re(0,0,w,h,0), '#dff0ff'));
+    R.push(obm(re(0,h-52,w,52,0), '#8d99ae'));
+    for (let i=0;i<Math.floor(w/60);i++) R.push(obm(re(14+i*60,h-28,32,7,3), '#ffffff'));
+  }
+}
+function kolesa(R, mesta, r, barva){
+  mesta.forEach(function(m){
+    R.push(obm(ci(m[0],m[1],r), '#2f2a3a'));
+    R.push(obm(ci(m[0],m[1],r*0.5), barva || '#c9d3da'));
+  });
+}
+slika('avto','Avto','vozila',[1,2,3,4], function(lv){
+  const R=[],L=[]; cesta(lv,R,320,220);
+  R.push(obm(bl([[52,168],[58,124],[104,92],[214,92],[254,124],[268,168]], .55), '#e63946'));
+  R.push(obm(bl([[104,120],[150,100],[150,132],[102,132]], .3), '#a9def9'));
+  R.push(obm(bl([[164,100],[210,100],[224,132],[164,132]], .3), '#a9def9'));
+  R.push(obm(re(44,150,232,26,10), '#c1121f'));
+  kolesa(R, [[100,176],[224,176]], 26);
+  R.push(obm(ci(268,150,10), '#ffd60a'));
+  R.push(obm(ci(52,150,9), '#ffb3c6'));
+  if (lv >= 3){
+    R.push(obm(re(120,140,80,10,4), '#c1121f'));
+    R.push(obm(re(70,158,180,10,5), '#8d99ae'));
+  }
+  return { w:320, h:220, R:R, L:L };
+});
+slika('avtobus','Avtobus','vozila',[1,2,3,4], function(lv){
+  const R=[],L=[]; cesta(lv,R,340,230);
+  R.push(obm(re(28,60,284,124,16), '#f7b32b'));
+  const okna = lv >= 3 ? 5 : 3;
+  for (let i=0;i<okna;i++) R.push(obm(re(44 + i*(268/okna), 76, (268/okna)-16, 42, 6), '#a9def9'));
+  R.push(obm(re(28,132,284,20,4), '#e07a3f'));
+  R.push(obm(re(244,152,56,32,5), '#e8e8e4'));
+  kolesa(R, [[92,186],[262,186]], 26);
+  R.push(obm(ci(302,166,9), '#ffd60a'));
+  if (lv >= 2) R.push(obm(re(120,152,90,26,4), '#ffffff'));
+  return { w:340, h:230, R:R, L:L };
+});
+slika('vlak','Vlak','vozila',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 2){ R.push(obm(re(0,0,360,240,0), '#dff0ff')); R.push(obm(re(0,196,360,10,0), '#8b5e34')); }
+  R.push(obm(re(196,86,140,86,10), '#e63946'));
+  R.push(obm(re(214,100,44,36,5), '#a9def9'));
+  R.push(obm(re(272,100,44,36,5), '#a9def9'));
+  R.push(obm(re(40,64,140,110,12), '#118ab2'));
+  R.push(obm(re(58,80,60,44,6), '#a9def9'));
+  R.push(obm(re(24,152,168,24,6), '#0d6d8f'));
+  R.push(obm(re(126,30,34,40,5), '#2f2a3a'));
+  if (lv >= 2){
+    R.push(obm(ci(150,16,15), '#e8e8e4')); R.push(obm(ci(126,4,11), '#e8e8e4')); R.push(obm(ci(172,2,9), '#e8e8e4'));
+  }
+  kolesa(R, [[70,182],[140,182],[232,182],[300,182]], 20);
+  if (lv >= 3) for (let i=0;i<8;i++) R.push(obm(re(10+i*44,206,26,8,2), '#a9744f'));
+  return { w:360, h:240, R:R, L:L };
+});
+slika('letalo','Letalo','vozila',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 2){
+    R.push(obm(re(0,0,340,220,0), '#bfe6f5'));
+    R.push(obm(bl([[40,52],[64,34],[94,42],[108,58],[80,70],[46,66]], .9), '#ffffff'));
+    R.push(obm(bl([[236,150],[258,134],[286,142],[298,158],[272,168],[240,164]], .9), '#ffffff'));
+  }
+  R.push(obm(bl([[36,116],[110,88],[240,84],[300,104],[296,128],[220,144],[100,142]], .9), '#f2f2f2'));
+  R.push(obm(po([[150,120],[186,178],[236,120]]), '#118ab2'));
+  R.push(obm(po([[142,110],[168,52],[210,110]]), '#4cc9f0'));
+  R.push(obm(po([[42,112],[26,66],[76,104]]), '#118ab2'));
+  const okna = lv >= 3 ? 6 : 4;
+  for (let i=0;i<okna;i++) R.push(obm(ci(126 + i*24, 112, 9), '#a9def9'));
+  R.push(obm(bl([[290,102],[318,110],[290,126]], .8), '#e63946'));
+  R.push(obm(ci(288,112,11), '#a9def9'));
+  return { w:340, h:220, R:R, L:L };
+});
+slika('traktor','Traktor','vozila',[1,2,3,4], function(lv){
+  const R=[],L=[]; cesta(lv,R,320,240);
+  R.push(obm(re(120,96,120,74,10), '#43aa8b'));
+  R.push(obm(re(136,52,86,52,8), '#2f6b52'));
+  R.push(obm(re(148,62,62,34,5), '#a9def9'));
+  R.push(obm(re(60,124,70,42,8), '#43aa8b'));
+  R.push(obm(re(232,38,18,64,6), '#2f6b52'));
+  kolesa(R, [[100,178]], 34, '#f7b32b');
+  kolesa(R, [[218,186]], 26, '#f7b32b');
+  if (lv >= 3){
+    for (let i=0;i<8;i++){
+      const a=i*2*Math.PI/8;
+      R.push(obm(re(100 + Math.cos(a)*30 - 5, 178 + Math.sin(a)*30 - 5, 10, 10, 2), '#5c5450'));
+    }
+  }
+  return { w:320, h:240, R:R, L:L };
+});
+slika('gasilski','Gasilski avto','vozila',[1,2,3,4], function(lv){
+  const R=[],L=[]; cesta(lv,R,340,230);
+  R.push(obm(re(24,92,290,86,10), '#e63946'));
+  R.push(obm(re(232,58,80,52,8), '#c1121f'));
+  R.push(obm(re(246,70,52,32,5), '#a9def9'));
+  R.push(obm(re(40,110,170,44,6), '#f2f2f2'));
+  const pred = lv >= 3 ? 4 : 2;
+  for (let i=0;i<pred;i++) R.push(obm(re(52 + i*(150/pred), 118, (150/pred)-14, 28, 4), '#c9d3da'));
+  R.push(obm(trak([[60,88],[160,58],[262,46]], 22, 18, .9), '#c9d3da'));
+  R.push(obm(re(38,44,26,14,4), '#118ab2'));
+  R.push(obm(re(70,44,26,14,4), '#ffd60a'));
+  kolesa(R, [[92,180],[254,180]], 26);
+  return { w:340, h:230, R:R, L:L };
+});
+slika('bager','Bager','vozila',[1,2,3,4], function(lv){
+  const R=[],L=[]; cesta(lv,R,340,250);
+  R.push(obm(re(40,140,150,60,10), '#f7b32b'));
+  R.push(obm(re(66,88,86,58,8), '#e08b3f'));
+  R.push(obm(re(80,100,58,34,5), '#a9def9'));
+  R.push(obm(trak([[166,120],[236,80],[290,96]], 22, 18, .9), '#f7b32b'));
+  R.push(obm(trak([[290,96],[300,140],[276,166]], 18, 16, .9), '#e08b3f'));
+  R.push(obm(bl([[276,166],[312,158],[318,196],[268,200],[258,180]], .8), '#c9d3da'));
+  const zob = lv >= 3 ? 5 : 3;
+  for (let i=0;i<zob;i++) R.push(obm(po([[266+i*12,198],[272+i*12,214],[278+i*12,198]]), '#8d99ae'));
+  R.push(obm(re(30,196,180,30,14), '#5c5450'));
+  kolesa(R, [[62,211],[116,211],[178,211]], 16, '#c9d3da');
+  return { w:340, h:250, R:R, L:L };
+});
+
+
+/* ======================= RASTLINE IN SADJE ============================== */
+function podlaga(lv, R, w, h, neb, tla){
+  if (lv >= 3){
+    R.push(obm(re(0,0,w,h,0), neb || '#eaf6ff'));
+    R.push(obm(bl([[0,h-40],[w*0.3,h-48],[w*0.6,h-38],[w,h-46],[w,h],[0,h]], .8), tla || '#8fbf6a'));
+  }
+}
+slika('jabolko','Jabolko','rastline',[1,2,3,4], function(lv){
+  const R=[],L=[]; podlaga(lv,R,260,270);
+  R.push(obm(trak([[130,74],[132,42]], 12, 10), '#7f4f24'));
+  R.push(obm(bl([[136,50],[176,34],[196,52],[158,66]], .9), '#5aa83f'));
+  R.push(obm(bl([[130,72],[74,86],[52,150],[86,222],[130,236],[174,222],[208,150],[186,86]], .95), '#e63946'));
+  if (lv >= 2) R.push(obm(bl([[96,110],[80,140],[92,168],[106,140]], .9), '#ff8fab'));
+  if (lv >= 4) for (let i=0;i<5;i++) R.push(obm(ci(104 + i*14, 190 + (i%2)*12, 8), '#c1121f'));
+  return { w:260, h:270, R:R, L:L };
+});
+slika('hruska','Hruška','rastline',[1,2,3,4], function(lv){
+  const R=[],L=[]; podlaga(lv,R,260,280);
+  R.push(obm(trak([[130,72],[134,40]], 11, 9), '#7f4f24'));
+  R.push(obm(bl([[142,52],[178,40],[192,58],[156,68]], .9), '#5aa83f'));
+  R.push(obm(bl([[130,70],[98,104],[92,148],[62,192],[76,240],[130,254],[184,240],[198,192],[168,148],[162,104]], .95), '#8ac926'));
+  if (lv >= 2) R.push(obm(bl([[100,180],[86,210],[100,232],[114,206]], .9), '#c5e17a'));
+  if (lv >= 4) for (let i=0;i<6;i++) R.push(obm(ci(96 + (i%3)*30, 150 + Math.floor(i/3)*46, 7), '#6aa84f'));
+  return { w:260, h:280, R:R, L:L };
+});
+slika('jagoda','Jagoda','rastline',[1,2,3,4], function(lv){
+  const R=[],L=[]; podlaga(lv,R,260,270);
+  R.push(obm(trak([[130,72],[132,44]], 11, 9), '#5aa83f'));
+  for (let i=0;i<5;i++){
+    const a = -Math.PI/2 + i*2*Math.PI/5;
+    R.push(obm(po(vrti([[130,70],[112,40],[148,40]], 130, 72, a)), '#5aa83f'));
+  }
+  R.push(obm(bl([[130,68],[70,96],[62,158],[130,240],[198,158],[190,96]], .95), '#e63946'));
+  const semen = lv >= 4 ? 14 : (lv >= 2 ? 9 : 0);
+  for (let i=0;i<semen;i++){
+    const x = 84 + (i%5)*24 + (Math.floor(i/5)%2)*12, y = 110 + Math.floor(i/5)*34;
+    R.push(obm(el(x,y,6,9,0.3), '#ffd60a'));
+  }
+  return { w:260, h:270, R:R, L:L };
+});
+slika('ananas','Ananas','rastline',[2,3,4], function(lv){
+  const R=[],L=[]; podlaga(lv,R,260,300);
+  for (let i=0;i<5;i++){
+    const a = -1.2 + i*0.6;
+    R.push(obm(bl([[130,110],[130 + Math.cos(a)*44, 96 + Math.sin(a)*70],[130 + Math.cos(a)*16, 88]], .8), '#5aa83f'));
+  }
+  const telo = bl([[130,104],[76,136],[68,220],[130,268],[192,220],[184,136]], .95);
+  R.push(obm(telo, '#f7b32b'));
+  const vr = lv >= 4 ? 6 : 4, st = lv >= 4 ? 5 : 4;
+  for (let a=0;a<vr;a++)
+    for (let b=0;b<st;b++)
+      R.push(obm(po([[76 + b*(112/st) + (a%2?14:0), 130 + a*(140/vr)],
+        [76 + b*(112/st) + (a%2?14:0) + (112/st)/2, 130 + a*(140/vr) + (140/vr)/2],
+        [76 + b*(112/st) + (a%2?14:0), 130 + a*(140/vr) + (140/vr)],
+        [76 + b*(112/st) + (a%2?14:0) - (112/st)/2, 130 + a*(140/vr) + (140/vr)/2]]),
+        (a+b)%2 ? '#e08b3f' : '#ffd166', { rez:telo }));
+  return { w:260, h:300, R:R, L:L };
+});
+slika('lubenica','Lubenica','rastline',[1,2,3,4], function(lv){
+  const R=[],L=[]; podlaga(lv,R,300,240);
+  const kos = pa('M40 190A130 130 0 0 1 260 190Z');
+  R.push(obm(kos, '#4b8f3a'));
+  R.push(obm(pa('M56 186A114 114 0 0 1 244 186Z'), '#e8f4d0'));
+  R.push(obm(pa('M70 182A100 100 0 0 1 230 182Z'), '#e63946'));
+  const semen = lv >= 4 ? 12 : (lv >= 2 ? 7 : 0);
+  for (let i=0;i<semen;i++){
+    const x = 92 + (i%4)*40 + (Math.floor(i/4)%2)*18, y = 110 + Math.floor(i/4)*28;
+    R.push(obm(el(x,y,6,10,0.2), '#2f2a26'));
+  }
+  return { w:300, h:240, R:R, L:L };
+});
+slika('korenje','Korenje','rastline',[1,2,3,4], function(lv){
+  const R=[],L=[]; podlaga(lv,R,240,300);
+  for (let i=0;i<5;i++){
+    const a = -1.3 + i*0.65;
+    R.push(obm(trak([[120,84],[120 + Math.cos(a)*30, 60 + Math.sin(a)*36],[120 + Math.cos(a)*54, 26 + Math.sin(a)*40]], 20, 8, .9), i%2 ? '#4b8f3a' : '#6aa84f'));
+  }
+  R.push(obm(bl([[120,80],[74,110],[104,266],[120,282],[136,266],[166,110]], .9), '#f77f00'));
+  if (lv >= 2) for (let i=0;i<(lv>=4?6:4);i++)
+    R.push(obm(bl([[92+i*2,130+i*24],[148-i*2,130+i*24],[146-i*2,140+i*24],[94+i*2,140+i*24]], .5), '#e08b3f'));
+  return { w:240, h:300, R:R, L:L };
+});
+slika('drevo','Drevo','rastline',[1,2,3,4], function(lv){
+  const R=[],L=[]; podlaga(lv,R,280,300,'#dff0ff');
+  R.push(obm(trak([[140,270],[136,196],[140,150]], 40, 26), '#7f4f24'));
+  R.push(obm(trak([[138,206],[100,182],[74,168]], 14, 8, .9), '#7f4f24'));
+  R.push(obm(trak([[140,196],[180,176],[204,166]], 14, 8, .9), '#7f4f24'));
+  R.push(obm(ci(140,110,80), '#4b8f3a'));
+  R.push(obm(ci(80,150,46), '#5aa83f'));
+  R.push(obm(ci(200,150,46), '#5aa83f'));
+  if (lv >= 2){
+    const n = lv >= 4 ? 12 : 6;
+    for (let i=0;i<n;i++){
+      const a = i*2*Math.PI/n;
+      R.push(obm(ci(140 + Math.cos(a)*60, 120 + Math.sin(a)*54, 15), i%2 ? '#e63946' : '#8ac926'));
+    }
+  }
+  return { w:280, h:300, R:R, L:L };
+});
+slika('kaktus','Kaktus','rastline',[1,2,3,4], function(lv){
+  const R=[],L=[]; podlaga(lv,R,240,290,'#ffeedd','#f2d8a7');
+  R.push(obm(bl([[68,258],[64,238],[176,238],[172,258]], .4), '#c1440e'));
+  R.push(obm(re(76,220,88,42,10), '#e07a3f'));
+  R.push(obm(re(102,86,40,138,20), '#43aa8b'));
+  R.push(obm(trak([[104,150],[70,150],[66,116]], 26, 22, .9), '#43aa8b'));
+  R.push(obm(trak([[140,178],[176,178],[180,140]], 26, 22, .9), '#43aa8b'));
+  if (lv >= 2){
+    R.push(obm(bl([[122,84],[104,64],[122,50],[140,64]], .9), '#ff70a6'));
+    R.push(obm(ci(66,108,12), '#ff70a6'));
+  }
+  if (lv >= 3) for (let i=0;i<8;i++){
+    L.push(crt(cr([[110,110+i*14],[100,104+i*14]], 1.6)));
+    L.push(crt(cr([[134,110+i*14],[144,104+i*14]], 1.6)));
+  }
+  return { w:240, h:290, R:R, L:L };
+});
+slika('soncnica','Sončnica','rastline',[1,2,3,4], function(lv){
+  const R=[],L=[]; podlaga(lv,R,280,300,'#dff0ff');
+  R.push(obm(trak([[140,272],[136,200],[140,150]], 18, 13), '#4b8f3a'));
+  R.push(obm(bl([[136,214],[92,196],[62,216],[110,230]], .9), '#5aa83f'));
+  R.push(obm(bl([[142,240],[186,226],[214,248],[166,258]], .9), '#5aa83f'));
+  const listov = lv >= 3 ? 14 : 10;
+  for (let i=0;i<listov;i++){
+    const a = i*2*Math.PI/listov;
+    R.push(obm(bl(vrti([[140,88],[124,48],[140,16],[156,48]], 140, 108, a), .95), i%2 ? '#ffd60a' : '#f7b32b'));
+  }
+  R.push(obm(ci(140,108,44), '#7f4f24'));
+  if (lv >= 2){
+    const n = lv >= 4 ? 13 : 7;
+    for (let i=0;i<n;i++){
+      const a = i*2*Math.PI/n;
+      R.push(obm(ci(140 + Math.cos(a)*24, 108 + Math.sin(a)*24, 9), '#5c3a1e'));
+    }
+  }
+  return { w:280, h:300, R:R, L:L };
+});
+slika('tulipan','Tulipan','rastline',[1,2,3,4], function(lv){
+  const R=[],L=[]; podlaga(lv,R,240,300,'#f3e8ff');
+  R.push(obm(trak([[120,278],[116,200],[120,150]], 16, 12), '#4b8f3a'));
+  R.push(obm(bl([[118,216],[76,196],[54,224],[104,238]], .9), '#5aa83f'));
+  R.push(obm(bl([[122,246],[164,232],[188,256],[140,266]], .9), '#5aa83f'));
+  R.push(obm(bl([[120,152],[74,132],[70,80],[120,60],[170,80],[166,132]], .9), '#e63946'));
+  R.push(obm(bl([[120,60],[96,74],[92,128],[120,146],[120,60]], .9), '#ff70a6'));
+  R.push(obm(bl([[120,58],[104,30],[120,20],[136,30]], .9), '#c1121f'));
+  if (lv >= 2){
+    R.push(obm(bl([[86,74],[74,44],[92,58],[96,96]], .9), '#c1121f'));
+    R.push(obm(bl([[154,74],[166,44],[148,58],[144,96]], .9), '#c1121f'));
+  }
+  return { w:240, h:300, R:R, L:L };
+});
+slika('gobica','Gobica','rastline',[1,2,3,4], function(lv){
+  const R=[],L=[]; podlaga(lv,R,260,250,'#eaf6ff');
+  R.push(obm(bl([[130,120],[100,132],[96,196],[130,212],[164,196],[160,132]], .9), '#f2e8cf'));
+  R.push(obm(bl([[130,44],[56,84],[42,128],[130,148],[218,128],[204,84]], .95), '#e63946'));
+  const pik = lv >= 4 ? 9 : (lv >= 2 ? 5 : 3);
+  for (let i=0;i<pik;i++){
+    const a = -2.6 + i*(2.4/(pik-1||1));
+    R.push(obm(ci(130 + Math.cos(a)*(60 - (i%2)*24), 120 + Math.sin(a)*(50 - (i%2)*18), 14), '#ffffff'));
+  }
+  if (lv >= 3){ R.push(obm(bl([[104,190],[130,200],[156,190],[152,204],[130,210],[108,204]], .9), '#e8dcc8')); }
+  return { w:260, h:250, R:R, L:L };
+});
+
+/* ======================= PRAZNIKI ======================================= */
+slika('snezak','Snežak','prazniki',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 2){
+    R.push(obm(re(0,0,280,320,0), '#cfe8f7'));
+    R.push(obm(bl([[0,262],[80,252],[170,264],[280,252],[280,320],[0,320]], .8), '#ffffff'));
+    const r=nak(zrno('sneg'));
+    for (let i=0;i<(lv>=3?14:7);i++) R.push(obm(ci(14+r()*250, 12+r()*220, 6), '#ffffff'));
+  }
+  R.push(obm(ci(140,238,66), '#ffffff'));
+  R.push(obm(ci(140,152,50), '#ffffff'));
+  R.push(obm(ci(140,80,38), '#ffffff'));
+  R.push(obm(trak([[92,150],[52,124],[26,128]], 10, 7, .9), '#7f4f24'));
+  R.push(obm(trak([[188,150],[228,124],[254,128]], 10, 7, .9), '#7f4f24'));
+  R.push(obm(re(104,40,72,20,4), '#2f2a3a'));
+  R.push(obm(re(116,4,48,40,6), '#2f2a3a'));
+  R.push(obm(re(116,34,48,10,3), '#e63946'));
+  R.push(obm(ci(128,74,6), '#2f2a26')); R.push(obm(ci(152,74,6), '#2f2a26'));
+  R.push(obm(po([[140,88],[178,96],[140,102]]), '#f77f00'));
+  for (let i=0;i<5;i++) R.push(obm(ci(122 + i*9, 104 + Math.abs(i-2)*3, 3.4), '#2f2a26'));
+  R.push(obm(bl([[100,116],[140,126],[180,116],[184,128],[140,140],[96,128]], .9), '#e63946'));
+  if (lv >= 2){ R.push(obm(ci(140,140,8), '#2f2a3a')); R.push(obm(ci(140,166,8), '#2f2a3a')); }
+  if (lv >= 3){ R.push(obm(ci(140,222,10), '#2f2a3a')); R.push(obm(ci(140,254,10), '#2f2a3a')); }
+  return { w:280, h:320, R:R, L:L };
+});
+slika('jelka','Božična jelka','prazniki',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 3){
+    R.push(obm(re(0,0,280,320,0), '#1b2a49'));
+    const r=nak(zrno('jelka'));
+    for (let i=0;i<10;i++) R.push(obm(zvezda(14+r()*250, 10+r()*120, 6, 4, .4), '#ffe066'));
+  }
+  R.push(obm(re(122,262,36,36,4), '#7f4f24'));
+  R.push(obm(po([[140,192],[54,272],[226,272]]), '#2f6b52'));
+  R.push(obm(po([[140,116],[68,196],[212,196]]), '#387d5a'));
+  R.push(obm(po([[140,44],[82,124],[198,124]]), '#43aa8b'));
+  R.push(obm(zvezda(140,32,26,5,.45), '#ffd60a'));
+  const kroglic = lv >= 4 ? 12 : (lv >= 2 ? 7 : 4);
+  const bp = ['#e63946','#ffd60a','#4cc9f0','#ff70a6','#f77f00'];
+  for (let i=0;i<kroglic;i++){
+    const t = i/(kroglic-1), y = 80 + t*176, sir = 26 + t*76;
+    R.push(obm(ci(140 + (i%2?1:-1)*sir*0.6, y, 11), bp[i%bp.length]));
+  }
+  if (lv >= 2){
+    R.push(obm(re(96,286,88,26,6), '#e63946'));
+    R.push(obm(re(134,286,12,26,3), '#ffd60a'));
+  }
+  return { w:280, h:320, R:R, L:L };
+});
+slika('buca','Buča','prazniki',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 3){
+    R.push(obm(re(0,0,280,260,0), '#2b2d5e'));
+    R.push(obm(ci(224,50,24), '#fff3b0'));
+  }
+  R.push(obm(trak([[140,80],[136,48],[150,32]], 16, 10, .9), '#4b8f3a'));
+  R.push(obm(bl([[140,72],[62,104],[50,168],[104,224],[176,224],[230,168],[218,104]], .95), '#f77f00'));
+  R.push(obm(bl([[100,80],[76,140],[100,214],[124,140]], .9), '#e07a3f'));
+  R.push(obm(bl([[180,80],[204,140],[180,214],[156,140]], .9), '#e07a3f'));
+  R.push(obm(po([[94,132],[128,132],[110,164]]), '#2f2a26'));
+  R.push(obm(po([[186,132],[152,132],[170,164]]), '#2f2a26'));
+  R.push(obm(bl([[80,180],[104,168],[118,182],[140,168],[162,182],[176,168],[200,180],[176,208],[104,208]], .7), '#2f2a26'));
+  return { w:280, h:260, R:R, L:L };
+});
+slika('pirhi','Pirhi','prazniki',[2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 3){
+    R.push(obm(re(0,0,300,260,0), '#eaf6e0'));
+    R.push(obm(bl([[0,214],[80,206],[160,216],[240,206],[300,214],[300,260],[0,260]], .8), '#8fbf6a'));
+  }
+  const bp = ['#e63946','#4cc9f0','#ffd60a'];
+  [[80,150],[150,132],[220,150]].forEach(function(m, i){
+    const jajce = el(m[0], m[1], 44, 58);
+    R.push(obm(jajce, bp[i]));
+    const prog = lv >= 4 ? 5 : 3;
+    for (let j=0;j<prog;j++)
+      R.push(obm(re(m[0]-46, m[1]-52 + j*(104/prog), 92, (104/prog)*0.42, 0), '#ffffff', { rez:jajce }));
+    if (lv >= 3) for (let j=0;j<3;j++)
+      R.push(obm(zvezda(m[0]-22 + j*22, m[1] + (j%2?16:-18), 9, 5, .45), '#ffffff', { rez:jajce }));
+  });
+  return { w:300, h:260, R:R, L:L };
+});
+slika('torta','Torta','prazniki',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 3) R.push(obm(re(0,0,300,280,0), '#ffeef5'));
+  R.push(obm(re(40,236,220,20,8), '#c9d3da'));
+  R.push(obm(re(52,176,196,62,8), '#f7b32b'));
+  R.push(obm(re(74,120,152,58,8), '#ffb3c6'));
+  R.push(obm(bl([[52,180],[80,196],[108,180],[136,196],[164,180],[192,196],[220,180],[248,196],[248,178],[52,178]], .8), '#ffffff'));
+  R.push(obm(bl([[74,124],[100,140],[126,124],[152,140],[178,124],[204,140],[226,124],[226,122],[74,122]], .8), '#ffffff'));
+  const svec = lv >= 3 ? 5 : 3;
+  for (let i=0;i<svec;i++){
+    const x = 150 + (i - (svec-1)/2) * 34;
+    R.push(obm(re(x-6,74,12,48,3), i%2 ? '#e63946' : '#4cc9f0'));
+    R.push(obm(bl([[x,72],[x+9,54],[x,30],[x-9,54]], .9), '#ffd60a'));
+  }
+  if (lv >= 2) for (let i=0;i<7;i++) R.push(obm(ci(70 + i*26, 206, 7), '#e63946'));
+  return { w:300, h:280, R:R, L:L };
+});
+slika('srce','Srce','prazniki',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 3) R.push(obm(re(0,0,280,260,0), '#ffeef5'));
+  const srce = bl([[140,226],[46,148],[46,86],[92,58],[140,92],[188,58],[234,86],[234,148]], .95);
+  R.push(obm(srce, '#e63946'));
+  R.push(obm(bl([[140,196],[74,142],[74,98],[104,80],[140,106],[176,80],[206,98],[206,142]], .95), '#ff5c7a'));
+  R.push(obm(bl([[140,166],[100,134],[100,110],[118,100],[140,118],[162,100],[180,110],[180,134]], .95), '#ff8fab'));
+  R.push(obm(ci(96,100,10), '#ffd6e8'));
+  R.push(obm(ci(184,100,10), '#ffd6e8'));
+  if (lv >= 2){
+    R.push(obm(bl([[100,110],[84,130],[96,150],[112,130]], .9), '#ffd6e8'));
+    const n = lv >= 4 ? 9 : 4;
+    for (let i=0;i<n;i++)
+      R.push(obm(ci(80 + (i%3)*60, 120 + Math.floor(i/3)*46, 15), '#ff70a6', { rez:srce }));
+  }
+  if (lv >= 4) for (let i=0;i<6;i++) R.push(obm(zvezda(24 + i*48, 26 + (i%2)*16, 11, 5, .45), '#ffd60a'));
+  return { w:280, h:260, R:R, L:L };
+});
+
+
+/* ======================= PRAVLJIČNI LIKI ================================ */
+function lik(o){
+  return function(lv){
+    const R=[],L=[];
+    if (lv >= 3){
+      R.push(obm(re(0,0,260,330,0), o.neb || '#f3e8ff'));
+      if (o.zvezde){ const r=nak(zrno(o.id));
+        for (let i=0;i<9;i++) R.push(obm(zvezda(12+r()*236, 10+r()*300, 7, 4, .4), '#ffd60a')); }
+    }
+    if (o.zadaj) o.zadaj(lv,R,L);
+    R.push(obm(trak([[118,244],[114,278],[112,300]], 18, 14), o.koza || '#ffd7c2'));
+    R.push(obm(trak([[142,244],[146,278],[148,300]], 18, 14), o.koza || '#ffd7c2'));
+    R.push(obm(el(110,304,18,11), o.cevlji || '#5e3a1e'));
+    R.push(obm(el(150,304,18,11), o.cevlji || '#5e3a1e'));
+    R.push(obm(bl(o.oblacilo || [[130,146],[100,204],[86,256],[130,268],[174,256],[160,204]], .85), o.b));
+    R.push(obm(trak([[112,168],[84,196],[68,216]], 15, 11), o.koza || '#ffd7c2'));
+    R.push(obm(trak([[148,168],[176,196],[192,216]], 15, 11), o.koza || '#ffd7c2'));
+    if (o.lasje) R.push(obm(bl(o.lasje, .9), o.lasjeB || '#7f4f24'));
+    R.push(obm(ci(130,102,32), o.koza || '#ffd7c2'));
+    if (o.spredaj) o.spredaj(lv,R,L);
+    R.push(obm(ci(120,102,4), '#2f2a26'));
+    R.push(obm(ci(140,102,4), '#2f2a26'));
+    L.push(crt(cr([[124,116],[130,120],[136,116]], .9)));
+    if (lv >= 2){ R.push(obm(ci(112,112,5), '#ffb3c6')); R.push(obm(ci(148,112,5), '#ffb3c6')); }
+    return { w:260, h:330, R:R, L:L };
+  };
+}
+slika('princesa','Princesa','pravljica',[1,2,3,4], lik({ id:'princesa', b:'#ff70a6', zvezde:1,
+  lasje:[[130,64],[92,80],[86,140],[104,110],[130,122],[156,110],[174,140],[168,80]], lasjeB:'#f7b32b',
+  cevlji:'#ffd60a', oblacilo:[[130,144],[94,206],[74,262],[130,276],[186,262],[166,206]],
+  spredaj:function(lv,R,L){
+    R.push(obm(po([[100,70],[108,42],[118,62],[130,34],[142,62],[152,42],[160,70]]), '#ffd60a'));
+    if (lv >= 2) R.push(obm(ci(130,52,7), '#e63946'));
+  } }));
+slika('vitez','Vitez','pravljica',[1,2,3,4], lik({ id:'vitez', b:'#8d99ae', neb:'#e6eef5',
+  koza:'#ffd7c2', cevlji:'#5c5450',
+  zadaj:function(lv,R,L){
+    R.push(obm(trak([[186,214],[212,140],[218,70]], 16, 12, .9), '#c9d3da'));
+    R.push(obm(po([[218,74],[206,44],[230,44]]), '#c9d3da'));
+  },
+  spredaj:function(lv,R,L){
+    R.push(obm(bl([[130,66],[96,82],[94,126],[130,138],[166,126],[164,82]], .9), '#c9d3da'));
+    R.push(obm(re(102,92,56,20,4), '#2f2a3a'));
+    R.push(obm(re(126,66,8,26,3), '#e63946'));
+    R.push(obm(bl([[68,196],[42,220],[68,262],[94,220]], .9), '#e63946'));
+    R.push(obm(po([[68,208],[56,224],[68,248],[80,224]]), '#ffd60a'));
+  } }));
+slika('carovnica','Čarovnica','pravljica',[1,2,3,4], lik({ id:'carovnica', b:'#7c5cff', neb:'#2b2d5e', zvezde:1,
+  koza:'#c5e17a', cevlji:'#2f2a3a', lasjeB:'#2f2a26',
+  lasje:[[130,64],[92,84],[88,164],[110,116],[130,126],[150,116],[172,164],[168,84]],
+  spredaj:function(lv,R,L){
+    R.push(obm(po([[130,4],[76,74],[184,74]]), '#4a2f8f'));
+    R.push(obm(bl([[68,74],[130,64],[192,74],[192,86],[130,80],[68,86]], .8), '#4a2f8f'));
+    if (lv >= 2) R.push(obm(zvezda(130,52,14,5,.45), '#ffd60a'));
+    R.push(obm(trak([[192,214],[206,150],[210,96]], 9, 7), '#7f4f24'));
+    R.push(obm(zvezda(210,84,20,5,.45), '#ffd60a'));
+  } }));
+slika('sirena','Sirena','pravljica',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 2){
+    R.push(obm(re(0,0,260,330,0), '#a8dcf0'));
+    if (lv >= 3) for (let i=0;i<5;i++) R.push(obm(ci(24 + i*52, 40 + (i%2)*30, 9), '#d6f2fb'));
+  }
+  R.push(obm(trak([[130,180],[150,236],[128,286]], 62, 26, .9), '#43aa8b'));
+  R.push(obm(bl([[128,286],[80,296],[96,320],[128,306],[160,320],[176,296]], .8), '#57cc99'));
+  const lusk = lv >= 3 ? 10 : 5;
+  for (let i=0;i<lusk;i++) R.push(obm(ci(126 + (i%2?12:-10), 196 + i*10, 13), '#8ac96a'));
+  R.push(obm(bl([[130,120],[104,150],[104,190],[130,202],[156,190],[156,150]], .9), '#ffd7c2'));
+  R.push(obm(bl([[130,146],[104,158],[104,176],[156,176],[156,158]], .8), '#ff70a6'));
+  R.push(obm(trak([[110,148],[80,176],[64,196]], 14, 10), '#ffd7c2'));
+  R.push(obm(trak([[150,148],[180,176],[196,196]], 14, 10), '#ffd7c2'));
+  R.push(obm(bl([[130,56],[90,76],[84,160],[106,110],[130,118],[154,110],[176,160],[170,76]], .9), '#e63946'));
+  R.push(obm(ci(130,94,30), '#ffd7c2'));
+  R.push(obm(ci(121,94,4), '#2f2a26')); R.push(obm(ci(139,94,4), '#2f2a26'));
+  L.push(crt(cr([[124,106],[130,110],[136,106]], .9)));
+  if (lv >= 2){ R.push(obm(ci(112,102,5), '#ffb3c6')); R.push(obm(ci(148,102,5), '#ffb3c6'));
+    R.push(obm(zvezda(96,64,13,5,.45), '#ffd60a')); }
+  return { w:260, h:330, R:R, L:L };
+});
+slika('feniks','Feniks','pravljica',[2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 3){ R.push(obm(re(0,0,300,300,0), '#2b2d5e')); }
+  const per = lv >= 4 ? 5 : 3;
+  for (let i=0;i<per;i++){
+    R.push(obm(trak([[150,196],[132 - i*12,244],[112 - i*18,292]], 26, 10, .9), ['#e63946','#f77f00','#ffd60a'][i%3]));
+    R.push(obm(trak([[150,196],[168 + i*12,244],[188 + i*18,292]], 26, 10, .9), ['#f77f00','#ffd60a','#e63946'][i%3]));
+  }
+  R.push(obm(bl([[130,120],[74,80],[26,110],[52,168],[118,182]], .9), '#f77f00'));
+  R.push(obm(bl([[170,120],[226,80],[274,110],[248,168],[182,182]], .9), '#f77f00'));
+  R.push(obm(bl([[136,124],[90,100],[62,124],[86,158],[128,166]], .9), '#ffd60a'));
+  R.push(obm(bl([[164,124],[210,100],[238,124],[214,158],[172,166]], .9), '#ffd60a'));
+  R.push(obm(bl([[150,84],[112,116],[110,176],[150,204],[190,176],[188,116]], .95), '#e63946'));
+  R.push(obm(ci(150,80,34), '#f77f00'));
+  R.push(obm(bl([[150,46],[136,16],[152,26],[160,2],[168,30],[180,20]], .8), '#ffd60a'));
+  R.push(obm(po([[178,80],[212,88],[178,96]]), '#ffd60a'));
+  R.push(obm(ci(158,72,10), '#ffffff'));
+  R.push(obm(ci(160,72,5), '#2f2a26'));
+  return { w:300, h:300, R:R, L:L };
+});
+slika('astronavt','Astronavt','junaki',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 2){
+    R.push(obm(re(0,0,260,330,0), '#1b1b3a'));
+    const r=nak(zrno('astro'));
+    for (let i=0;i<(lv>=3?12:6);i++) R.push(obm(zvezda(12+r()*236, 10+r()*300, 6, 4, .4), '#ffe066'));
+    if (lv >= 3){ R.push(obm(ci(214,272,30), '#c77dff')); R.push(obm(el(214,272,44,10,-0.3), '#e0aaff')); }
+  }
+  R.push(obm(trak([[112,240],[106,280],[104,302]], 26, 20), '#e8eef2'));
+  R.push(obm(trak([[148,240],[154,280],[156,302]], 26, 20), '#e8eef2'));
+  R.push(obm(el(102,308,20,12), '#8d99ae'));
+  R.push(obm(el(158,308,20,12), '#8d99ae'));
+  R.push(obm(re(88,150,84,102,22), '#f2f2f2'));
+  R.push(obm(trak([[92,172],[62,204],[50,232]], 24, 18), '#e8eef2'));
+  R.push(obm(trak([[168,172],[198,204],[210,232]], 24, 18), '#e8eef2'));
+  R.push(obm(ci(46,238,14), '#8d99ae'));
+  R.push(obm(ci(214,238,14), '#8d99ae'));
+  R.push(obm(re(104,176,52,40,8), '#4cc9f0'));
+  R.push(obm(ci(130,94,50), '#f2f2f2'));
+  R.push(obm(bl([[130,58],[92,80],[92,116],[130,132],[168,116],[168,80]], .9), '#2f2a3a'));
+  R.push(obm(bl([[130,66],[104,80],[104,104],[126,92]], .9), '#a9def9'));
+  if (lv >= 2){ R.push(obm(re(120,148,20,10,3), '#e63946')); }
+  return { w:260, h:330, R:R, L:L };
+});
+slika('pirat','Pirat','junaki',[1,2,3,4], lik({ id:'pirat', b:'#e63946', neb:'#cfeaf7', cevlji:'#5e3a1e',
+  lasje:[[130,66],[94,82],[92,134],[110,108],[130,116],[150,108],[170,134],[166,82]], lasjeB:'#2f2a26',
+  spredaj:function(lv,R,L){
+    R.push(obm(bl([[130,58],[86,76],[86,88],[174,88],[174,76]], .8), '#2f2a3a'));
+    R.push(obm(bl([[88,80],[130,66],[172,80],[176,92],[130,80],[84,92]], .8), '#2f2a3a'));
+    R.push(obm(bl([[102,96],[126,92],[126,110],[102,114]], .5), '#2f2a26'));
+    L.push(crt(cr([[126,100],[168,92]], 2)));
+    if (lv >= 2){
+      R.push(obm(re(96,190,68,16,4), '#7f4f24'));
+      R.push(obm(re(120,186,20,24,4), '#ffd60a'));
+    }
+  } }));
+slika('nindza','Nindža','junaki',[1,2,3,4], lik({ id:'nindza', b:'#2f2a3a', neb:'#e6eef5', koza:'#ffd7c2',
+  cevlji:'#1b1b28',
+  zadaj:function(lv,R,L){
+    R.push(obm(trak([[188,206],[214,146],[220,92]], 12, 9, .9), '#8d99ae'));
+    R.push(obm(re(206,80,12,28,3), '#7f4f24'));
+  },
+  spredaj:function(lv,R,L){
+    R.push(obm(ci(130,102,33), '#2f2a3a'));
+    R.push(obm(bl([[98,96],[130,88],[162,96],[162,110],[130,116],[98,110]], .7), '#ffd7c2'));
+    if (lv >= 2){
+      R.push(obm(trak([[162,94],[196,86],[214,72]], 12, 9, .9), '#e63946'));
+      R.push(obm(re(96,184,68,14,4), '#e63946'));
+    }
+  } }));
+slika('vesoljcek','Vesoljček','junaki',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  if (lv >= 2){
+    R.push(obm(re(0,0,260,320,0), '#1b1b3a'));
+    const r=nak(zrno('vesoljcek'));
+    for (let i=0;i<(lv>=3?12:6);i++) R.push(obm(zvezda(12+r()*236, 10+r()*280, 6, 4, .4), '#ffe066'));
+  }
+  R.push(obm(trak([[112,238],[106,274],[104,296]], 20, 16), '#8ac926'));
+  R.push(obm(trak([[148,238],[154,274],[156,296]], 20, 16), '#8ac926'));
+  R.push(obm(el(102,302,20,11), '#5aa83f'));
+  R.push(obm(el(158,302,20,11), '#5aa83f'));
+  R.push(obm(bl([[130,150],[92,186],[86,240],[130,254],[174,240],[168,186]], .9), '#8ac926'));
+  R.push(obm(trak([[96,180],[64,206],[50,230]], 17, 13), '#8ac926'));
+  R.push(obm(trak([[164,180],[196,206],[210,230]], 17, 13), '#8ac926'));
+  R.push(obm(bl([[130,52],[74,86],[70,132],[130,164],[190,132],[186,86]], .95), '#a7c957'));
+  L.push(crt(cr([[104,58],[92,26]], 2))); L.push(crt(cr([[156,58],[168,26]], 2)));
+  R.push(obm(ci(90,20,11), '#e63946')); R.push(obm(ci(170,20,11), '#e63946'));
+  R.push(obm(el(108,104,20,26,0.2), '#2f2a26'));
+  R.push(obm(el(152,104,20,26,-0.2), '#2f2a26'));
+  R.push(obm(ci(104,96,6), '#ffffff')); R.push(obm(ci(148,96,6), '#ffffff'));
+  L.push(crt(cr([[112,138],[130,146],[148,138]], 2)));
+  if (lv >= 2){ R.push(obm(ci(130,186,13), '#ffd60a')); R.push(obm(ci(130,214,13), '#4cc9f0')); }
+  return { w:260, h:320, R:R, L:L };
+});
+
+/* ======================= POKRAJINE ====================================== */
+slika('zahod','Sončni zahod','pokrajine',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  const pas = lv >= 3 ? 5 : 3;
+  const bp = ['#ffd166','#ffb703','#fb8500','#e85d04','#dc2f02'];
+  for (let i=0;i<pas;i++) R.push(obm(re(0, i*(150/pas), 340, 150/pas, 0), bp[i % bp.length]));
+  R.push(obm(ci(170,140,52), '#ffe066'));
+  R.push(obm(re(0,150,340,110,0), '#0077b6'));
+  R.push(obm(bl([[118,152],[170,206],[222,152],[222,164],[170,220],[118,164]], .8), '#ffb703'));
+  if (lv >= 2) for (let i=0;i<(lv>=3?6:3);i++)
+    R.push(obm(bl([[20+i*54,180+i*10],[70+i*54,172+i*10],[120+i*54,180+i*10],[70+i*54,190+i*10]], .9), '#00a5cf'));
+  R.push(obm(po([[0,150],[70,86],[140,150]]), '#3a3a5c'));
+  R.push(obm(po([[200,150],[268,96],[340,150]]), '#4a4a6c'));
+  if (lv >= 2){
+    for (let i=0;i<3;i++) L.push(crt(cr([[40+i*30,60+i*8],[52+i*30,52+i*8],[64+i*30,60+i*8]], 2)));
+    R.push(obm(trak([[300,240],[296,196],[300,168]], 12, 8), '#5e3a1e'));
+    R.push(obm(bl([[300,168],[262,150],[286,176],[254,182],[300,192],[346,182],[314,176],[338,150]], .8), '#2f6b52'));
+  }
+  return { w:340, h:260, R:R, L:L };
+});
+slika('zima','Zimska vas','pokrajine',[2,3,4], function(lv){
+  const R=[],L=[];
+  R.push(obm(re(0,0,340,260,0), '#cfe8f7'));
+  R.push(obm(ci(288,44,24), '#fff3b0'));
+  R.push(obm(bl([[0,196],[80,186],[170,198],[260,186],[340,196],[340,260],[0,260]], .8), '#ffffff'));
+  R.push(obm(po([[10,196],[80,96],[150,196]]), '#e8eef2'));
+  R.push(obm(po([[46,150],[80,96],[114,150]]), '#ffffff'));
+  [[40,150,60],[130,136,74],[236,150,64]].forEach(function(h, i){
+    R.push(obm(re(h[0], h[1]+40, h[2], 196-h[1]-40, 0), ['#c1440e','#a9744f','#8b5e34'][i]));
+    R.push(obm(po([[h[0]-12, h[1]+42],[h[0]+h[2]/2, h[1]],[h[0]+h[2]+12, h[1]+42]]), '#ffffff'));
+    R.push(obm(re(h[0]+h[2]/2-13, 196-46, 26, 46, 4), '#5e3a1e'));
+    if (lv >= 3) R.push(obm(re(h[0]+10, h[1]+64, 20, 20, 3), '#ffd60a'));
+  });
+  const dreves = lv >= 3 ? 5 : 3;
+  for (let i=0;i<dreves;i++){
+    const x = 26 + i*(300/dreves);
+    R.push(obm(trak([[x,214],[x,196]], 10, 8), '#5e3a1e'));
+    R.push(obm(po([[x-22,200],[x,150],[x+22,200]]), '#2f6b52'));
+    R.push(obm(po([[x-16,172],[x,140],[x+16,172]]), '#387d5a'));
+  }
+  if (lv >= 3){ const r=nak(zrno('zima'));
+    for (let i=0;i<16;i++) R.push(obm(ci(12+r()*316, 10+r()*180, 6), '#ffffff')); }
+  return { w:340, h:260, R:R, L:L };
+});
+slika('otok','Otok s palmo','pokrajine',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  R.push(obm(re(0,0,320,250,0), '#a9def9'));
+  R.push(obm(ci(266,44,26), '#ffd60a'));
+  R.push(obm(re(0,140,320,110,0), '#00b4d8'));
+  if (lv >= 2) for (let i=0;i<(lv>=3?5:3);i++)
+    R.push(obm(bl([[10+i*60,170+i*14],[54+i*60,162+i*14],[98+i*60,170+i*14],[54+i*60,178+i*14]], .9), '#48cae4'));
+  R.push(obm(bl([[60,206],[110,186],[200,186],[256,206],[200,222],[110,222]], .9), '#f2d8a7'));
+  R.push(obm(trak([[150,206],[142,150],[132,110]], 20, 13), '#8b5e34'));
+  const listov = lv >= 3 ? 6 : 4;
+  for (let i=0;i<listov;i++){
+    const a = -Math.PI/2 + (i - (listov-1)/2) * 0.62;
+    R.push(obm(bl([[132,108],[132 + Math.cos(a)*48, 108 + Math.sin(a)*40],
+      [132 + Math.cos(a)*84, 108 + Math.sin(a)*70],[132 + Math.cos(a+0.35)*46, 108 + Math.sin(a+0.35)*44]], .9),
+      i%2 ? '#2f6b52' : '#43aa8b'));
+  }
+  if (lv >= 2){ R.push(obm(ci(120,116,10), '#8b5e34')); R.push(obm(ci(142,120,10), '#8b5e34')); }
+  if (lv >= 3){ R.push(obm(ci(206,200,11), '#e63946')); R.push(obm(zvezda(74,196,14,5,.45), '#f77f00')); }
+  return { w:320, h:250, R:R, L:L };
+});
+slika('slap','Slap','pokrajine',[2,3,4], function(lv){
+  const R=[],L=[];
+  R.push(obm(re(0,0,280,300,0), '#bfe6f5'));
+  R.push(obm(bl([[0,40],[70,20],[140,52],[210,18],[280,44],[280,300],[0,300]], .8), '#6aa84f'));
+  R.push(obm(bl([[54,60],[96,44],[184,44],[226,62],[226,240],[54,240]], .5), '#8d99ae'));
+  R.push(obm(re(88,58,104,190,10), '#a9def9'));
+  const curk = lv >= 3 ? 5 : 3;
+  for (let i=0;i<curk;i++) R.push(obm(re(96 + i*(88/curk), 60, (88/curk)*0.55, 186, 6), '#e8f6ff'));
+  R.push(obm(bl([[40,246],[140,228],[240,246],[240,282],[40,282]], .8), '#48cae4'));
+  const pen = lv >= 3 ? 7 : 4;
+  for (let i=0;i<pen;i++) R.push(obm(ci(60 + i*(160/pen), 250 + (i%2)*12, 15), '#ffffff'));
+  if (lv >= 3){
+    R.push(obm(trak([[36,240],[30,186],[36,150]], 16, 11), '#7f4f24'));
+    R.push(obm(ci(36,132,34), '#2f6b52'));
+    R.push(obm(trak([[248,244],[254,196],[248,166]], 14, 10), '#7f4f24'));
+    R.push(obm(ci(248,148,28), '#387d5a'));
+  }
+  return { w:280, h:300, R:R, L:L };
+});
+
+/* ======================= VZORCI ========================================= */
+slika('rozeta','Rozeta','vzorci',[1,2,3,4,5], function(lv){
+  const R=[],L=[];
+  const cx=170, cy=170, bp=['#e63946','#f77f00','#ffd60a','#43aa8b','#118ab2','#7c5cff','#ff70a6'];
+  const obroci=[2,3,4,5,6][lv-1], listov=[6,8,10,12,16][lv-1];
+  R.push(obm(ci(cx,cy,158), '#f2e8cf'));
+  for (let o=obroci-1;o>=0;o--){
+    const r1 = 40 + o*(112/obroci), r2 = 40 + (o+1)*(112/obroci);
+    for (let i=0;i<listov;i++){
+      const a1 = i*2*Math.PI/listov + (o%2)*(Math.PI/listov), am = a1 + Math.PI/listov;
+      const t=(r,a)=>[cx+Math.cos(a)*r, cy+Math.sin(a)*r];
+      R.push(obm(bl([t(r1,am), t((r1+r2)/2, a1), t(r2,am), t((r1+r2)/2, a1+2*Math.PI/listov)], .95),
+        bp[(o+i)%bp.length], { sym:'o'+o+'_'+(i%2) }));
+    }
+  }
+  R.push(obm(ci(cx,cy,42), bp[2]));
+  for (let i=0;i<8;i++){
+    const a=i*2*Math.PI/8;
+    R.push(obm(ci(cx+Math.cos(a)*24, cy+Math.sin(a)*24, 11), bp[(i+3)%bp.length], { sym:'s'+(i%2) }));
+  }
+  return { w:340, h:340, R:R, L:L };
+});
+slika('snezinka','Snežinka','vzorci',[2,3,4,5], function(lv){
+  const R=[],L=[];
+  const cx=170, cy=170, krakov=6, dolz=140;
+  R.push(obm(re(0,0,340,340,0), '#1b2a49'));
+  const vej = [0,0,2,3,4,5][lv];
+  for (let k=0;k<krakov;k++){
+    const a = k*2*Math.PI/krakov - Math.PI/2;
+    const kon = [cx+Math.cos(a)*dolz, cy+Math.sin(a)*dolz];
+    R.push(obm(trak([[cx,cy],kon], 22, 10, .9), '#a9def9', { sym:'krak' }));
+    for (let v=1;v<=vej;v++){
+      const t = v/(vej+1), b = [cx+Math.cos(a)*dolz*t, cy+Math.sin(a)*dolz*t], dl = 46*(1-t*0.5);
+      [-1,1].forEach(function(z){
+        const a2 = a + z*0.8;
+        R.push(obm(trak([b,[b[0]+Math.cos(a2)*dl, b[1]+Math.sin(a2)*dl]], 14, 7, .9), '#cfefff', { sym:'vej'+v }));
+      });
+    }
+    R.push(obm(ci(kon[0],kon[1],13), '#e8f6ff', { sym:'konec' }));
+  }
+  R.push(obm(ci(cx,cy,32), '#cfefff'));
+  R.push(obm(zvezda(cx,cy,22,6,.5), '#ffffff'));
+  return { w:340, h:340, R:R, L:L };
+});
+slika('luske','Luske','vzorci',[2,3,4,5], function(lv){
+  const R=[],L=[];
+  const W=320, H=320, st=[0,0,4,5,7,9][lv], r=W/(st*2)*1.6;
+  const bp=['#e63946','#f77f00','#ffd60a','#43aa8b','#118ab2','#7c5cff','#ff70a6','#06d6a0'];
+  R.push(obm(re(0,0,W,H,0), '#f2e8cf'));
+  const vr = Math.ceil(H/(r*0.9)) + 1;
+  for (let a=0;a<vr;a++)
+    for (let b=0;b<=st;b++){
+      const x = b*(W/st) + (a%2 ? W/(st*2) : 0), y = a*r*0.9;
+      R.push(obm(pa('M' + f1(x-r) + ' ' + f1(y) + 'A' + f1(r) + ' ' + f1(r) + ' 0 0 0 ' + f1(x+r) + ' ' + f1(y) + 'Z'),
+        bp[(a*3+b)%bp.length], { sym:'v'+(a%3), rez:re(0,0,W,H,0) }));
+    }
+  return { w:W, h:H, R:R, L:L };
+});
+slika('kroglice','Krogi','vzorci',[2,3,4,5], function(lv){
+  const R=[],L=[];
+  const W=320, H=320, st=[0,0,3,4,5,6][lv], c=W/st;
+  const bp=['#e63946','#f77f00','#ffd60a','#43aa8b','#118ab2','#7c5cff','#ff70a6','#06d6a0'];
+  R.push(obm(re(0,0,W,H,0), '#f7f3ea'));
+  for (let a=0;a<st;a++)
+    for (let b=0;b<st;b++){
+      const x=b*c+c/2, y=a*c+c/2;
+      R.push(obm(ci(x,y,c*0.46), bp[(a+b)%bp.length], { sym:'k'+((a+b)%2) }));
+      R.push(obm(ci(x,y,c*0.30), bp[(a+b+3)%bp.length], { sym:'s'+((a+b)%2) }));
+      R.push(obm(ci(x,y,c*0.14), bp[(a+b+5)%bp.length], { sym:'n'+((a+b)%2) }));
+    }
+  return { w:W, h:H, R:R, L:L };
+});
+slika('valovi','Valovi','vzorci',[2,3,4,5], function(lv){
+  const R=[],L=[];
+  const W=340, H=280, vrst=[0,0,7,10,14,18][lv];
+  const bp=['#03045e','#0077b6','#00b4d8','#90e0ef','#caf0f8','#48cae4','#0096c7'];
+  R.push(obm(re(0,0,W,H,0), '#caf0f8'));
+  for (let a=0;a<vrst;a++){
+    const y = a*(H/vrst), am = (H/vrst)*0.9;
+    const P=[];
+    for (let x=0;x<=W;x+=W/8) P.push([x, y + Math.sin(x/W*Math.PI*2 + a)*am*0.5]);
+    P.push([W, y+am*2], [0, y+am*2]);
+    R.push(obm(bl(P, .9), bp[a % bp.length], { sym:'v'+(a%2), rez:re(0,0,W,H,0) }));
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+slika('cvetnivzorec','Cvetni vzorec','vzorci',[2,3,4,5], function(lv){
+  const R=[],L=[];
+  const W=320, H=320, st=[0,0,3,4,5,6][lv], c=W/st;
+  const bp=['#e63946','#ff70a6','#ffd60a','#f77f00','#7c5cff','#43aa8b'];
+  R.push(obm(re(0,0,W,H,0), '#fdf6ec'));
+  for (let a=0;a<st;a++)
+    for (let b=0;b<st;b++){
+      const x=b*c+c/2, y=a*c+c/2;
+      for (let i=0;i<6;i++){
+        const kot = i*2*Math.PI/6;
+        R.push(obm(bl(vrti([[x,y-c*0.12],[x-c*0.14,y-c*0.26],[x,y-c*0.44],[x+c*0.14,y-c*0.26]], x, y, kot), .95),
+          bp[(a+b)%bp.length], { sym:'l'+((a+b)%2) }));
+      }
+      R.push(obm(ci(x,y,c*0.14), bp[(a+b+2)%bp.length], { sym:'sr'+((a+b)%2) }));
+    }
+  return { w:W, h:H, R:R, L:L };
+});
+
 /* ===================== ČISTA LOGIKA – KONEC ============================= */
 
 /* ======================= STANJE ========================================= */
 const LS = 'barvica_v1';
 const PRIV = { zvok:true, tema:'vse', stopnja:2, paleta:'osnovne', nacin:'tap',
-               barva:'#e63946', trenutna:null, galerija:[], koncane:{} };
+               barva:'#e63946', trenutna:null, galerija:[], koncane:{},
+               orodje:'voscenka', debelina:2, vCrtah:true };
 let S = naloziS();
 function naloziS(){
   try {
@@ -1172,6 +2592,13 @@ function shrani(){ try { localStorage.setItem(LS, JSON.stringify(S)); } catch(e)
 const TEME = [
   { id:'vse', nm:'Vse', emo:'🎨' },
   { id:'male', nm:'Za najmlajše', emo:'🐣' },
+  { id:'zivali', nm:'Živali', emo:'🐻' },
+  { id:'morje', nm:'Morje', emo:'🐬' },
+  { id:'ptice', nm:'Ptice', emo:'🦜' },
+  { id:'dino', nm:'Dinozavri', emo:'🦕' },
+  { id:'vozila', nm:'Vozila', emo:'🚂' },
+  { id:'rastline', nm:'Rastline in sadje', emo:'🌻' },
+  { id:'prazniki', nm:'Prazniki', emo:'🎁' },
   { id:'pravljica', nm:'Pravljično', emo:'🦄' },
   { id:'junaki', nm:'Junaki in roboti', emo:'🦸' },
   { id:'pokrajine', nm:'Pokrajine', emo:'🏔️' },
@@ -1186,8 +2613,17 @@ const NACINI = [
   { id:'copic', nm:'Čopič',        emo:'🖌️', opis:'Drsi s prstom čez več polj hkrati.' },
   { id:'stev',  nm:'Po številkah', emo:'🔢', opis:'Vsako polje ima številko – izberi barvo s to številko.' },
   { id:'preliv',nm:'Preliv',       emo:'✨', opis:'Barva se lepo prelije iz svetlejše v temnejšo.' },
-  { id:'sim',   nm:'Simetrija',    emo:'🔄', opis:'Pobarva vsa enaka polja hkrati – kot v ogledalu.' }
+  { id:'sim',   nm:'Simetrija',    emo:'🔄', opis:'Pobarva vsa enaka polja hkrati – kot v ogledalu.' },
+  { id:'svincnik', nm:'Svinčnik', emo:'✏️',
+    opis:'Barvaj s svinčnikom ali Apple Pencil, tako kot v pravi pobarvanki. Močneje ko pritisneš, temneje je.' }
 ];
+const ORODJA = [
+  { id:'svincnik',  nm:'Svinčnik',  emo:'✏️' },
+  { id:'voscenka',  nm:'Voščenka',  emo:'🖍️' },
+  { id:'flomaster', nm:'Flomaster', emo:'🖊️' },
+  { id:'radirka',   nm:'Radirka',   emo:'🧽' }
+];
+const DEBELINE = [ { n:1, nm:'Tanko', w:6 }, { n:2, nm:'Srednje', w:14 }, { n:3, nm:'Debelo', w:26 } ];
 
 /* ======================= ZVOK =========================================== */
 let AC = null;
@@ -1237,10 +2673,12 @@ function izrisiIzbiro(){
   const kartice = izbrane.map(function(s){
     const lv = stopnjaZa(s, S.stopnja), sl = s.gradi(lv);
     const kljuc = s.id + ':' + lv;
-    const barve = (S.trenutna && S.trenutna.id === s.id && S.trenutna.lv === lv) ? S.trenutna.barve : [];
+    const vTeku = (S.trenutna && S.trenutna.id === s.id && S.trenutna.lv === lv) ? S.trenutna : null;
+    const barve = vTeku ? vTeku.barve : [];
     return '<button class="pic" data-slika="' + s.id + '">' +
       (S.koncane[kljuc] ? '<span class="done">✅</span>' : '') +
-      svgIz(sl, { barve:barve, pre:'t' + s.id + lv, plain:true }) +
+      svgIz(sl, { barve:barve, pre:'t' + s.id + lv, plain:true,
+                  dodatek:risbaPlast(vTeku && vTeku.risba, sl) }) +
       '<span class="nm">' + esc(s.nm) + '</span>' +
       '<span class="meta">' + sl.R.length + ' polj · st. ' + lv + '</span></button>';
   }).join('');
@@ -1276,7 +2714,13 @@ function odpri(id, lv){
   let barve = new Array(sl.R.length);
   if (S.trenutna && S.trenutna.id === id && S.trenutna.lv === lv && S.trenutna.barve.length === sl.R.length)
     barve = S.trenutna.barve.slice();
-  P = { s:s, lv:lv, sl:sl, barve:barve, sklad:[], predlog:barveSlike(sl) };
+  P = { s:s, lv:lv, sl:sl, barve:barve, sklad:[], predlog:barveSlike(sl), poteze:[], osnova:null, k:1 };
+  const shranjena = (S.trenutna && S.trenutna.id === id && S.trenutna.lv === lv) ? S.trenutna.risba : null;
+  if (shranjena){
+    const im = new Image();
+    im.onload = function(){ P.osnova = im; izrisiPoteze(); };
+    im.src = shranjena;
+  }
   if (S.nacin === 'sim' && !imaSim(sl)) S.nacin = 'tap';
   if (S.nacin === 'stev' && !P.predlog.length) S.nacin = 'tap';
   izrisiPlatno();
@@ -1290,6 +2734,7 @@ function paletaBarv(){
 function izrisiPlatno(){
   const sl = P.sl;
   const nacini = NACINI.filter(function(n){ return n.id !== 'sim' || imaSim(sl); });
+  const risalno = S.nacin === 'svincnik';
   const barve = paletaBarv();
   const stevMode = S.nacin === 'stev';
   scrBarvanje.innerHTML =
@@ -1302,26 +2747,35 @@ function izrisiPlatno(){
       '<button class="icon-btn" id="pocisti" title="Počisti vse">🗑️</button>' +
       '<button class="icon-btn" id="shraniSliko" title="Shrani sliko">💾</button>' +
     '</div>' +
-    '<div class="stage' + (S.nacin === 'copic' ? ' risanje' : '') + '" id="stage">' +
-      svgIz(sl, { barve:P.barve, pre:'p' }) + '</div>' +
-    '<div class="tools"><div class="modes">' + nacini.map(n =>
-      '<button class="mode" data-nacin="' + n.id + '" aria-pressed="' + (S.nacin === n.id) + '">' +
-      n.emo + ' ' + esc(n.nm) + '</button>').join('') + '</div></div>' +
+    '<div class="stage" id="stage"><div class="platno' + (risalno ? ' risem' : '') + '" id="platno">' +
+      svgIz(sl, { barve:P.barve, pre:'p' }) + '<canvas id="risba"></canvas></div></div>' +
+    '<div class="tools"><div class="modes">' + nacini.map(function(n){
+      return '<button class="mode" data-nacin="' + n.id + '" aria-pressed="' + (S.nacin === n.id) + '">' +
+        n.emo + ' ' + esc(n.nm) + '</button>'; }).join('') + '</div></div>' +
+    (risalno
+      ? '<div class="tools"><div class="modes">' + ORODJA.map(function(o){
+          return '<button class="mode" data-orodje="' + o.id + '" aria-pressed="' + (S.orodje === o.id) + '">' +
+            o.emo + ' ' + esc(o.nm) + '</button>'; }).join('') + '</div>' +
+        '<div class="modes">' + DEBELINE.map(function(d){
+          return '<button class="mode" data-deb="' + d.n + '" aria-pressed="' + (S.debelina === d.n) + '">' +
+            esc(d.nm) + '</button>'; }).join('') + '</div>' +
+        '<button class="mode" id="vCrtah" aria-pressed="' + !!S.vCrtah + '">📏 Ostani v črtah</button></div>'
+      : '') +
     '<div class="pal">' + barve.map(function(b, i){
       return '<button class="sw" data-barva="' + b + '" aria-pressed="' + (S.barva === b) + '" ' +
         'style="background:' + b + '" title="' + b + '">' + (stevMode ? '<span class="n">' + (i+1) + '</span>' : '') + '</button>';
-    }).join('') + (stevMode ? '' :
+    }).join('') + ((stevMode || risalno) ? '' :
       '<button class="sw guma" data-barva="guma" aria-pressed="' + (S.barva === 'guma') + '" title="Radirka">🧽</button>') + '</div>' +
-    (stevMode ? '' : '<div class="palrow">' + Object.keys(PALETE).map(k =>
-      '<button class="palpick" data-paleta="' + k + '" aria-pressed="' + (S.paleta === k) + '">' +
-      esc(PALETE[k].nm) + '</button>').join('') + '</div>') +
-    '<div class="hint">' + NACINI.filter(n => n.id === S.nacin)[0].opis +
-      ' · pobarvanih <b id="stanje">' + prestej() + '</b> od ' + sl.R.length + '</div>';
+    (stevMode ? '' : '<div class="palrow">' + Object.keys(PALETE).map(function(k){
+      return '<button class="palpick" data-paleta="' + k + '" aria-pressed="' + (S.paleta === k) + '">' +
+        esc(PALETE[k].nm) + '</button>'; }).join('') + '</div>') +
+    '<div class="hint">' + NACINI.filter(function(n){ return n.id === S.nacin; })[0].opis +
+      (risalno ? '' : ' · pobarvanih <b id="stanje">' + prestej() + '</b> od ' + sl.R.length) + '</div>';
   pokaziZaslon(scrBarvanje);
   const platno = $('stage').querySelector('svg');
-  platno.style.touchAction = S.nacin === 'copic' ? 'none' : 'manipulation';
   if (stevMode) dodajStevilke(platno);
   vezi(platno);
+  pripraviRisalno();
 }
 
 /* številke se postavijo v središče polja, majhna polja jih ne dobijo */
@@ -1403,13 +2857,15 @@ function pobarvaj(i){
 function razveljavi(){
   const zadnji = P.sklad.pop();
   if (!zadnji) return;
+  if (zadnji.poteza){ P.poteze.pop(); izrisiPoteze(); shraniRisbo(); return; }
   zadnji.forEach(function(x){ P.barve[x.i] = x.prej; nastaviBarvo(x.i); });
   const st = $('stanje'); if (st) st.textContent = prestej();
   shraniTrenutno();
 }
 
 function shraniTrenutno(){
-  S.trenutna = { id:P.s.id, lv:P.lv, barve:P.barve.map(function(b){ return b || null; }) };
+  const prej = (S.trenutna && S.trenutna.id === P.s.id && S.trenutna.lv === P.lv) ? S.trenutna.risba : null;
+  S.trenutna = { id:P.s.id, lv:P.lv, barve:P.barve.map(function(b){ return b || null; }), risba:prej };
   shrani();
 }
 
@@ -1423,7 +2879,8 @@ function preveriKonec(){
   setTimeout(function(){
     $('modal').innerHTML = '<h3>Slika je pobarvana! 🎉</h3>' +
       '<p>Lepo si jo naredil. Jo shraniva med tvoje slike?</p>' +
-      '<div style="max-width:260px;margin:0 auto">' + svgIz(P.sl, { barve:P.barve, pre:'k' }) + '</div>' +
+      '<div style="max-width:260px;margin:0 auto">' +
+        svgIz(P.sl, { barve:P.barve, pre:'k', dodatek:risbaPlast(jeRisba() ? risbaVURL(460) : null, P.sl) }) + '</div>' +
       '<div class="row"><button class="btn btn-acc" id="vGalerijo">🖼️ Shrani med moje slike</button>' +
       '<button class="btn" id="zapriModal">Zapri</button></div>';
     $('mask').hidden = false;
@@ -1457,8 +2914,13 @@ window.addEventListener('pointerup', function(){
 });
 
 /* ---------------------- galerija in shranjevanje ------------------------- */
+function risbaPlast(url, sl){
+  return url ? '<image href="' + url + '" x="0" y="0" width="' + sl.w + '" height="' + sl.h +
+    '" style="mix-blend-mode:multiply"/>' : '';
+}
 function vGalerijo(){
-  S.galerija.unshift({ id:P.s.id, lv:P.lv, barve:P.barve.map(function(b){ return b || null; }) });
+  S.galerija.unshift({ id:P.s.id, lv:P.lv, barve:P.barve.map(function(b){ return b || null; }),
+                       risba: jeRisba() ? risbaVURL(460) : null });
   if (S.galerija.length > 24) S.galerija.length = 24;
   shrani();
 }
@@ -1468,8 +2930,9 @@ function odpriGalerijo(){
     (g.length
       ? '<div class="gal">' + g.map(function(x, i){
           const s = najdi(x.id); if (!s) return '';
+          const slg = s.gradi(x.lv);
           return '<div class="pic" data-gal="' + i + '" role="button" tabindex="0">' +
-            svgIz(s.gradi(x.lv), { barve:x.barve, pre:'g' + i, plain:true }) +
+            svgIz(slg, { barve:x.barve, pre:'g' + i, plain:true, dodatek:risbaPlast(x.risba, slg) }) +
             '<span class="nm">' + esc(s.nm) + '</span>' +
             '<button class="del" data-brisi="' + i + '" title="Izbriši">🗑️</button></div>';
         }).join('') + '</div>'
@@ -1491,6 +2954,11 @@ function izvoziPNG(){
     const cx = c.getContext('2d');
     cx.fillStyle = '#fff'; cx.fillRect(0, 0, c.width, c.height);
     cx.drawImage(img, 0, 0, c.width, c.height);
+    if (jeRisba() && kanvas && kanvas.width){          /* poteze se z risbo množijo */
+      cx.globalCompositeOperation = 'multiply';
+      cx.drawImage(kanvas, 0, 0, c.width, c.height);
+      cx.globalCompositeOperation = 'source-over';
+    }
     let png; try { png = c.toDataURL('image/png'); } catch(e){ png = null; }
     $('modal').innerHTML = '<h3>💾 Tvoja slika</h3>' +
       (png ? '<img src="' + png + '" alt="pobarvana slika">' +
@@ -1517,7 +2985,7 @@ document.addEventListener('click', function(e){
   if (kart){
     const x = S.galerija[+kart.getAttribute('data-gal')];
     $('mask').hidden = true;
-    if (x){ S.trenutna = { id:x.id, lv:x.lv, barve:x.barve }; shrani(); odpri(x.id, x.lv); }
+    if (x){ S.trenutna = { id:x.id, lv:x.lv, barve:x.barve, risba:x.risba || null }; shrani(); odpri(x.id, x.lv); }
     return;
   }
   const b = e.target.closest('button');
@@ -1546,13 +3014,17 @@ document.addEventListener('click', function(e){
     if (PALETE[S.paleta].b.indexOf(S.barva) < 0 && S.barva !== 'guma') S.barva = PALETE[S.paleta].b[0];
     shrani(); izrisiPlatno(); return;
   }
+  if (b.hasAttribute('data-orodje')){ S.orodje = b.getAttribute('data-orodje'); shrani(); izrisiPlatno(); return; }
+  if (b.hasAttribute('data-deb')){ S.debelina = +b.getAttribute('data-deb'); shrani(); izrisiPlatno(); return; }
+  if (b.id === 'vCrtah'){ S.vCrtah = !S.vCrtah; shrani(); izrisiPlatno(); return; }
   if (b.id === 'razveljavi'){ razveljavi(); return; }
   if (b.id === 'pocisti'){
     const sprem = [];
     P.barve.forEach(function(x, i){ if (x){ sprem.push({ i:i, prej:x }); P.barve[i] = undefined; } });
     if (sprem.length){ P.sklad.push(sprem); sprem.forEach(function(x){ nastaviBarvo(x.i); }); }
+    if (jeRisba()){ P.poteze = []; P.osnova = null; izrisiPoteze(); }
     const st = $('stanje'); if (st) st.textContent = prestej();
-    shraniTrenutno(); return;
+    shraniTrenutno(); shraniRisbo(); return;
   }
   if (b.id === 'predloga'){
     const platno = $('stage').querySelector('svg');
@@ -1579,6 +3051,179 @@ document.addEventListener('keydown', function(e){
   if (e.key === 'Escape'){ if (!$('mask').hidden) $('mask').hidden = true; else if (!scrBarvanje.hidden) izrisiIzbiro(); }
   if ((e.key === 'z' || e.key === 'Z') && (e.ctrlKey || e.metaKey) && !scrBarvanje.hidden){ e.preventDefault(); razveljavi(); }
 });
+
+/* ---------------------- risanje s svinčnikom ----------------------------
+   Poteze hranimo v koordinatah slike (ne v pikslih zaslona), zato so ostre
+   na vsaki velikosti zaslona in jih je mogoče znova izrisati po zasuku.    */
+let ctx = null, kanvas = null, opazovalec = null, penZaznan = false, poteza = null, narisanih = 0, casovnik = 0;
+
+function poljePath(o){
+  const s = o.s, p = new Path2D();
+  if (s.t === 'e'){ p.ellipse(s.cx, s.cy, s.rx, s.ry, s.rot || 0, 0, Math.PI*2); }
+  else if (s.t === 'r'){
+    if (p.roundRect) p.roundRect(s.x, s.y, s.w, s.h, s.r || 0);
+    else p.rect(s.x, s.y, s.w, s.h);
+  } else p.addPath(new Path2D(s.d));
+  return p;
+}
+
+function pripraviRisalno(){
+  kanvas = $('risba');
+  if (!kanvas) return;
+  const svg = $('platno').querySelector('svg');
+  ctx = kanvas.getContext('2d');
+  function prilagodi(){
+    const r = svg.getBoundingClientRect();
+    if (!r.width) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    kanvas.width = Math.round(r.width * dpr);
+    kanvas.height = Math.round(r.height * dpr);
+    kanvas.style.width = r.width + 'px';
+    kanvas.style.height = r.height + 'px';
+    P.k = (r.width * dpr) / P.sl.w;
+    izrisiPoteze();
+  }
+  if (opazovalec) opazovalec.disconnect();
+  if (window.ResizeObserver){ opazovalec = new ResizeObserver(prilagodi); opazovalec.observe(svg); }
+  prilagodi();
+  if (S.nacin === 'svincnik') vezalnikRisanja();
+}
+
+function tockaIz(e){
+  const r = kanvas.getBoundingClientRect();
+  return [ (e.clientX - r.left) / r.width * P.sl.w,
+           (e.clientY - r.top) / r.height * P.sl.h,
+           e.pressure > 0 ? e.pressure : 0.5 ];
+}
+/* Katero polje je pod konico – iščemo od zgornjega navzdol.
+   isPointInPath pričakuje koordinate PLATNA (nanje se preslikava ne uporabi),
+   pot pa je v koordinatah slike, zato točko pomnožimo s povečavo. */
+function poljeNa(x, y){
+  if (!ctx) return null;
+  ctx.setTransform(P.k, 0, 0, P.k, 0, 0);
+  const dx = x * P.k, dy = y * P.k;
+  for (let i = P.sl.R.length - 1; i >= 0; i--){
+    if (ctx.isPointInPath(poljePath(P.sl.R[i]), dx, dy)) return i;
+  }
+  return null;
+}
+
+function zacniRisbo(pot){
+  ctx.save();
+  if (pot.rez != null && P.sl.R[pot.rez]){
+    ctx.clip(poljePath(P.sl.R[pot.rez]));
+    if (P.sl.R[pot.rez].rez) ctx.clip(poljePath({ s:P.sl.R[pot.rez].rez }));
+  }
+  if (pot.t === 'radirka') ctx.globalCompositeOperation = 'destination-out';
+}
+function narisiOd(pot, od){
+  const r = nak(pot.seed);
+  for (let k = 0; k < od; k++) r();                    /* isto zrno pri ponovnem izrisu */
+  zacniRisbo(pot);
+  const t = pot.p;
+  for (let i = Math.max(1, od); i < t.length; i++){
+    const a = t[i-1], b = t[i], pri = (a[2] + b[2]) / 2;
+    if (pot.t === 'voscenka'){
+      /* zrnata sled: drobne pike ob poti, kot vosek na hrapavem papirju */
+      ctx.fillStyle = pot.c;
+      const d = Math.hypot(b[0]-a[0], b[1]-a[1]);
+      const n = Math.max(1, Math.round(d / 1.4));
+      const w = pot.w * (0.45 + pri);
+      for (let j = 0; j < n; j++){
+        const u = j / n, x = a[0] + (b[0]-a[0])*u, y = a[1] + (b[1]-a[1])*u;
+        for (let d2 = 0; d2 < 3; d2++){
+          const kot = r() * Math.PI * 2, rad = r() * w * 0.5;
+          ctx.globalAlpha = 0.10 + r() * 0.14;
+          ctx.beginPath();
+          ctx.arc(x + Math.cos(kot)*rad, y + Math.sin(kot)*rad, w * (0.14 + r()*0.16), 0, Math.PI*2);
+          ctx.fill();
+        }
+      }
+    } else {
+      /* Odseke rišemo prekrivno, barvo pa svetlimo proti beli. Če bi risali
+         prosojno, bi se na stikih odsekov prosojnosti seštele in ostali bi
+         temnejši krogci. Prosojen videz da množenje s črtno risbo pod platnom. */
+      ctx.strokeStyle = pot.t === 'radirka' ? pot.c
+        : svetleje(pot.c, pot.t === 'svincnik' ? 74 : 46);
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.globalAlpha = 1;
+      ctx.lineWidth = pot.w * (0.35 + pri * 1.25);
+      ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+    }
+  }
+  ctx.restore();
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+}
+function izrisiPoteze(){
+  if (!ctx || !kanvas) return;
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0, 0, kanvas.width, kanvas.height);
+  ctx.setTransform(P.k, 0, 0, P.k, 0, 0);
+  if (P.osnova){ try { ctx.drawImage(P.osnova, 0, 0, P.sl.w, P.sl.h); } catch(e){} }
+  P.poteze.forEach(function(pot){ narisiOd(pot, 1); });
+}
+
+function vezalnikRisanja(){
+  kanvas.onpointerdown = function(e){
+    if (e.pointerType === 'pen') penZaznan = true;
+    if (penZaznan && e.pointerType === 'touch') return;   /* dlan na zaslonu ne riše */
+    e.preventDefault();
+    try { kanvas.setPointerCapture(e.pointerId); } catch(err){}
+    const t = tockaIz(e);
+    poteza = {
+      t: S.orodje,
+      c: S.orodje === 'radirka' ? '#000' : S.barva,
+      w: DEBELINE[S.debelina-1].w * (S.orodje === 'svincnik' ? 0.45 : 1),
+      rez: S.vCrtah ? poljeNa(t[0], t[1]) : null,
+      seed: Math.round(t[0]*13 + t[1]*7 + P.poteze.length*97) + 1,
+      p: [t]
+    };
+    P.poteze.push(poteza); narisanih = 1;
+  };
+  kanvas.onpointermove = function(e){
+    if (!poteza) return;
+    if (penZaznan && e.pointerType === 'touch') return;
+    e.preventDefault();
+    /* Apple Pencil pošlje več vmesnih točk na en dogodek – z njimi je črta gladka.
+       Če jih brskalnik ne da (ali vrne prazen seznam), uporabimo sam dogodek. */
+    let vsi = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+    if (!vsi || !vsi.length) vsi = [e];
+    for (let i = 0; i < vsi.length; i++) poteza.p.push(tockaIz(vsi[i]));
+    narisiOd(poteza, narisanih);
+    narisanih = poteza.p.length;
+  };
+  const konec = function(){
+    if (!poteza) return;
+    if (poteza.p.length < 2){ poteza.p.push([poteza.p[0][0]+0.6, poteza.p[0][1], poteza.p[0][2]]); narisiOd(poteza, 1); }
+    P.sklad.push({ poteza:1 });
+    poteza = null;
+    zvokBarva(); shraniRisbo();
+  };
+  kanvas.onpointerup = konec;
+  kanvas.onpointercancel = konec;
+  kanvas.onpointerleave = function(e){ if (poteza && e.buttons === 0) konec(); };
+}
+
+/* risbo shranimo kot sliko (pomanjšano), da se barvanje nadaljuje po zaprtju */
+function risbaVURL(najvec){
+  if (!kanvas || !kanvas.width) return null;
+  const m = najvec / Math.max(kanvas.width, kanvas.height);
+  if (m >= 1) return kanvas.toDataURL('image/png');
+  const c = document.createElement('canvas');
+  c.width = Math.round(kanvas.width * m); c.height = Math.round(kanvas.height * m);
+  c.getContext('2d').drawImage(kanvas, 0, 0, c.width, c.height);
+  return c.toDataURL('image/png');
+}
+function shraniRisbo(){
+  clearTimeout(casovnik);
+  casovnik = setTimeout(function(){
+    if (!P) return;
+    const u = risbaVURL(900);
+    S.trenutna = { id:P.s.id, lv:P.lv, barve:P.barve.map(function(b){ return b || null; }), risba:u };
+    try { shrani(); } catch(e){}
+  }, 500);
+}
+function jeRisba(){ return !!(P && (P.poteze.length || P.osnova)); }
 
 /* ---------------------- zagon -------------------------------------------- */
 $('soundBtn').textContent = S.zvok ? '🔊' : '🔇';
