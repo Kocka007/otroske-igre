@@ -1,0 +1,2123 @@
+<!doctype html>
+<html lang="sl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Matko – matematika za osnovno šolo</title>
+<meta name="description" content="Interaktivna igra za učenje in vadbo matematike in branja za vso osnovno šolo (5–15 let).">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#5b6cff">
+<link rel="manifest" href="matko.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Matko">
+<link rel="apple-touch-icon" href="matko-icon-180.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦊</text></svg>">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --ink:#26365e; --ink-soft:#5a6b95;
+  --card:#ffffff;
+  --line:#e4eaf7;
+  --ok:#1eb872; --ok-d:#159a5e;
+  --no:#f2762e; --no-d:#d55f1c;
+  --acc:#5b6cff; --acc-d:#3f4fdd;
+  --gold:#ffb703;
+  --r:22px;
+}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:"Nunito","Trebuchet MS",system-ui,-apple-system,sans-serif;
+  color:var(--ink);
+  background:#eaf1ff;
+  background-image:
+    radial-gradient(1100px 700px at 8% -10%, #d8e6ff 0%, transparent 60%),
+    radial-gradient(900px 620px at 100% 0%, #ffe3f1 0%, transparent 55%),
+    radial-gradient(900px 700px at 50% 115%, #dcfbe9 0%, transparent 60%);
+  background-attachment:fixed;
+  min-height:100dvh;
+  overflow-x:hidden;
+}
+.wrap{max-width:760px;margin:0 auto;position:relative;z-index:2;
+  padding:calc(14px + env(safe-area-inset-top,0px)) calc(14px + env(safe-area-inset-right,0px))
+          calc(34px + env(safe-area-inset-bottom,0px)) calc(14px + env(safe-area-inset-left,0px))}
+button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none}
+
+/* ---------- splošni gumbi ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--card);border-radius:18px;padding:14px 20px;
+  font-weight:900;font-size:19px;line-height:1;
+  box-shadow:0 5px 0 var(--line);transition:transform .08s,box-shadow .08s;
+}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+.btn-acc{background:var(--acc);color:#fff;box-shadow:0 5px 0 var(--acc-d)}
+.btn-acc:active{box-shadow:0 1px 0 var(--acc-d)}
+.btn-ok{background:var(--ok);color:#fff;box-shadow:0 5px 0 var(--ok-d)}
+.btn-ok:active{box-shadow:0 1px 0 var(--ok-d)}
+.btn-ghost{background:rgba(255,255,255,.75)}
+
+/* ---------- glava ---------- */
+.top{display:flex;align-items:center;gap:10px;margin:6px 0 16px}
+.brand{display:flex;align-items:center;gap:10px;font-size:26px;font-weight:900}
+.brand .fox{font-size:34px;filter:drop-shadow(0 4px 6px rgba(0,0,0,.15))}
+.spacer{flex:1}
+.pill{
+  display:inline-flex;align-items:center;gap:7px;background:#fff;border-radius:999px;
+  padding:9px 15px;font-weight:900;box-shadow:0 4px 0 var(--line);font-size:17px;white-space:nowrap;
+}
+.pill.gold{color:#a86b00}
+.icon-btn{width:46px;height:46px;border-radius:999px;background:#fff;box-shadow:0 4px 0 var(--line);
+  display:grid;place-items:center;font-size:21px}
+.icon-btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+
+/* ---------- kartice ---------- */
+.card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:0 8px 24px rgba(38,54,94,.10)}
+h2.section{font-size:19px;margin:22px 4px 10px;font-weight:900;color:var(--ink-soft);letter-spacing:.2px}
+
+/* ---------- izbira težavnosti ---------- */
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.level{
+  background:#fff;border-radius:18px;padding:12px 8px;text-align:center;font-weight:900;
+  box-shadow:0 5px 0 var(--line);transition:transform .08s;
+}
+.level small{display:block;font-weight:700;font-size:13px;color:var(--ink-soft);margin-top:3px}
+.level[aria-pressed="true"]{background:var(--acc);color:#fff;box-shadow:0 5px 0 var(--acc-d)}
+.level[aria-pressed="true"] small{color:#e6e9ff}
+.level:active{transform:translateY(3px)}
+
+/* ---------- izbira igre ---------- */
+.modes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.mode{
+  position:relative;background:#fff;border-radius:20px;padding:16px 12px;text-align:center;
+  box-shadow:0 6px 0 var(--line);transition:transform .1s;overflow:hidden;
+}
+.mode:active{transform:translateY(4px);box-shadow:0 2px 0 var(--line)}
+.mode .emo{font-size:40px;display:block;margin-bottom:6px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.12))}
+.mode .nm{font-weight:900;font-size:17px;display:block}
+.mode .sub{font-size:12.5px;color:var(--ink-soft);font-weight:700;display:block;margin-top:2px}
+.mode .best{position:absolute;top:8px;right:10px;font-size:13px;font-weight:900;color:var(--gold)}
+.mode::after{content:"";position:absolute;inset:0 0 auto;height:6px;background:var(--c,var(--acc))}
+
+/* ---------- igra ---------- */
+.dots{display:flex;gap:6px;justify-content:center;margin:2px 0 14px;flex-wrap:wrap}
+.dot{width:15px;height:15px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 3px var(--line)}
+.dot.ok{background:var(--ok);box-shadow:none}
+.dot.no{background:var(--no);box-shadow:none}
+.dot.now{background:var(--acc);box-shadow:0 0 0 4px rgba(91,108,255,.22)}
+
+.qcard{text-align:center;padding:26px 16px;min-height:190px;display:flex;flex-direction:column;justify-content:center;gap:12px}
+.qtask{font-size:16px;font-weight:800;color:var(--ink-soft)}
+.qbig{font-size:clamp(40px,11vw,64px);font-weight:900;letter-spacing:1px;line-height:1.15}
+.qbig .miss{display:inline-grid;place-items:center;min-width:1.35em;height:1.15em;border-radius:14px;
+  background:#eef2ff;color:var(--acc);box-shadow:inset 0 0 0 4px #d7ddff}
+.qbig .val{color:var(--acc)}
+.objects{display:flex;flex-wrap:wrap;gap:6px 8px;justify-content:center;max-width:420px;margin:0 auto;font-size:31px;line-height:1}
+.objects .grp{display:flex;gap:5px;padding:6px 8px;background:#f4f7ff;border-radius:14px}
+.objects .grp.ten{display:grid;grid-template-columns:repeat(5,auto);gap:4px}
+.objects.many{font-size:24px;gap:8px}
+.answer-box{font-size:40px;font-weight:900;min-height:56px;display:grid;place-items:center;
+  background:#f6f8ff;border-radius:16px;max-width:230px;margin:0 auto;width:100%;box-shadow:inset 0 0 0 4px #e7ecff;
+  padding:6px 10px}
+.answer-box.empty{color:#b9c3e0}
+
+/* tipkovnica */
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;max-width:420px;margin-left:auto;margin-right:auto}
+.key{background:#fff;border-radius:18px;padding:16px 0;font-size:27px;font-weight:900;box-shadow:0 5px 0 var(--line)}
+.key:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+.key.wide{grid-column:span 1}
+.key.go{background:var(--ok);color:#fff;box-shadow:0 5px 0 var(--ok-d);font-size:21px}
+.key.go:active{box-shadow:0 1px 0 var(--ok-d)}
+.key.del{background:#ffeee3;color:var(--no-d)}
+
+/* izbire (< = >) */
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px;max-width:420px;margin-left:auto;margin-right:auto}
+.choice{background:#fff;border-radius:20px;padding:20px 0;font-size:34px;font-weight:900;box-shadow:0 5px 0 var(--line)}
+.choice:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+.choices.two{grid-template-columns:repeat(2,1fr)}
+.choices.two .choice{font-size:26px}
+
+.game-bar{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+
+/* namig */
+.hint{margin-top:14px;background:#fffdf0;border-radius:18px;padding:14px;box-shadow:inset 0 0 0 3px #ffeeb8;text-align:center}
+.hint b{display:block;margin-bottom:8px;color:#a86b00}
+.beads{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;font-size:22px;line-height:1}
+.beads .row{display:flex;gap:4px;background:#fff;border-radius:12px;padding:5px 7px}
+.numline{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:6px}
+.numline span{width:30px;height:30px;border-radius:9px;background:#fff;display:grid;place-items:center;
+  font-weight:900;font-size:14px;box-shadow:inset 0 0 0 2px #ffeeb8}
+.numline span.a{background:var(--acc);color:#fff;box-shadow:none}
+.numline span.b{background:#ffd9a8}
+
+/* povratna informacija */
+.flash{
+  position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;z-index:60;
+}
+.flash .bubble{
+  background:#fff;border-radius:26px;padding:22px 30px;text-align:center;
+  box-shadow:0 18px 44px rgba(38,54,94,.28);animation:pop .35s cubic-bezier(.2,1.5,.4,1);
+  max-width:88vw;
+}
+.flash .big{font-size:52px;line-height:1}
+.flash .txt{font-size:24px;font-weight:900;margin-top:6px}
+.flash .sml{font-size:17px;font-weight:800;color:var(--ink-soft);margin-top:6px}
+.flash.bad .txt{color:var(--no-d)}
+@keyframes pop{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
+.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+
+/* rezultat */
+.stars{font-size:56px;letter-spacing:6px;text-align:center;margin:6px 0 2px}
+.stars span{display:inline-block;animation:star .5s backwards}
+.stars span:nth-child(2){animation-delay:.18s}
+.stars span:nth-child(3){animation-delay:.36s}
+@keyframes star{0%{transform:scale(0) rotate(-40deg);opacity:0}70%{transform:scale(1.3) rotate(8deg)}100%{transform:scale(1);opacity:1}}
+.score{text-align:center;font-size:22px;font-weight:900}
+.score em{font-style:normal;color:var(--acc)}
+.review{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px;margin-top:14px}
+.review div{background:#f6f8ff;border-radius:14px;padding:9px 6px;text-align:center;font-weight:800;font-size:15px}
+.review div.no{background:#fff1e7;color:var(--no-d)}
+
+/* starši */
+.stat-row{display:flex;justify-content:space-between;padding:10px 4px;border-bottom:2px dashed var(--line);font-weight:800}
+.stat-row:last-child{border:0}
+.stat-row .r{color:var(--ink-soft)}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.badge{background:#fff7e0;border-radius:999px;padding:8px 14px;font-weight:900;font-size:14px;box-shadow:inset 0 0 0 3px #ffe3a3}
+.badge.off{background:#f3f5fb;color:#aab3cc;box-shadow:inset 0 0 0 3px #e6eaf5}
+
+/* konfeti */
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:70;overflow:hidden}
+#confetti i{position:absolute;top:-40px;font-size:22px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(108vh) rotate(720deg);opacity:.9}}
+
+/* ---------- besedilne naloge (branje) ---------- */
+.story{font-size:clamp(19px,4.9vw,23px);font-weight:800;line-height:1.6;max-width:31ch;margin:0 auto;
+  text-align:left;display:flex;flex-direction:column;gap:9px;letter-spacing:.2px}
+.story p{margin:0}
+.story .q{color:var(--acc)}
+.story .num{background:#eef2ff;border-radius:8px;padding:1px 6px;color:var(--acc)}
+.story .word{font-size:1.05em;letter-spacing:2px;background:#fff7e0;border-radius:8px;padding:1px 7px}
+.story.syl{letter-spacing:.6px;word-spacing:3px}
+.pic{font-size:40px;line-height:1.35;letter-spacing:5px;text-align:center;margin:4px auto;max-width:11ch}
+.pic.wide{max-width:100%;font-size:30px}
+
+/* ---------- izbirni odgovori ---------- */
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px;max-width:460px;margin:14px auto 0}
+.opt{background:#fff;border-radius:18px;padding:15px 10px;font-size:22px;font-weight:900;
+  box-shadow:0 5px 0 var(--line);line-height:1.25}
+.opt:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+.opt.txt{font-size:18px}
+
+/* ---------- stopnje ---------- */
+.stepbar{height:7px;border-radius:99px;background:#eef1f9;overflow:hidden;margin-top:9px}
+.stepbar i{display:block;height:100%;background:linear-gradient(90deg,#8f9bff,#5b6cff);transition:width .4s}
+.mode .step{display:block;font-size:11.5px;font-weight:900;color:var(--acc);margin-top:7px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#26365e;color:#fff;
+  padding:13px 20px;border-radius:999px;font-weight:900;z-index:80;box-shadow:0 12px 26px rgba(38,54,94,.35);
+  animation:up .35s;max-width:92vw;text-align:center}
+@keyframes up{from{transform:translate(-50%,20px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+.levels{grid-template-columns:repeat(auto-fit,minmax(148px,1fr))}
+.level.auto[aria-pressed="true"]{background:var(--ok);box-shadow:0 5px 0 var(--ok-d)}
+.level.auto[aria-pressed="true"] small{color:#dcf7ea}
+
+/* ---------- starostna področja ---------- */
+.bands{display:grid;grid-template-columns:repeat(auto-fit,minmax(152px,1fr));gap:10px}
+.band{background:#fff;border-radius:18px;padding:12px 10px;text-align:center;font-weight:900;
+  box-shadow:0 5px 0 var(--line);transition:transform .08s;font-size:16px}
+.band .e{font-size:25px;display:block;margin-bottom:2px}
+.band small{display:block;font-weight:700;font-size:12.5px;color:var(--ink-soft);margin-top:3px}
+.band[aria-pressed="true"]{background:var(--acc);color:#fff;box-shadow:0 5px 0 var(--acc-d)}
+.band[aria-pressed="true"] small{color:#e3e7ff}
+.band:active{transform:translateY(3px)}
+
+/* ---------- ulomki, potence, znaki ---------- */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;
+  line-height:1.06;margin:0 5px;font-size:.74em}
+.frac b{padding:0 5px}
+.frac i{padding:0 5px;border-top:4px solid currentColor;font-style:normal}
+.opt .frac{font-size:1em}
+.qbig sup{font-size:.55em;vertical-align:super;line-height:0}
+.qbig.small{font-size:clamp(21px,5vw,29px);line-height:1.4}
+.qbig svg{display:block;margin:6px auto}
+.opt svg{display:block;margin:0 auto}
+.objects.plus{align-items:center;gap:12px;font-size:29px}
+.objects .znak{font-size:32px;font-weight:900;color:var(--acc)}
+.pad.extra{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px;
+  margin:10px auto 0;max-width:420px}
+
+.hide{display:none !important}
+.center{text-align:center}
+.muted{color:var(--ink-soft);font-weight:700}
+.tiny{font-size:13.5px}
+@media (max-width:400px){
+  .brand{font-size:22px}
+  .key{padding:14px 0;font-size:24px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important;transition:none !important}
+}
+</style>
+</head>
+<body>
+<div id="confetti"></div>
+
+<div class="wrap">
+
+  <!-- ============ GLAVA ============ -->
+  <div class="top">
+    <div class="brand"><span class="fox">🦊</span><span>Matko</span></div>
+    <div class="spacer"></div>
+    <div class="pill gold" title="Zbrane zvezdice">⭐ <span id="starCount">0</span></div>
+    <button class="icon-btn" id="soundBtn" title="Zvok vklop/izklop" aria-label="Zvok">🔊</button>
+    <button class="icon-btn" id="parentBtn" title="Za starše" aria-label="Za starše">👨‍👩‍👦</button>
+  </div>
+
+  <!-- ============ DOMOV ============ -->
+  <section id="scr-home">
+    <div class="card center">
+      <div style="font-size:19px;font-weight:900">Živjo! Kaj bova vadila danes?</div>
+      <div class="muted tiny" id="rankLine" style="margin-top:6px">Tvoj naziv: Začetnik</div>
+      <div class="muted tiny" id="readLine" style="margin-top:4px"></div>
+    </div>
+
+    <h2 class="section">1. Izberi področje</h2>
+    <div class="bands" id="bands"></div>
+
+    <h2 class="section">2. Izberi igro</h2>
+    <div class="modes" id="modes"></div>
+
+    <p class="center muted tiny" style="margin-top:22px">
+      Vsaka igra ima 10 nalog. Za vsak pravilen odgovor dobiš zvezdico ⭐
+    </p>
+  </section>
+
+  <!-- ============ IGRA ============ -->
+  <section id="scr-game" class="hide">
+    <div class="top" style="margin-bottom:8px">
+      <button class="icon-btn" id="backBtn" aria-label="Nazaj">🏠</button>
+      <div class="spacer"></div>
+      <div class="pill" id="modeTitle">Seštevanje</div>
+      <div class="spacer"></div>
+      <div class="pill" id="streakPill">🔥 <span id="streakNum">0</span></div>
+    </div>
+
+    <div class="dots" id="dots"></div>
+    <div class="center tiny muted" id="stepLine" style="margin:-6px 0 12px">Stopnja 1 od 9</div>
+
+    <div class="card qcard" id="qcard">
+      <div class="qtask" id="qtask">Koliko je?</div>
+      <div class="qbig" id="qbig">2 + 3</div>
+      <div id="ansWrap"><div class="answer-box empty" id="ansBox">?</div></div>
+    </div>
+
+    <div id="hintArea"></div>
+
+    <div id="inputArea"></div>
+
+    <div class="game-bar">
+      <button class="btn btn-ghost" id="hintBtn">💡 Namig</button>
+      <button class="btn btn-ghost hide" id="sylBtn">🐌 Po zlogih</button>
+      <button class="btn btn-ghost hide" id="ttsBtn">🔊 Poslušaj</button>
+      <button class="btn btn-ghost" id="skipBtn">➡️ Preskoči</button>
+    </div>
+  </section>
+
+  <!-- ============ REZULTAT ============ -->
+  <section id="scr-done" class="hide">
+    <div class="card">
+      <div class="stars" id="resStars">⭐⭐⭐</div>
+      <div class="score" id="resScore">Pravilnih: <em>10</em> od 10</div>
+      <div class="center muted" id="resMsg" style="margin-top:8px">Odlično!</div>
+      <div class="review" id="resReview"></div>
+      <div class="game-bar" style="margin-top:20px">
+        <button class="btn btn-ok" id="againBtn">🔁 Še enkrat</button>
+        <button class="btn btn-acc" id="homeBtn">🏠 Domov</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ZA STARŠE ============ -->
+  <section id="scr-parent" class="hide">
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="font-size:21px;font-weight:900">👨‍👩‍👦 Kotiček za starše</div>
+        <div class="spacer"></div>
+        <button class="icon-btn" id="parentClose" aria-label="Zapri">✖️</button>
+      </div>
+      <div id="parentStats" style="margin-top:14px"></div>
+
+      <h2 class="section" style="margin-left:0">Nazivi</h2>
+      <div class="badges" id="badgeList"></div>
+
+      <h2 class="section" style="margin-left:0">Težavnost</h2>
+      <div class="levels" id="levels">
+        <button class="level auto" data-lvl="0" aria-pressed="true">Samodejno<small>se prilagaja</small></button>
+        <button class="level" data-lvl="1" aria-pressed="false">Lahko<small>najlažje</small></button>
+        <button class="level" data-lvl="2" aria-pressed="false">Srednje<small>na sredini</small></button>
+        <button class="level" data-lvl="3" aria-pressed="false">Težko<small>najtežje</small></button>
+      </div>
+      <p class="muted tiny" style="margin-top:10px">
+        Pri »Samodejno« se težavnost prilagaja otroku: 4 pravilni odgovori zapored jo dvignejo,
+        2 zaporedni napaki pa znižata. Ročna izbira velja za vse igre v vseh področjih.
+      </p>
+
+      <h2 class="section" style="margin-left:0">Nastavitve</h2>
+      <div class="game-bar" style="justify-content:flex-start">
+        <button class="btn btn-ghost" id="resetBtn">🗑️ Ponastavi napredek</button>
+      </div>
+      <p class="muted tiny" style="margin-top:14px">
+        Napredek se shranjuje samo v tem brskalniku (localStorage). Nič se ne pošilja na internet.
+      </p>
+    </div>
+  </section>
+
+</div>
+<script>
+(function(){
+"use strict";
+
+/* ================= pomožne funkcije ================= */
+const $ = s => document.querySelector(s);
+const rnd = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const LIMIT = {1:10, 2:20, 3:100};
+
+/* ================= shranjevanje ================= */
+const KEY = "matko-v1";
+const DEF = {stars:0, plays:0, correct:0, wrong:0, read:0, best:{}, perMode:{}, step:{},
+             band:1, lvl:0, sound:true, syl:false};
+let P = load();
+
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(!raw) return Object.assign({}, DEF);
+    return Object.assign({}, DEF, JSON.parse(raw));
+  }catch(e){ return Object.assign({}, DEF); }
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(P)); }catch(e){}
+}
+
+/* ================= zvok ================= */
+let ac = null;
+function actx(){
+  if(!ac){ try{ ac = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+  if(ac && ac.state === "suspended") ac.resume();
+  return ac;
+}
+function tone(freq, start, dur, vol, type){
+  const c = actx(); if(!c || !P.sound) return;
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = type || "sine"; o.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, c.currentTime + start);
+  g.gain.exponentialRampToValueAtTime(vol || 0.18, c.currentTime + start + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + start + dur);
+  o.connect(g); g.connect(c.destination);
+  o.start(c.currentTime + start); o.stop(c.currentTime + start + dur + 0.03);
+}
+const S = {
+  tap:  () => tone(620, 0, 0.06, 0.10, "triangle"),
+  good: () => { tone(660,0,0.12,0.16); tone(880,0.10,0.16,0.16); tone(1175,0.20,0.22,0.14); },
+  bad:  () => { tone(300,0,0.16,0.12,"sine"); tone(220,0.14,0.22,0.10,"sine"); },
+  win:  () => { [523,659,784,1047].forEach((f,i)=>tone(f,i*0.13,0.3,0.15)); tone(1319,0.55,0.5,0.13); }
+};
+
+
+/* ================= stopnje težavnosti =================
+   9 stopenj: 1–3 do 10, 4–6 do 20, 7–9 do 100.
+   Znotraj vsake tretjine se obseg števil počasi širi. */
+const STEPS = 9;
+const RANGE = {1:5, 2:8, 3:10, 4:14, 5:17, 6:20, 7:40, 8:70, 9:100};
+const lvlOf = st => st <= 3 ? 1 : (st <= 6 ? 2 : 3);
+
+/* ================= igre ================= */
+const BANDS = [
+  {b:0, nm:"Prvi koraki",  sub:"5–7 let",   emo:"🐣"},
+  {b:1, nm:"1.–3. razred", sub:"6–9 let",   emo:"🌱"},
+  {b:2, nm:"4.–5. razred", sub:"9–11 let",  emo:"🌳"},
+  {b:3, nm:"6.–9. razred", sub:"11–15 let", emo:"🚀"}
+];
+
+/* Vsaka igra pove, kateri del lestvice stopenj (min–max) uporablja.
+   Ista vrsta nalog se tako pojavi v več starostnih skupinah, a v drugi zahtevnosti. */
+const MODES = [
+  /* ---- 🐣 prvi koraki ---- */
+  {id:"count0",   b:0, gen:"count",    nm:"Preštej",        emo:"🍎", sub:"do 10",           c:"#1eb872", min:1, max:3},
+  {id:"pluspic",  b:0, gen:"pluspic",  nm:"Seštej slike",   emo:"➕", sub:"🍎🍎 + 🍎",        c:"#5b6cff", min:1, max:5},
+  {id:"numword",  b:0, gen:"numword",  nm:"Beri števila",   emo:"🔤", sub:"pet = 5",         c:"#8b5cf6", min:1, max:6, read:true},
+  {id:"words0",   b:0, gen:"words0",   nm:"Prve besede",    emo:"📖", sub:"beri in poveži",  c:"#6366f1", min:1, max:6, read:true},
+  {id:"shapes",   b:0, gen:"shapes",   nm:"Oblike",         emo:"🔺", sub:"krog, kvadrat",   c:"#14b8a6", min:1, max:4},
+  {id:"compare0", b:0, gen:"compare",  nm:"Primerjaj",      emo:"⚖️", sub:"več ali manj",    c:"#ec4899", min:1, max:2},
+  {id:"series0",  b:0, gen:"series",   nm:"Zaporedja",      emo:"🔢", sub:"1, 2, ?, 4",      c:"#f59e0b", min:1, max:2},
+  {id:"kenguru0", b:0, gen:"kenguru",  nm:"Kenguruček",     emo:"🦘", sub:"za razmislek",    c:"#e11d48", min:1, max:3, read:true},
+
+  /* ---- 🌱 1.–3. razred ---- */
+  {id:"plus",     b:1, gen:"plus",     nm:"Seštevanje",     emo:"➕", sub:"2 + 3 = ?",       c:"#5b6cff"},
+  {id:"minus",    b:1, gen:"minus",    nm:"Odštevanje",     emo:"➖", sub:"7 − 2 = ?",       c:"#f2762e"},
+  {id:"mix",      b:1, gen:"mix",      nm:"Mešano",         emo:"🔀", sub:"+ in −",          c:"#8b5cf6"},
+  {id:"missing",  b:1, gen:"missing",  nm:"Manjka število", emo:"❓", sub:"4 + ? = 9",       c:"#0ea5e9"},
+  {id:"compare",  b:1, gen:"compare",  nm:"Primerjaj",      emo:"⚖️", sub:"< = >",           c:"#ec4899"},
+  {id:"count",    b:1, gen:"count",    nm:"Preštej",        emo:"🍎", sub:"koliko jih je?",  c:"#1eb872"},
+  {id:"series",   b:1, gen:"series",   nm:"Zaporedja",      emo:"🔢", sub:"6, 7, ?, 9",      c:"#f59e0b"},
+  {id:"times",    b:1, gen:"times",    nm:"Poštevanka",     emo:"✖️", sub:"3 × 4 = ?",       c:"#14b8a6"},
+  {id:"divide",   b:1, gen:"divide",   nm:"Deljenje",       emo:"➗", sub:"12 : 3 = ?",      c:"#0891b2", min:1, max:6},
+  {id:"clock",    b:1, gen:"clock",    nm:"Ura",            emo:"🕐", sub:"koliko je ura?",  c:"#7c3aed", min:1, max:6},
+  {id:"money",    b:1, gen:"money",    nm:"Denar",          emo:"💶", sub:"koliko plačaš?",  c:"#059669", min:1, max:6, read:true},
+  {id:"units1",   b:1, gen:"units",    nm:"Merske enote",   emo:"📏", sub:"1 m = 100 cm",    c:"#d97706", min:1, max:3},
+  {id:"besede",   b:1, gen:"besede",   nm:"Beri in računaj",emo:"📖", sub:"besedilne naloge",c:"#6366f1", read:true},
+  {id:"kenguru",  b:1, gen:"kenguru",  nm:"Kenguruček",     emo:"🦘", sub:"za razmislek",    c:"#e11d48", read:true},
+
+  /* ---- 🌳 4.–5. razred ---- */
+  {id:"written",  b:2, gen:"written",  nm:"Pisno računanje",emo:"🧮", sub:"345 + 278",       c:"#5b6cff"},
+  {id:"divide2",  b:2, gen:"divide",   nm:"Deljenje",       emo:"➗", sub:"tudi z ostankom",  c:"#0891b2", min:4, max:9},
+  {id:"frac1",    b:2, gen:"fractions",nm:"Ulomki",         emo:"½",  sub:"deli celote",     c:"#db2777", min:1, max:6},
+  {id:"dec1",     b:2, gen:"decimals", nm:"Decimalna števila", emo:"🔟", sub:"0,5 + 1,25",   c:"#7c3aed", min:1, max:6},
+  {id:"units2",   b:2, gen:"units",    nm:"Merske enote",   emo:"📏", sub:"m, cm, kg, l",    c:"#d97706", min:3, max:9},
+  {id:"geo1",     b:2, gen:"geometry", nm:"Geometrija",     emo:"📐", sub:"obseg in ploščina",c:"#0ea5e9", min:1, max:6},
+  {id:"num2",     b:2, gen:"numbers",  nm:"Števila",        emo:"🔢", sub:"zaokroževanje",   c:"#f59e0b", min:3, max:6},
+  {id:"money2",   b:2, gen:"money",    nm:"Denar",          emo:"💶", sub:"evri in centi",   c:"#059669", min:4, max:9, read:true},
+  {id:"clock2",   b:2, gen:"clock",    nm:"Ura",            emo:"🕐", sub:"minute in računi", c:"#8b5cf6", min:5, max:9, read:true},
+  {id:"stat1",    b:2, gen:"stats",    nm:"Povprečje",      emo:"📊", sub:"koliko je povprečje?", c:"#14b8a6", min:1, max:6},
+  {id:"besede2",  b:2, gen:"besede",   nm:"Besedilne naloge",emo:"📖",sub:"beri in računaj", c:"#6366f1", min:5, max:9, read:true},
+  {id:"kenguru2", b:2, gen:"kenguru",  nm:"Kenguruček",     emo:"🦘", sub:"za razmislek",    c:"#e11d48", min:5, max:9, read:true},
+
+  /* ---- 🚀 6.–9. razred ---- */
+  {id:"frac2",     b:3, gen:"fractions",nm:"Ulomki",        emo:"½",  sub:"računanje z ulomki", c:"#db2777", min:5, max:9},
+  {id:"dec2",      b:3, gen:"decimals", nm:"Decimalna števila", emo:"🔟", sub:"množenje, deljenje", c:"#7c3aed", min:5, max:9},
+  {id:"percent",   b:3, gen:"percent",  nm:"Odstotki",      emo:"％", sub:"25 % od 80",      c:"#f2762e"},
+  {id:"integers",  b:3, gen:"integers", nm:"Cela števila",  emo:"➖", sub:"−5 + 8",          c:"#0891b2"},
+  {id:"powers",    b:3, gen:"powers",   nm:"Potence in koreni", emo:"√", sub:"3², √49",      c:"#5b6cff"},
+  {id:"equations", b:3, gen:"equations",nm:"Enačbe",        emo:"🟰", sub:"3x + 4 = 19",     c:"#059669"},
+  {id:"geo2",      b:3, gen:"geometry", nm:"Geometrija",    emo:"📐", sub:"prostornina, Pitagora", c:"#0ea5e9", min:5, max:9},
+  {id:"ratio",     b:3, gen:"ratio",    nm:"Razmerja",      emo:"🔗", sub:"sorazmerje",      c:"#14b8a6", read:true},
+  {id:"num3",      b:3, gen:"numbers",  nm:"Deljivost",     emo:"🔢", sub:"praštevila, D in v", c:"#f59e0b", min:7, max:9},
+  {id:"stat2",     b:3, gen:"stats",    nm:"Podatki",       emo:"📊", sub:"povprečje, mediana", c:"#8b5cf6", min:4, max:9},
+  {id:"kenguru3",  b:3, gen:"kenguru",  nm:"Kenguruček",    emo:"🦘", sub:"za razmislek",    c:"#e11d48", min:7, max:9, read:true}
+];
+const MODE_BY_ID = {};
+MODES.forEach(m => MODE_BY_ID[m.id] = m);
+const modeMin = m => m.min || 1;
+const modeMax = m => m.max || 9;
+
+const OBJS = ["🍎","🍓","⚽","🐞","🌻","🐟","🚗","🧁","🐤","⭐","🍌","🐸"];
+
+/* --- namigi --- */
+function beads(n, emo){
+  let h = '<div class="beads">';
+  for(let i=0;i<n;i+=5){
+    h += '<div class="row">';
+    for(let j=i;j<Math.min(i+5,n);j++) h += emo;
+    h += '</div>';
+  }
+  return h + '</div>';
+}
+function hintAdd(a,b){
+  if(a+b<=20) return "<b>Preštej vse skupaj:</b>"+beads(a,"🔵")+beads(b,"🟠");
+  return "<b>Pomoč</b>Najprej seštej desetice, nato enice.<br>Npr. "+a+" + "+b+" = ("+(Math.floor(a/10)*10)+" + "+(Math.floor(b/10)*10)+") + ("+(a%10)+" + "+(b%10)+")";
+}
+function hintSub(a,b){
+  if(a<=20){
+    let h = "<b>Odštej – prekrižaj "+b+":</b><div class=\"beads\"><div class=\"row\">";
+    for(let i=0;i<a;i++) h += (i < a-b ? "🔵" : "❌");
+    return h + "</div></div>";
+  }
+  return "<b>Pomoč</b>Odštej najprej desetice, potem enice.";
+}
+
+/* --- računski generatorji (vhod je stopnja 1–9) --- */
+function genPlus(st){
+  const max = RANGE[st];
+  let a = rnd(1, max-1), b = rnd(1, max-a);
+  if(st >= 4 && a+b <= max/2){ a = rnd(Math.ceil(max/3), max-2); b = rnd(2, max-a); }
+  return {task:"Koliko je?", big:a+" + "+b, type:"num", answer:a+b,
+          line:a+" + "+b+" = "+(a+b), hint:hintAdd(a,b)};
+}
+function genMinus(st){
+  const max = RANGE[st];
+  const a = rnd(Math.min(3,max), max), b = rnd(1, a-1);
+  return {task:"Koliko je?", big:a+" − "+b, type:"num", answer:a-b,
+          line:a+" − "+b+" = "+(a-b), hint:hintSub(a,b)};
+}
+function genMix(st){ return Math.random()<0.5 ? genPlus(st) : genMinus(st); }
+
+function genMissing(st){
+  const base = Math.random()<0.5 ? genPlus(st) : genMinus(st);
+  const plus = base.big.indexOf("+") > -1;
+  const parts = base.big.split(plus ? " + " : " − ");
+  const a = +parts[0], b = +parts[1], r = base.answer;
+  const op = plus ? " + " : " − ";
+  const where = (st <= 2 || Math.random() < 0.5) ? "b" : "a";
+  let big;
+  if(where === "b") big = a+op+'<span class="miss">?</span> = '+r;
+  else              big = '<span class="miss">?</span>'+op+b+" = "+r;
+  return {task:"Katero število manjka?", big:big, type:"num",
+          answer: where === "b" ? b : a, line:a+op+b+" = "+r,
+          hint: plus ? hintAdd(a,b) : hintSub(a,b)};
+}
+
+function genCompare(st){
+  const max = RANGE[st];
+  let L, R, lt, rt;
+  if(st <= 2){ L = rnd(0,max); R = Math.random()<0.25 ? L : rnd(0,max); lt = ""+L; rt = ""+R; }
+  else if(st <= 5){
+    const a = rnd(1,Math.ceil(max/2)), b = rnd(1,Math.floor(max/2));
+    L = a+b; lt = a+" + "+b;
+    R = Math.random()<0.3 ? L : Math.max(0, L + rnd(-3,3)); rt = ""+R;
+  }else{
+    const a = rnd(2,Math.floor(max/2)), b = rnd(2,Math.floor(max/2)), c = rnd(2,Math.floor(max/2));
+    L = a+b; lt = a+" + "+b;
+    const d = Math.max(0, (Math.random()<0.25 ? L-c : L-c+rnd(-4,4)));
+    R = c+d; rt = c+" + "+d;
+  }
+  const ans = L<R ? "<" : (L>R ? ">" : "=");
+  let hint = "<b>Pomoč</b>Izračunaj obe strani in poglej, katera je večja.<br>Kljun ‹ ali › vedno gleda proti večjemu številu.";
+  if(L<=20 && R<=20) hint = "<b>Primerjaj:</b>"+beads(L,"🔵")+beads(R,"🟠");
+  return {task:"Postavi pravi znak", big:lt+' <span class="miss">?</span> '+rt, type:"choice",
+          choices:["<","=",">"], answer:ans, line:lt+" "+ans+" "+rt, hint:hint};
+}
+
+function genCount(st){
+  const emo = pick(OBJS);
+  const max = {1:5,2:8,3:10,4:14,5:17,6:20,7:30,8:45,9:60}[st];
+  const n = rnd(Math.max(2, Math.round(max/2)), max);
+  let html;
+  if(n <= 20){
+    html = '<div class="objects">';
+    for(let i=0;i<n;i+=5){
+      html += '<div class="grp">';
+      for(let j=i;j<Math.min(i+5,n);j++) html += '<span>'+emo+'</span>';
+      html += '</div>';
+    }
+    html += '</div>';
+  }else{
+    const t = Math.floor(n/10), o = n%10;
+    html = '<div class="objects many">';
+    for(let i=0;i<t;i++){
+      html += '<div class="grp ten" title="10">';
+      for(let j=0;j<10;j++) html += '<span>'+emo+'</span>';
+      html += '</div>';
+    }
+    if(o){ html += '<div class="grp ten">'; for(let j=0;j<o;j++) html += '<span>'+emo+'</span>'; html += '</div>'; }
+    html += '</div>';
+  }
+  return {task:"Koliko jih je?", big:html, type:"num", answer:n,
+          line:"Preštej "+emo+" → "+n,
+          hint:"<b>Pomoč</b>"+(n<=20 ? "Štej po skupinah po 5: 5, 10, 15 …"
+                                     : "Vsaka škatlica ima 10. Štej po 10: 10, 20, 30 … in dodaj še ostale.")};
+}
+
+function genSeries(st){
+  let step, start, dir;
+  const max = RANGE[st];
+  if(st <= 3){ step = pick([1,1,2]); dir = pick([1,1,1,-1]); }
+  else if(st <= 6){ step = pick([1,2,2,5]); dir = pick([1,1,-1]); }
+  else { step = pick([2,5,10,10,3]); dir = pick([1,1,-1]); }
+  start = dir > 0 ? rnd(0, Math.max(0, max-3*step)) : rnd(3*step, max);
+  const seq = [0,1,2,3].map(i => start + dir*step*i);
+  const miss = rnd(1,3);
+  const big = seq.map((v,i) => i === miss ? '<span class="miss">?</span>' : v).join(", ");
+  return {task:"Katero število manjka?", big:big, type:"num", answer:seq[miss], line:seq.join(", "),
+          hint:"<b>Pomoč</b>Poglej, za koliko se število vsakič "+(dir>0?"poveča":"zmanjša")+".<br>Tukaj za "+step+"."};
+}
+
+function genTimes(st){
+  let a, b;
+  if(st === 1){ a = pick([1,2,10]);       b = rnd(1,3); }
+  else if(st === 2){ a = pick([2,5,10]);  b = rnd(1,5); }
+  else if(st === 3){ a = pick([2,5,10]);  b = rnd(1,10); }
+  else if(st <= 6){ a = pick([2,3,4,5,10]); b = rnd(2,10); }
+  else { a = rnd(2,10); b = rnd(2,10); }
+  const reps = [];
+  for(let i=0;i<b;i++) reps.push(a);
+  return {task:"Koliko je?", big:a+" × "+b, type:"num", answer:a*b, line:a+" × "+b+" = "+(a*b),
+          hint:"<b>Množenje je hitro seštevanje:</b>"+a+" × "+b+" = "+reps.join(" + ")};
+}
+
+/* ================= besede: slovnične oblike =================
+   F(oblike, k) izbere pravilno obliko glede na število:
+   1 → ednina, 2 → dvojina, 3–4 → množina, 5+ → rodilnik množine. */
+const F  = (f,k) => k===1 ? f[0] : k===2 ? f[1] : (k===3||k===4) ? f[2] : f[3];
+const BE = k => k===2 ? "sta" : (k===3||k===4) ? "so" : "je";
+
+/* t = tožilnik (ima, dobi, poje …), i = imenovalnik (na mizi je …) */
+const NOUNS = [
+  {e:"🍬", t:["bonbon","bonbona","bonbone","bonbonov"],                    i:["bonbon","bonbona","bonboni","bonbonov"]},
+  {e:"🍪", t:["piškot","piškota","piškote","piškotov"],                    i:["piškot","piškota","piškoti","piškotov"]},
+  {e:"🍎", t:["jabolko","jabolki","jabolka","jabolk"],                     i:["jabolko","jabolki","jabolka","jabolk"]},
+  {e:"⚽", t:["žogo","žogi","žoge","žog"],                                 i:["žoga","žogi","žoge","žog"]},
+  {e:"🎈", t:["balon","balona","balone","balonov"],                        i:["balon","balona","baloni","balonov"]},
+  {e:"🚗", t:["avtomobilček","avtomobilčka","avtomobilčke","avtomobilčkov"],i:["avtomobilček","avtomobilčka","avtomobilčki","avtomobilčkov"]},
+  {e:"🍓", t:["jagodo","jagodi","jagode","jagod"],                         i:["jagoda","jagodi","jagode","jagod"]},
+  {e:"📕", t:["knjigo","knjigi","knjige","knjig"],                         i:["knjiga","knjigi","knjige","knjig"]},
+  {e:"✏️", t:["svinčnik","svinčnika","svinčnike","svinčnikov"],            i:["svinčnik","svinčnika","svinčniki","svinčnikov"]},
+  {e:"🌸", t:["rožo","roži","rože","rož"],                                 i:["roža","roži","rože","rož"]},
+  {e:"🥕", t:["korenček","korenčka","korenčke","korenčkov"],               i:["korenček","korenčka","korenčki","korenčkov"]},
+  {e:"🐞", t:["pikapolonico","pikapolonici","pikapolonice","pikapolonic"],  i:["pikapolonica","pikapolonici","pikapolonice","pikapolonic"]}
+];
+const NAMES = [
+  {n:"Maja",ž:1},{n:"Ana",ž:1},{n:"Eva",ž:1},{n:"Zala",ž:1},{n:"Mia",ž:1},{n:"Neja",ž:1},{n:"Lara",ž:1},{n:"Nika",ž:1},
+  {n:"Nik",ž:0},{n:"Tim",ž:0},{n:"Luka",ž:0},{n:"Jaka",ž:0},{n:"Vid",ž:0},{n:"Rok",ž:0},{n:"Bine",ž:0},{n:"Žan",ž:0}
+];
+const twoNames = () => { const a = pick(NAMES); let b = pick(NAMES); while(b.n === a.n) b = pick(NAMES); return [a,b]; };
+const num = n => '<span class="num">'+n+'</span>';
+
+/* ================= besedilne naloge (branje + računanje) ================= */
+function genBesede(st){
+  const o = pick(NOUNS), G = o.t[3];
+  const max = RANGE[st];
+  const T = [];
+
+  // 1. dodajanje
+  T.push(() => {
+    const p = pick(NAMES), a = rnd(2, Math.max(3, max-2)), b = rnd(1, Math.max(2, max-a));
+    return {s:[p.n+" ima "+num(a)+" "+F(o.t,a)+".", "Dobi še "+num(b)+" "+F(o.t,b)+"."],
+            q:"Koliko "+G+" ima zdaj?", a:a+b, ključ:"Beseda »dobi še« pomeni, da števili seštejemo.", easy:1};
+  });
+  // 2. odvzemanje
+  T.push(() => {
+    const p = pick(NAMES), a = rnd(3, max), b = rnd(1, a-1);
+    return {s:[p.n+" ima "+num(a)+" "+F(o.t,a)+".", "Podari "+num(b)+" "+F(o.t,b)+"."],
+            q:"Koliko "+G+" "+(p.ž?"ji":"mu")+" ostane?", a:a-b,
+            ključ:"Beseda »podari« pomeni, da odštevamo.", easy:1};
+  });
+  // 3. skupaj
+  T.push(() => {
+    const [p,d] = twoNames(), a = rnd(2, Math.max(3, max-3)), b = rnd(2, Math.max(3, max-a));
+    return {s:[p.n+" ima "+num(a)+" "+F(o.t,a)+".", d.n+" ima "+num(b)+" "+F(o.t,b)+"."],
+            q:"Koliko "+G+" imata skupaj?", a:a+b, ključ:"Beseda »skupaj« pomeni, da seštevamo.", easy:1};
+  });
+  // 4. za koliko več
+  T.push(() => {
+    const [p,d] = twoNames(), a = rnd(4, max), b = rnd(1, a-1);
+    return {s:[p.n+" ima "+num(a)+" "+F(o.t,a)+".", d.n+" ima "+num(b)+" "+F(o.t,b)+"."],
+            q:"Za koliko "+G+" več ima "+p.n+"?", a:a-b,
+            ključ:"Vprašanje »za koliko več« pomeni, da odštevamo.", easy:0};
+  });
+  // 5. koliko na začetku (obratna pot)
+  T.push(() => {
+    const meja = Math.min(12, Math.max(3, Math.floor(max/2)));
+    const p = pick(NAMES), b = rnd(2, meja), c = rnd(2, meja);
+    return {s:[p.n+" ima nekaj "+G+".", "Podari "+num(b)+" "+F(o.t,b)+".", "Ostane "+(p.ž?"ji":"mu")+" še "+num(c)+" "+F(o.t,c)+"."],
+            q:"Koliko "+G+" je "+(p.ž?"imela":"imel")+" na začetku?", a:b+c,
+            ključ:"Pojdi po poti nazaj: kar je pojedel, prištej nazaj.", easy:0};
+  });
+  // 6. dvostopenjska
+  T.push(() => {
+    const a = rnd(8, max), b = rnd(2, Math.max(2, Math.floor(a/2))), c = rnd(2, Math.max(2, a-b));
+    return {s:["Na drevesu "+BE(a)+" "+num(a)+" "+F(NOUNS[11].i,a)+".", num(b)+" jih odleti.", "Nato jih odleti še "+num(c)+"."],
+            q:"Koliko "+NOUNS[11].t[3]+" ostane?", a:a-b-c,
+            ključ:"Odštej dvakrat: najprej prve, nato še druge.", easy:0, fixed:1};
+  });
+  // 7. denar
+  T.push(() => {
+    const p = pick(NAMES), c = rnd(2,5), k = rnd(2, st>=7?6:4);
+    return {s:["1 "+o.i[0]+" stane "+num(c)+" €.", p.n+" kupi "+num(k)+" "+F(o.t,k)+"."],
+            q:"Koliko evrov plača?", a:c*k,
+            ključ:"Ceno seštej tolikokrat, kolikor je kupljenih stvari: "+c+" + "+c+" …", easy:0};
+  });
+  // 8. deljenje
+  T.push(() => {
+    const k = rnd(2,5), vsak = rnd(2, st>=7?8:4), a = k*vsak;
+    const otrok = ["otrok","otroka","otroci","otrok"];
+    const glagol = k===2 ? "si enako razdelita" : (k<=4 ? "si enako razdelijo" : "si enako razdeli");
+    return {s:[num(k)+" "+F(otrok,k)+" "+glagol+" "+num(a)+" "+F(o.t,a)+"."],
+            q:"Koliko "+G+" dobi vsak otrok?", a:vsak,
+            ključ:"Razdeli enako: vsak dobi enako veliko.", easy:0};
+  });
+
+  const izbor = st <= 2 ? [0,1] : st <= 4 ? [0,1,2,3] : st <= 6 ? [1,2,3,4,5] : [3,4,5,6,7];
+  const t = T[pick(izbor)]();
+  return {task:"Preberi in izračunaj", story:t.s, ask:t.q, type:"num", answer:t.a, read:true,
+          line:"📖 "+t.s.join(" ").replace(/<[^>]+>/g,"")+" → "+t.a,
+          hint:"<b>Namig za branje</b>"+t.ključ};
+}
+
+/* ================= Kenguruček =================
+   Naloge po vzoru tekmovanja Mednarodni matematični kenguru (1.–3. razred):
+   kratka zgodba, razmislek, izbira med štirimi odgovori. */
+const ŽIVALI = [{e:"🐔",n:2},{e:"🦆",n:2},{e:"🐕",n:4},{e:"🐈",n:4},{e:"🐄",n:4},{e:"🐞",n:6},{e:"🕷️",n:8}];
+const DNEVI = ["ponedeljek","torek","sreda","četrtek","petek","sobota","nedelja"];
+const DNEVI_T = ["ponedeljek","torek","sredo","četrtek","petek","soboto","nedeljo"];
+const PUŠČICE = ["⬆️","➡️","⬇️","⬅️"];
+const SMER = ["navzgor","desno","navzdol","levo"];
+
+function opts(pravilen, ostali){
+  const set = [pravilen];
+  ostali.forEach(o => { if(!set.includes(o) && set.length < 4) set.push(o); });
+  for(let i=set.length-1;i>0;i--){ const j = rnd(0,i); const t = set[i]; set[i] = set[j]; set[j] = t; }
+  return set;
+}
+const okoli = (v, d) => [v+d, v-d, v+2*d, Math.max(0,v-2*d), v+1, Math.max(0,v-1)].map(String);
+
+const KENGURU = [
+  // --- lažje (stopnje 1–4) ---
+  {do:4, gen: st => {                                     // noge živali
+    const k = rnd(2, st>=3?4:2), ž = [];
+    for(let i=0;i<k;i++) ž.push(pick(ŽIVALI).e);
+    const noge = ž.reduce((v,e) => v + ŽIVALI.find(x => x.e === e).n, 0);
+    return {s:["Poglej živali."], pic:ž.join(" "), q:"Koliko nog imajo skupaj?",
+            a:String(noge), o:opts(String(noge), okoli(noge,2)),
+            h:"Preštej noge po eni živali naenkrat in sproti seštevaj."};
+  }},
+  {do:4, gen: st => {                                     // vzorec
+    const barve = pick([["🔴","🔵"],["🟡","🟢","🔵"],["⭐","🌙"],["🍎","🍐","🍌"]]);
+    const n = 6 + rnd(0,2), vrsta = [];
+    for(let i=0;i<n;i++) vrsta.push(barve[i % barve.length]);
+    const nasl = barve[n % barve.length];
+    const dodatni = ["🟣","🟤","⬛","🔷"].filter(x => barve.indexOf(x) < 0);
+    return {s:["Poglej vzorec."], pic:vrsta.join(" ")+" ❓", q:"Kaj pride naslednje?",
+            a:nasl, o:opts(nasl, barve.filter(b => b !== nasl).concat(dodatni)),
+            h:"Vzorec se ponavlja. Poglej, kateri je bil na tem mestu prejšnjič."};
+  }},
+  {do:4, gen: st => {                                     // kaj ne spada zraven
+    const skupine = [
+      {sk:["🍎","🍐","🍌","🍓"], tuj:"🚗"}, {sk:["🐕","🐈","🐄","🐔"], tuj:"🌳"},
+      {sk:["🚗","🚌","🚲","🚂"], tuj:"🍏"}, {sk:["⭐","🌙","☀️"],       tuj:"🐟"},
+      {sk:["🌷","🌸","🌻"],       tuj:"🧦"}
+    ];
+    const g = pick(skupine), izbor = g.sk.slice(0,3).concat([g.tuj]);
+    for(let i=izbor.length-1;i>0;i--){ const j = rnd(0,i); const t = izbor[i]; izbor[i] = izbor[j]; izbor[j] = t; }
+    return {s:["Ena stvar ne spada med druge."], pic:izbor.join(" "), q:"Katera ne spada zraven?",
+            a:g.tuj, o:izbor, h:"Poišči, kaj imajo tri stvari skupnega."};
+  }},
+  {do:5, gen: st => {                                     // vrtenje puščice
+    const zač = rnd(0,3), četrt = rnd(1,3), desno = Math.random() < 0.6;
+    const kon = ((zač + (desno ? četrt : -četrt)) % 4 + 4) % 4;
+    const kolikokrat = ["enkrat","dvakrat","trikrat"][četrt-1];
+    return {s:["Puščica kaže "+SMER[zač]+".", "Zavrti se "+kolikokrat+" za četrt kroga v "+(desno?"desno":"levo")+"."],
+            pic:PUŠČICE[zač], q:"Kam kaže zdaj?", a:PUŠČICE[kon], o:PUŠČICE.slice(),
+            h:"Četrt kroga v desno: ⬆️ → ➡️ → ⬇️ → ⬅️ → ⬆️"};
+  }},
+  {do:5, gen: st => {                                     // dnevi v tednu
+    const d = rnd(0,6), k = rnd(1,3), c = (d+k) % 7;
+    return {s:["Danes je "+DNEVI[d]+"."], q:"Kateri dan bo čez "+k+" "+(k===1?"dan":k===2?"dneva":"dni")+"?",
+            a:DNEVI[c], o:opts(DNEVI[c], [DNEVI[(c+1)%7], DNEVI[(c+6)%7], DNEVI[(c+2)%7]]), txt:1,
+            h:"Naštej dneve po vrsti: ponedeljek, torek, sreda, četrtek, petek, sobota, nedelja."};
+  }},
+  {do:6, gen: st => {                                     // mesto v vrsti
+    const n = rnd(4, st>=4?9:6), m = rnd(2, n-1), p = pick(NAMES);
+    const vrst = ["prvi","drugi","tretji","četrti","peti","šesti","sedmi","osmi","deveti"][m-1];
+    const vrstŽ = ["prva","druga","tretja","četrta","peta","šesta","sedma","osma","deveta"][m-1];
+    const otrokI = ["otrok","otroka","otroci","otrok"];
+    const stoji = n===2 ? "stojita" : (n===3||n===4) ? "stojijo" : "stoji";
+    return {s:["V vrsti "+stoji+" "+num(n)+" "+F(otrokI,n)+".", p.n+" "+(p.ž?"je "+vrstŽ:"je "+vrst)+" od začetka."],
+            q:"Koliko otrok je za "+(p.ž?"njo":"njim")+"?", a:String(n-m), o:opts(String(n-m), okoli(n-m,1)),
+            h:"Nariši "+n+" krogcev v vrsto in obkroži "+m+". Preštej tiste za njim."};
+  }},
+  {do:6, gen: st => {                                     // trije seštevanci (kot kenguru Polde)
+    const o = pick(NOUNS), a = rnd(4, RANGE[st]), b = rnd(1,4), c = rnd(1,4);
+    const p = pick(NAMES), v = a+b+c;
+    return {s:[p.n+" ima "+num(a)+" "+F(o.t,a)+" "+o.e+".", "Za rojstni dan dobi še "+num(b)+" in "+num(c)+"."],
+            q:"Koliko "+o.t[3]+" ima zdaj?", a:String(v), o:opts(String(v), okoli(v,1)),
+            h:"Seštej vse tri številke po vrsti."};
+  }},
+  // --- srednje (stopnje 3–7) ---
+  {od:3, gen: st => {                                     // skrivalnice
+    const n = rnd(5, st>=6?12:9), f = rnd(1, n-2);
+    const otrokT = ["otroka","otroka","otroke","otrok"];
+    return {s:[num(n)+" otrok se igra skrivalnice.", "Eden izmed njih išče.", "Našel je "+num(f)+" "+F(otrokT,f)+"."],
+            q:"Koliko otrok je še skritih?", a:String(n-1-f), o:opts(String(n-1-f), okoli(n-1-f,1)),
+            h:"Pozor: iskalec se ni skril. Najprej odštej iskalca, nato najdene."};
+  }},
+  {od:3, gen: st => {                                     // stolpi iz kock
+    const a = rnd(2, st>=6?6:4), b = rnd(2, st>=6?5:4), p = pick(NAMES);
+    const kocka = ["kocka","kocki","kocke","kock"];
+    const stolp = ["enak stolp","enaka stolpa","enake stolpe","enakih stolpov"];
+    return {s:[p.n+" sestavi "+num(a)+" "+F(stolp,a)+".", "V vsakem stolpu "+BE(b)+" "+num(b)+" "+F(kocka,b)+"."],
+            q:"Koliko kock porabi?", a:String(a*b), o:opts(String(a*b), [String(a+b), String(a*b+b), String(a*b-b)]),
+            h:"Toliko kock, kolikor jih je v enem stolpu, seštej "+a+"-krat."};
+  }},
+  {od:3, gen: st => {                                     // škatle v škatli
+    const k = rnd(2,4), kk = 1;
+    const šk = ["škatla","škatli","škatle","škatel"];
+    return {s:["V veliki škatli "+BE(k)+" "+num(k)+" manjše "+F(šk,k)+".", "V vsaki manjši škatli je še "+num(kk)+" majhna škatla."],
+            q:"Koliko škatel je vseh skupaj?", a:String(1+k+k), o:opts(String(1+k+k), [String(k+k), String(1+k), String(2*k+2)]),
+            h:"Ne pozabi na veliko škatlo. Seštej: velika + manjše + majhne."};
+  }},
+  {od:3, gen: st => {                                     // katerega je največ
+    const sadje = [["jabolk","🍎"],["hrušk","🍐"],["banan","🍌"],["breskev","🍑"]];
+    const tri = sadje.slice().sort(() => Math.random()-0.5).slice(0,3);
+    const št = [];
+    while(št.length < 3){ const v = rnd(8,25); if(št.indexOf(v) < 0) št.push(v); }
+    const največ = Math.random() < 0.5;
+    const meja = največ ? Math.max(...št) : Math.min(...št);
+    const i = št.indexOf(meja), p = pick(NAMES);
+    return {s:[p.n+" kupi "+tri.map((t,k) => num(št[k])+" "+t[0]).join(", ")+"."],
+            q:"Katerega sadja kupi "+(največ?"največ":"najmanj")+"?",
+            a:tri[i][0], o:tri.map(t => t[0]), txt:1,
+            h:"Primerjaj števila. Najprej poglej desetice."};
+  }},
+  {od:4, gen: st => {                                     // starost
+    const a = rnd(6, 12), d = rnd(1,4), p = pick(NAMES);
+    const leto = ["leto","leti","leta","let"];
+    return {s:[p.n+" ima "+num(a)+" let.", "Brat ima "+num(d)+" "+F(leto,d)+" manj."],
+            q:"Koliko let bo imel brat čez "+num(2)+" leti?", a:String(a-d+2),
+            o:opts(String(a-d+2), [String(a-d), String(a+2), String(a-d+1)]),
+            h:"Najprej izračunaj bratova leta danes, nato prištej 2."};
+  }},
+  {od:4, gen: st => {                                     // delitev piškotov
+    const [p,d] = twoNames(), vsak = rnd(3,9), skupaj = vsak*2;
+    const a = rnd(1, skupaj-1), b = skupaj - a;
+    const pišk = ["piškot","piškota","piškote","piškotov"];
+    return {s:[p.n+" prinese "+num(a)+" "+F(pišk,a)+".", d.n+" prinese "+num(b)+" "+F(pišk,b)+".",
+               "Piškote si enako razdelita."],
+            q:"Koliko piškotov dobi vsaka oseba?", a:String(vsak), o:opts(String(vsak), okoli(vsak,1)),
+            h:"Najprej seštej vse piškote, nato jih razdeli na dva enaka dela."};
+  }},
+  {od:4, gen: st => {                                     // ura
+    const nalog = pick([
+      {s:["Do šole hodiš pol ure."], q:"Koliko časa hodiš tja in nazaj?", a:"1 uro",
+       o:["15 minut","pol ure","1 uro","2 uri"], h:"Pol ure in še pol ure je skupaj ena ura."},
+      {s:["Ura je "+rnd(1,9)+"."], q:"Koliko bo ura čez 2 uri?", a:"", o:[], h:""}
+    ]);
+    if(nalog.a) return {s:nalog.s, q:nalog.q, a:nalog.a, o:nalog.o, txt:1, h:nalog.h};
+    const u = rnd(1,9), k = rnd(2,3);
+    return {s:["Ura je "+num(u)+"."], q:"Koliko bo ura čez "+k+" ure?", a:String(u+k),
+            o:opts(String(u+k), okoli(u+k,1)), h:"Prištej ure: "+u+" + "+k+"."};
+  }},
+  // --- težje (stopnje 6–9) ---
+  {od:6, gen: st => {                                     // zastavice ob poti
+    const n = rnd(4,7), d = rnd(2,6);
+    const meter = ["meter","metra","metri","metrov"];
+    return {s:["Ob poti stoji "+num(n)+" dreves.", "Med dvema sosednjima drevesoma "+BE(d)+" "+num(d)+" "+F(meter,d)+"."],
+            q:"Kako dolga je pot od prvega do zadnjega drevesa?", a:String((n-1)*d),
+            o:opts(String((n-1)*d), [String(n*d), String((n+1)*d), String((n-2)*d)]),
+            h:"Pozor: med "+n+" drevesi je samo "+(n-1)+" presledkov. Nariši si jih."};
+  }},
+  {od:6, gen: st => {                                     // črke v besedi
+    const bes = pick(["KENGURU","MATEMATIKA","ZVEZDICA","SLADOLED","PIKAPOLONICA","RAČUNALNIK"]);
+    const črke = bes.split("").filter((c,i,a) => a.indexOf(c) === i);
+    const č = pick(črke.filter(c => bes.split(c).length-1 >= 1));
+    const k = rnd(2,3), n = (bes.split(č).length-1) * k;
+    return {s:[pick(NAMES).n+" "+k+"-krat napiše to besedo."], pic:bes, picWide:1,
+            q:"Kolikokrat napiše črko "+č+"?", a:String(n), o:opts(String(n), okoli(n,1)),
+            h:"Najprej preštej črko "+č+" v eni besedi, nato pomnoži s "+k+"."};
+  }},
+  {od:6, gen: st => {                                     // denar
+    const c = rnd(2,5), k = rnd(2,6), p = pick(NAMES);
+    return {s:["1 sladoled stane "+num(c)+" €.", p.n+" ima "+num(c*k)+" €."],
+            q:"Koliko sladoledov lahko kupi?", a:String(k), o:opts(String(k), okoli(k,1)),
+            h:"Štej po "+c+" evrov, dokler ne prideš do "+(c*k)+"."};
+  }},
+  {od:6, gen: st => {                                     // tehtnica
+    const a = rnd(2,4), k = rnd(2,3);
+    const lub = ["lubenica","lubenici","lubenice","lubenic"];
+    return {s:["Tehtnica je v ravnovesju.", "Ena lubenica je enako težka kot "+num(a)+" jabolka."],
+            pic:"🍉 = "+"🍎".repeat(a), picWide:1,
+            q:"Koliko jabolk je enako težkih kot "+num(k)+" "+F(lub,k)+"?", a:String(a*k),
+            o:opts(String(a*k), [String(a+k), String(a*k+a), String(a*k-a)]),
+            h:"Vsaka lubenica je "+a+" jabolka. Seštej "+a+" "+k+"-krat."};
+  }},
+  {od:6, gen: st => {                                     // logika: kdo je najnižji
+    const IMENA_ROD = [{n:"Nik",r:"Nika",ž:0},{n:"Tim",r:"Tima",ž:0},{n:"Vid",r:"Vida",ž:0},
+                       {n:"Rok",r:"Roka",ž:0},{n:"Žan",r:"Žana",ž:0},{n:"Maja",r:"Maje",ž:1},
+                       {n:"Eva",r:"Eve",ž:1},{n:"Zala",r:"Zale",ž:1},{n:"Ana",r:"Ane",ž:1}];
+    const izbor = IMENA_ROD.slice().sort(() => Math.random()-0.5).slice(0,3);
+    const p = izbor[0], d = izbor[1], t = izbor[2];
+    const više = (x,y) => x.n+" je "+(x.ž?"višja":"višji")+" od "+y.r+".";
+    const vpr = Math.random() < 0.5;
+    return {s:[više(p,d), više(d,t)], q:vpr ? "Kdo je najnižji?" : "Kdo je najvišji?",
+            a:vpr ? t.n : p.n, o:[p.n,d.n,t.n], txt:1,
+            h:"Postavi jih v vrsto od najvišjega do najnižjega."};
+  }}
+];
+
+function genKenguru(st){
+  const možne = KENGURU.filter(k => (k.od || 1) <= st && st <= (k.do || 9));
+  const k = pick(možne.length ? možne : KENGURU);
+  const n = k.gen(st);
+  return {task:"Preberi in razmisli", story:n.s, ask:n.q, pic:n.pic, picWide:n.picWide,
+          type:"choice", choices:n.o, answer:n.a, opts:true, txt:n.txt, read:true,
+          line:"🦘 "+n.q.replace(/<[^>]+>/g,"")+" → "+n.a,
+          hint:"<b>Namig</b>"+n.h};
+}
+
+
+/* ============================================================
+   NOVI SKLOPI NALOG — od prvih korakov do 9. razreda
+   Vsak generator dobi stopnjo 1–9; posamezna igra uporabi
+   le tisti del lestvice, ki ustreza starostni skupini.
+   ============================================================ */
+
+const dec = n => String(Math.round(n*100)/100).replace(".", ",");   // 3.5 -> "3,5"
+const ok2 = n => Math.round(n*100)/100;
+
+/* ---------- Deljenje ---------- */
+function genDivide(st){
+  if(st <= 6){
+    let b, c;
+    if(st <= 2){ b = pick([2,5,10]);        c = rnd(1,5); }
+    else if(st <= 4){ b = pick([2,3,4,5,10]); c = rnd(2,10); }
+    else { b = rnd(2,10);                   c = rnd(2,10); }
+    const a = b*c;
+    return {task:"Koliko je?", big:a+" : "+b, type:"num", answer:c, line:a+" : "+b+" = "+c,
+            chk:{f:"div", p:[a,b]},
+            hint:"<b>Deljenje je obratno od množenja.</b>Vprašaj se: koliko krat gre "+b+" v "+a+"?<br>"+
+                 b+" × ? = "+a};
+  }
+  if(st <= 8){                                    // deljenje z ostankom
+    const b = rnd(3,9), c = rnd(3,12), o = rnd(1,b-1), a = b*c+o;
+    return {task:"Koliko je ostanek?", big:a+" : "+b+" = "+c+", ostanek <span class='miss'>?</span>",
+            type:"num", answer:o, line:a+" : "+b+" = "+c+", ost. "+o, chk:{f:"mod", p:[a,b]},
+            hint:"<b>Ostanek</b>"+b+" × "+c+" = "+(b*c)+". Kar ostane do "+a+", je ostanek."};
+  }
+  const b = rnd(3,9), c = rnd(21,99), a = b*c;    // trimestno : enomestno
+  return {task:"Koliko je?", big:a+" : "+b, type:"num", answer:c, line:a+" : "+b+" = "+c,
+          chk:{f:"div", p:[a,b]},
+          hint:"<b>Pisno deljenje</b>Deli po mestih: najprej stotice, nato desetice, nato enice."};
+}
+
+/* ---------- Pisno računanje z večjimi števili ---------- */
+function genWritten(st){
+  if(st <= 3){
+    const a = rnd(101, st<=1?499:999), b = rnd(101, 999-Math.max(0,a-500));
+    if(Math.random() < 0.5)
+      return {task:"Seštej", big:a+" + "+b, type:"num", answer:a+b, line:a+" + "+b+" = "+(a+b),
+              hint:"<b>Pisno seštevanje</b>Seštevaj po mestih: enice, desetice, stotice. Ne pozabi na prenos."};
+    const v = Math.max(a,b), n = Math.min(a,b);
+    return {task:"Odštej", big:v+" − "+n, type:"num", answer:v-n, line:v+" − "+n+" = "+(v-n),
+            hint:"<b>Pisno odštevanje</b>Odštevaj po mestih. Če je zgornja števka manjša, si sposodi desetico."};
+  }
+  if(st <= 6){
+    const a = rnd(12, st<=4?49:499), b = rnd(3,9);
+    return {task:"Zmnoži", big:a+" × "+b, type:"num", answer:a*b, line:a+" × "+b+" = "+(a*b),
+            hint:"<b>Pisno množenje</b>Razstavi: "+a+" × "+b+" = ("+(Math.floor(a/10)*10)+" × "+b+") + ("+(a%10)+" × "+b+")"};
+  }
+  if(st <= 8){
+    const a = rnd(12,99), b = rnd(11,49);
+    return {task:"Zmnoži", big:a+" × "+b, type:"num", answer:a*b, line:a+" × "+b+" = "+(a*b),
+            hint:"<b>Pisno množenje</b>"+a+" × "+b+" = ("+a+" × "+(Math.floor(b/10)*10)+") + ("+a+" × "+(b%10)+")"};
+  }
+  const a = rnd(1000,9999), b = rnd(1000,9999);
+  return {task:"Seštej", big:a+" + "+b, type:"num", answer:a+b, line:a+" + "+b+" = "+(a+b),
+          hint:"<b>Pisno seštevanje</b>Podpiši števili po mestih in seštevaj od desne proti levi."};
+}
+
+/* ---------- Merske enote ---------- */
+const ENOTE = [
+  {v:"m",  m:"cm", k:100,  ime:"dolžina"}, {v:"km", m:"m",  k:1000, ime:"dolžina"},
+  {v:"cm", m:"mm", k:10,   ime:"dolžina"}, {v:"kg", m:"g",  k:1000, ime:"masa"},
+  {v:"t",  m:"kg", k:1000, ime:"masa"},    {v:"l",  m:"dl", k:10,   ime:"prostornina"},
+  {v:"l",  m:"ml", k:1000, ime:"prostornina"}, {v:"h", m:"min", k:60, ime:"čas"},
+  {v:"min",m:"s",  k:60,   ime:"čas"},     {v:"dan",m:"h",  k:24,   ime:"čas"}
+];
+function genUnits(st){
+  const lahke = ENOTE.filter(e => [100,10,1000,60,24].indexOf(e.k) > -1);
+  const e = st <= 3 ? pick([ENOTE[0], ENOTE[3], ENOTE[5], ENOTE[7]]) : pick(ENOTE);
+  const navzdol = st <= 4 ? true : Math.random() < 0.6;      // večja -> manjša enota
+  if(navzdol){
+    const n = st <= 2 ? 1 : (st <= 5 ? rnd(2,9) : rnd(2,40));
+    const r = n*e.k;
+    return {task:"Pretvori", big:n+" "+e.v+" = <span class='miss'>?</span> "+e.m, type:"num", answer:r,
+            line:n+" "+e.v+" = "+r+" "+e.m, chk:{f:"unit", p:[n, e.v, e.m, e.k, 1]},
+            hint:"<b>Pretvarjanje</b>1 "+e.v+" = "+e.k+" "+e.m+".<br>Zato "+n+" "+e.v+" pomnožimo s "+e.k+"."};
+  }
+  const m = st <= 6 ? rnd(2,9)*e.k : rnd(2,40)*e.k;
+  return {task:"Pretvori", big:m+" "+e.m+" = <span class='miss'>?</span> "+e.v, type:"num", answer:m/e.k,
+          line:m+" "+e.m+" = "+(m/e.k)+" "+e.v, chk:{f:"unit", p:[m, e.m, e.v, e.k, 0]},
+          hint:"<b>Pretvarjanje</b>1 "+e.v+" = "+e.k+" "+e.m+".<br>Zato "+m+" "+e.m+" delimo s "+e.k+"."};
+}
+
+/* ---------- Denar ---------- */
+function genMoney(st){
+  const p = pick(NAMES);
+  if(st <= 3){
+    const a = rnd(2,9), b = rnd(2,9);
+    return {task:"Preberi in izračunaj", story:["Zvezek stane "+num(a)+" €.", "Svinčnik stane "+num(b)+" €."],
+            ask:"Koliko evrov je to skupaj?", type:"num", answer:a+b, read:true,
+            line:"💶 "+a+" € + "+b+" € = "+(a+b)+" €", chk:{f:"sum", p:[a,b]},
+            hint:"<b>Namig</b>Ceni seštej."};
+  }
+  if(st <= 6){
+    const c = rnd(3,17), pl = pick([20,20,50]);
+    return {task:"Preberi in izračunaj", story:[p.n+" ima "+num(pl)+" €.", "Kupi knjigo za "+num(c)+" €."],
+            ask:"Koliko evrov "+(p.ž?"ji":"mu")+" ostane?", type:"num", answer:pl-c, read:true,
+            line:"💶 "+pl+" € − "+c+" € = "+(pl-c)+" €", chk:{f:"change", p:[pl,c]},
+            hint:"<b>Namig</b>Od denarja, ki ga ima, odštej ceno."};
+  }
+  const a = rnd(1,9) + rnd(0,19)*0.05, b = rnd(1,9) + rnd(0,19)*0.05;
+  const A = ok2(a), B = ok2(b), skupaj = ok2(A+B);
+  return {task:"Preberi in izračunaj", story:["Sladoled stane "+num(dec(A))+" €.", "Sok stane "+num(dec(B))+" €."],
+          ask:"Koliko je to skupaj?", type:"num", answer:skupaj, decimal:true, read:true,
+          line:"💶 "+dec(A)+" € + "+dec(B)+" € = "+dec(skupaj)+" €", chk:{f:"sum", p:[A,B]},
+          hint:"<b>Namig</b>Sešteje se ločeno evre in cente. Vejica ostane pod vejico."};
+}
+
+/* ---------- Ura ---------- */
+function uraSVG(h, m){
+  const ku = ((h%12)*30 + m*0.5) * Math.PI/180, km = m*6 * Math.PI/180;
+  const R = 50, xu = R+21*Math.sin(ku), yu = R-21*Math.cos(ku), xm = R+31*Math.sin(km), ym = R-31*Math.cos(km);
+  let črtice = "";
+  for(let i=0;i<12;i++){
+    const a = i*30*Math.PI/180, dolga = i%3 === 0;
+    črtice += '<line x1="'+(R+ (dolga?38:41)*Math.sin(a))+'" y1="'+(R-(dolga?38:41)*Math.cos(a))+
+              '" x2="'+(R+44*Math.sin(a))+'" y2="'+(R-44*Math.cos(a))+
+              '" stroke="#9fb0dd" stroke-width="'+(dolga?3:1.6)+'" stroke-linecap="round"/>';
+  }
+  return '<svg viewBox="0 0 100 100" width="168" height="168" role="img" aria-label="ura">'+
+    '<circle cx="50" cy="50" r="47" fill="#fff" stroke="#5b6cff" stroke-width="3"/>'+ črtice +
+    '<text x="50" y="27" text-anchor="middle" font-size="10" font-weight="900" fill="#8494bd">12</text>'+
+    '<text x="76" y="54" text-anchor="middle" font-size="10" font-weight="900" fill="#8494bd">3</text>'+
+    '<text x="50" y="81" text-anchor="middle" font-size="10" font-weight="900" fill="#8494bd">6</text>'+
+    '<text x="24" y="54" text-anchor="middle" font-size="10" font-weight="900" fill="#8494bd">9</text>'+
+    '<line x1="50" y1="50" x2="'+xu+'" y2="'+yu+'" stroke="#26365e" stroke-width="5" stroke-linecap="round"/>'+
+    '<line x1="50" y1="50" x2="'+xm+'" y2="'+ym+'" stroke="#f2762e" stroke-width="3.2" stroke-linecap="round"/>'+
+    '<circle cx="50" cy="50" r="3.4" fill="#26365e"/></svg>';
+}
+const zapisiUro = (h,m) => h+":"+(m<10?"0":"")+m;
+function genClock(st){
+  const h = rnd(1,12);
+  let m;
+  if(st <= 2) m = 0;
+  else if(st <= 4) m = pick([0,30]);
+  else if(st <= 6) m = pick([0,15,30,45]);
+  else m = rnd(0,11)*5;
+  if(st >= 8 && Math.random() < 0.45){                    // koliko bo čez toliko minut
+    const dodaj = pick([10,15,20,30,45]);
+    const skupaj = h*60 + m + dodaj;
+    const h2 = Math.floor(skupaj/60) % 12 || 12, m2 = skupaj % 60;
+    const prav = zapisiUro(h2,m2);
+    return {task:"Poglej uro in razmisli", story:["Ura kaže "+num(zapisiUro(h,m))+"."],
+            pic:uraSVG(h,m), picWide:1, ask:"Koliko bo ura čez "+dodaj+" minut?",
+            type:"choice", opts:true, txt:1, answer:prav, read:true,
+            choices:opts(prav, [zapisiUro(h2, (m2+5)%60), zapisiUro((h2%12)+1, m2), zapisiUro(h2, (m2+30)%60)]),
+            line:"🕐 "+zapisiUro(h,m)+" + "+dodaj+" min = "+prav, chk:{f:"clockAdd", p:[h,m,dodaj]},
+            hint:"<b>Namig</b>Najprej prištej minute. Če jih je več kot 60, prištej eno uro in odštej 60."};
+  }
+  const prav = zapisiUro(h,m);
+  const drugi = [zapisiUro(h, (m+15)%60), zapisiUro((h%12)+1, m), zapisiUro(h === 1 ? 12 : h-1, m), zapisiUro(h, (m+30)%60)];
+  return {task:"Poglej uro", story:[], pic:uraSVG(h,m), picWide:1, ask:"Katero uro kaže?",
+          type:"choice", opts:true, txt:1, answer:prav, choices:opts(prav, drugi), read:true,
+          line:"🕐 ura kaže "+prav, chk:{f:"clock", p:[h,m]},
+          hint:"<b>Namig</b>Krajši kazalec kaže ure, daljši oranžni pa minute.<br>Ena črtica je 5 minut."};
+}
+
+/* ---------- Števila: mestne vrednosti, zaokroževanje, deljivost ---------- */
+function genNumbers(st){
+  if(st <= 2){                                            // sosednja števila
+    const n = rnd(1, st===1?10:20), prej = Math.random() < 0.5;
+    return {task:prej ? "Katero število je pred?" : "Katero število je za?",
+            big:prej ? '<span class="miss">?</span>, '+n : n+', <span class="miss">?</span>',
+            type:"num", answer:prej ? n-1 : n+1, line:(prej?(n-1)+", "+n : n+", "+(n+1)),
+            chk:{f:"sosed", p:[n, prej?1:0]},
+            hint:"<b>Namig</b>Naštej števila po vrsti in poglej, katero manjka."};
+  }
+  if(st <= 4){                                            // mestne vrednosti
+    const n = rnd(11, st===3?99:999);
+    const kaj = st === 3 ? pick(["desetic","enic"]) : pick(["stotic","desetic","enic"]);
+    const v = kaj === "enic" ? n%10 : kaj === "desetic" ? Math.floor(n/10)%10 : Math.floor(n/100)%10;
+    return {task:"Mestne vrednosti", big:"Koliko "+kaj+" ima število "+n+"?", type:"num", answer:v,
+            line:n+" → "+v+" "+kaj, chk:{f:"mesto", p:[n, kaj]},
+            hint:"<b>Namig</b>Število "+n+" razstavi: "+Math.floor(n/100)+" stotic, "+
+                 (Math.floor(n/10)%10)+" desetic, "+(n%10)+" enic."};
+  }
+  if(st <= 6){                                            // zaokroževanje
+    const na = st === 5 ? 10 : pick([10,100]);
+    const n = rnd(na === 10 ? 11 : 101, na === 10 ? 99 : 999);
+    const r = Math.round(n/na)*na;
+    return {task:"Zaokroži", big:"Zaokroži "+n+" na "+(na === 10 ? "desetice" : "stotice")+".",
+            type:"num", answer:r, line:n+" ≈ "+r, chk:{f:"zaokr", p:[n, na]},
+            hint:"<b>Zaokroževanje</b>Poglej števko desno od mesta zaokroževanja.<br>"+
+                 "Če je 5 ali več, zaokrožimo navzgor, sicer navzdol."};
+  }
+  if(st === 7){                                           // deljivost
+    const d = pick([2,3,5,9,10]), n = rnd(20,300);
+    const da = n % d === 0;
+    return {task:"Deljivost", big:"Ali je število "+n+" deljivo s/z "+d+"?",
+            type:"choice", opts:true, txt:1, choices:["Da","Ne"], answer:da ? "Da" : "Ne",
+            line:n+" deljivo s "+d+" → "+(da?"da":"ne"), chk:{f:"deljivo", p:[n,d]},
+            hint:"<b>Pravila deljivosti</b>Z 2: če je zadnja števka soda.<br>S 3 in z 9: če je vsota števk deljiva s 3 oz. z 9.<br>S 5: če se konča na 0 ali 5. Z 10: če se konča na 0."};
+  }
+  if(st === 8){                                           // praštevila
+    const pra = [2,3,5,7,11,13,17,19,23,29,31,37,41,43];
+    const p = pick(pra);
+    const sestavljena = [];
+    while(sestavljena.length < 3){
+      const c = rnd(4,48);
+      if(pra.indexOf(c) < 0 && sestavljena.indexOf(c) < 0) sestavljena.push(c);
+    }
+    return {task:"Praštevila", big:"Katero od števil je praštevilo?", type:"choice", opts:true,
+            choices:opts(String(p), sestavljena.map(String)), answer:String(p),
+            line:"praštevilo → "+p, chk:{f:"prastevilo", p:[p]},
+            hint:"<b>Praštevilo</b>ima natanko dva delitelja: 1 in samega sebe.<br>Primeri: 2, 3, 5, 7, 11, 13 …"};
+  }
+  const a = rnd(4,24), b = rnd(4,24);                      // največji skupni delitelj / najmanjši večkratnik
+  const nsd = (x,y) => y ? nsd(y, x%y) : x;
+  const iščemNsd = Math.random() < 0.5;
+  const v = iščemNsd ? nsd(a,b) : a*b/nsd(a,b);
+  return {task:iščemNsd ? "Največji skupni delitelj" : "Najmanjši skupni večkratnik",
+          big:(iščemNsd ? "D" : "v")+"("+a+", "+b+") = <span class='miss'>?</span>",
+          type:"num", answer:v, line:(iščemNsd?"D(":"v(")+a+", "+b+") = "+v,
+          chk:{f:iščemNsd?"nsd":"nsv", p:[a,b]},
+          hint:iščemNsd ? "<b>Največji skupni delitelj</b>Poišči največje število, s katerim lahko deliš obe števili."
+                        : "<b>Najmanjši skupni večkratnik</b>Naštej večkratnike obeh števil in poišči prvega skupnega."};
+}
+
+
+/* ---------- Ulomki ---------- */
+const uHTML = (a,b) => '<span class="frac"><b>'+a+'</b><i>'+b+'</i></span>';
+const uTXT  = (a,b) => a+"/"+b;
+function nsdF(x,y){ x=Math.abs(x); y=Math.abs(y); while(y){ const t=y; y=x%y; x=t; } return x||1; }
+function krajšaj(a,b){ const d=nsdF(a,b); return [a/d, b/d]; }
+
+function genFractions(st){
+  if(st <= 2){                                     // kolikšen del je pobarvan
+    const b = pick([2,3,4,4,5,6,8]), a = rnd(1,b-1);
+    let slika = "";
+    for(let i=0;i<b;i++) slika += (i<a ? "🟦" : "⬜");
+    const možni = [[a,b],[b-a,b],[a,b+1],[a+1,b]].map(x => uTXT(x[0],x[1]));
+    return {task:"Poglej sliko", story:["Lik je razdeljen na "+num(b)+" enakih delov."], pic:slika, picWide:1,
+            ask:"Kolikšen del je pobarvan?", type:"choice", opts:true, read:true,
+            choices:opts(uTXT(a,b), možni.slice(1)).map(x => x),
+            answer:uTXT(a,b), frac:true, line:"½ pobarvano → "+uTXT(a,b),
+            chk:{f:"fracExpr", expr:a+"/"+b, ans:uTXT(a,b)},
+            hint:"<b>Ulomek</b>Spodaj (imenovalec) je število vseh delov, zgoraj (števec) pa število pobarvanih."};
+  }
+  if(st === 3){                                    // primerjava ulomkov
+    const b = pick([4,5,6,8,10]);
+    let a1 = rnd(1,b-1), a2 = rnd(1,b-1);
+    if(Math.random() < 0.25) a2 = a1;
+    const znak = a1 < a2 ? "<" : a1 > a2 ? ">" : "=";
+    return {task:"Postavi pravi znak", big:uHTML(a1,b)+' <span class="miss">?</span> '+uHTML(a2,b),
+            type:"choice", choices:["<","=",">"], answer:znak,
+            line:uTXT(a1,b)+" "+znak+" "+uTXT(a2,b), chk:{f:"cmp", p:[a1/b, a2/b]},
+            hint:"<b>Namig</b>Pri enakih imenovalcih je večji tisti ulomek, ki ima večji števec."};
+  }
+  if(st === 4){                                    // del od števila
+    const b = pick([2,3,4,5,6]), a = rnd(1,b-1), k = b*rnd(2,8);
+    return {task:"Koliko je?", big:uHTML(a,b)+" od "+k, type:"num", answer:a*k/b,
+            line:uTXT(a,b)+" od "+k+" = "+(a*k/b), chk:{f:"delOd", p:[a,b,k]},
+            hint:"<b>Del od števila</b>" + (a === 1
+              ? "Število "+k+" razdeli na "+b+" enakih delov: "+k+" : "+b
+              : "Najprej deli s "+b+" (dobiš en del), nato pomnoži z "+a+".")};
+  }
+  if(st <= 6){                                     // seštevanje in odštevanje z enakim imenovalcem
+    const b = pick([4,5,6,8,10,12]);
+    const plus = Math.random() < 0.6;
+    let a1 = rnd(1,b-2), a2 = rnd(1,b-a1);
+    if(!plus){ a1 = rnd(2,b-1); a2 = rnd(1,a1-1) || 1; }
+    const r = plus ? a1+a2 : a1-a2;
+    const [rk, bk] = krajšaj(r,b);
+    const napačni = [uTXT(plus?a1+a2:a1-a2, b*2), uTXT(plus?a1+a2:Math.abs(a1-a2), b+1), uTXT(a1*a2, b)];
+    return {task:"Izračunaj", big:uHTML(a1,b)+(plus?" + ":" − ")+uHTML(a2,b),
+            type:"choice", opts:true, frac:true, answer:uTXT(rk,bk),
+            choices:opts(uTXT(rk,bk), napačni.concat([uTXT(r,b), uTXT(r+1,b)])),
+            line:uTXT(a1,b)+(plus?" + ":" − ")+uTXT(a2,b)+" = "+uTXT(rk,bk),
+            chk:{f:"fracExpr", expr:a1+"/"+b+(plus?"+":"-")+a2+"/"+b, ans:uTXT(rk,bk)},
+            hint:"<b>Enak imenovalec</b>Imenovalec prepišeš, števca pa "+(plus?"sešteješ":"odšteješ")+".<br>Rezultat okrajšaj, če se da."};
+  }
+  if(st <= 8){                                     // različna imenovalca
+    const b1 = pick([2,3,4,5,6]), k = rnd(2,4), b2 = b1*k;
+    const a1 = rnd(1,b1-1) || 1, a2 = rnd(1,b2-1);
+    const plus = Math.random() < 0.6;
+    const št = plus ? a1*k+a2 : a1*k-a2;
+    if(št <= 0) return genFractions(6);
+    const [rk,bk] = krajšaj(št,b2);
+    return {task:"Izračunaj", big:uHTML(a1,b1)+(plus?" + ":" − ")+uHTML(a2,b2),
+            type:"choice", opts:true, frac:true, answer:uTXT(rk,bk),
+            choices:opts(uTXT(rk,bk), [uTXT(a1+a2, b1+b2), uTXT(št+1, b2), uTXT(št, b1)]),
+            line:uTXT(a1,b1)+(plus?" + ":" − ")+uTXT(a2,b2)+" = "+uTXT(rk,bk),
+            chk:{f:"fracExpr", expr:a1+"/"+b1+(plus?"+":"-")+a2+"/"+b2, ans:uTXT(rk,bk)},
+            hint:"<b>Različna imenovalca</b>Ulomka razširi na skupni imenovalec "+b2+".<br>"+
+                 uTXT(a1,b1)+" = "+uTXT(a1*k,b2)+", nato računaj s števcema."};
+  }
+  const b1 = pick([2,3,4,5]), b2 = pick([2,3,4,5]);      // množenje ulomkov
+  const a1 = rnd(1,b1-1) || 1, a2 = rnd(1,b2-1) || 1;
+  const [rk,bk] = krajšaj(a1*a2, b1*b2);
+  return {task:"Izračunaj", big:uHTML(a1,b1)+" · "+uHTML(a2,b2), type:"choice", opts:true, frac:true,
+          answer:uTXT(rk,bk), choices:opts(uTXT(rk,bk), [uTXT(a1+a2,b1+b2), uTXT(a1*a2, b1+b2), uTXT(a1*b2, a2*b1)]),
+          line:uTXT(a1,b1)+" · "+uTXT(a2,b2)+" = "+uTXT(rk,bk),
+          chk:{f:"fracExpr", expr:"("+a1+"/"+b1+")*("+a2+"/"+b2+")", ans:uTXT(rk,bk)},
+          hint:"<b>Množenje ulomkov</b>Zmnožiš števca in zmnožiš imenovalca, nato okrajšaš."};
+}
+
+/* ---------- Decimalna števila ---------- */
+function genDecimals(st){
+  if(st <= 2){
+    const a = ok2(rnd(1,9) + rnd(0,9)/10), b = ok2(rnd(1,9) + rnd(0,9)/10);
+    const znak = a < b ? "<" : a > b ? ">" : "=";
+    return {task:"Postavi pravi znak", big:dec(a)+' <span class="miss">?</span> '+dec(b),
+            type:"choice", choices:["<","=",">"], answer:znak, line:dec(a)+" "+znak+" "+dec(b),
+            chk:{f:"cmp", p:[a,b]},
+            hint:"<b>Namig</b>Najprej primerjaj cela dela, nato desetinke."};
+  }
+  if(st <= 4){
+    const a = ok2(rnd(1,20) + rnd(1,9)/10), b = ok2(rnd(1,20) + rnd(1,9)/10);
+    const plus = Math.random() < 0.6;
+    const v = ok2(plus ? a+b : Math.max(a,b)-Math.min(a,b));
+    const x = plus ? a : Math.max(a,b), y = plus ? b : Math.min(a,b);
+    return {task:"Izračunaj", big:dec(x)+(plus?" + ":" − ")+dec(y), type:"num", answer:v, decimal:true,
+            line:dec(x)+(plus?" + ":" − ")+dec(y)+" = "+dec(v), chk:{f:"num", expr:x+(plus?"+":"-")+y},
+            hint:"<b>Namig</b>Vejica pod vejico. Računaj kot z naravnimi števili in vejico prepiši navzdol."};
+  }
+  if(st <= 6){
+    if(Math.random() < 0.5){
+      const a = ok2(rnd(1,50) + rnd(1,99)/100), k = pick([10,100]);
+      return {task:"Izračunaj", big:dec(a)+" · "+k, type:"num", answer:ok2(a*k), decimal:true,
+              line:dec(a)+" · "+k+" = "+dec(ok2(a*k)), chk:{f:"num", expr:a+"*"+k},
+              hint:"<b>Množenje z 10 in 100</b>Vejico premakni za eno mesto (·10) oziroma dve mesti (·100) v desno."};
+    }
+    const a = ok2(rnd(1,30) + rnd(1,99)/100), b = ok2(rnd(1,30) + rnd(1,99)/100);
+    return {task:"Seštej", big:dec(a)+" + "+dec(b), type:"num", answer:ok2(a+b), decimal:true,
+            line:dec(a)+" + "+dec(b)+" = "+dec(ok2(a+b)), chk:{f:"num", expr:a+"+"+b},
+            hint:"<b>Namig</b>Vejica pod vejico, manjkajoča mesta dopolni z ničlami."};
+  }
+  if(st <= 8){
+    const a = ok2(rnd(1,20) + rnd(1,9)/10), k = rnd(2,9);
+    return {task:"Zmnoži", big:dec(a)+" · "+k, type:"num", answer:ok2(a*k), decimal:true,
+            line:dec(a)+" · "+k+" = "+dec(ok2(a*k)), chk:{f:"num", expr:a+"*"+k},
+            hint:"<b>Množenje decimalnega števila</b>Množi brez vejice, nato v rezultatu odštej toliko decimalk, kolikor jih je v računu."};
+  }
+  const k = rnd(2,9), c = ok2(rnd(1,20) + rnd(1,9)/10), a = ok2(c*k);
+  return {task:"Deli", big:dec(a)+" : "+k, type:"num", answer:c, decimal:true,
+          line:dec(a)+" : "+k+" = "+dec(c), chk:{f:"num", expr:a+"/"+k},
+          hint:"<b>Deljenje decimalnega števila</b>Deli kot običajno, vejico v rezultatu postavi nad vejico."};
+}
+
+/* ---------- Odstotki ---------- */
+function genPercent(st){
+  if(st <= 3){
+    const p = pick(st<=1 ? [50,10] : [10,20,25,50]), n = pick([20,40,60,80,100,120,200]);
+    return {task:"Koliko je?", big:p+" % od "+n, type:"num", answer:n*p/100,
+            line:p+" % od "+n+" = "+(n*p/100), chk:{f:"pct", p:[p,n]},
+            hint:"<b>Odstotki</b>1 % je stoti del.<br>"+p+" % od "+n+" = "+n+" : 100 · "+p};
+  }
+  if(st <= 5){
+    const p = pick([5,15,30,40,60,75,80]), n = pick([20,40,60,80,120,160,200,300]);
+    return {task:"Koliko je?", big:p+" % od "+n, type:"num", answer:n*p/100,
+            line:p+" % od "+n+" = "+(n*p/100), chk:{f:"pct", p:[p,n]},
+            hint:"<b>Odstotki</b>Najprej izračunaj 1 % ("+n+" : 100 = "+(n/100)+"), nato pomnoži s "+p+"."};
+  }
+  if(st <= 7){
+    const del = rnd(1,9)*5, celota = pick([20,25,50,100,200]);
+    const a = celota*del/100;
+    return {task:"Koliko odstotkov?", big:"Koliko % je "+a+" od "+celota+"?", type:"num", answer:del,
+            line:a+" od "+celota+" = "+del+" %", chk:{f:"pctOf", p:[a,celota]},
+            hint:"<b>Namig</b>Del deli s celoto in pomnoži s 100:<br>"+a+" : "+celota+" · 100"};
+  }
+  const c = pick([40,60,80,120,200,250]), p = pick([10,20,25,50]);
+  const nižje = Math.random() < 0.6;
+  const v = nižje ? c - c*p/100 : c + c*p/100;
+  return {task:"Preberi in izračunaj",
+          story:["Cena majice je "+num(c)+" €.", nižje ? "Cena se zniža za "+num(p)+" %." : "Cena se zviša za "+num(p)+" %."],
+          ask:"Kakšna je nova cena?", type:"num", answer:v, read:true,
+          line:"% "+c+" € "+(nižje?"−":"+")+" "+p+" % = "+v+" €",
+          chk:{f:"pctChange", p:[c,p,nižje?1:0]},
+          hint:"<b>Namig</b>Najprej izračunaj "+p+" % od "+c+", nato ta znesek "+(nižje?"odštej":"prištej")+"."};
+}
+
+/* ---------- Cela števila ---------- */
+function genIntegers(st){
+  const znak = n => n < 0 ? "(−"+Math.abs(n)+")" : String(n);
+  if(st <= 3){
+    const a = -rnd(2,15), b = rnd(2,20);
+    return {task:"Izračunaj", big:"−"+Math.abs(a)+" + "+b, type:"num", answer:a+b, negative:true,
+            line:"−"+Math.abs(a)+" + "+b+" = "+(a+b), chk:{f:"num", expr:a+"+"+b},
+            hint:"<b>Namig</b>Predstavljaj si številsko premico: začneš pri −"+Math.abs(a)+" in narediš "+b+" korakov v desno."};
+  }
+  if(st <= 6){
+    const a = -rnd(2,20), b = rnd(2,20);
+    const minus = Math.random() < 0.5;
+    const v = minus ? a-b : a+b;
+    return {task:"Izračunaj", big:"−"+Math.abs(a)+(minus?" − ":" + ")+b, type:"num", answer:v, negative:true,
+            line:"−"+Math.abs(a)+(minus?" − ":" + ")+b+" = "+v, chk:{f:"num", expr:a+(minus?"-":"+")+b},
+            hint:"<b>Namig</b>Odštevanje pomeni korake v levo, seštevanje korake v desno po številski premici."};
+  }
+  const a = pick([-1,1])*rnd(2,12), b = pick([-1,1])*rnd(2,9);
+  const krat = Math.random() < 0.6;
+  const v = krat ? a*b : (a*b)/b;
+  return {task:"Izračunaj", big:krat ? znak(a)+" · "+znak(b) : znak(a*b)+" : "+znak(b),
+          type:"num", answer:krat ? a*b : a, negative:true,
+          line:(krat ? a+" · "+b+" = "+(a*b) : (a*b)+" : "+b+" = "+a),
+          chk:{f:"num", expr:krat ? "("+a+")*("+b+")" : "("+(a*b)+")/("+b+")"},
+          hint:"<b>Pravilo predznakov</b>Enaka predznaka dasta plus, različna dasta minus."};
+}
+
+/* ---------- Potence in koreni ---------- */
+function genPowers(st){
+  if(st <= 3){
+    const n = rnd(2, st<=1?6:12);
+    return {task:"Izračunaj", big:n+"<sup>2</sup>", type:"num", answer:n*n, line:n+"² = "+(n*n),
+            chk:{f:"num", expr:n+"*"+n},
+            hint:"<b>Kvadrat</b>"+n+"² pomeni "+n+" · "+n+"."};
+  }
+  if(st <= 5){
+    if(Math.random() < 0.5){
+      const n = rnd(2,6);
+      return {task:"Izračunaj", big:n+"<sup>3</sup>", type:"num", answer:n**3, line:n+"³ = "+(n**3),
+              chk:{f:"num", expr:n+"*"+n+"*"+n}, hint:"<b>Kub</b>"+n+"³ pomeni "+n+" · "+n+" · "+n+"."};
+    }
+    const n = rnd(2,15);
+    return {task:"Izračunaj", big:"√"+(n*n), type:"num", answer:n, line:"√"+(n*n)+" = "+n,
+            chk:{f:"sqrt", p:[n*n]},
+            hint:"<b>Kvadratni koren</b>Iščeš število, ki pomnoženo samo s sabo da "+(n*n)+"."};
+  }
+  if(st <= 7){
+    const a = rnd(2,9), b = rnd(2,9);
+    return {task:"Izračunaj", big:a+"<sup>2</sup> + "+b+"<sup>2</sup>", type:"num", answer:a*a+b*b,
+            line:a+"² + "+b+"² = "+(a*a+b*b), chk:{f:"num", expr:a+"*"+a+"+"+b+"*"+b},
+            hint:"<b>Vrstni red</b>Najprej potence, šele nato seštevanje."};
+  }
+  const a = rnd(2,9), b = rnd(2,6);
+  if(Math.random() < 0.5)
+    return {task:"Izračunaj", big:"√("+a*a+" · "+b*b+")", type:"num", answer:a*b,
+            line:"√("+(a*a)+" · "+(b*b)+") = "+(a*b), chk:{f:"sqrt", p:[a*a*b*b]},
+            hint:"<b>Namig</b>Koren produkta je produkt korenov: √("+(a*a)+"·"+(b*b)+") = √"+(a*a)+" · √"+(b*b)};
+  return {task:"Izračunaj", big:a+"<sup>2</sup> − "+b+"<sup>2</sup>", type:"num", answer:a*a-b*b, negative:true,
+          line:a+"² − "+b+"² = "+(a*a-b*b), chk:{f:"num", expr:a+"*"+a+"-"+b+"*"+b},
+          hint:"<b>Vrstni red</b>Najprej izračunaj obe potenci, nato odštej."};
+}
+
+/* ---------- Enačbe ---------- */
+function genEquations(st){
+  if(st <= 3){
+    const x = rnd(2,20), a = rnd(2,20), plus = Math.random() < 0.6;
+    const b = plus ? x+a : x-a;
+    return {task:"Izračunaj x", big:"x "+(plus?"+":"−")+" "+a+" = "+b, type:"num", answer:x, negative:true,
+            line:"x "+(plus?"+":"−")+" "+a+" = "+b+"  →  x = "+x, chk:{f:"eq", p:[1, plus?a:-a, 0, b]},
+            hint:"<b>Namig</b>Na obeh straneh "+(plus?"odštej":"prištej")+" "+a+", da x ostane sam."};
+  }
+  if(st <= 5){
+    const a = rnd(2,9), x = rnd(2,12), b = a*x;
+    return {task:"Izračunaj x", big:a+"x = "+b, type:"num", answer:x,
+            line:a+"x = "+b+"  →  x = "+x, chk:{f:"eq", p:[a,0,0,b]},
+            hint:"<b>Namig</b>Obe strani deli z "+a+"."};
+  }
+  if(st <= 7){
+    const a = rnd(2,9), x = rnd(2,12), b = rnd(1,20), c = a*x+b;
+    return {task:"Izračunaj x", big:a+"x + "+b+" = "+c, type:"num", answer:x,
+            line:a+"x + "+b+" = "+c+"  →  x = "+x, chk:{f:"eq", p:[a,b,0,c]},
+            hint:"<b>Namig</b>Najprej odštej "+b+" na obeh straneh, nato deli z "+a+"."};
+  }
+  const a = rnd(3,9), c = rnd(1,a-1), x = rnd(2,12), b = rnd(1,15), d = (a-c)*x + b;
+  return {task:"Izračunaj x", big:a+"x + "+b+" = "+c+"x + "+d, type:"num", answer:x,
+          line:a+"x + "+b+" = "+c+"x + "+d+"  →  x = "+x, chk:{f:"eq", p:[a,b,c,d]},
+          hint:"<b>Namig</b>Vse x-e daj na levo stran, števila na desno:<br>("+a+" − "+c+")x = "+d+" − "+b};
+}
+
+/* ---------- Geometrija ---------- */
+function genGeometry(st){
+  const p = pick(NAMES);
+  if(st <= 2){
+    const a = rnd(2,20), kvadrat = Math.random() < 0.5;
+    if(kvadrat)
+      return {task:"Geometrija", big:"Kvadrat ima stranico "+a+" cm.<br>Kolikšen je njegov obseg?",
+              type:"num", answer:4*a, line:"kvadrat a="+a+" → obseg "+(4*a)+" cm",
+              chk:{f:"geo", kind:"o_kvadrat", p:[a]},
+              hint:"<b>Obseg kvadrata</b>o = 4 · a = 4 · "+a};
+    const b = rnd(2,20);
+    return {task:"Geometrija", big:"Pravokotnik meri "+a+" cm in "+b+" cm.<br>Kolikšen je njegov obseg?",
+            type:"num", answer:2*(a+b), line:"pravokotnik "+a+"×"+b+" → obseg "+(2*(a+b))+" cm",
+            chk:{f:"geo", kind:"o_pravokotnik", p:[a,b]},
+            hint:"<b>Obseg pravokotnika</b>o = 2 · (a + b) = 2 · ("+a+" + "+b+")"};
+  }
+  if(st <= 4){
+    const a = rnd(2,20), kvadrat = Math.random() < 0.5;
+    if(kvadrat)
+      return {task:"Geometrija", big:"Kvadrat ima stranico "+a+" cm.<br>Kolikšna je njegova ploščina?",
+              type:"num", answer:a*a, line:"kvadrat a="+a+" → ploščina "+(a*a)+" cm²",
+              chk:{f:"geo", kind:"p_kvadrat", p:[a]},
+              hint:"<b>Ploščina kvadrata</b>p = a · a = "+a+" · "+a};
+    const b = rnd(2,20);
+    return {task:"Geometrija", big:"Pravokotnik meri "+a+" cm in "+b+" cm.<br>Kolikšna je njegova ploščina?",
+            type:"num", answer:a*b, line:"pravokotnik "+a+"×"+b+" → ploščina "+(a*b)+" cm²",
+            chk:{f:"geo", kind:"p_pravokotnik", p:[a,b]},
+            hint:"<b>Ploščina pravokotnika</b>p = a · b = "+a+" · "+b};
+  }
+  if(st <= 6){
+    const a = rnd(2,20), v = rnd(2,20)*2/2;
+    const c = 2*Math.ceil(a*v/2)/2;
+    return {task:"Geometrija", big:"Trikotnik ima osnovnico "+a+" cm in višino "+(v*2)+" cm.<br>Kolikšna je njegova ploščina?",
+            type:"num", answer:a*v, line:"trikotnik a="+a+", v="+(v*2)+" → ploščina "+(a*v)+" cm²",
+            chk:{f:"geo", kind:"p_trikotnik", p:[a, v*2]},
+            hint:"<b>Ploščina trikotnika</b>p = a · v : 2 = "+a+" · "+(v*2)+" : 2"};
+  }
+  if(st === 7){
+    const a = rnd(2,12), b = rnd(2,12), c = rnd(2,12);
+    return {task:"Geometrija", big:"Kvader meri "+a+" cm, "+b+" cm in "+c+" cm.<br>Kolikšna je njegova prostornina?",
+            type:"num", answer:a*b*c, line:"kvader "+a+"×"+b+"×"+c+" → prostornina "+(a*b*c)+" cm³",
+            chk:{f:"geo", kind:"v_kvader", p:[a,b,c]},
+            hint:"<b>Prostornina kvadra</b>V = a · b · c"};
+  }
+  if(st === 8){
+    const α = rnd(20,100), β = rnd(20, 160-α);
+    return {task:"Geometrija", big:"V trikotniku merita kota "+α+"° in "+β+"°.<br>Koliko meri tretji kot?",
+            type:"num", answer:180-α-β, line:"koti "+α+"°+"+β+"° → tretji "+(180-α-β)+"°",
+            chk:{f:"geo", kind:"kot", p:[α,β]},
+            hint:"<b>Vsota kotov v trikotniku</b>je vedno 180°.<br>180° − "+α+"° − "+β+"°"};
+  }
+  const trojice = [[3,4,5],[6,8,10],[5,12,13],[9,12,15],[8,15,17],[12,16,20],[7,24,25]];
+  const t = pick(trojice), k = Math.random() < 0.5;
+  return {task:"Pitagorov izrek",
+          big:"Pravokotni trikotnik ima kateti "+t[0]+" cm in "+t[1]+" cm.<br>Kolikšna je hipotenuza?",
+          type:"num", answer:t[2], line:"kateti "+t[0]+", "+t[1]+" → hipotenuza "+t[2],
+          chk:{f:"geo", kind:"pitagora", p:[t[0],t[1]]},
+          hint:"<b>Pitagorov izrek</b>c² = a² + b² = "+(t[0]*t[0])+" + "+(t[1]*t[1])+" = "+(t[2]*t[2])+"<br>c = √"+(t[2]*t[2])};
+}
+
+/* ---------- Razmerja in sorazmerje ---------- */
+function genRatio(st){
+  if(st <= 3){
+    const k = rnd(2,6), a = rnd(1,6), b = rnd(1,6);
+    if(a === b) return genRatio(4);
+    const [ak,bk] = krajšaj(a*k, b*k);
+    return {task:"Okrajšaj razmerje", big:(a*k)+" : "+(b*k), type:"choice", opts:true, txt:1,
+            answer:ak+" : "+bk, choices:opts(ak+" : "+bk, [(a*k)+" : "+b, a+" : "+(b*k), (ak+1)+" : "+bk]),
+            line:(a*k)+" : "+(b*k)+" = "+ak+" : "+bk, chk:{f:"ratio", p:[a*k, b*k]},
+            hint:"<b>Namig</b>Obe števili deli z istim številom, dokler gre."};
+  }
+  if(st <= 6){
+    const cena = rnd(2,9), kos = rnd(2,5), novi = rnd(6,12);
+    return {task:"Preberi in izračunaj", story:[num(kos)+" zvezki stanejo "+num(cena*kos)+" €."],
+            ask:"Koliko evrov stane "+novi+" zvezkov?", type:"num", answer:cena*novi, read:true,
+            line:"sorazmerje: "+kos+" → "+(cena*kos)+" €, "+novi+" → "+(cena*novi)+" €",
+            chk:{f:"prop", p:[kos, cena*kos, novi]},
+            hint:"<b>Namig</b>Najprej izračunaj ceno enega zvezka: "+(cena*kos)+" € : "+kos+" = "+cena+" €."};
+  }
+  const d1 = rnd(1,5), d2 = rnd(1,5), enota = rnd(3,15), skupaj = (d1+d2)*enota;
+  return {task:"Preberi in izračunaj",
+          story:[num(skupaj)+" € razdelimo v razmerju "+num(d1+" : "+d2)+"."],
+          ask:"Koliko evrov dobi tisti z večjim delom?", type:"num", answer:Math.max(d1,d2)*enota, read:true,
+          line:skupaj+" € v razmerju "+d1+":"+d2+" → večji del "+(Math.max(d1,d2)*enota)+" €",
+          chk:{f:"share", p:[skupaj, d1, d2]},
+          hint:"<b>Namig</b>Skupaj je "+(d1+d2)+" delov. Najprej izračunaj en del: "+skupaj+" : "+(d1+d2)+"."};
+}
+
+/* ---------- Povprečje in podatki ---------- */
+function genStats(st){
+  if(st <= 3){
+    const n = st <= 1 ? 2 : 3, pov = rnd(3,20), št = [];
+    for(let i=0;i<n-1;i++) št.push(pov + pick([-2,-1,1,2]));
+    št.push(pov*n - št.reduce((a,b) => a+b, 0));
+    if(št.some(x => x < 0)) return genStats(1);
+    return {task:"Povprečje", big:"Izračunaj povprečje števil:<br>"+št.join(", "), type:"num", answer:pov,
+            line:"povprečje ("+št.join(", ")+") = "+pov, chk:{f:"avg", p:št},
+            hint:"<b>Povprečje</b>Seštej vsa števila in vsoto deli s "+n+"."};
+  }
+  if(st <= 6){
+    const n = rnd(4,5), pov = rnd(4,20), št = [];
+    for(let i=0;i<n-1;i++) št.push(pov + pick([-3,-2,-1,1,2,3]));
+    const zadnje = pov*n - št.reduce((a,b) => a+b, 0);
+    if(zadnje < 0) return genStats(4);
+    if(Math.random() < 0.5){
+      št.push(zadnje);
+      return {task:"Povprečje", big:"Izračunaj povprečje števil:<br>"+št.join(", "), type:"num", answer:pov,
+              line:"povprečje ("+št.join(", ")+") = "+pov, chk:{f:"avg", p:št},
+              hint:"<b>Povprečje</b>Vsoto vseh števil deli s "+n+"."};
+    }
+    return {task:"Preberi in izračunaj",
+            story:["Ana je pisala "+num(n)+" testov.", "Pri prvih "+num(n-1)+" je dobila "+št.join(", ")+" točk.",
+                   "Povprečje vseh "+num(n)+" testov je "+num(pov)+"."],
+            ask:"Koliko točk je dobila pri zadnjem testu?", type:"num", answer:zadnje, read:true,
+            line:"manjkajoča vrednost pri povprečju "+pov+" → "+zadnje, chk:{f:"missAvg", p:[št, pov, n]},
+            hint:"<b>Namig</b>Vseh "+n+" rezultatov skupaj je "+pov+" · "+n+" = "+(pov*n)+".<br>Odštej znane točke."};
+  }
+  const n = 5, št = [];
+  for(let i=0;i<n;i++) št.push(rnd(1,30));
+  const urejen = št.slice().sort((a,b) => a-b);
+  const mediana = urejen[2];
+  return {task:"Podatki", big:"Podatki: "+št.join(", ")+"<br>Katera vrednost je mediana?", type:"num",
+          answer:mediana, line:"mediana ("+št.join(", ")+") = "+mediana, chk:{f:"median", p:št},
+          hint:"<b>Mediana</b>Podatke uredi po velikosti in vzemi srednjega:<br>"+urejen.join(", ")};
+}
+
+
+/* ---------- Prvi koraki: števila z besedami ---------- */
+const ŠTEVILKE = ["nič","ena","dve","tri","štiri","pet","šest","sedem","osem","devet","deset",
+  "enajst","dvanajst","trinajst","štirinajst","petnajst","šestnajst","sedemnajst","osemnajst","devetnajst","dvajset"];
+const DESETICE = {30:"trideset",40:"štirideset",50:"petdeset",60:"šestdeset",70:"sedemdeset",80:"osemdeset",90:"devetdeset",100:"sto"};
+function genNumWord(st){
+  const največ = st <= 2 ? 5 : st <= 4 ? 10 : st <= 6 ? 20 : 100;
+  let n, beseda;
+  if(največ <= 20){ n = rnd(1,največ); beseda = ŠTEVILKE[n]; }
+  else { n = pick(Object.keys(DESETICE).map(Number)); beseda = DESETICE[n]; }
+  const drugi = [];
+  while(drugi.length < 3){
+    const d = največ <= 20 ? rnd(1,Math.max(5,največ)) : pick(Object.keys(DESETICE).map(Number));
+    if(d !== n && drugi.indexOf(d) < 0) drugi.push(d);
+  }
+  if(Math.random() < 0.5)                                   // beseda -> številka
+    return {task:"Preberi in izberi", story:[], pic:beseda, picWide:1,
+            ask:"Katero število je to?", type:"choice", opts:true, read:true,
+            choices:opts(String(n), drugi.map(String)), answer:String(n),
+            line:"🔤 "+beseda+" = "+n, chk:{f:"numword", p:[n, beseda]},
+            hint:"<b>Namig</b>Beri po zlogih in štej na prste."};
+  return {task:"Preberi in izberi", story:["To je število "+num(n)+"."],
+          ask:"Katera beseda pomeni to število?", type:"choice", opts:true, txt:1, read:true,
+          choices:opts(beseda, drugi.map(d => (d<=20 ? ŠTEVILKE[d] : DESETICE[d]))), answer:beseda,
+          line:"🔤 "+n+" = "+beseda, chk:{f:"numword", p:[n, beseda]},
+          hint:"<b>Namig</b>Preberi vse možnosti na glas."};
+}
+
+/* ---------- Prvi koraki: prve besede ---------- */
+const BESEDE_SLIKE = [
+  ["pes","🐕"],["miš","🐭"],["riba","🐟"],["roža","🌸"],["luna","🌙"],["ura","⏰"],["hiša","🏠"],
+  ["avto","🚗"],["žoga","⚽"],["torta","🎂"],["srce","❤️"],["sonce","☀️"],["drevo","🌳"],["ptica","🐦"],
+  ["mačka","🐈"],["krava","🐄"],["konj","🐴"],["metulj","🦋"],["čebela","🐝"],["kolo","🚲"],["ladja","🚢"],
+  ["letalo","✈️"],["jabolko","🍎"],["banana","🍌"],["jagoda","🍓"],["sladoled","🍦"],["dežnik","☂️"],
+  ["klobuk","🎩"],["čevelj","👟"],["knjiga","📕"],["zvezda","⭐"],["medved","🐻"],["avtobus","🚌"],["korenček","🥕"]
+];
+function genWords0(st){
+  const dolžina = st <= 2 ? 4 : st <= 4 ? 6 : 20;
+  const izbor = BESEDE_SLIKE.filter(b => b[0].length <= dolžina);
+  const b = pick(izbor.length ? izbor : BESEDE_SLIKE);
+  const drugi = [];
+  while(drugi.length < 3){
+    const d = pick(BESEDE_SLIKE);
+    if(d[0] !== b[0] && drugi.every(x => x[0] !== d[0])) drugi.push(d);
+  }
+  if(st >= 5 && Math.random() < 0.5)                        // slika -> beseda
+    return {task:"Poglej in preberi", story:[], pic:b[1], picWide:1,
+            ask:"Katera beseda spada k sliki?", type:"choice", opts:true, txt:1, read:true,
+            choices:opts(b[0], drugi.map(d => d[0])), answer:b[0],
+            line:"📖 "+b[1]+" = "+b[0], chk:{f:"word", p:[b[0], b[1]]},
+            hint:"<b>Namig</b>Vsako besedo preberi po zlogih in poglej, katera se ujema s sliko."};
+  return {task:"Preberi besedo", story:[], pic:b[0], picWide:1,
+          ask:"Katera slika spada k besedi?", type:"choice", opts:true, read:true,
+          choices:opts(b[1], drugi.map(d => d[1])), answer:b[1],
+          line:"📖 "+b[0]+" = "+b[1], chk:{f:"word", p:[b[0], b[1]]},
+          hint:"<b>Namig</b>Beri počasi, glas za glasom: "+b[0].split("").join(" – ")};
+}
+
+/* ---------- Prvi koraki: oblike ---------- */
+const OBLIKE = {
+  krog:'<circle cx="50" cy="50" r="38"/>',
+  kvadrat:'<rect x="14" y="14" width="72" height="72" rx="5"/>',
+  pravokotnik:'<rect x="6" y="27" width="88" height="46" rx="5"/>',
+  trikotnik:'<polygon points="50,12 90,86 10,86"/>',
+  romb:'<polygon points="50,8 90,50 50,92 10,50"/>',
+  ovál:'<ellipse cx="50" cy="50" rx="43" ry="28"/>'
+};
+const OGLIŠČA = {krog:0, kvadrat:4, pravokotnik:4, trikotnik:3, romb:4, ovál:0};
+const oblikaSVG = (k,barva) => '<svg viewBox="0 0 100 100" width="74" height="74" fill="'+barva+'" aria-label="'+k+'">'+OBLIKE[k]+'</svg>';
+function genShapes(st){
+  const imena = Object.keys(OBLIKE);
+  const barve = ["#5b6cff","#1eb872","#f2762e","#ec4899","#f59e0b","#14b8a6"];
+  if(st <= 3){
+    const izbor = imena.slice().sort(() => Math.random()-0.5).slice(0,4);
+    const prava = pick(izbor);
+    const oznake = {};
+    izbor.forEach((k,i) => oznake[k] = oblikaSVG(k, barve[i]));
+    return {task:"Poglej oblike", story:[], ask:"Katera oblika je <b>"+prava+"</b>?",
+            type:"choice", opts:true, read:true, choices:izbor, labels:oznake, answer:prava,
+            line:"🔺 poišči "+prava, chk:{f:"shape", p:[prava]},
+            hint:"<b>Namig</b>Krog je okrogel, kvadrat ima 4 enake stranice, trikotnik pa 3 stranice."};
+  }
+  if(st <= 6){
+    const k = pick(imena.filter(x => OGLIŠČA[x] > 0));
+    return {task:"Preštej", story:[], pic:oblikaSVG(k, "#5b6cff"), picWide:1,
+            ask:"Koliko oglišč (kotov) ima ta lik?", type:"num", answer:OGLIŠČA[k], read:true,
+            line:"🔺 "+k+" ima "+OGLIŠČA[k]+" oglišča", chk:{f:"vertices", p:[k]},
+            hint:"<b>Namig</b>Oglišče je vsak kot, kjer se stikata dve stranici. Preštej jih po vrsti."};
+  }
+  const telesa = [["kocka",8,12,6],["kvader",8,12,6],["piramida (štirikotna)",5,8,5]];
+  const t = pick(telesa), kaj = pick([["oglišč",1],["robov",2],["mejnih ploskev",3]]);
+  return {task:"Geometrijska telesa", big:"Koliko "+kaj[0]+" ima "+t[0]+"?", type:"num", answer:t[kaj[1]],
+          line:"🔷 "+t[0]+": "+t[kaj[1]]+" "+kaj[0], chk:{f:"solid", p:[t[0], kaj[0]]},
+          hint:"<b>Namig</b>Kocka in kvader imata 8 oglišč, 12 robov in 6 mejnih ploskev."};
+}
+
+/* ---------- Prvi koraki: seštevanje s slikami ---------- */
+function genPlusPic(st){
+  const emo = pick(OBJS);
+  const največ = st <= 2 ? 5 : st <= 4 ? 10 : 20;
+  const a = rnd(1, največ-1), b = rnd(1, največ-a);
+  const skupina = n => { let h = '<span class="grp">'; for(let i=0;i<n;i++) h += '<span>'+emo+'</span>'; return h+'</span>'; };
+  return {task:"Preštej in seštej", big:'<div class="objects plus">'+skupina(a)+
+            '<span class="znak">+</span>'+skupina(b)+'</div>',
+          type:"num", answer:a+b, line:a+" + "+b+" = "+(a+b), chk:{f:"num", expr:a+"+"+b},
+          hint:"<b>Namig</b>Najprej preštej levo skupino, nato štej naprej po desni."};
+}
+
+const GEN = {plus:genPlus, minus:genMinus, mix:genMix, missing:genMissing, compare:genCompare,
+             count:genCount, series:genSeries, times:genTimes, besede:genBesede, kenguru:genKenguru,
+             divide:genDivide, written:genWritten, units:genUnits, money:genMoney, clock:genClock,
+             numbers:genNumbers, fractions:genFractions, decimals:genDecimals, percent:genPercent,
+             integers:genIntegers, powers:genPowers, equations:genEquations, geometry:genGeometry,
+             ratio:genRatio, stats:genStats, numword:genNumWord, words0:genWords0, shapes:genShapes,
+             pluspic:genPlusPic};
+
+/* ================= stanje igre ================= */
+const ROUND = 10;
+let G = null;
+
+function korak(id){
+  const m = MODE_BY_ID[id], lo = modeMin(m), hi = modeMax(m);
+  if(P.lvl !== 0){                                  // ročno izbrana težavnost
+    const t = P.lvl === 1 ? lo : P.lvl === 3 ? hi : Math.round((lo+hi)/2);
+    return Math.min(hi, Math.max(lo, t));
+  }
+  return Math.min(hi, Math.max(lo, P.step[id] || lo));
+}
+const stopnjaOd = id => korak(id) - modeMin(MODE_BY_ID[id]) + 1;
+const stopnjaVseh = id => modeMax(MODE_BY_ID[id]) - modeMin(MODE_BY_ID[id]) + 1;
+
+/* ================= branje: zlogi in poslušanje ================= */
+const SAMOGLASNIKI = "aeiouáéíóúAEIOU";
+const SKUPINE = ["tr","dr","pr","br","kr","gr","vr","žr","čr","hr","hl","tl","kl","pl","bl","gl","fl","fr",
+                 "sl","sk","st","sp","sm","sn","sv","šk","št","šp","cv","zv","kv","tv","dv","zl","žl","mn"];
+function zlogi(b){
+  const m = b.toLowerCase();
+  const sam = [];
+  for(let i=0;i<b.length;i++) if(SAMOGLASNIKI.indexOf(m[i]) > -1) sam.push(i);
+  if(sam.length < 2) return b;
+  const rezi = [];
+  for(let k=0;k<sam.length-1;k++){
+    const a = sam[k], c = sam[k+1], n = c-a-1;
+    if(n === 0) rezi.push(a+1);
+    else if(n === 1) rezi.push(c-1);
+    else rezi.push(SKUPINE.indexOf(m.slice(a+1,a+3)) > -1 ? a+1 : a+2);
+  }
+  let out = "", zad = 0;
+  rezi.forEach(r => { out += b.slice(zad,r) + "·"; zad = r; });
+  return out + b.slice(zad);
+}
+function poZlogih(el){
+  const hodi = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  const vozli = [];
+  while(hodi.nextNode()) vozli.push(hodi.currentNode);
+  vozli.forEach(v => { v.nodeValue = v.nodeValue.replace(/[A-Za-zČŠŽčšžĆĐ]{4,}/g, zlogi); });
+}
+let glasSL = null;
+function najdiGlas(){
+  if(!("speechSynthesis" in window)) return;
+  const g = speechSynthesis.getVoices().filter(v => /^sl/i.test(v.lang));
+  glasSL = g.length ? g[0] : null;
+}
+if("speechSynthesis" in window){
+  najdiGlas();
+  speechSynthesis.onvoiceschanged = () => { najdiGlas(); posodobiBralneGumbe(); };
+}
+function govori(t){
+  if(!glasSL) return;
+  const u = new SpeechSynthesisUtterance(t);
+  u.voice = glasSL; u.lang = glasSL.lang; u.rate = 0.8;
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+function jeBesedilo(q){
+  if(!q || !q.read) return false;
+  const izStory = (q.story || []).join(" ").replace(/<[^>]+>/g, "");
+  const izPic = typeof q.pic === "string" && q.pic.indexOf("<") < 0 ? q.pic : "";
+  return /[A-Za-zČŠŽčšž]{3,}/.test(izStory + " " + izPic);
+}
+function posodobiBralneGumbe(){
+  const beri = jeBesedilo(G && G.q);
+  $("#sylBtn").classList.toggle("hide", !beri);
+  $("#ttsBtn").classList.toggle("hide", !(beri && glasSL));
+  $("#sylBtn").textContent = P.syl ? "🐌 Brez zlogov" : "🐌 Po zlogih";
+}
+
+/* ================= zaslon ================= */
+function show(id){
+  ["home","game","done","parent"].forEach(s => $("#scr-"+s).classList.toggle("hide", s !== id));
+  window.scrollTo(0,0);
+}
+const RANKS = [[0,"Začetnik 🐣"],[25,"Raziskovalec 🔎"],[60,"Zvezdni lovec ⭐"],
+               [120,"Računski as 🚀"],[250,"Matematični mojster 🏆"],[500,"Legenda 👑"]];
+function rank(){ let r = RANKS[0][1]; RANKS.forEach(x => { if(P.stars >= x[0]) r = x[1]; }); return r; }
+
+function renderHome(){
+  $("#starCount").textContent = P.stars;
+  $("#rankLine").textContent = "Tvoj naziv: " + rank();
+  $("#readLine").textContent = P.read ? "📖 Prebranih nalog: " + P.read : "";
+  $("#bands").innerHTML = BANDS.map(b =>
+    '<button class="band" data-band="'+b.b+'" aria-pressed="'+(P.band === b.b)+'">'+
+    '<span class="e">'+b.emo+'</span>'+b.nm+'<small>'+b.sub+'</small></button>').join("");
+  $("#modes").innerHTML = MODES.filter(m => m.b === P.band).map(m => {
+    const b = P.best[m.id+"-"+(P.lvl===0?"a":P.lvl)] || 0;
+    const st = stopnjaOd(m.id), vseh = stopnjaVseh(m.id);
+    return '<button class="mode" data-mode="'+m.id+'" style="--c:'+m.c+'">'+
+      (b ? '<span class="best">'+"⭐".repeat(b)+'</span>' : '')+
+      '<span class="emo">'+m.emo+'</span>'+
+      '<span class="nm">'+m.nm+'</span>'+
+      '<span class="sub">'+m.sub+'</span>'+
+      (P.lvl===0 ? '<span class="step">Stopnja '+st+' od '+vseh+'</span>'+
+                 '<span class="stepbar"><i style="width:'+Math.round(st/vseh*100)+'%"></i></span>' : '')+
+      '</button>';
+  }).join("");
+  document.querySelectorAll("#levels .level").forEach(b =>
+    b.setAttribute("aria-pressed", (+b.dataset.lvl === P.lvl) ? "true" : "false"));
+}
+
+/* ================= potek igre ================= */
+function startGame(modeId){
+  G = {mode:modeId, i:0, right:0, streak:0, zapored:0, napake:0,
+       input:"", locked:false, log:[], lines:[], used:new Set(), q:null};
+  $("#modeTitle").textContent = MODE_BY_ID[modeId].nm;
+  show("game");
+  renderQ();
+}
+
+function novaNaloga(){
+  const st = korak(G.mode);
+  const gen = GEN[MODE_BY_ID[G.mode].gen || G.mode];
+  let q = null;
+  for(let i=0;i<40;i++){
+    q = gen(st);
+    if(!G.used.has(q.line)) break;
+  }
+  G.used.add(q.line);
+  return q;
+}
+
+function renderDots(){
+  let h = "";
+  for(let i=0;i<ROUND;i++){
+    let cls = "dot";
+    if(i < G.i) cls += G.log[i] ? " ok" : " no";
+    else if(i === G.i) cls += " now";
+    h += '<div class="'+cls+'"></div>';
+  }
+  $("#dots").innerHTML = h;
+}
+
+function renderQ(){
+  const q = G.q = novaNaloga();
+  G.input = ""; G.locked = false;
+  renderDots();
+  $("#streakNum").textContent = G.streak;
+  $("#stepLine").textContent = P.lvl === 0
+    ? "Stopnja " + stopnjaOd(G.mode) + " od " + stopnjaVseh(G.mode)
+    : "Težavnost: " + ["","Lahko","Srednje","Težko"][P.lvl];
+  $("#qtask").textContent = q.task;
+  $("#hintArea").innerHTML = "";
+  $("#qcard").classList.remove("shake");
+
+  $("#qbig").classList.remove("small");
+  if(q.story){
+    let h = '<div class="story" id="storyBox">';
+    q.story.forEach(s => h += "<p>"+s+"</p>");
+    if(q.pic) h = h + '</div><div class="pic'+(q.picWide?" wide":"")+'">'+q.pic+'</div><div class="story">';
+    h += '<p class="q">'+q.ask+'</p></div>';
+    $("#qbig").innerHTML = h;
+    $("#qbig").style.fontSize = "";
+    if(P.syl) document.querySelectorAll("#qbig .story, #qbig .pic").forEach(poZlogih);
+    document.querySelectorAll("#qbig .story").forEach(e => e.classList.toggle("syl", !!P.syl));
+  }else{
+    $("#qbig").innerHTML = q.big;
+    $("#qbig").classList.toggle("small", q.big.replace(/<[^>]+>/g,"").length > 30);
+  }
+
+  if(q.type === "num"){
+    $("#ansWrap").innerHTML = '<div class="answer-box empty" id="ansBox">?</div>';
+    $("#inputArea").innerHTML = padHtml(q);
+  }else if(q.opts){
+    $("#ansWrap").innerHTML = "";
+    $("#inputArea").innerHTML = '<div class="opts">'+
+      q.choices.map(c => '<button class="opt'+(q.txt?" txt":"")+'" data-c="'+c.replace(/"/g,"&quot;")+'">'+
+        oznaka(q, c)+'</button>').join("")+'</div>';
+  }else{
+    $("#ansWrap").innerHTML = "";
+    $("#inputArea").innerHTML = '<div class="choices">'+
+      q.choices.map(c => '<button class="choice" data-c="'+c+'">'+c+'</button>').join("")+'</div>';
+  }
+  posodobiBralneGumbe();
+}
+
+/* prikaz posamezne izbire: SVG oblika, lep ulomek ali navadno besedilo */
+function oznaka(q, c){
+  if(q.labels && q.labels[c]) return q.labels[c];
+  if(q.frac && /^\d+\/\d+$/.test(c)){ const d = c.split("/"); return uHTML(d[0], d[1]); }
+  return c;
+}
+
+function padHtml(q){
+  let h = '<div class="pad">';
+  [1,2,3,4,5,6,7,8,9].forEach(n => h += '<button class="key" data-k="'+n+'">'+n+'</button>');
+  h += '<button class="key del" data-k="del">⌫</button>';
+  h += '<button class="key" data-k="0">0</button>';
+  h += '<button class="key go" data-k="ok">✓</button>';
+  h += '</div>';
+  if(q && (q.decimal || q.negative)){
+    h += '<div class="pad extra">';
+    if(q.decimal)  h += '<button class="key" data-k="vejica" title="decimalna vejica">,</button>';
+    if(q.negative) h += '<button class="key" data-k="minus" title="minus">±</button>';
+    h += '</div>';
+  }
+  return h;
+}
+function typeDigit(d){
+  if(G.locked || G.input.length >= 9) return;
+  G.input = (G.input + d).replace(/^(−?)0(?=\d)/, "$1");
+  S.tap(); paintAns();
+}
+function dodajVejico(){
+  if(G.locked || G.input.indexOf(",") > -1) return;
+  G.input = (G.input === "" || G.input === "−" ? G.input + "0" : G.input) + ",";
+  S.tap(); paintAns();
+}
+function obrniPredznak(){
+  if(G.locked) return;
+  G.input = G.input.charAt(0) === "−" ? G.input.slice(1) : "−" + G.input;
+  S.tap(); paintAns();
+}
+/* "−12,5" -> -12.5 ; prazen vnos -> NaN */
+const številka = v => parseFloat(String(v).replace("−","-").replace(",", "."));
+const prikaži = v => String(v).replace(".", ",").replace("-", "−");
+function paintAns(){
+  const el = $("#ansBox"); if(!el) return;
+  el.textContent = G.input === "" ? "?" : G.input;
+  el.classList.toggle("empty", G.input === "");
+}
+
+const PRAISE = ["Odlično!","Bravo!","Super!","Juhu!","Točno tako!","Imenitno!","Mojstrsko!","Tako je!"];
+const CHEER  = ["Kar tako naprej!","Zelo dobro ti gre!","Si pravi matematik!","Še ena zvezdica ⭐"];
+
+function toast(t){
+  const staro = $("#toastBox"); if(staro) staro.remove();
+  const d = document.createElement("div");
+  d.className = "toast"; d.id = "toastBox"; d.textContent = t;
+  document.body.appendChild(d);
+  setTimeout(() => { if(d.parentNode) d.remove(); }, 3000);
+}
+
+/* prilagajanje težavnosti: 4 pravilni zapored → stopnja gor, 2 napaki zapored → stopnja dol */
+function prilagodi(ok){
+  if(P.lvl !== 0) return;
+  const m = MODE_BY_ID[G.mode], lo = modeMin(m), hi = modeMax(m);
+  const st = korak(G.mode);
+  if(ok){
+    G.zapored++; G.napake = 0;
+    if(G.zapored >= 4 && st < hi){
+      P.step[G.mode] = st+1; G.zapored = 0;
+      toast("🎉 Nova stopnja " + (st+1-lo+1) + "! Naloge bodo malo težje.");
+    }
+  }else{
+    G.napake++; G.zapored = 0;
+    if(G.napake >= 2 && st > lo){
+      P.step[G.mode] = st-1; G.napake = 0;
+      toast("Vzameva malo lažje naloge 🙂");
+    }
+  }
+}
+
+function answer(val){
+  if(G.locked) return;
+  const q = G.q;
+  G.locked = true;
+  const ok = (q.type === "num")
+    ? Math.abs(številka(val) - Number(q.answer)) < 1e-9
+    : (val === q.answer);
+  G.log[G.i] = ok;
+  G.lines[G.i] = q.line;
+
+  P.perMode[G.mode] = P.perMode[G.mode] || {c:0, w:0};
+  if(q.read) P.read++;
+  if(ok){
+    G.right++; G.streak++;
+    P.stars++; P.correct++; P.perMode[G.mode].c++;
+    S.good();
+    flash("good", G.streak >= 4 ? "🔥" : "🎉", pick(PRAISE),
+          G.streak >= 3 ? ("Zapored: "+G.streak+" ✔") : pick(CHEER));
+    $("#starCount").textContent = P.stars;
+  }else{
+    G.streak = 0;
+    P.wrong++; P.perMode[G.mode].w++;
+    S.bad();
+    $("#qcard").classList.add("shake");
+    flash("bad", "🙈", "Skoraj!", "Pravilno je: " + prikaži(q.answer));
+  }
+  prilagodi(ok);
+  save();
+  $("#streakNum").textContent = G.streak;
+  renderDots();
+  setTimeout(next, ok ? 950 : 2200);
+}
+
+function next(){
+  clearFlash();
+  G.i++;
+  if(G.i >= ROUND) finish();
+  else renderQ();
+}
+
+function finish(){
+  const r = G.right;
+  const stars = r >= 9 ? 3 : (r >= 7 ? 2 : (r >= 5 ? 1 : 0));
+  const key = G.mode + "-" + (P.lvl===0 ? "a" : P.lvl);
+  P.best[key] = Math.max(P.best[key] || 0, stars);
+  P.plays++;
+  save();
+  $("#resStars").innerHTML = stars ? "<span>⭐</span>".repeat(stars) : "<span>🌱</span>";
+  $("#resScore").innerHTML = "Pravilnih: <em>"+r+"</em> od "+ROUND;
+  $("#resMsg").textContent = r === 10 ? "Popolno! Vse pravilno! 🏆"
+    : r >= 8 ? "Zelo dobro, samo tako naprej!"
+    : r >= 5 ? "Dobro ti gre. Poskusi še enkrat!"
+    : "Vaja dela mojstra. Poskusiva še enkrat!";
+  $("#resReview").innerHTML = G.lines.map((l,i) =>
+    '<div class="'+(G.log[i]?"":"no")+'">'+(G.log[i]?"✅ ":"❌ ")+l+'</div>').join("");
+  if(r >= 7){ S.win(); confetti(r === 10 ? 70 : 40); } else { S.good(); }
+  show("done");
+  renderHome();
+}
+
+/* ================= učinki ================= */
+function flash(kind, big, txt, sml){
+  clearFlash();
+  const d = document.createElement("div");
+  d.className = "flash " + (kind === "bad" ? "bad" : "");
+  d.id = "flashBox";
+  d.innerHTML = '<div class="bubble"><div class="big">'+big+'</div><div class="txt">'+txt+
+                '</div><div class="sml">'+sml+'</div></div>';
+  document.body.appendChild(d);
+}
+function clearFlash(){ const f = $("#flashBox"); if(f) f.remove(); }
+function confetti(n){
+  const box = $("#confetti");
+  const emo = ["⭐","🎉","🌟","✨","🎈","🏆","🍭"];
+  for(let i=0;i<n;i++){
+    const s = document.createElement("i");
+    s.textContent = pick(emo);
+    s.style.left = rnd(0,100)+"vw";
+    s.style.animationDuration = (rnd(180,360)/100)+"s";
+    s.style.animationDelay = (rnd(0,120)/100)+"s";
+    s.style.fontSize = rnd(16,34)+"px";
+    box.appendChild(s);
+    setTimeout(() => s.remove(), 6000);
+  }
+}
+
+/* ================= starši ================= */
+function renderParent(){
+  const total = P.correct + P.wrong;
+  const pct = total ? Math.round(P.correct/total*100) : 0;
+  let h = "";
+  h += row("Zbrane zvezdice", "⭐ " + P.stars);
+  h += row("Odigranih iger", P.plays);
+  h += row("Vseh odgovorov", total);
+  h += row("Pravilnih", P.correct + " (" + pct + "%)");
+  h += row("Prebranih besedilnih nalog", P.read);
+  h += '<h2 class="section" style="margin-left:0">Po igrah</h2>';
+  let kaj = false;
+  MODES.forEach(m => {
+    const s = P.perMode[m.id];
+    if(!s || (s.c + s.w) === 0) return;
+    kaj = true;
+    const p = Math.round(s.c/(s.c+s.w)*100);
+    h += row(m.emo + " " + m.nm + " <span class='muted tiny'>(" + BANDS[m.b].nm +
+             ", stopnja " + stopnjaOd(m.id) + "/" + stopnjaVseh(m.id) + ")</span>",
+             s.c + "/" + (s.c+s.w) + " · " + p + "%");
+  });
+  if(!kaj) h += '<p class="muted tiny">Ko bo otrok odigral prvo igro, se tu pokaže uspešnost po posameznih igrah.</p>';
+  $("#parentStats").innerHTML = h;
+  $("#badgeList").innerHTML = RANKS.map(r =>
+    '<span class="badge'+(P.stars >= r[0] ? "" : " off")+'">'+r[1]+
+    (P.stars >= r[0] ? "" : " · " + r[0] + "⭐")+'</span>').join("");
+}
+function row(l, r){ return '<div class="stat-row"><span>'+l+'</span><span class="r">'+r+'</span></div>'; }
+
+/* ================= dogodki ================= */
+$("#levels").addEventListener("click", e => {
+  const b = e.target.closest(".level"); if(!b) return;
+  P.lvl = +b.dataset.lvl; save(); S.tap(); renderHome(); renderParent();
+});
+$("#bands").addEventListener("click", e => {
+  const b = e.target.closest(".band"); if(!b) return;
+  P.band = +b.dataset.band; save(); S.tap(); renderHome();
+});
+$("#modes").addEventListener("click", e => {
+  const b = e.target.closest(".mode"); if(!b) return;
+  actx(); S.tap(); startGame(b.dataset.mode);
+});
+$("#inputArea").addEventListener("click", e => {
+  const k = e.target.closest("[data-k]");
+  if(k){
+    const v = k.dataset.k;
+    if(v === "del"){ G.input = G.input.slice(0,-1); S.tap(); paintAns(); }
+    else if(v === "ok"){ if(G.input !== "" && G.input !== "−") answer(G.input); }
+    else if(v === "vejica") dodajVejico();
+    else if(v === "minus") obrniPredznak();
+    else typeDigit(v);
+    return;
+  }
+  const c = e.target.closest("[data-c]");
+  if(c) answer(c.dataset.c);
+});
+$("#hintBtn").addEventListener("click", () => {
+  const a = $("#hintArea");
+  if(a.innerHTML){ a.innerHTML = ""; return; }
+  a.innerHTML = '<div class="hint">' + (G.q.hint || "Poskusi počasi, korak za korakom.") + '</div>';
+  S.tap();
+});
+$("#sylBtn").addEventListener("click", () => {
+  P.syl = !P.syl; save();
+  const q = G.q;
+  let h = '<div class="story" id="storyBox">';
+  q.story.forEach(s => h += "<p>"+s+"</p>");
+  if(q.pic) h = h + '</div><div class="pic'+(q.picWide?" wide":"")+'">'+q.pic+'</div><div class="story">';
+  h += '<p class="q">'+q.ask+'</p></div>';
+  $("#qbig").innerHTML = h;
+  if(P.syl) document.querySelectorAll("#qbig .story, #qbig .pic").forEach(poZlogih);
+  document.querySelectorAll("#qbig .story").forEach(e => e.classList.toggle("syl", !!P.syl));
+  posodobiBralneGumbe();
+});
+$("#ttsBtn").addEventListener("click", () => {
+  const q = G.q;
+  const izPic = typeof q.pic === "string" && q.pic.indexOf("<") < 0 ? " " + q.pic : "";
+  govori((q.story || []).map(s => s.replace(/<[^>]+>/g,"")).join(" ") + izPic + " " +
+         (q.ask || "").replace(/<[^>]+>/g,""));
+});
+$("#skipBtn").addEventListener("click", () => {
+  if(!G || G.locked) return;
+  G.locked = true; G.log[G.i] = false; G.lines[G.i] = G.q.line; G.streak = 0;
+  P.wrong++; P.perMode[G.mode] = P.perMode[G.mode] || {c:0,w:0}; P.perMode[G.mode].w++;
+  prilagodi(false); save(); renderDots();
+  flash("bad", "🤔", "Ta preskočiva.", "Pravilno je: " + prikaži(G.q.answer));
+  setTimeout(next, 1900);
+});
+$("#backBtn").addEventListener("click", () => { clearFlash(); show("home"); renderHome(); });
+$("#homeBtn").addEventListener("click", () => { show("home"); renderHome(); });
+$("#againBtn").addEventListener("click", () => startGame(G.mode));
+$("#parentBtn").addEventListener("click", () => { renderParent(); show("parent"); });
+$("#parentClose").addEventListener("click", () => { show("home"); renderHome(); });
+$("#resetBtn").addEventListener("click", () => {
+  if(confirm("Res želiš izbrisati ves napredek (zvezdice, stopnje in statistiko)?")){
+    P = JSON.parse(JSON.stringify(DEF)); save(); renderParent(); renderHome();
+  }
+});
+$("#soundBtn").addEventListener("click", () => {
+  P.sound = !P.sound; save();
+  $("#soundBtn").textContent = P.sound ? "🔊" : "🔇";
+  if(P.sound){ actx(); S.tap(); }
+});
+document.addEventListener("keydown", e => {
+  if($("#scr-game").classList.contains("hide") || !G || !G.q) return;
+  if(G.q.type === "num"){
+    if(/^[0-9]$/.test(e.key)){ typeDigit(e.key); e.preventDefault(); }
+    else if(e.key === "," || e.key === "."){ if(G.q.decimal) dodajVejico(); e.preventDefault(); }
+    else if(e.key === "-"){ if(G.q.negative) obrniPredznak(); e.preventDefault(); }
+    else if(e.key === "Backspace"){ G.input = G.input.slice(0,-1); paintAns(); e.preventDefault(); }
+    else if(e.key === "Enter"){ if(G.input !== "" && G.input !== "−") answer(G.input); e.preventDefault(); }
+  }else if(!G.q.opts){
+    if(e.key === "<" || e.key === ",") answer("<");
+    if(e.key === ">" || e.key === ".") answer(">");
+    if(e.key === "=") answer("=");
+  }
+});
+
+/* dostop do stanja za samodejne teste */
+window.matko = () => G;
+
+/* ================= start ================= */
+$("#soundBtn").textContent = P.sound ? "🔊" : "🔇";
+/* Delovanje brez interneta in namestitev na začetni zaslon.
+   Pri odpiranju datoteke z diska (file://) service workerja ni – igra dela tako ali tako. */
+if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
+
+renderHome();
+show("home");
+})();
+</script>
+</body>
+</html>

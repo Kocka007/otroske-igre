@@ -1,0 +1,17 @@
+{
+  "name": "Matko – matematika za osnovno šolo",
+  "short_name": "Matko",
+  "description": "Interaktivna igra za učenje matematike in branja, od prvih korakov do konca osnovne šole.",
+  "lang": "sl",
+  "dir": "ltr",
+  "start_url": "./matematika.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#eaf1ff",
+  "theme_color": "#5b6cff",
+  "icons": [
+    { "src": "./matko-icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "./matko-icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "./matko-icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

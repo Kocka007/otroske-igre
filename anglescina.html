@@ -1,0 +1,1633 @@
+<!doctype html>
+<html lang="sl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Olly – angleščina za otroke</title>
+<meta name="description" content="Interaktivna igra za učenje angleščine za slovenske otroke – od prvih besed do zahtevnejših stopenj. Težavnost se prilagaja otroku.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#7c5cff">
+<link rel="manifest" href="olly.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Olly">
+<link rel="apple-touch-icon" href="olly-icon-180.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦉</text></svg>">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --ink:#2b2350; --ink-soft:#6a6396;
+  --card:#ffffff;
+  --line:#e9e5f8;
+  --ok:#1eb872; --ok-d:#159a5e;
+  --no:#f2762e; --no-d:#d55f1c;
+  --acc:#7c5cff; --acc-d:#5c3ee0;
+  --acc2:#ff5f9e; --acc2-d:#e04178;
+  --gold:#ffb703;
+  --r:22px;
+}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:"Nunito","Trebuchet MS",system-ui,-apple-system,sans-serif;
+  color:var(--ink);
+  background:#f3efff;
+  background-image:
+    radial-gradient(1100px 700px at 8% -10%, #e6ddff 0%, transparent 60%),
+    radial-gradient(900px 620px at 100% 0%, #ffe0ee 0%, transparent 55%),
+    radial-gradient(900px 700px at 50% 115%, #dff4ff 0%, transparent 60%);
+  background-attachment:fixed;
+  min-height:100dvh;
+  overflow-x:hidden;
+}
+.wrap{max-width:760px;margin:0 auto;position:relative;z-index:2;
+  padding:calc(14px + env(safe-area-inset-top,0px)) calc(14px + env(safe-area-inset-right,0px))
+          calc(34px + env(safe-area-inset-bottom,0px)) calc(14px + env(safe-area-inset-left,0px))}
+button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none}
+
+/* ---------- splošni gumbi ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--card);border-radius:18px;padding:14px 20px;
+  font-weight:900;font-size:19px;line-height:1;
+  box-shadow:0 5px 0 var(--line);transition:transform .08s,box-shadow .08s;
+}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+.btn-acc{background:var(--acc);color:#fff;box-shadow:0 5px 0 var(--acc-d)}
+.btn-acc:active{box-shadow:0 1px 0 var(--acc-d)}
+.btn-ok{background:var(--ok);color:#fff;box-shadow:0 5px 0 var(--ok-d)}
+.btn-ok:active{box-shadow:0 1px 0 var(--ok-d)}
+.btn-ghost{background:rgba(255,255,255,.75)}
+.btn[disabled]{opacity:.5;pointer-events:none}
+
+/* ---------- glava ---------- */
+.top{display:flex;align-items:center;gap:10px;margin:6px 0 16px}
+.brand{display:flex;align-items:center;gap:10px;font-size:26px;font-weight:900}
+.brand .owl{font-size:34px;filter:drop-shadow(0 4px 6px rgba(0,0,0,.15))}
+.spacer{flex:1}
+.pill{
+  display:inline-flex;align-items:center;gap:7px;background:#fff;border-radius:999px;
+  padding:9px 15px;font-weight:900;box-shadow:0 4px 0 var(--line);font-size:17px;white-space:nowrap;
+}
+.pill.gold{color:#a86b00}
+.icon-btn{width:46px;height:46px;border-radius:999px;background:#fff;box-shadow:0 4px 0 var(--line);
+  display:grid;place-items:center;font-size:21px}
+.icon-btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+
+/* ---------- izbira težavnosti (kotiček za starše) ---------- */
+.levels{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.level{
+  background:#fff;border-radius:18px;padding:12px 8px;text-align:center;font-weight:900;
+  box-shadow:0 5px 0 var(--line);transition:transform .08s;
+}
+.level small{display:block;font-weight:700;font-size:13px;color:var(--ink-soft);margin-top:3px}
+.level[aria-pressed="true"]{background:var(--acc);color:#fff;box-shadow:0 5px 0 var(--acc-d)}
+.level[aria-pressed="true"] small{color:#e9e4ff}
+.level:active{transform:translateY(3px)}
+
+/* ---------- kartice ---------- */
+.card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:0 8px 24px rgba(43,35,80,.10)}
+h2.section{font-size:19px;margin:22px 4px 10px;font-weight:900;color:var(--ink-soft);letter-spacing:.2px}
+.lead{margin:0 0 12px;font-weight:700;color:var(--ink-soft);font-size:15.5px;line-height:1.5}
+
+/* ---------- izbira stopnje (področja) ---------- */
+.steps{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.step{
+  position:relative;text-align:left;background:#fff;border-radius:20px;padding:15px 16px;
+  box-shadow:0 6px 0 var(--line);transition:transform .1s;overflow:hidden;
+}
+.step:active{transform:translateY(4px);box-shadow:0 2px 0 var(--line)}
+.step .emo{font-size:32px;display:block;margin-bottom:4px}
+.step .nm{font-weight:900;font-size:18px;display:block}
+.step .sub{font-size:13px;color:var(--ink-soft);font-weight:700;display:block;margin-top:3px;line-height:1.35}
+.step .cef{position:absolute;top:12px;right:12px;font-size:12.5px;font-weight:900;color:#fff;
+  background:var(--c,var(--acc));border-radius:999px;padding:4px 9px}
+.step::after{content:"";position:absolute;inset:0 0 auto;height:6px;background:var(--c,var(--acc))}
+
+/* ---------- izbira igre ---------- */
+.modes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.mode{
+  position:relative;background:#fff;border-radius:20px;padding:16px 12px 13px;text-align:center;
+  box-shadow:0 6px 0 var(--line);transition:transform .1s;overflow:hidden;
+}
+.mode:active{transform:translateY(4px);box-shadow:0 2px 0 var(--line)}
+.mode .emo{font-size:38px;display:block;margin-bottom:6px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.12))}
+.mode .nm{font-weight:900;font-size:16.5px;display:block}
+.mode .sub{font-size:12.5px;color:var(--ink-soft);font-weight:700;display:block;margin-top:2px}
+.mode::after{content:"";position:absolute;inset:0 0 auto;height:6px;background:var(--c,var(--acc))}
+.mode .lvl{display:flex;align-items:center;gap:6px;justify-content:center;margin-top:9px}
+.mode .lvl b{font-size:12px;font-weight:900;color:var(--ink-soft)}
+.bar{flex:1;height:8px;border-radius:999px;background:#eee9fb;overflow:hidden;max-width:70px}
+.bar i{display:block;height:100%;background:var(--c,var(--acc));border-radius:999px}
+
+/* ---------- igra ---------- */
+.dots{display:flex;gap:6px;justify-content:center;margin:2px 0 14px;flex-wrap:wrap}
+.dot{width:15px;height:15px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 3px var(--line)}
+.dot.ok{background:var(--ok);box-shadow:none}
+.dot.no{background:var(--no);box-shadow:none}
+.dot.now{background:var(--acc);box-shadow:0 0 0 4px rgba(124,92,255,.22)}
+
+.qcard{text-align:center;padding:24px 16px;min-height:180px;display:flex;flex-direction:column;justify-content:center;gap:12px}
+.qtask{font-size:16px;font-weight:800;color:var(--ink-soft)}
+.qbig{font-size:clamp(30px,8.5vw,48px);font-weight:900;line-height:1.2;word-break:break-word}
+.qbig.en{color:var(--acc-d)}
+.qemo{font-size:clamp(64px,20vw,110px);line-height:1.05;filter:drop-shadow(0 6px 8px rgba(0,0,0,.12))}
+.qsent{font-size:clamp(21px,5.4vw,30px);font-weight:900;line-height:1.5}
+.qsent .gap{display:inline-grid;place-items:center;min-width:2.6em;border-radius:12px;
+  background:#f1ecff;color:var(--acc);box-shadow:inset 0 0 0 4px #ded4ff;padding:0 .3em}
+.qsent .gap.fill{background:#e5fbf0;color:var(--ok-d);box-shadow:inset 0 0 0 4px #b9edd3}
+.qsl{font-size:16.5px;font-weight:800;color:var(--ink-soft);line-height:1.45}
+
+/* zvočni gumb */
+.say{display:inline-flex;align-items:center;gap:8px;background:#f1ecff;color:var(--acc-d);
+  border-radius:999px;padding:10px 18px;font-weight:900;font-size:17px;box-shadow:0 4px 0 #ded4ff}
+.say:active{transform:translateY(3px);box-shadow:0 1px 0 #ded4ff}
+.say.big{font-size:23px;padding:16px 26px}
+.say.speaking{background:var(--acc);color:#fff;box-shadow:0 4px 0 var(--acc-d)}
+
+/* odgovori */
+.opts{display:grid;gap:10px;margin-top:14px}
+.opts.two{grid-template-columns:repeat(2,1fr)}
+.opts.emo{grid-template-columns:repeat(2,1fr)}
+.opt{
+  background:#fff;border-radius:18px;padding:15px 14px;font-weight:900;font-size:19px;
+  box-shadow:0 5px 0 var(--line);transition:transform .08s;text-align:center;line-height:1.3;
+}
+.opt:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.opt.emo{font-size:46px;padding:14px 8px}
+.opt.ok{background:var(--ok);color:#fff;box-shadow:0 5px 0 var(--ok-d)}
+.opt.no{background:var(--no);color:#fff;box-shadow:0 5px 0 var(--no-d)}
+.opt.dim{opacity:.45}
+.opt small{display:block;font-size:12.5px;font-weight:800;color:var(--ink-soft);margin-top:3px}
+.opt.ok small,.opt.no small{color:rgba(255,255,255,.9)}
+
+/* ploščice za sestavljanje */
+.tiles{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:6px}
+.tile{
+  background:#fff;border-radius:14px;padding:11px 14px;font-weight:900;font-size:20px;
+  box-shadow:0 4px 0 var(--line);transition:transform .08s;
+}
+.tile:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.tile.used{opacity:.28;pointer-events:none}
+.slotline{
+  display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;
+  min-height:62px;background:#f7f4ff;border-radius:16px;padding:10px;box-shadow:inset 0 0 0 4px #ece6ff;
+}
+.slotline:empty::after{content:"tapni spodaj 👇";color:#b3a9dd;font-weight:800;font-size:15px}
+.slotline .tile{background:var(--acc);color:#fff;box-shadow:0 4px 0 var(--acc-d)}
+.slotline .endmark{font-weight:900;font-size:24px;align-self:flex-end;padding-bottom:6px}
+.slotline.ok .tile{background:var(--ok);box-shadow:0 4px 0 var(--ok-d)}
+.slotline.no .tile{background:var(--no);box-shadow:0 4px 0 var(--no-d)}
+.tiles.letters .tile{min-width:48px;font-size:23px;text-transform:lowercase}
+
+/* branje */
+.reading{background:#fffdf4;border-radius:18px;padding:16px 18px;box-shadow:inset 0 0 0 4px #ffeec2;
+  text-align:left;font-size:19px;line-height:1.75;font-weight:700}
+.reading p{margin:0 0 8px}
+.reading p:last-child{margin:0}
+.reading .w{border-radius:6px;padding:0 2px;cursor:pointer}
+.reading .w:hover{background:#ffeec2}
+
+/* povratna informacija */
+.fb{margin-top:14px;border-radius:18px;padding:14px 16px;font-weight:900;font-size:18px;
+  display:flex;align-items:center;gap:10px;line-height:1.4}
+.fb.ok{background:#e5fbf0;color:var(--ok-d)}
+.fb.no{background:#fff0e6;color:var(--no-d)}
+.fb .big{font-size:26px}
+.fb small{display:block;font-weight:800;font-size:14.5px;opacity:.9;margin-top:3px}
+
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.hintbox{background:#fff8e5;border-radius:16px;padding:13px 15px;font-weight:800;font-size:16px;
+  line-height:1.5;box-shadow:inset 0 0 0 4px #ffe9b0;margin-top:12px}
+
+/* vnos besede */
+.typed{font-size:34px;font-weight:900;letter-spacing:2px;min-height:56px;display:grid;place-items:center;
+  background:#f7f4ff;border-radius:16px;max-width:380px;margin:0 auto;width:100%;
+  box-shadow:inset 0 0 0 4px #ece6ff;padding:6px 10px;text-transform:lowercase}
+.typed.empty{color:#b3a9dd}
+
+/* ---------- modal ---------- */
+.mask{position:fixed;inset:0;background:rgba(30,24,60,.55);display:grid;place-items:center;padding:16px;z-index:50}
+.mask[hidden]{display:none}
+.modal{background:#fff;border-radius:26px;padding:20px;max-width:520px;width:100%;max-height:86dvh;overflow:auto;
+  box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.modal h3{margin:0 0 12px;font-size:22px}
+.stat{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:2px dashed var(--line);font-weight:800}
+.stat:last-of-type{border:0}
+.stat b{font-weight:900}
+.mini{font-size:13.5px;color:var(--ink-soft);font-weight:700;line-height:1.5}
+.wordlist{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.chip{background:#f1ecff;border-radius:999px;padding:6px 12px;font-weight:900;font-size:14.5px;color:var(--acc-d)}
+.chip.weak{background:#fff0e6;color:var(--no-d)}
+
+/* ---------- konec kroga ---------- */
+.result{text-align:center;padding:26px 18px}
+.result .em{font-size:74px;line-height:1}
+.result h3{font-size:27px;margin:8px 0 4px}
+.result p{margin:0;font-weight:800;color:var(--ink-soft);font-size:17px;line-height:1.5}
+.stars-row{font-size:38px;letter-spacing:4px;margin:10px 0 4px}
+
+.pop{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);font-size:80px;pointer-events:none;
+  animation:pop .8s ease-out forwards;z-index:60}
+@keyframes pop{0%{transform:translate(-50%,-50%) scale(.3);opacity:0}
+  35%{transform:translate(-50%,-50%) scale(1.15);opacity:1}
+  100%{transform:translate(-50%,-90%) scale(1);opacity:0}}
+.shake{animation:sh .35s}
+@keyframes sh{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:400px){
+  .brand{font-size:22px}.pill{font-size:15px;padding:8px 12px}
+  .opt{font-size:17px;padding:13px 10px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="brand"><span class="owl">🦉</span><span>Olly</span></div>
+    <div class="spacer"></div>
+    <div class="pill gold" title="Zbrane zvezdice">⭐ <span id="stars">0</span></div>
+    <button class="icon-btn" id="soundBtn" title="Zvok" aria-label="Vklopi ali izklopi zvok">🔊</button>
+    <button class="icon-btn" id="parentBtn" title="Kotiček za starše" aria-label="Kotiček za starše">👨‍👩‍👦</button>
+  </div>
+
+  <!-- ZASLON: izbira stopnje.
+       Spodnje besedilo JavaScript ob zagonu zamenja z izbiro stopenj; vidno
+       ostane le, če se skripta sploh ne izvede. -->
+  <section id="scrSteps">
+    <div class="card">
+      <p class="lead"><b>🦉 Pozdravljen! Jaz sem Olly.</b></p>
+      <p class="lead">Če vidiš samo to sporočilo, se igra prikazuje v pregledovalniku,
+      ki ne zna zagnati JavaScripta – na primer v <b>predogledu datoteke</b> v kakšni
+      aplikaciji ali v sporočilu.</p>
+      <p class="lead">Datoteko <b>anglescina.html</b> shrani na napravo in jo odpri
+      v <b>brskalniku</b> (Safari, Chrome, Firefox …). Takrat se igra prikaže in dela
+      tudi brez interneta.</p>
+    </div>
+  </section>
+
+  <!-- ZASLON: izbira igre -->
+  <section id="scrGames" hidden></section>
+
+  <!-- ZASLON: igra -->
+  <section id="scrPlay" hidden></section>
+
+</div>
+
+<div class="mask" id="mask" hidden><div class="modal" id="modal"></div></div>
+
+<script>
+/* Varovalo: če se skripta kje ustavi, naj se ne pokaže prazna stran. */
+window.addEventListener('error', function(ev){
+  var el = document.getElementById('scrSteps');
+  if (!el || el.querySelector('.steps')) return;
+  el.hidden = false;
+  var msg = document.createElement('div');
+  msg.className = 'card';
+  msg.style.marginTop = '12px';
+  msg.textContent = '😕 Igre ni bilo mogoče zagnati: ' + (ev && ev.message ? ev.message : 'neznana napaka') +
+    ' – poskusi odpreti datoteko v drugem brskalniku.';
+  el.appendChild(msg);
+});
+
+/* =========================================================================
+   OLLY – angleščina za slovenske otroke
+   Ena sama datoteka. Brez knjižnic, brez interneta, brez zbiranja podatkov.
+   ========================================================================= */
+
+/* ===================== ČISTA LOGIKA – ZAČETEK =========================== */
+/* (ta del ne uporablja DOM-a in se samodejno preverja s testno skripto)     */
+
+/* ---------------------- BESEDIŠČE ---------------------------------------
+   Zapis: "angleško|slovensko|emodži|izgovorjava (po domače)"
+   Stopnje: 1 = prvi koraki … 5 = mojster                                   */
+const WORDS = [];
+function wadd(lvl, cat, list){
+  for (const s of list){
+    const [en, sl, e, p] = s.split('|');
+    WORDS.push({ en, sl, e: e || '💬', p: p || '', l: lvl, c: cat });
+  }
+}
+
+/* ---- 1. stopnja: prve besede ---- */
+wadd(1,'barve',[
+ 'red|rdeča|🔴|red','blue|modra|🔵|blu','green|zelena|🟢|grin','yellow|rumena|🟡|jelou',
+ 'black|črna|⚫|blek','white|bela|⚪|vajt','orange|oranžna|🟠|orindž','brown|rjava|🟤|braun',
+ 'pink|roza|🩷|pink','purple|vijolična|🟣|prpl','grey|siva|🩶|grej']);
+wadd(1,'živali',[
+ 'dog|pes|🐶|dog','cat|mačka|🐱|ket','cow|krava|🐮|kau','horse|konj|🐴|hors',
+ 'pig|prašič|🐷|pig','sheep|ovca|🐑|šip','mouse|miš|🐭|maus','bird|ptica|🐦|brd',
+ 'fish|riba|🐟|fiš','frog|žaba|🐸|frog','bear|medved|🐻|ber','lion|lev|🦁|lajon',
+ 'rabbit|zajec|🐰|rebit','duck|raca|🦆|dak','bee|čebela|🐝|bi','monkey|opica|🐵|manki',
+ 'elephant|slon|🐘|elifant','fox|lisica|🦊|foks','wolf|volk|🐺|vulf','chicken|kokoš|🐔|čikn',
+ 'snake|kača|🐍|snejk','turtle|želva|🐢|trtl']);
+wadd(1,'hrana',[
+ 'apple|jabolko|🍎|epl','banana|banana|🍌|banana','bread|kruh|🍞|bred','milk|mleko|🥛|milk',
+ 'water|voda|💧|voter','cheese|sir|🧀|čiz','egg|jajce|🥚|eg','cake|torta|🍰|kejk',
+ 'pizza|pica|🍕|pica','strawberry|jagoda|🍓|strouberi','carrot|korenje|🥕|kerot',
+ 'potato|krompir|🥔|potejto','soup|juha|🍲|sup','chocolate|čokolada|🍫|čoklit',
+ 'honey|med|🍯|hani','pear|hruška|🍐|per','grapes|grozdje|🍇|grejps','lemon|limona|🍋|lemon']);
+wadd(1,'družina',[
+ 'mother|mama|👩‍🍼|mader','father|oče|👨|fader','sister|sestra|👭|sister','brother|brat|👦|brader',
+ 'grandma|babica|👵|grendma','grandpa|dedek|👴|grendpa','baby|dojenček|👶|bejbi',
+ 'family|družina|👨‍👩‍👧|femili','boy|deček|🧒|boj','girl|deklica|👧|grl',
+ 'man|moški|🧔|men','woman|ženska|👩|vumn','friend|prijatelj|🤝|frend']);
+wadd(1,'telo',[
+ 'hand|roka|🤚|hend','eye|oko|👁️|aj','nose|nos|👃|nouz','mouth|usta|👄|maut',
+ 'ear|uho|👂|ir','foot|stopalo|🦶|fut','tooth|zob|🦷|tut','head|glava|👤|hed',
+ 'hair|lasje|💇|her','finger|prst|👆|finger']);
+wadd(1,'dom',[
+ 'house|hiša|🏠|haus','door|vrata|🚪|dor','window|okno|🪟|vindou','bed|postelja|🛏️|bed',
+ 'chair|stol|🪑|čer','table|miza|🍽️|tejbl','room|soba|🛋️|rum','kitchen|kuhinja|🍳|kičn',
+ 'garden|vrt|🌷|gardn','key|ključ|🔑|ki']);
+wadd(1,'stvari',[
+ 'ball|žoga|🏐|bol','car|avto|🚗|kar','book|knjiga|📖|buk','doll|punčka|🪆|dol',
+ 'tree|drevo|🌳|tri','flower|roža|🌸|flauer','sun|sonce|☀️|san','moon|luna|🌙|mun',
+ 'star|zvezda|⭐|star','toy|igrača|🧸|toj','boat|čoln|⛵|bout','train|vlak|🚂|trejn']);
+
+/* ---- 2. stopnja: začetnik ---- */
+wadd(2,'šola',[
+ 'pencil|svinčnik|✏️|pensl','pen|pero|🖊️|pen','school|šola|🏫|skul','teacher|učitelj|👩‍🏫|tičer',
+ 'bag|torba|🎒|beg','ruler|ravnilo|📏|ruler','paper|papir|📄|pejper','scissors|škarje|✂️|sizrs',
+ 'notebook|zvezek|📓|noutbuk','desk|klop|🗄️|desk','pupil|učenec|🧑‍🎓|pjupl','lesson|učna ura|📔|lesn']);
+wadd(2,'oblačila',[
+ 'shirt|srajca|👕|šrt','trousers|hlače|👖|trauzrs','shoes|čevlji|👟|šuz','hat|klobuk|👒|het',
+ 'socks|nogavice|🧦|soks','jacket|jakna|🧥|džekit','dress|obleka|👗|dres','scarf|šal|🧣|skarf',
+ 'gloves|rokavice|🧤|glavz','boots|škornji|🥾|buts','coat|plašč|🥼|kout']);
+wadd(2,'vreme',[
+ 'rain|dež|🌧️|rejn','snow|sneg|❄️|snou','wind|veter|💨|vind','cloud|oblak|☁️|klaud',
+ 'sunny|sončno|🌞|sani','cold|mrzlo|🥶|kould','hot|vroče|🥵|hot','storm|nevihta|⛈️|storm',
+ 'rainbow|mavrica|🌈|rejnbou','fog|megla|🌫️|fog','ice|led|🧊|ajs']);
+wadd(2,'glagoli',[
+ 'run|teči|🏃|ran','jump|skakati|🤸|džamp','eat|jesti|😋|it','drink|piti|🥤|drink',
+ 'sleep|spati|😴|slip','read|brati|📚|rid','write|pisati|✍️|rajt','play|igrati se|🎮|plej',
+ 'swim|plavati|🏊|svim','sing|peti|🎤|sing','dance|plesati|💃|dens','walk|hoditi|🚶|vok',
+ 'draw|risati|🖍️|dro','listen|poslušati|🎧|lisn','cook|kuhati|👨‍🍳|kuk','laugh|smejati se|😄|laf',
+ 'cry|jokati|😢|kraj','help|pomagati|🆘|help','sit|sedeti|🧘|sit','stand|stati|🧍|stend',
+ 'open|odpreti|🔓|oupn','close|zapreti|🔒|klouz','give|dati|🤲|giv','take|vzeti|✊|tejk']);
+wadd(2,'kraji',[
+ 'park|park|🏞️|park','shop|trgovina|🏪|šop','home|dom|🏡|houm','city|mesto|🏙️|siti',
+ 'farm|kmetija|🚜|farm','hospital|bolnišnica|🏥|hospitl','beach|plaža|🏖️|bič',
+ 'forest|gozd|🌲|forist','mountain|gora|⛰️|mauntin','river|reka|🌊|river','street|ulica|🛣️|strit']);
+wadd(2,'lastnosti',[
+ 'big|velik|🐳|big','small|majhen|🐜|smol','happy|vesel|😀|hepi','sad|žalosten|😞|sed',
+ 'fast|hiter|🏎️|fast','slow|počasen|🐌|slou','old|star|🕰️|ould','new|nov|✨|nju',
+ 'hungry|lačen|🤤|hangri','tired|utrujen|😪|tajerd','strong|močan|💪|strong',
+ 'clean|čist|🧼|klin','dirty|umazan|🧹|drti','long|dolg|🛤️|long','short|kratek|📐|šort']);
+
+/* ---- 3. stopnja: nadaljevalec ---- */
+wadd(3,'dan',[
+ 'breakfast|zajtrk|🥣|brekfst','lunch|kosilo|🍛|lanč','dinner|večerja|🍝|diner',
+ 'morning|jutro|🌅|morning','afternoon|popoldne|🌤️|afternun','evening|večer|🌇|ivning',
+ 'night|noč|🌃|najt','week|teden|📅|vik','month|mesec|🗓️|mant','year|leto|🎊|jir',
+ 'weekend|vikend|🎉|vikend','hour|ura (60 minut)|⏳|auer','minute|minuta|⏱️|minit']);
+wadd(3,'prosti čas',[
+ 'football|nogomet|⚽|futbol','swimming|plavanje|🤽|sviming','drawing|risanje|🎨|droing',
+ 'reading|branje|📗|riding','music|glasba|🎵|mjuzik','dancing|ples|🕺|densing',
+ 'cycling|kolesarjenje|🚴|sajkling','skiing|smučanje|🎿|skiing','chess|šah|♟️|čes',
+ 'painting|slikanje|🖼️|pejnting','hobby|konjiček|🪁|hobi','film|film|🎬|film']);
+wadd(3,'potovanje',[
+ 'bus|avtobus|🚌|bas','plane|letalo|✈️|plejn','bike|kolo|🚲|bajk','ticket|vozovnica|🎫|tikit',
+ 'map|zemljevid|🗺️|mep','suitcase|kovček|🧳|sutkejs','airport|letališče|🛫|erport',
+ 'station|postaja|🚉|stejšn','journey|potovanje|🧭|džrni']);
+wadd(3,'poklici',[
+ 'doctor|zdravnik|👨‍⚕️|doktor','nurse|medicinska sestra|👩‍⚕️|nrs','farmer|kmet|👨‍🌾|farmer',
+ 'chef|kuhar|🧑‍🍳|šef','driver|voznik|🚕|drajver','police officer|policist|👮|polis ofiser',
+ 'firefighter|gasilec|🚒|fajerfajter','singer|pevec|🧑‍🎤|singer','painter|slikar|🧑‍🎨|pejnter',
+ 'writer|pisatelj|🖋️|rajter','vet|veterinar|🐕‍🦺|vet','baker|pek|🥐|bejker']);
+wadd(3,'življenje',[
+ 'money|denar|💰|mani','birthday|rojstni dan|🎂|brtdej','present|darilo|🎁|preznt',
+ 'holiday|počitnice|🌴|holidej','homework|domača naloga|📝|houmvork','question|vprašanje|❓|kvesčn',
+ 'answer|odgovor|✅|anser','story|zgodba|📜|stori','game|igra|🎲|gejm','letter|pismo|✉️|leter',
+ 'photo|fotografija|📷|foutou','song|pesem|🎶|song','word|beseda|🔤|vrd']);
+
+/* ---- 4. stopnja: samozavestni ---- */
+wadd(4,'lastnosti+',[
+ 'brave|pogumen|🦸|brejv','careful|previden|⚠️|kerful','dangerous|nevaren|☠️|dejndžres',
+ 'expensive|drag|💸|ekspensiv','cheap|poceni|🪙|čip','difficult|težek|🧗|difiklt',
+ 'quiet|tih|🤫|kvajet','noisy|hrupen|📢|nojzi','polite|vljuden|🙇|polajt',
+ 'honest|pošten|😇|onist','lonely|osamljen|😔|lounli','proud|ponosen|🏅|praud',
+ 'strange|čuden|🤨|strejndž','useful|uporaben|🧰|jusful','famous|slaven|🌟|fejms',
+ 'empty|prazen|🕳️|empti','heavy|težek (teža)|🪨|hevi']);
+wadd(4,'glagoli+',[
+ 'borrow|izposoditi si|📥|borou','lend|posoditi|📤|lend','choose|izbrati|👉|čuz',
+ 'decide|odločiti se|🤔|disajd','explain|razložiti|💬|eksplejn','forget|pozabiti|🙈|forget',
+ 'remember|spomniti se|💭|rimember','promise|obljubiti|🤞|promis','arrive|prispeti|🛬|arajv',
+ 'leave|oditi|👋|liv','invite|povabiti|💌|invajt','complain|pritoževati se|😤|komplejn',
+ 'improve|izboljšati|📈|impruv','succeed|uspeti|🏁|saksid','avoid|izogibati se|🚫|avojd',
+ 'hurry|hiteti|⏩|hari','repair|popraviti|🔧|riper']);
+wadd(4,'pojmi',[
+ 'neighbour|sosed|🏘️|nejber','mistake|napaka|❌|mistejk','health|zdravje|❤️|helt',
+ 'knowledge|znanje|🧠|nolidž','hope|upanje|🕯️|houp','safety|varnost|🦺|sejfti',
+ 'crowd|množica|👥|kraud','silence|tišina|🤐|sajlens','luck|sreča|🍀|lak',
+ 'advice|nasvet|💡|advajs','weather|vreme|🌦️|veder','reason|razlog|🤷|rizn',
+ 'future|prihodnost|🔮|fjučer','past|preteklost|⏮️|past']);
+
+/* ---- 5. stopnja: mojster ---- */
+wadd(5,'pojmi+',[
+ 'achievement|dosežek|🏆|ačivment','opportunity|priložnost|🪜|oportjuniti',
+ 'responsibility|odgovornost|🧑‍⚖️|risponsibiliti','environment|okolje|🌍|invajronment',
+ 'pollution|onesnaženje|🏭|polušn','research|raziskava|🔬|risrč','evidence|dokaz|🔎|evidens',
+ 'influence|vpliv|🧲|influens','behaviour|vedenje|🎭|bihejvjer','decision|odločitev|⚖️|disižn',
+ 'experience|izkušnja|🎓|ikspiriens','solution|rešitev|🧩|solušn','purpose|namen|🎯|prpes',
+ 'benefit|korist|➕|benefit','challenge|izziv|🏔️|čelindž']);
+wadd(5,'lastnosti++',[
+ 'reliable|zanesljiv|⚓|rilajebl','curious|radoveden|🔍|kjuries','generous|radodaren|💝|dženeres',
+ 'stubborn|trmast|🐏|stabern','ambitious|ambiciozen|🚀|ambišes','anxious|tesnoben|😰|enkšes',
+ 'confident|samozavesten|😎|konfident','patient|potrpežljiv|😌|pejšent',
+ 'sensible|razumen|🤓|sensibl','aware|ozaveščen|🚨|aver','independent|samostojen|🕊️|indipendent']);
+wadd(5,'glagoli++',[
+ 'achieve|doseči|🥇|ačiv','admit|priznati|🙋|admit','afford|privoščiti si|💳|aford',
+ 'apologise|opravičiti se|🙏|apolodžajz','consider|premisliti|🧐|konsider',
+ 'encourage|spodbujati|📣|inkaridž','involve|vključevati|🔗|involv','prevent|preprečiti|🛡️|privent',
+ 'realise|spoznati|😲|rielajz','suggest|predlagati|🗨️|sadžest','deserve|zaslužiti si|🎖️|dizrv',
+ 'reduce|zmanjšati|📉|ridjus','discover|odkriti|🔭|diskaver']);
+
+/* ---------------------- ŠTEVILA, DNEVI, MESECI --------------------------- */
+const NUM_WORDS = ['zero','one','two','three','four','five','six','seven','eight','nine','ten',
+ 'eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty'];
+const TENS = {20:'twenty',30:'thirty',40:'forty',50:'fifty',60:'sixty',70:'seventy',80:'eighty',90:'ninety'};
+const ORDINALS = ['','first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth',
+ 'eleventh','twelfth','thirteenth','fourteenth','fifteenth','sixteenth','seventeenth','eighteenth',
+ 'nineteenth','twentieth'];
+const DAYS = [['Monday','ponedeljek'],['Tuesday','torek'],['Wednesday','sreda'],['Thursday','četrtek'],
+ ['Friday','petek'],['Saturday','sobota'],['Sunday','nedelja']];
+const MONTHS = [['January','januar'],['February','februar'],['March','marec'],['April','april'],
+ ['May','maj'],['June','junij'],['July','julij'],['August','avgust'],['September','september'],
+ ['October','oktober'],['November','november'],['December','december']];
+
+/* ---------------------- NEPRAVILNI GLAGOLI ------------------------------- */
+/* osnovna oblika | preteklik | deležnik | slovensko | stopnja               */
+const IRREG = [
+ ['go','went','gone','iti',4],['be','was','been','biti',4],['have','had','had','imeti',4],
+ ['do','did','done','delati',4],['see','saw','seen','videti',4],['eat','ate','eaten','jesti',4],
+ ['drink','drank','drunk','piti',4],['run','ran','run','teči',4],['come','came','come','priti',4],
+ ['give','gave','given','dati',4],['take','took','taken','vzeti',4],['make','made','made','narediti',4],
+ ['write','wrote','written','pisati',4],['read','read','read','brati',4],['sing','sang','sung','peti',4],
+ ['swim','swam','swum','plavati',4],['sleep','slept','slept','spati',4],['find','found','found','najti',4],
+ ['buy','bought','bought','kupiti',5],['bring','brought','brought','prinesti',5],
+ ['think','thought','thought','misliti',5],['teach','taught','taught','učiti',5],
+ ['catch','caught','caught','ujeti',5],['speak','spoke','spoken','govoriti',5],
+ ['break','broke','broken','zlomiti',5],['choose','chose','chosen','izbrati',5],
+ ['forget','forgot','forgotten','pozabiti',5],['begin','began','begun','začeti',5],
+ ['fly','flew','flown','leteti',5],['know','knew','known','vedeti',5],
+ ['grow','grew','grown','rasti',5],['throw','threw','thrown','vreči',5],
+ ['wear','wore','worn','nositi (obleko)',5],['win','won','won','zmagati',5],
+ ['lose','lost','lost','izgubiti',5],['leave','left','left','oditi',5],
+ ['meet','met','met','srečati',5],['pay','paid','paid','plačati',5],
+ ['send','sent','sent','poslati',5],['understand','understood','understood','razumeti',5]];
+
+/* ---------------------- NASPROTJA ---------------------------------------- */
+const OPPOSITES = [
+ ['big','small','velik – majhen',1],['hot','cold','vroče – mrzlo',1],['day','night','dan – noč',1],
+ ['yes','no','da – ne',1],['good','bad','dober – slab',1],['happy','sad','vesel – žalosten',2],
+ ['fast','slow','hiter – počasen',2],['old','new','star – nov',2],['long','short','dolg – kratek',2],
+ ['open','closed','odprt – zaprt',2],['clean','dirty','čist – umazan',2],['up','down','gor – dol',2],
+ ['full','empty','poln – prazen',3],['easy','difficult','lahek – težek',3],
+ ['cheap','expensive','poceni – drag',3],['strong','weak','močan – šibek',3],
+ ['quiet','noisy','tih – hrupen',3],['early','late','zgodaj – pozno',3],
+ ['always','never','vedno – nikoli',4],['remember','forget','spomniti se – pozabiti',4],
+ ['borrow','lend','izposoditi si – posoditi',4],['safe','dangerous','varen – nevaren',4],
+ ['polite','rude','vljuden – nesramen',4],['increase','decrease','povečati – zmanjšati',5],
+ ['success','failure','uspeh – neuspeh',5],['accept','refuse','sprejeti – zavrniti',5]];
+
+/* ---------------------- MNOŽINA ------------------------------------------ */
+/* [ednina, množina, razlaga] */
+const PLURALS = [
+ ['cat','cats','dodamo -s',1],['dog','dogs','dodamo -s',1],['book','books','dodamo -s',1],
+ ['tree','trees','dodamo -s',1],['star','stars','dodamo -s',1],['apple','apples','dodamo -s',1],
+ ['box','boxes','za -x, -s, -ch, -sh dodamo -es',2],['bus','buses','za -s dodamo -es',2],
+ ['brush','brushes','za -sh dodamo -es',2],['watch','watches','za -ch dodamo -es',2],
+ ['baby','babies','soglasnik + y → -ies',2],['city','cities','soglasnik + y → -ies',2],
+ ['boy','boys','samoglasnik + y → samo -s',3],['day','days','samoglasnik + y → samo -s',3],
+ ['knife','knives','-fe → -ves',3],['leaf','leaves','-f → -ves',3],
+ ['man','men','nepravilna množina',3],['woman','women','nepravilna množina',3],
+ ['child','children','nepravilna množina',3],['foot','feet','nepravilna množina',3],
+ ['tooth','teeth','nepravilna množina',4],['mouse','mice','nepravilna množina',4],
+ ['sheep','sheep','enako v ednini in množini',4],['fish','fish','enako v ednini in množini',4],
+ ['person','people','nepravilna množina',4],['goose','geese','nepravilna množina',5]];
+
+/* ---------------------- SLOVNICA: manjkajoča beseda ----------------------
+   { q: stavek z ___, o: možnosti (prva je pravilna), h: namig, l: stopnja } */
+const GAPS = [
+ /* 1. stopnja */
+ {l:1,q:"I ___ a boy.",o:["am","is","are"],h:"Pri I je vedno am."},
+ {l:1,q:"You ___ my friend.",o:["are","is","am"],h:"Pri you je vedno are."},
+ {l:1,q:"This ___ a cat.",o:["is","are","am"],h:"Ena stvar → is."},
+ {l:1,q:"___ name is Tom.",o:["My","Me","I"],h:"Moje ime = my name."},
+ {l:1,q:"It is ___ apple.",o:["an","a","the"],h:"Pred a, e, i, o, u pišemo an."},
+ {l:1,q:"It is ___ dog.",o:["a","an","are"],h:"Pred soglasnikom pišemo a."},
+ {l:1,q:"I have two ___.",o:["cats","cat","cates"],h:"Množina: dodamo -s."},
+ {l:1,q:"She is ___ girl.",o:["a","an","two"],h:"Ena deklica → a girl."},
+ {l:1,q:"Hello! My name ___ Ana.",o:["is","are","am"],h:"Ime je → name is."},
+ {l:1,q:"I ___ eight years old.",o:["am","is","have"],h:"V angleščini smo star: I am eight."},
+ {l:1,q:"___ is this? – It is a ball.",o:["What","Who","Where"],h:"What = kaj."},
+ {l:1,q:"The sun is ___.",o:["yellow","run","book"],h:"Sonce je rumeno."},
+ {l:1,q:"We ___ happy.",o:["are","is","am"],h:"Pri we je are."},
+ {l:1,q:"___ is my mother.",o:["She","He","It"],h:"Mama je ona → she."},
+ /* 2. stopnja */
+ {l:2,q:"He ___ got a red car.",o:["has","have","is"],h:"He, she, it → has got."},
+ {l:2,q:"We ___ got two dogs.",o:["have","has","is"],h:"I, you, we, they → have got."},
+ {l:2,q:"___ these your books?",o:["Are","Is","Am"],h:"These = ti (več) → are."},
+ {l:2,q:"There ___ a cat in the garden.",o:["is","are","be"],h:"Ena mačka → there is."},
+ {l:2,q:"There ___ three birds in the tree.",o:["are","is","am"],h:"Več ptic → there are."},
+ {l:2,q:"The fish is ___ the water.",o:["in","on","under"],h:"in = v, on = na, under = pod."},
+ {l:2,q:"The book is ___ the table.",o:["on","in","under"],h:"Knjiga leži na mizi → on."},
+ {l:2,q:"She ___ football every day.",o:["plays","play","playing"],h:"He, she, it dobi -s."},
+ {l:2,q:"I ___ TV in the evening.",o:["watch","watches","watching"],h:"Pri I brez -s."},
+ {l:2,q:"___ you like ice cream?",o:["Do","Does","Is"],h:"Pri you vprašamo z Do."},
+ {l:2,q:"My sister ___ like fish.",o:["doesn't","don't","isn't"],h:"He, she, it → doesn't."},
+ {l:2,q:"I ___ swim very well.",o:["can","am","do"],h:"Znati = can."},
+ {l:2,q:"That is Tom. ___ bag is blue.",o:["His","Her","He"],h:"Tomova → his."},
+ {l:2,q:"We are ___ school now.",o:["at","on","of"],h:"V šoli = at school."},
+ {l:2,q:"Look! The baby ___ sleeping.",o:["is","are","do"],h:"Zdaj se dogaja: is + -ing."},
+ {l:2,q:"My shoes ___ new.",o:["are","is","am"],h:"Shoes je množina → are."},
+ /* 3. stopnja */
+ {l:3,q:"Right now I ___ my homework.",o:["am doing","do","did"],h:"Right now = prav zdaj → am + -ing."},
+ {l:3,q:"Every morning she ___ to school.",o:["goes","go","is going"],h:"Every morning = navada → present simple."},
+ {l:3,q:"Yesterday we ___ football.",o:["played","play","are playing"],h:"Yesterday = včeraj → preteklik z -ed."},
+ {l:3,q:"___ he live in Slovenia?",o:["Does","Do","Is"],h:"He → Does."},
+ {l:3,q:"My brother is ___ than me.",o:["taller","tall","tallest"],h:"Primerjava: -er + than."},
+ {l:3,q:"I ___ go to the cinema last week.",o:["didn't","don't","wasn't"],h:"Preteklik zanikamo z didn't."},
+ {l:3,q:"We usually have lunch ___ 12 o'clock.",o:["at","in","on"],h:"Pri urah: at."},
+ {l:3,q:"My birthday is ___ July.",o:["in","at","on"],h:"Pri mesecih: in."},
+ {l:3,q:"See you ___ Monday.",o:["on","in","at"],h:"Pri dnevih: on."},
+ {l:3,q:"Are there ___ apples in the bag?",o:["any","some","much"],h:"V vprašanjih uporabimo any."},
+ {l:3,q:"There isn't ___ milk in the glass.",o:["any","some","many"],h:"V zanikanju uporabimo any."},
+ {l:3,q:"How ___ books do you have?",o:["many","much","long"],h:"Books lahko štejemo → many."},
+ {l:3,q:"How ___ water do you drink?",o:["much","many","old"],h:"Vode ne štejemo → much."},
+ {l:3,q:"Tomorrow I am ___ to visit my grandma.",o:["going","go","went"],h:"Načrt: be going to."},
+ {l:3,q:"She is ___ late.",o:["never","not never","no"],h:"Never že pomeni nikoli, zato brez not."},
+ {l:3,q:"They ___ watching a film now.",o:["are","is","am"],h:"They → are."},
+ {l:3,q:"This book is ___ than that one.",o:["better","gooder","best"],h:"good → better → the best."},
+ /* 4. stopnja */
+ {l:4,q:"I ___ to London last year.",o:["went","go","gone"],h:"go → went (nepravilni glagol)."},
+ {l:4,q:"He ___ his keys yesterday.",o:["lost","lose","losted"],h:"lose → lost."},
+ {l:4,q:"This is the ___ book I have ever read.",o:["best","better","good"],h:"Presežnik: the best."},
+ {l:4,q:"I have ___ finished my homework.",o:["already","yet","ago"],h:"already = že (v trdilnem stavku)."},
+ {l:4,q:"___ you ever been to Italy?",o:["Have","Did","Are"],h:"Present perfect: have + been."},
+ {l:4,q:"You ___ wear a helmet when you cycle.",o:["should","will","are"],h:"should = naj bi, priporočilo."},
+ {l:4,q:"We ___ hurry or we will miss the bus.",o:["must","can","would"],h:"must = moramo."},
+ {l:4,q:"This is the girl ___ won the race.",o:["who","which","what"],h:"Za osebe: who."},
+ {l:4,q:"This is the book ___ I told you about.",o:["which","who","whose"],h:"Za stvari: which."},
+ {l:4,q:"He isn't old ___ to drive a car.",o:["enough","too","very"],h:"old enough = dovolj star."},
+ {l:4,q:"If it rains, we ___ at home.",o:["will stay","stay","stayed"],h:"If + present, then will."},
+ {l:4,q:"She has lived here ___ 2015.",o:["since","for","ago"],h:"since = od (točke v času)."},
+ {l:4,q:"I have known him ___ five years.",o:["for","since","ago"],h:"for = že (koliko časa)."},
+ {l:4,q:"Please turn ___ the light. It's dark.",o:["on","off","up"],h:"turn on = prižgati."},
+ {l:4,q:"He was ___ tired that he fell asleep.",o:["so","such","very"],h:"so + pridevnik + that."},
+ {l:4,q:"I ___ TV when the phone rang.",o:["was watching","watched","watch"],h:"Daljše dejanje v ozadju: was + -ing."},
+ /* 5. stopnja */
+ {l:5,q:"I have ___ been to Japan.",o:["never","ever","yet"],h:"never = nikoli, v trdilni obliki."},
+ {l:5,q:"She ___ in London for ten years before she moved.",o:["had lived","has lived","lives"],h:"Pred drugim preteklim dejanjem: past perfect."},
+ {l:5,q:"The window ___ by the storm.",o:["was broken","broke","is breaking"],h:"Trpnik: was + deležnik."},
+ {l:5,q:"English ___ all over the world.",o:["is spoken","speaks","is speaking"],h:"Trpnik: is + spoken."},
+ {l:5,q:"If I ___ rich, I would travel the world.",o:["were","am","will be"],h:"Drugi pogojnik: If I were …, I would …"},
+ {l:5,q:"He said he ___ tired.",o:["was","is","will be"],h:"Odvisni govor pomakne čas nazaj."},
+ {l:5,q:"She asked me where I ___.",o:["lived","live","do live"],h:"V odvisnem govoru ni vprašalnega reda."},
+ {l:5,q:"I used ___ football when I was younger.",o:["to play","playing","played"],h:"used to + osnovna oblika."},
+ {l:5,q:"I enjoy ___ books.",o:["reading","to read","read"],h:"Za enjoy vedno -ing."},
+ {l:5,q:"He decided ___ a new bike.",o:["to buy","buying","buy"],h:"Za decide vedno to + glagol."},
+ {l:5,q:"It's the ___ film I have ever seen.",o:["most interesting","more interesting","interesting"],h:"Dolgi pridevniki: the most …"},
+ {l:5,q:"By the time we arrived, the film ___.",o:["had started","has started","starts"],h:"Prej se je zgodilo → had + deležnik."},
+ {l:5,q:"I wish I ___ play the piano.",o:["could","can","will"],h:"I wish + could."},
+ {l:5,q:"Neither Tom ___ Ana came to the party.",o:["nor","or","either"],h:"neither … nor …"},
+ {l:5,q:"The book ___ I bought yesterday is great.",o:["that","who","what"],h:"Za stvari: that ali which."},
+ {l:5,q:"If you heat ice, it ___.",o:["melts","melted","would melt"],h:"Splošna resnica: oba dela v sedanjiku."}
+];
+
+/* ---------------------- SESTAVI STAVEK -----------------------------------
+   { en: pravilni vrstni red, sl: prevod, alt: druge sprejemljive rešitve }  */
+const SENTS = [
+ {l:1,en:"I am a boy.",sl:"Sem deček."},
+ {l:1,en:"This is my dog.",sl:"To je moj pes."},
+ {l:1,en:"The cat is black.",sl:"Mačka je črna."},
+ {l:1,en:"I like apples.",sl:"Rad imam jabolka."},
+ {l:1,en:"My name is Ana.",sl:"Ime mi je Ana."},
+ {l:1,en:"It is a red ball.",sl:"To je rdeča žoga."},
+ {l:1,en:"I have two cats.",sl:"Imam dve mački."},
+ {l:1,en:"She is my sister.",sl:"Ona je moja sestra."},
+ {l:2,en:"I go to school every day.",sl:"V šolo grem vsak dan.",alt:["Every day I go to school."]},
+ {l:2,en:"He has got a blue bike.",sl:"Ima modro kolo."},
+ {l:2,en:"There is a bird in the tree.",sl:"Na drevesu je ptica."},
+ {l:2,en:"We are playing in the park.",sl:"Igramo se v parku."},
+ {l:2,en:"My mother is a teacher.",sl:"Moja mama je učiteljica."},
+ {l:2,en:"The dog is under the table.",sl:"Pes je pod mizo."},
+ {l:2,en:"I can swim very well.",sl:"Znam zelo dobro plavati."},
+ {l:2,en:"Do you like pizza?",sl:"Ali imaš rad pico?"},
+ {l:3,en:"She is reading a very good book.",sl:"Bere zelo dobro knjigo."},
+ {l:3,en:"My brother is taller than me.",sl:"Moj brat je višji od mene."},
+ {l:3,en:"We are going to the beach tomorrow.",sl:"Jutri gremo na plažo.",alt:["Tomorrow we are going to the beach."]},
+ {l:3,en:"How many apples do you want?",sl:"Koliko jabolk želiš?"},
+ {l:3,en:"I usually get up at seven o'clock.",sl:"Navadno vstanem ob sedmih."},
+ {l:3,en:"There were a lot of people at the party.",sl:"Na zabavi je bilo veliko ljudi."},
+ {l:3,en:"He did not go to school yesterday.",sl:"Včeraj ni šel v šolo.",alt:["Yesterday he did not go to school."]},
+ {l:4,en:"I have never been to England.",sl:"Nikoli še nisem bil v Angliji."},
+ {l:4,en:"You should drink more water.",sl:"Piti bi moral več vode."},
+ {l:4,en:"This is the boy who lives next door.",sl:"To je deček, ki živi v sosednji hiši."},
+ {l:4,en:"If it rains, we will stay at home.",sl:"Če bo deževalo, bomo ostali doma."},
+ {l:4,en:"He was too tired to finish the race.",sl:"Bil je preveč utrujen, da bi končal tek."},
+ {l:4,en:"She has been learning English for three years.",sl:"Angleščino se uči že tri leta."},
+ {l:5,en:"The bridge was built a hundred years ago.",sl:"Most so zgradili pred sto leti."},
+ {l:5,en:"If I had more time, I would learn Spanish.",sl:"Če bi imel več časa, bi se učil špansko."},
+ {l:5,en:"She told me that she was moving to Ljubljana.",sl:"Povedala mi je, da se seli v Ljubljano."},
+ {l:5,en:"I would rather stay at home tonight.",sl:"Nocoj bi raje ostal doma."},
+ {l:5,en:"The more you practise, the better you get.",sl:"Več ko vadiš, boljši postaneš."}
+];
+
+/* ---------------------- POGOVOR ------------------------------------------ */
+const DIALOG = [
+ {l:1,q:"Hello! What is your name?",sl:"Kako ti je ime?",o:["My name is Tom.","I am fine.","It is a cat."]},
+ {l:1,q:"How old are you?",sl:"Koliko si star?",o:["I am eight.","I am fine.","Yes, please."]},
+ {l:1,q:"How are you?",sl:"Kako si?",o:["I'm fine, thank you.","I am eight.","It is red."]},
+ {l:1,q:"What colour is it?",sl:"Kakšne barve je?",o:["It is green.","It is a dog.","I am nine."]},
+ {l:2,q:"Where do you live?",sl:"Kje živiš?",o:["I live in Ljubljana.","I am ten.","It is a house."]},
+ {l:2,q:"Do you like pizza?",sl:"Ali imaš rad pico?",o:["Yes, I do.","Yes, I am.","It is pizza."]},
+ {l:2,q:"Can I have some water, please?",sl:"Lahko dobim vodo, prosim?",o:["Here you are.","No, I can.","I am water."]},
+ {l:2,q:"Have you got a pet?",sl:"Ali imaš hišnega ljubljenčka?",o:["Yes, I have got a dog.","Yes, I am a dog.","I like a dog."]},
+ {l:3,q:"What time is it?",sl:"Koliko je ura?",o:["It's half past three.","It's Monday.","I'm fine."]},
+ {l:3,q:"What's the weather like?",sl:"Kakšno je vreme?",o:["It's sunny and warm.","It's my birthday.","I like it."]},
+ {l:3,q:"What did you do yesterday?",sl:"Kaj si počel včeraj?",o:["I visited my grandma.","I will go home.","I am playing."]},
+ {l:3,q:"Would you like some cake?",sl:"Bi želel malo torte?",o:["Yes, please.","Yes, I did.","I am cake."]},
+ {l:3,q:"How much is the ticket?",sl:"Koliko stane vozovnica?",o:["It's five euros.","It's five o'clock.","Yes, it is."]},
+ {l:4,q:"I'm sorry, I broke your pen.",sl:"Oprosti, zlomil sem tvoje pero.",o:["Never mind, it's OK.","You're welcome.","Here you are."]},
+ {l:4,q:"Thank you for your help!",sl:"Hvala za pomoč!",o:["You're welcome.","Never mind.","I'm fine."]},
+ {l:4,q:"Shall we go to the cinema?",sl:"Bi šla v kino?",o:["That's a great idea!","Yes, I have.","It is a cinema."]},
+ {l:4,q:"How was your holiday?",sl:"Kakšne so bile počitnice?",o:["It was wonderful, thanks.","I am on holiday.","Yes, please."]},
+ {l:4,q:"Excuse me, is this seat free?",sl:"Oprostite, je ta sedež prost?",o:["Yes, of course. Sit down.","Yes, I am free.","It is a seat."]},
+ {l:5,q:"Could you tell me the way to the station?",sl:"Mi lahko poveste pot do postaje?",o:["Sure, go straight on and turn left.","Yes, I could.","The station is a station."]},
+ {l:5,q:"I'm afraid I can't come to your party.",sl:"Bojim se, da ne morem priti na zabavo.",o:["That's a pity. Maybe next time.","You're welcome.","Here you are."]},
+ {l:5,q:"Do you mind if I open the window?",sl:"Vam je prav, če odprem okno?",o:["Not at all, go ahead.","Yes, I open it.","I am a window."]},
+ {l:5,q:"What do you think about the plan?",sl:"Kaj misliš o načrtu?",o:["It sounds reasonable to me.","I think, yes I do.","It is a plan."]},
+ {l:5,q:"I've just passed my exam!",sl:"Pravkar sem opravil izpit!",o:["Congratulations! Well done.","I'm sorry to hear that.","Never mind."]}
+];
+
+/* ---------------------- BRANJE ------------------------------------------- */
+const READINGS = [
+ {l:1,t:["This is Tom.","Tom is seven years old.","He has a dog.","The dog is brown.","Tom likes his dog."],
+  qs:[{q:"How old is Tom?",o:["Seven.","Five.","Ten."]},
+      {q:"What colour is the dog?",o:["Brown.","Black.","White."]}]},
+ {l:1,t:["My name is Ana.","I have a red ball.","I play in the garden.","My cat is black.","The cat likes milk."],
+  qs:[{q:"What colour is the ball?",o:["Red.","Blue.","Green."]},
+      {q:"What does the cat like?",o:["Milk.","Bread.","Water."]}]},
+ {l:2,t:["It is Monday morning.","Luka gets up at seven o'clock.","He eats bread and drinks milk.","Then he goes to school by bus.","At school he draws a big blue house."],
+  qs:[{q:"When does Luka get up?",o:["At seven o'clock.","At eight o'clock.","At six o'clock."]},
+      {q:"How does he go to school?",o:["By bus.","By car.","On foot."]},
+      {q:"What does he draw?",o:["A blue house.","A red car.","A green tree."]}]},
+ {l:2,t:["Today it is raining.","Maja is at home.","She is reading a book about animals.","Her brother is playing a game.","Their dog is sleeping under the table."],
+  qs:[{q:"What is the weather like?",o:["It is raining.","It is sunny.","It is snowing."]},
+      {q:"Where is the dog?",o:["Under the table.","On the bed.","In the garden."]}]},
+ {l:3,t:["Last Saturday my family went to the mountains.","We took sandwiches and a lot of water.","The walk was long, but the view was beautiful.","In the afternoon we saw two deer near the forest.","We came home tired but happy."],
+  qs:[{q:"When did they go to the mountains?",o:["Last Saturday.","Last Sunday.","Yesterday."]},
+      {q:"What did they see near the forest?",o:["Two deer.","Two bears.","Two birds."]},
+      {q:"How did they feel at the end?",o:["Tired but happy.","Sad and cold.","Angry."]}]},
+ {l:3,t:["Nina lives in a small town in Slovenia.","She usually goes to school by bike.","On Wednesdays she has a swimming lesson.","She would like to be a vet, because she loves animals.","Her favourite animal is the horse."],
+  qs:[{q:"How does Nina usually go to school?",o:["By bike.","By bus.","By car."]},
+      {q:"What does she want to be?",o:["A vet.","A teacher.","A singer."]},
+      {q:"When does she swim?",o:["On Wednesdays.","On Mondays.","At the weekend."]}]},
+ {l:4,t:["Marko has been playing the guitar for three years.","At first it was difficult and his fingers hurt.","He practised every day after school and slowly got better.","Last month his band played at a school concert.","Everybody clapped, and Marko felt really proud."],
+  qs:[{q:"How long has Marko played the guitar?",o:["For three years.","For three months.","Since last month."]},
+      {q:"Why was it difficult at first?",o:["His fingers hurt.","He had no guitar.","He had no time."]},
+      {q:"How did he feel after the concert?",o:["Proud.","Bored.","Afraid."]}]},
+ {l:4,t:["If you want to learn a language, you should use it every day.","You do not have to speak perfectly.","Making mistakes is a normal part of learning.","Try to read short stories, listen to songs and talk to friends.","A little practice every day is better than a lot once a week."],
+  qs:[{q:"What should you do every day?",o:["Use the language.","Learn a hundred words.","Write a test."]},
+      {q:"What does the text say about mistakes?",o:["They are normal.","They are dangerous.","You must avoid them."]},
+      {q:"What is better?",o:["A little practice every day.","A lot of practice once a week.","No practice at all."]}]},
+ {l:5,t:["Lake Bled is one of the most famous places in Slovenia.","It is visited by thousands of tourists every year.","In the middle of the lake there is a small island with a church.","Visitors are taken to the island in traditional wooden boats called pletna.","Although the lake can be crowded in summer, early mornings are still quiet and beautiful."],
+  qs:[{q:"How are visitors taken to the island?",o:["In traditional wooden boats.","By bridge.","By plane."]},
+      {q:"What is on the island?",o:["A church.","A castle.","A school."]},
+      {q:"When is the lake quiet?",o:["Early in the morning.","In the afternoon.","In the evening."]}]},
+ {l:5,t:["Scientists say that plastic pollution is one of the biggest problems of our time.","Much of the plastic we throw away ends up in the sea, where it harms fish and birds.","If we recycled more and used fewer plastic bags, the situation would improve.","Some countries have already banned single-use plastic.","Small changes, made by many people, can have a huge influence."],
+  qs:[{q:"Where does much of our plastic end up?",o:["In the sea.","In the forest.","In space."]},
+      {q:"What have some countries done?",o:["Banned single-use plastic.","Stopped recycling.","Built more factories."]},
+      {q:"What can have a huge influence?",o:["Small changes made by many people.","One big factory.","Nothing at all."]}]}
+];
+
+/* ---------------------- POMOŽNE FUNKCIJE --------------------------------- */
+const R = n => Math.floor(Math.random() * n);
+const one = a => a[R(a.length)];
+function shuffle(a){ a = a.slice(); for (let i=a.length-1;i>0;i--){ const j=R(i+1); const t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function cap(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+function withAnswer(list, correct){ const sh = shuffle(list); return { opts: sh, a: sh.indexOf(correct) }; }
+
+/* Zgradi možnosti: pravilna + motilci iz zaloge, brez podvojitev. */
+function mkOpts(correct, pool, n, key){
+  key = key || (x => x);
+  const out = [correct], seen = new Set([key(correct)]);
+  for (const c of shuffle(pool)){
+    if (out.length >= n) break;
+    const k = key(c);
+    if (seen.has(k)) continue;
+    seen.add(k); out.push(c);
+  }
+  const sh = shuffle(out);
+  return { opts: sh, a: sh.indexOf(correct) };
+}
+
+/* Koliko možnosti pri dani stopnji – najmlajši dobijo manj. */
+function nOpts(step){ return [2,3,3,4,4,4,4,4][step-1] || 4; }
+
+/* Zaloga besed za področje in stopnjo. */
+function poolFor(area, step){
+  const wl = area.wl;
+  let lv;
+  if (wl.length === 1) lv = wl;
+  else if (step <= 2) lv = [wl[0]];
+  else if (step >= 5) lv = [wl[wl.length-1]];
+  else lv = wl;
+  let p = WORDS.filter(w => lv.indexOf(w.l) >= 0);
+  if (p.length < 10) p = WORDS.filter(w => wl.indexOf(w.l) >= 0);
+  return p;
+}
+
+/* Slikovne igre uporabijo le besede, ki jih emodži zares nedvoumno pokaže.
+   (npr. »room« ali »hope« se s sliko ne dasta razložiti, »coat« pa je preveč
+   podoben besedi »jacket« – take besede se vadijo s prevodom, ne s sliko.)   */
+const PIC_CATS = ['barve','živali','hrana','družina','telo','dom','stvari','šola',
+  'oblačila','vreme','glagoli','kraji','potovanje','poklici'];
+const NO_PIC = ['garden','room','home','forest','kitchen','table','family','friend','man',
+  'brother','sister','head','finger','pen','desk','pupil','lesson','coat','sunny','read',
+  'write','sit','open','close','give','take','help','nurse','chef','singer','writer','driver',
+  'airport','station','journey'];
+function picPool(area, step){
+  const p = poolFor(area, step).filter(w => PIC_CATS.indexOf(w.c) >= 0 && NO_PIC.indexOf(w.en) < 0);
+  return p.length >= 6 ? p : poolFor(area, step);
+}
+
+/* Motilci: pri višjih stopnjah raje iz iste kategorije (težje). */
+function distract(w, pool, step){
+  if (step >= 3){
+    const same = pool.filter(x => x.c === w.c && x.en !== w.en);
+    if (same.length >= 3) return same;
+  }
+  return pool;
+}
+
+/* Izbira besede – besede, ki jih otrok še ne zna, se pojavijo pogosteje. */
+function pickWord(pool){
+  if (typeof STATE !== 'undefined' && STATE && STATE.weak){
+    const weak = pool.filter(w => (STATE.weak[w.en] || 0) > 0);
+    if (weak.length && Math.random() < 0.4) return one(weak);
+  }
+  return one(pool);
+}
+
+/* Stopnja gradiva (1–5) glede na področje in doseženo stopnjo v igri. */
+function bankLevel(area, step, max){
+  max = max || 5;
+  let lv = area.id;
+  if (step <= 1) lv = Math.max(1, area.id - 1);
+  else if (step >= 4) lv = Math.min(max, area.id + 1);
+  return Math.min(lv, max);
+}
+function fromBank(bank, area, step, max){
+  const lv = bankLevel(area, step, max);
+  let items = bank.filter(x => x.l === lv);
+  if (!items.length) items = bank.filter(x => x.l === area.id);
+  if (!items.length) items = bank.filter(x => Math.abs(x.l - area.id) <= 1);
+  if (!items.length) items = bank;
+  return one(items);
+}
+
+/* ---------------------- ŠTEVILA ------------------------------------------ */
+function numToWords(n){
+  if (n <= 20) return NUM_WORDS[n];
+  if (n < 100){ const t = Math.floor(n/10)*10, r = n%10; return r ? TENS[t] + '-' + NUM_WORDS[r] : TENS[t]; }
+  const h = Math.floor(n/100), r = n%100;
+  return NUM_WORDS[h] + ' hundred' + (r ? ' and ' + numToWords(r) : '');
+}
+function numRange(step){
+  if (step <= 1) return [1,10];
+  if (step === 2) return [1,20];
+  if (step === 3) return [20,99];
+  if (step === 4) return [100,999];
+  return [1,20];
+}
+
+/* ---------------------- URA ---------------------------------------------- */
+function timePhrase(h, m){
+  const H = NUM_WORDS[h], next = NUM_WORDS[h === 12 ? 1 : h+1];
+  if (m === 0)  return "It's " + H + " o'clock.";
+  if (m === 30) return "It's half past " + H + '.';
+  if (m === 15) return "It's quarter past " + H + '.';
+  if (m === 45) return "It's quarter to " + next + '.';
+  if (m < 30)   return "It's " + numToWords(m) + ' past ' + H + '.';
+  return "It's " + numToWords(60-m) + ' to ' + next + '.';
+}
+function timeDigits(h, m){ return h + ':' + (m < 10 ? '0' + m : m); }
+function minutesFor(step){
+  if (step <= 1) return [0];
+  if (step === 2) return [0,30];
+  if (step === 3) return [0,15,30,45];
+  if (step === 4) return [0,5,10,15,20,25,30];
+  return [0,5,10,15,20,25,30,35,40,45,50,55];
+}
+
+/* ======================= GENERATORJI NALOG ============================== */
+
+/* Slika → angleška beseda */
+function gPic2En(step, area){
+  const pool = picPool(area, step);
+  const w = pickWord(pool);
+  const { opts, a } = mkOpts(w, distract(w, pool, step), nOpts(step), x => x.en);
+  return { kind:'choice', task:'Kaj je to po angleško?', emo:w.e,
+    opts: opts.map(o => o.en), a, say:w.en, key:'p:'+w.en, word:w,
+    hint:'Slovensko: '+w.sl + (w.p ? ' · izgovori: '+w.p : '') };
+}
+
+/* Angleška beseda → slika */
+function gEn2Pic(step, area){
+  const pool = picPool(area, step);
+  const w = pickWord(pool);
+  const { opts, a } = mkOpts(w, distract(w, pool, step), nOpts(step), x => x.e);
+  return { kind:'choice', task:'Katera slika je to?', en:w.en, say:w.en, autoSay:true,
+    opts: opts.map(o => o.e), optEmo:true, a, key:'e:'+w.en, word:w,
+    hint: w.p ? 'Izgovori: '+w.p : 'Poslušaj besedo in premisli.' };
+}
+
+/* Angleško → slovensko */
+function gEn2Sl(step, area){
+  const pool = poolFor(area, step);
+  const w = pickWord(pool);
+  const { opts, a } = mkOpts(w, distract(w, pool, step), nOpts(step), x => x.sl);
+  return { kind:'choice', task:'Kaj pomeni ta beseda?', en:w.en, say:w.en,
+    emo: step <= 1 ? w.e : '', opts: opts.map(o => o.sl), a, key:'s:'+w.en, word:w,
+    hint: w.p ? 'Izgovori: '+w.p : 'Preberi na glas – morda ti zveni znano.' };
+}
+
+/* Slovensko → angleško */
+function gSl2En(step, area){
+  const pool = poolFor(area, step);
+  const w = pickWord(pool);
+  const { opts, a } = mkOpts(w, distract(w, pool, step), nOpts(step), x => x.en);
+  return { kind:'choice', task:'Kako je to po angleško?', qsl:w.sl,
+    emo: step <= 1 ? w.e : '', opts: opts.map(o => o.en), a, say:w.en, key:'t:'+w.en, word:w,
+    hint: w.p ? 'Beseda se izgovori: '+w.p : 'Premisli, kako si besedo že slišal.' };
+}
+
+/* Poslušaj in izberi */
+function gListen(step, area){
+  const asPic = step <= 2 && area.id <= 3;
+  const pool = asPic ? picPool(area, step) : poolFor(area, step);
+  const w = pickWord(pool);
+  const { opts, a } = mkOpts(w, distract(w, pool, step), nOpts(step), x => asPic ? x.e : x.en);
+  return { kind:'choice', task:'Poslušaj in izberi pravo.', say:w.en, autoSay:true, listen:true,
+    opts: opts.map(o => asPic ? o.e : o.en), optEmo:asPic, a, key:'l:'+w.en, word:w,
+    hint:'Pritisni 🔊 in poslušaj še enkrat.' };
+}
+
+/* Sestavi besedo iz črk */
+function gSpell(step, area){
+  const maxLen = [4,5,6,8,20,20][step-1] || 20;
+  let pool = poolFor(area, step).filter(w => w.en.indexOf(' ') < 0 && w.en.length <= maxLen);
+  if (pool.length < 5) pool = poolFor(area, step).filter(w => w.en.indexOf(' ') < 0);
+  const w = pickWord(pool);
+  let letters = w.en.split('');
+  if (step >= 4){ const extra = 'aeiorstln'.split(''); letters = letters.concat([one(extra)]); }
+  return { kind:'spell', task:'Sestavi angleško besedo.', emo:w.e, qsl:w.sl,
+    letters: shuffle(letters), answer:w.en, say:w.en, key:'w:'+w.en, word:w,
+    hint: (w.p ? 'Izgovori: '+w.p+'. ' : '') + 'Beseda ima '+w.en.length+' črk.' };
+}
+
+/* Števila */
+function gNumbers(step, area){
+  if (step >= 5){
+    const n = 1 + R(20), correct = ORDINALS[n];
+    const all = ORDINALS.slice(1).filter(x => x !== correct);
+    const { opts, a } = mkOpts(correct, all, 4);
+    return { kind:'choice', task:'Katera je '+n+'. po vrsti?', en:n+'.', opts, a, say:correct,
+      key:'o:'+n, hint:'Vrstilni števniki: first, second, third, fourth …' };
+  }
+  const [lo, hi] = numRange(step);
+  const n = lo + R(hi - lo + 1);
+  const toWords = R(2) === 0;
+  const others = [];
+  for (let i = 0; i < 14; i++){
+    let m = lo + R(hi - lo + 1);
+    if (m !== n) others.push(m);
+  }
+  if (toWords){
+    const { opts, a } = mkOpts(numToWords(n), others.map(numToWords), nOpts(step));
+    return { kind:'choice', task:'Kako se to število reče po angleško?', en:String(n), opts, a,
+      say:numToWords(n), key:'n:'+n, hint:'Poslušaj: števila do dvajset se je treba naučiti na pamet.' };
+  }
+  const { opts, a } = mkOpts(String(n), others.map(String), nOpts(step));
+  return { kind:'choice', task:'Katero število je to?', en:numToWords(n), say:numToWords(n), opts, a,
+    key:'d:'+n, hint:'Preberi besedo počasi in po delih.' };
+}
+
+/* Dnevi in meseci */
+function gDays(step, area){
+  const useMonths = step >= 4;
+  const bank = useMonths ? MONTHS : DAYS;
+  if (step === 3 && !useMonths){
+    const i = R(7), next = DAYS[(i+1)%7][0];
+    const { opts, a } = mkOpts(next, DAYS.map(d => d[0]), 4);
+    return { kind:'choice', task:'Kateri dan pride po dnevu '+DAYS[i][0]+'?', en:DAYS[i][0], opts, a,
+      say:next, key:'dn:'+i, hint:'Teden: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday.' };
+  }
+  const item = one(bank), toSl = step % 2 === 1;
+  if (toSl){
+    const { opts, a } = mkOpts(item[1], bank.map(x => x[1]), 4);
+    return { kind:'choice', task:'Kaj pomeni?', en:item[0], say:item[0], opts, a, key:'dm:'+item[0],
+      hint: useMonths ? 'Meseci se v angleščini pišejo z veliko začetnico.' : 'Dnevi se pišejo z veliko začetnico.' };
+  }
+  const { opts, a } = mkOpts(item[0], bank.map(x => x[0]), 4);
+  return { kind:'choice', task:'Kako je to po angleško?', qsl:item[1], say:item[0], opts, a,
+    key:'md:'+item[0], hint:'V angleščini z veliko začetnico.' };
+}
+
+/* Ura */
+function gTime(step, area){
+  const mins = minutesFor(step);
+  const h = 1 + R(12), m = one(mins);
+  const correct = timePhrase(h, m);
+  const others = [];
+  for (let i = 0; i < 16; i++){
+    const hh = 1 + R(12), mm = one(mins);
+    if (hh !== h || mm !== m) others.push(timePhrase(hh, mm));
+  }
+  if (R(2) === 0){
+    const { opts, a } = mkOpts(correct, others, nOpts(step));
+    return { kind:'choice', task:'Koliko je ura?', en:timeDigits(h, m), opts, a, say:correct,
+      key:'u:'+h+':'+m, hint:"o'clock = polna ura · half past = pol · quarter = četrt" };
+  }
+  const dig = timeDigits(h, m), pool = [];
+  for (const o of others){ pool.push(o); }
+  const digOthers = [];
+  for (let i = 0; i < 16; i++){
+    const hh = 1 + R(12), mm = one(mins);
+    if (hh !== h || mm !== m) digOthers.push(timeDigits(hh, mm));
+  }
+  const { opts, a } = mkOpts(dig, digOthers, nOpts(step));
+  return { kind:'choice', task:'Katera ura je to?', en:correct, say:correct, opts, a,
+    key:'up:'+h+':'+m, hint:'past = čez · to = do (manjka do naslednje ure)' };
+}
+
+/* Manjkajoča beseda (slovnica) */
+function gGap(step, area){
+  const it = fromBank(GAPS, area, step);
+  const { opts, a } = withAnswer(it.o.slice(0, Math.max(3, nOpts(step))), it.o[0]);
+  return { kind:'choice', task:'Katera beseda manjka?', sent:it.q, opts, a,
+    say:it.q.replace('___', it.o[0]), key:'g:'+it.q, hint:it.h };
+}
+
+/* Sestavi stavek – ločilo na koncu je že postavljeno, otrok ureja le besede */
+function gOrder(step, area){
+  const it = fromBank(SENTS, area, step);
+  const end = /[.?!]$/.test(it.en) ? it.en.slice(-1) : '.';
+  const body = it.en.replace(/[.?!]$/, '');
+  const words = body.split(' ');
+  let mixed = shuffle(words);
+  if (words.length > 2 && mixed.join(' ') === body) mixed = shuffle(words);
+  return { kind:'order', task:'Sestavi stavek v pravem vrstnem redu.', qsl:it.sl,
+    tiles:mixed, answer:body, end:end, alts:(it.alt || []).map(x => x.replace(/[.?!]$/, '')),
+    say:it.en, key:'o:'+it.en,
+    hint:'V angleščini je red skoraj vedno: kdo → kaj dela → kaj/kje.' };
+}
+
+/* Pogovor */
+function gDialog(step, area){
+  const it = fromBank(DIALOG, area, step);
+  const { opts, a } = withAnswer(it.o, it.o[0]);
+  return { kind:'choice', task:'Kaj odgovoriš?', en:it.q, qsl:it.sl, say:it.q, autoSay:true,
+    opts, a, key:'d:'+it.q, hint:'Preberi vprašanje na glas – odgovor mora pasti k njemu.' };
+}
+
+/* Branje z razumevanjem */
+function gReading(step, area){
+  const it = fromBank(READINGS, area, step);
+  const q = one(it.qs);
+  const { opts, a } = withAnswer(q.o, q.o[0]);
+  return { kind:'choice', task:'Preberi in odgovori.', read:it.t, en:q.q, opts, a,
+    say:it.t.join(' '), key:'r:'+q.q, hint:'Odgovor je skrit v besedilu – poišči ključno besedo.' };
+}
+
+/* Nasprotja */
+function gOpposites(step, area){
+  const lv = bankLevel(area, step);
+  let bank = OPPOSITES.filter(x => x[3] <= lv);
+  if (bank.length < 4) bank = OPPOSITES.slice(0, 8);
+  const it = one(bank), flip = R(2) === 0;
+  const q = flip ? it[1] : it[0], correct = flip ? it[0] : it[1];
+  const pool = [];
+  for (const o of bank){ pool.push(o[0], o[1]); }
+  const { opts, a } = mkOpts(correct, pool.filter(x => x !== q && x !== correct), nOpts(step));
+  return { kind:'choice', task:'Katera beseda je nasprotje?', en:q, say:q, opts, a,
+    key:'x:'+q, hint:'Slovensko: '+it[2] };
+}
+
+/* Množina */
+function gPlural(step, area){
+  const lv = bankLevel(area, step);
+  let bank = PLURALS.filter(x => x[3] <= lv);
+  if (bank.length < 4) bank = PLURALS.slice(0, 6);
+  const it = one(bank);
+  const pool = bank.map(x => x[1]).filter(x => x !== it[1]);
+  const extra = [it[0] + 's', it[0] + 'es', it[0]];
+  for (const e of extra){ if (e !== it[1]) pool.push(e); }
+  const { opts, a } = mkOpts(it[1], pool, nOpts(step));
+  return { kind:'choice', task:'Kako se glasi množina?', sent:'one ' + it[0] + ' → three ___', opts, a,
+    say:it[1], key:'m:'+it[0], hint:it[2] };
+}
+
+/* Nepravilni glagoli */
+function gIrregular(step, area){
+  const lv = bankLevel(area, step, 5);
+  let bank = IRREG.filter(x => x[4] <= Math.max(4, lv));
+  if (bank.length < 5) bank = IRREG;
+  const it = one(bank);
+  if (step >= 4){
+    const pool = bank.map(x => x[2]).filter(x => x !== it[2]);
+    const { opts, a } = mkOpts(it[2], pool, 4);
+    return { kind:'choice', task:'Tretja oblika (I have …)', sent:it[0] + ' – ' + it[1] + ' – ___',
+      opts, a, say:it[2], key:'i3:'+it[0], hint:'Slovensko: ' + it[3] + '. Tretjo obliko uporabimo z have/has.' };
+  }
+  const pool = bank.map(x => x[1]).filter(x => x !== it[1]);
+  const wrong = it[0] + (it[0].slice(-1) === 'e' ? 'd' : 'ed');
+  if (wrong !== it[1]) pool.push(wrong);
+  const { opts, a } = mkOpts(it[1], pool, nOpts(step));
+  return { kind:'choice', task:'Kako je to včeraj (preteklik)?', sent:'Today I ' + it[0] + '. Yesterday I ___.',
+    opts, a, say:it[1], key:'i2:'+it[0], hint:'Slovensko: ' + it[3] + '. Ta glagol je nepravilen – preteklika ne delamo z -ed.' };
+}
+
+/* Ponovi napake – besede, pri katerih se otrok še lovi */
+function weakWords(){
+  if (typeof STATE === 'undefined' || !STATE || !STATE.weak) return [];
+  return WORDS.filter(w => (STATE.weak[w.en] || 0) > 0);
+}
+function gReview(step, area){
+  const weak = weakWords();
+  if (weak.length < 3) return one([gEn2Sl, gSl2En, gListen, gSpell])(step, area);
+  const w = one(weak);
+  const pool = WORDS.filter(x => x.en !== w.en && Math.abs(x.l - w.l) <= 1);
+  const mode = w.en.indexOf(' ') >= 0 ? R(2) : R(3);
+  if (mode === 0){
+    const { opts, a } = mkOpts(w, pool, 4, x => x.sl);
+    return { kind:'choice', task:'Ponovimo: kaj pomeni?', en:w.en, say:w.en,
+      opts: opts.map(o => o.sl), a, key:'rs:'+w.en, word:w,
+      hint:'To besedo si že srečal – ' + (w.p ? 'izgovori: '+w.p : 'premisli mirno.') };
+  }
+  if (mode === 1){
+    const { opts, a } = mkOpts(w, pool, 4, x => x.en);
+    return { kind:'choice', task:'Ponovimo: kako je po angleško?', qsl:w.sl, emo:w.e,
+      opts: opts.map(o => o.en), a, say:w.en, key:'rt:'+w.en, word:w,
+      hint: w.p ? 'Izgovori: ' + w.p : 'Poglej sliko in premisli.' };
+  }
+  return { kind:'spell', task:'Ponovimo: sestavi besedo.', emo:w.e, qsl:w.sl,
+    letters: shuffle(w.en.split('')), answer:w.en, say:w.en, key:'rw:'+w.en, word:w,
+    hint:'Beseda ima ' + w.en.length + ' črk.' };
+}
+
+/* Vse pomešano */
+function gMix(step, area){
+  const ids = area.games.filter(g => g !== 'mix' && g !== 'review');
+  const g = GAMES[one(ids)];
+  return g.gen(Math.min(step, g.steps), area);
+}
+
+/* ======================= IGRE IN PODROČJA ============================== */
+const GAMES = {
+  pic2en:   { nm:'Slika → beseda', emo:'🖼️', sub:'kaj je to?',            c:'#ff9f43', steps:4, gen:gPic2En },
+  en2pic:   { nm:'Beseda → slika', emo:'🔤', sub:'najdi pravo sliko',      c:'#ffb703', steps:4, gen:gEn2Pic },
+  listen:   { nm:'Poslušaj',       emo:'👂', sub:'slušno razumevanje',     c:'#22c55e', steps:4, gen:gListen, voice:true },
+  en2sl:    { nm:'Kaj pomeni?',    emo:'🔍', sub:'angleško → slovensko',   c:'#7c5cff', steps:5, gen:gEn2Sl },
+  sl2en:    { nm:'Povej po angleško', emo:'🗣️', sub:'slovensko → angleško', c:'#ff5f9e', steps:5, gen:gSl2En },
+  spell:    { nm:'Sestavi besedo', emo:'🧩', sub:'črko za črko',           c:'#00b4d8', steps:5, gen:gSpell },
+  numbers:  { nm:'Števila',        emo:'🔢', sub:'one, two, three …',      c:'#f4a261', steps:5, gen:gNumbers },
+  days:     { nm:'Dnevi in meseci',emo:'📅', sub:'Monday, January …',      c:'#43aa8b', steps:4, gen:gDays },
+  time:     { nm:'Ura',            emo:'🕒', sub:"It's half past two",     c:'#577590', steps:5, gen:gTime },
+  gap:      { nm:'Manjka beseda',  emo:'✏️', sub:'slovnica',               c:'#e76f51', steps:4, gen:gGap },
+  order:    { nm:'Sestavi stavek', emo:'🧱', sub:'pravi vrstni red',       c:'#9d4edd', steps:3, gen:gOrder },
+  dialog:   { nm:'Pogovor',        emo:'💬', sub:'kaj odgovoriš?',         c:'#2a9d8f', steps:3, gen:gDialog },
+  reading:  { nm:'Branje',         emo:'📖', sub:'preberi in odgovori',    c:'#b5838d', steps:3, gen:gReading },
+  opposites:{ nm:'Nasprotja',      emo:'↔️', sub:'big – small',            c:'#ef476f', steps:4, gen:gOpposites },
+  plural:   { nm:'Množina',        emo:'👥', sub:'one cat → two cats',     c:'#118ab2', steps:4, gen:gPlural },
+  irregular:{ nm:'Nepravilni glagoli', emo:'🔁', sub:'go – went – gone',   c:'#8338ec', steps:5, gen:gIrregular },
+  review:   { nm:'Ponovi napake',  emo:'🎯', sub:'tvoje težje besede',     c:'#fb5607', steps:3, gen:gReview },
+  mix:      { nm:'Vse pomešano',   emo:'🎲', sub:'pravi izziv',            c:'#3a86ff', steps:4, gen:gMix }
+};
+
+const AREAS = [
+  { id:1, nm:'Prvi koraki', emo:'🐣', cef:'A0', c:'#ff9f43',
+    sub:'prve besede: barve, živali, hrana, družina · 5–7 let', wl:[1],
+    games:['pic2en','en2pic','listen','en2sl','sl2en','spell','numbers','gap','dialog','order','review','mix'] },
+  { id:2, nm:'Začetnik', emo:'🌱', cef:'A1', c:'#22c55e',
+    sub:'šola, oblačila, vreme, glagoli, prvi stavki · 7–9 let', wl:[1,2],
+    games:['pic2en','en2pic','listen','en2sl','sl2en','spell','numbers','days','gap','order','dialog','opposites','plural','review','mix'] },
+  { id:3, nm:'Nadaljevalec', emo:'🌳', cef:'A2', c:'#7c5cff',
+    sub:'dan, prosti čas, potovanje, poklici, preteklik · 9–11 let', wl:[2,3],
+    games:['pic2en','en2pic','listen','en2sl','sl2en','spell','numbers','days','time','gap','order','dialog','reading','opposites','plural','review','mix'] },
+  { id:4, nm:'Samozavestni', emo:'🚀', cef:'B1', c:'#ff5f9e',
+    sub:'nepravilni glagoli, prihodnjik, pogojnik, daljša besedila · 11–13 let', wl:[3,4],
+    games:['listen','en2sl','sl2en','spell','time','gap','order','dialog','reading','opposites','plural','irregular','review','mix'] },
+  { id:5, nm:'Mojster', emo:'🏆', cef:'B2', c:'#0ead69',
+    sub:'trpnik, odvisni govor, pogojniki, zahtevnejše besedišče · 13–15 let', wl:[4,5],
+    games:['listen','en2sl','sl2en','spell','gap','order','dialog','reading','opposites','irregular','review','mix'] }
+];
+
+/* Preveri, ali je sestavljeni stavek pravilen (velike črke in ločila ne štejejo). */
+function normSent(s){ return s.toLowerCase().replace(/[.?!,]/g,'').replace(/\s+/g,' ').trim(); }
+function orderCorrect(q, made){
+  const m = normSent(made);
+  if (m === normSent(q.answer)) return true;
+  return (q.alts || []).some(alt => normSent(alt) === m);
+}
+
+/* ===================== ČISTA LOGIKA – KONEC ============================= */
+
+/* ======================= STANJE IN SHRANJEVANJE ========================= */
+const LS = 'olly_anglescina_v1';
+const FRESH = { stars:0, sound:true, mode:'auto', lvl:{}, up:{}, down:{}, stats:{}, weak:{}, known:{}, rounds:0, readCount:0 };
+let STATE = load();
+
+function load(){
+  try{
+    const raw = localStorage.getItem(LS);
+    if (!raw) return Object.assign({}, FRESH);
+    const s = Object.assign({}, FRESH, JSON.parse(raw));
+    for (const k of ['lvl','up','down','stats','weak','known']) if (!s[k] || typeof s[k] !== 'object') s[k] = {};
+    return s;
+  } catch(e){ return Object.assign({}, FRESH); }
+}
+function save(){ try{ localStorage.setItem(LS, JSON.stringify(STATE)); } catch(e){} }
+
+const gkey = (area, gid) => area.id + ':' + gid;
+
+/* Trenutna stopnja igre – samodejno ali ročno nastavljena. */
+function levelOf(area, gid){
+  const g = GAMES[gid];
+  if (STATE.mode !== 'auto'){
+    const share = { easy:0.2, med:0.55, hard:1 }[STATE.mode] || 0.55;
+    return Math.max(1, Math.round(g.steps * share));
+  }
+  return Math.min(g.steps, Math.max(1, STATE.lvl[gkey(area, gid)] || 1));
+}
+
+/* Prilagajanje težavnosti: 4 pravilni zapored gor, 2 napaki zapored dol. */
+function adapt(area, gid, correct){
+  const k = gkey(area, gid), g = GAMES[gid];
+  if (STATE.mode !== 'auto') return 0;
+  const cur = levelOf(area, gid);
+  if (correct){
+    STATE.up[k] = (STATE.up[k] || 0) + 1; STATE.down[k] = 0;
+    if (STATE.up[k] >= 4 && cur < g.steps){ STATE.lvl[k] = cur + 1; STATE.up[k] = 0; return 1; }
+  } else {
+    STATE.down[k] = (STATE.down[k] || 0) + 1; STATE.up[k] = 0;
+    if (STATE.down[k] >= 2 && cur > 1){ STATE.lvl[k] = cur - 1; STATE.down[k] = 0; return -1; }
+  }
+  return 0;
+}
+
+/* Beleženje znanja posameznih besed (za igro »Ponovi napake«). */
+function noteWord(w, correct){
+  if (!w || !w.en) return;
+  if (correct){
+    STATE.known[w.en] = (STATE.known[w.en] || 0) + 1;
+    if (STATE.weak[w.en]) { STATE.weak[w.en]--; if (STATE.weak[w.en] <= 0) delete STATE.weak[w.en]; }
+  } else {
+    STATE.weak[w.en] = Math.min(3, (STATE.weak[w.en] || 0) + 2);
+  }
+}
+
+/* ======================= ZVOK ============================================ */
+let AC = null;
+function ac(){ if (!AC && (window.AudioContext || window.webkitAudioContext)) AC = new (window.AudioContext || window.webkitAudioContext)(); return AC; }
+function beep(freqs, dur, type){
+  if (!STATE.sound) return;
+  const c = ac(); if (!c) return;
+  if (c.state === 'suspended') c.resume();
+  freqs.forEach((f, i) => {
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine'; o.frequency.value = f;
+    o.connect(g); g.connect(c.destination);
+    const t = c.currentTime + i * (dur * 0.8);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.22, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.start(t); o.stop(t + dur + 0.02);
+  });
+}
+const sndOk    = () => beep([660, 880], 0.16);
+const sndNo    = () => beep([300, 220], 0.2, 'triangle');
+const sndStar  = () => beep([784, 988, 1319], 0.18);
+const sndLevel = () => beep([523, 659, 784, 1047], 0.16);
+
+/* ======================= IZGOVORJAVA (angleški glas) ==================== */
+let VOICE = null, VOICE_READY = false;
+function refreshVoice(){
+  if (!('speechSynthesis' in window)) return;
+  const all = speechSynthesis.getVoices() || [];
+  const en = all.filter(v => /^en(-|_|$)/i.test(v.lang || ''));
+  VOICE = en.find(v => /en-GB/i.test(v.lang)) || en.find(v => /en-US/i.test(v.lang)) || en[0] || null;
+  VOICE_READY = !!VOICE;
+}
+if ('speechSynthesis' in window){
+  refreshVoice();
+  speechSynthesis.onvoiceschanged = () => { refreshVoice(); const b = document.getElementById('voiceNote'); if (b && VOICE_READY) b.remove(); };
+}
+function speak(text, slow){
+  if (!('speechSynthesis' in window) || !text || !STATE.sound) return false;
+  if (!VOICE_READY) refreshVoice();
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    if (VOICE) u.voice = VOICE;
+    u.lang = (VOICE && VOICE.lang) || 'en-GB';
+    u.rate = slow ? 0.62 : 0.85;
+    u.pitch = 1.05;
+    speechSynthesis.speak(u);
+    return true;
+  } catch(e){ return false; }
+}
+
+/* ======================= POMOŽNO ZA IZRIS =============================== */
+const $ = id => document.getElementById(id);
+const scrSteps = $('scrSteps'), scrGames = $('scrGames'), scrPlay = $('scrPlay');
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function show(el){ [scrSteps, scrGames, scrPlay].forEach(s => s.hidden = (s !== el)); window.scrollTo(0, 0); }
+function paintStars(){ $('stars').textContent = STATE.stars; }
+function pop(emo){
+  const d = document.createElement('div');
+  d.className = 'pop'; d.textContent = emo; document.body.appendChild(d);
+  setTimeout(() => d.remove(), 850);
+}
+function title(n){
+  const t = [[0,'Začetnik 🐣'],[30,'Raziskovalec 🔎'],[80,'Zbiralec besed 📚'],[160,'Govorec 🗣️'],
+    [280,'Mojster 🏅'],[450,'Legenda 👑']];
+  let out = t[0][1];
+  for (const [n2, nm] of t) if (n >= n2) out = nm;
+  return out;
+}
+
+/* ======================= ZASLON: PODROČJA =============================== */
+function renderSteps(){
+  const voiceWarn = ('speechSynthesis' in window) ? '' :
+    '<p class="mini" style="margin-top:10px">Ta brskalnik ne zna govoriti, zato igra »Poslušaj« ne bo delovala. Vse ostalo deluje.</p>';
+  scrSteps.innerHTML =
+    '<div class="card">' +
+      '<p class="lead">Pozdravljen! Jaz sem <b>Olly</b> 🦉 in skupaj se bova učila <b>angleško</b>. ' +
+      'Izberi svojo stopnjo – če bo prelahko ali pretežko, se naloge kar same prilagodijo.</p>' +
+      '<div class="steps">' +
+      AREAS.map(a =>
+        '<button class="step" data-area="' + a.id + '" style="--c:' + a.c + '">' +
+          '<span class="cef">' + a.cef + '</span>' +
+          '<span class="emo">' + a.emo + '</span>' +
+          '<span class="nm">' + esc(a.nm) + '</span>' +
+          '<span class="sub">' + esc(a.sub) + '</span>' +
+        '</button>').join('') +
+      '</div>' +
+      '<p class="mini" style="margin-top:14px">Naziv: <b>' + title(STATE.stars) + '</b> · odigranih krogov: <b>' + STATE.rounds + '</b></p>' +
+      voiceWarn +
+    '</div>';
+  show(scrSteps);
+}
+
+/* ======================= ZASLON: IGRE ==================================== */
+function renderGames(area){
+  const cards = area.games.filter(gid => !(GAMES[gid].voice && !('speechSynthesis' in window))).map(gid => {
+    const g = GAMES[gid], lv = levelOf(area, gid);
+    return '<button class="mode" data-game="' + gid + '" style="--c:' + g.c + '">' +
+      '<span class="emo">' + g.emo + '</span>' +
+      '<span class="nm">' + esc(g.nm) + '</span>' +
+      '<span class="sub">' + esc(g.sub) + '</span>' +
+      '<span class="lvl"><b>' + lv + '/' + g.steps + '</b>' +
+        '<span class="bar"><i style="width:' + Math.round(lv / g.steps * 100) + '%"></i></span></span>' +
+    '</button>';
+  }).join('');
+  scrGames.innerHTML =
+    '<div class="row" style="margin:0 0 12px"><button class="btn btn-ghost" id="backHome">⬅️ Nazaj</button>' +
+      '<div class="pill" style="--c:' + area.c + '">' + area.emo + ' ' + esc(area.nm) + ' · ' + area.cef + '</div></div>' +
+    '<div class="card"><p class="lead">' + esc(area.sub) + '</p>' +
+    '<h2 class="section" style="margin-top:0">Izberi igro</h2>' +
+    '<div class="modes">' + cards + '</div>' +
+    '<p class="mini" style="margin-top:14px">Številka na kartici pove, na kateri stopnji te igre si. ' +
+    'Ko ti gre dobro, se stopnja sama dvigne. 📈</p></div>';
+  show(scrGames);
+}
+
+/* ======================= IGRA ============================================ */
+const ROUND = 10;
+let cur = null;
+
+function startRound(area, gid){
+  cur = { area, gid, i:0, ok:0, marks:[], used:new Set(), q:null, answered:false, picked:[], startLevel:levelOf(area, gid) };
+  nextQuestion();
+}
+
+function nextQuestion(){
+  if (cur.i >= ROUND) return endRound();
+  const g = GAMES[cur.gid];
+  let q = null;
+  for (let t = 0; t < 40; t++){
+    const cand = g.gen(levelOf(cur.area, cur.gid), cur.area);
+    if (!cur.used.has(cand.key)){ q = cand; break; }
+    q = cand;
+  }
+  cur.used.add(q.key);
+  cur.q = q; cur.answered = false; cur.picked = [];
+  renderQ();
+  if (q.autoSay || q.listen) setTimeout(() => speak(q.say), 350);
+}
+
+function dotsHtml(){
+  let h = '';
+  for (let i = 0; i < ROUND; i++){
+    const cls = i < cur.i ? (cur.marks[i] ? 'ok' : 'no') : (i === cur.i ? 'now' : '');
+    h += '<span class="dot ' + cls + '"></span>';
+  }
+  return '<div class="dots">' + h + '</div>';
+}
+function sentHtml(s, filled){
+  return esc(s).replace('___', '<span class="gap' + (filled ? ' fill' : '') + '">' + (filled ? esc(filled) : '?') + '</span>');
+}
+
+function renderQ(){
+  const q = cur.q, g = GAMES[cur.gid], area = cur.area;
+  let body = '<div class="qtask">' + esc(q.task) + '</div>';
+  if (q.read) body += '<div class="reading">' + q.read.map(l => '<p>' +
+      l.split(' ').map(w => '<span class="w" data-say="' + esc(w.replace(/[^A-Za-z' ]/g,'')) + '">' + esc(w) + '</span>').join(' ') +
+      '</p>').join('') + '</div>' +
+      '<div class="qsl">Tapni besedo, da jo slišiš. 🔊</div>';
+  if (q.emo)  body += '<div class="qemo">' + q.emo + '</div>';
+  if (q.en)   body += '<div class="qbig en">' + esc(q.en) + '</div>';
+  if (q.sent) body += '<div class="qsent">' + sentHtml(q.sent) + '</div>';
+  if (q.qsl)  body += '<div class="qsl">' + esc(q.qsl) + '</div>';
+  if (q.say && 'speechSynthesis' in window){
+    body += '<div><button class="say' + (q.listen ? ' big' : '') + '" id="sayBtn">🔊 ' +
+      (q.listen ? 'Poslušaj' : 'Poslušaj') + '</button>' +
+      (q.listen ? ' <button class="say" id="slowBtn">🐌 Počasi</button>' : '') + '</div>';
+  }
+
+  let interact = '';
+  if (q.kind === 'choice'){
+    interact = '<div class="opts ' + (q.optEmo ? 'emo' : (q.opts.length === 2 ? 'two' : '')) + '">' +
+      q.opts.map((o, i) => '<button class="opt' + (q.optEmo ? ' emo' : '') + '" data-opt="' + i + '">' + (q.optEmo ? o : esc(o)) + '</button>').join('') +
+      '</div>';
+  } else if (q.kind === 'spell'){
+    interact = '<div class="card" style="margin-top:12px">' +
+      '<div class="slotline" id="slot"></div>' +
+      '<div class="tiles letters" id="tiles">' +
+        q.letters.map((c, i) => '<button class="tile" data-tile="' + i + '">' + esc(c) + '</button>').join('') +
+      '</div>' +
+      '<div class="row" style="justify-content:center"><button class="btn btn-ghost" id="undo">⌫ Nazaj</button></div></div>';
+  } else if (q.kind === 'order'){
+    interact = '<div class="card" style="margin-top:12px">' +
+      '<div class="slotline" id="slot"></div>' +
+      '<div class="tiles" id="tiles">' +
+        q.tiles.map((w, i) => '<button class="tile" data-tile="' + i + '">' + esc(w) + '</button>').join('') +
+      '</div>' +
+      '<div class="row" style="justify-content:center"><button class="btn btn-ghost" id="undo">⌫ Nazaj</button></div></div>';
+  }
+
+  scrPlay.innerHTML =
+    '<div class="row" style="margin:0 0 10px"><button class="btn btn-ghost" id="quit">⬅️ Nazaj</button>' +
+      '<div class="pill" style="--c:' + g.c + '">' + g.emo + ' ' + esc(g.nm) + '</div>' +
+      '<div class="spacer"></div><div class="pill">📊 ' + levelOf(area, cur.gid) + '/' + g.steps + '</div></div>' +
+    dotsHtml() +
+    '<div class="card qcard">' + body + '</div>' +
+    interact +
+    '<div id="fbSlot"></div>' +
+    '<div class="row" style="justify-content:center"><button class="btn btn-ghost" id="hintBtn">💡 Namig</button></div>';
+  show(scrPlay);
+}
+
+/* ---------------------- ODGOVARJANJE ------------------------------------ */
+function tileText(i){ const q = cur.q; return q.kind === 'spell' ? q.letters[i] : q.tiles[i]; }
+
+function paintSlot(){
+  const slot = $('slot'); if (!slot) return;
+  slot.innerHTML = cur.picked.map((ti, pos) =>
+    '<button class="tile" data-slot="' + pos + '">' + esc(tileText(ti)) + '</button>').join('') +
+    (cur.q.kind === 'order' && cur.picked.length ? '<span class="endmark">' + cur.q.end + '</span>' : '');
+  const tiles = document.querySelectorAll('#tiles .tile');
+  tiles.forEach((el, idx) => el.classList.toggle('used', cur.picked.indexOf(idx) >= 0));
+}
+function placeTile(i){
+  if (cur.answered || cur.picked.indexOf(i) >= 0) return;
+  cur.picked.push(i); paintSlot(); beep([520], 0.05);
+  const q = cur.q;
+  const need = q.kind === 'spell' ? q.answer.length : q.tiles.length;
+  if (cur.picked.length >= need) setTimeout(checkBuilt, 220);
+}
+function removeTile(pos){
+  if (cur.answered) return;
+  cur.picked.splice(pos, 1); paintSlot();
+}
+function checkBuilt(){
+  if (cur.answered) return;
+  const q = cur.q;
+  const made = cur.picked.map(tileText).join(q.kind === 'spell' ? '' : ' ');
+  const correct = q.kind === 'spell' ? (made.toLowerCase() === q.answer.toLowerCase()) : orderCorrect(q, made);
+  const slot = $('slot');
+  if (slot) slot.classList.add(correct ? 'ok' : 'no');
+  if (!correct && slot) slot.classList.add('shake');
+  grade(correct, q.kind === 'spell' ? q.answer : q.answer + q.end);
+}
+
+function answerChoice(i){
+  if (cur.answered) return;
+  const q = cur.q, correct = i === q.a;
+  document.querySelectorAll('.opt').forEach((el, idx) => {
+    if (idx === q.a) el.classList.add('ok');
+    else if (idx === i) el.classList.add('no');
+    else el.classList.add('dim');
+  });
+  grade(correct, q.opts[q.a]);
+}
+
+/* Skupno vrednotenje odgovora */
+function grade(correct, correctText){
+  cur.answered = true;
+  const q = cur.q, area = cur.area, gid = cur.gid, k = gkey(area, gid);
+  cur.marks[cur.i] = correct;
+  if (correct){ cur.ok++; STATE.stars++; sndOk(); pop(one(['⭐','🎉','👏','🌟','💪'])); }
+  else { sndNo(); }
+  const st = STATE.stats[k] || (STATE.stats[k] = { ok:0, no:0 });
+  correct ? st.ok++ : st.no++;
+  if (q.word) noteWord(q.word, correct);
+  if (q.read) STATE.readCount = (STATE.readCount || 0) + 1;
+  const moved = adapt(area, gid, correct);
+  if (moved === 1) sndLevel();
+  save(); paintStars();
+
+  const w = q.word;
+  const extra = w
+    ? '<small><b>' + esc(w.en) + '</b> = ' + esc(w.sl) + (w.p ? ' · izgovori: <i>' + esc(w.p) + '</i>' : '') + '</small>'
+    : (q.hint ? '<small>' + esc(q.hint) + '</small>' : '');
+
+  const fb = correct
+    ? '<div class="fb ok"><span class="big">🎉</span><div>' + one(['Odlično!','Bravo!','Super!','Točno tako!','Tako je!']) + extra + '</div></div>'
+    : '<div class="fb no"><span class="big">🙂</span><div>Pravilno je: <b>' + esc(correctText) + '</b>' + extra + '</div></div>';
+
+  const lvlMsg = moved === 1 ? '<div class="fb ok" style="margin-top:8px"><span class="big">📈</span><div>Stopnja gor! Zdaj si na ' + levelOf(area, gid) + '. stopnji.</div></div>'
+    : moved === -1 ? '<div class="fb no" style="margin-top:8px"><span class="big">🙂</span><div>Vzemiva malo lažje naloge.</div></div>' : '';
+
+  const sayBtn = q.say && 'speechSynthesis' in window
+    ? '<button class="say" id="sayAgain">🔊 Poslušaj</button>' : '';
+
+  $('fbSlot').innerHTML = fb + lvlMsg +
+    '<div class="row" style="justify-content:center">' + sayBtn +
+    '<button class="btn btn-acc" id="next">' + (cur.i + 1 >= ROUND ? 'Zaključi ✅' : 'Naprej ➡️') + '</button></div>';
+  if (correct && q.say) speak(q.say);
+  const nb = $('next'); if (nb) nb.focus();
+}
+
+function goNext(){ cur.i++; nextQuestion(); }
+
+/* ---------------------- KONEC KROGA ------------------------------------- */
+function endRound(){
+  STATE.rounds++;
+  const perfect = cur.ok === ROUND;
+  if (perfect){ STATE.stars += 5; sndStar(); }
+  save(); paintStars();
+  const g = GAMES[cur.gid], nowLvl = levelOf(cur.area, cur.gid);
+  const em = perfect ? '🏆' : cur.ok >= 8 ? '🎉' : cur.ok >= 5 ? '💪' : '🌱';
+  const msg = perfect ? 'Vse pravilno! Neverjetno!' : cur.ok >= 8 ? 'Zelo dobro ti gre!' :
+    cur.ok >= 5 ? 'Lepo napreduješ. Še malo vaje!' : 'Vsak začetek je težak – jutri bo lažje. 🙂';
+  const lvlNote = nowLvl > cur.startLevel ? '<p>Napredoval si na <b>' + nowLvl + '. stopnjo</b> te igre. 📈</p>'
+    : nowLvl < cur.startLevel ? '<p>Naloge so zdaj malo lažje, da bo šlo bolje. 🙂</p>' : '';
+  scrPlay.innerHTML =
+    '<div class="card result">' +
+      '<div class="em">' + em + '</div>' +
+      '<h3>' + cur.ok + ' od ' + ROUND + '</h3>' +
+      '<div class="stars-row">' + '⭐'.repeat(Math.max(1, Math.round(cur.ok / 2))) + '</div>' +
+      '<p>' + msg + '</p>' + lvlNote +
+      (perfect ? '<p><b>+5 ⭐ za popolni krog!</b></p>' : '') +
+      '<div class="row" style="justify-content:center;margin-top:18px">' +
+        '<button class="btn btn-ok" id="again">🔁 Še enkrat</button>' +
+        '<button class="btn btn-acc" id="other">🎮 Druga igra</button>' +
+        '<button class="btn btn-ghost" id="home">🏠 Domov</button>' +
+      '</div>' +
+    '</div>';
+  show(scrPlay);
+}
+
+/* ---------------------- KOTIČEK ZA STARŠE -------------------------------- */
+function openParent(){
+  let ok = 0, no = 0;
+  for (const k in STATE.stats){ ok += STATE.stats[k].ok; no += STATE.stats[k].no; }
+  const total = ok + no;
+  const pct = total ? Math.round(ok / total * 100) : 0;
+  const known = Object.keys(STATE.known).filter(w => (STATE.known[w] || 0) >= 2).length;
+  const weak = Object.keys(STATE.weak);
+
+  const rows = Object.keys(STATE.stats).sort().map(k => {
+    const [aid, gid] = k.split(':');
+    const area = AREAS.find(a => a.id === +aid), g = GAMES[gid];
+    if (!area || !g) return '';
+    const s = STATE.stats[k], t = s.ok + s.no;
+    return '<div class="stat"><span>' + area.emo + ' ' + esc(g.nm) +
+      ' <span class="mini">(' + esc(area.nm) + ', ' + levelOf(area, gid) + '. stopnja)</span></span>' +
+      '<b>' + (t ? Math.round(s.ok / t * 100) : 0) + ' % <span class="mini">(' + t + ')</span></b></div>';
+  }).join('');
+
+  const modes = [['auto','Samodejno','prilagaja se otroku'],['easy','Lahko','nižje stopnje'],
+    ['med','Srednje','sredina'],['hard','Težko','najvišje stopnje']];
+
+  $('modal').innerHTML =
+    '<h3>👨‍👩‍👦 Kotiček za starše</h3>' +
+    '<div class="stat"><span>Zbrane zvezdice</span><b>⭐ ' + STATE.stars + '</b></div>' +
+    '<div class="stat"><span>Odigrani krogi</span><b>' + STATE.rounds + '</b></div>' +
+    '<div class="stat"><span>Pravilni odgovori</span><b>' + pct + ' % <span class="mini">(' + total + ' nalog)</span></b></div>' +
+    '<div class="stat"><span>Utrjene besede</span><b>' + known + '</b></div>' +
+    '<div class="stat"><span>Prebrana besedila</span><b>' + (STATE.readCount || 0) + '</b></div>' +
+    '<div class="stat"><span>Naziv</span><b>' + title(STATE.stars) + '</b></div>' +
+    (rows ? '<h3 style="margin:18px 0 6px;font-size:18px">Po igrah</h3>' + rows : '') +
+    (weak.length ? '<h3 style="margin:18px 0 6px;font-size:18px">Besede za ponavljanje</h3>' +
+      '<div class="wordlist">' + weak.slice(0, 40).map(w => '<span class="chip weak">' + esc(w) + '</span>').join('') + '</div>' +
+      '<p class="mini" style="margin-top:8px">Te besede se pojavijo pogosteje, najdeš pa jih tudi v igri 🎯 <b>Ponovi napake</b>.</p>' : '') +
+    '<h3 style="margin:18px 0 6px;font-size:18px">Težavnost</h3>' +
+    '<div class="levels">' + modes.map(m =>
+      '<button class="level" data-mode="' + m[0] + '" aria-pressed="' + (STATE.mode === m[0]) + '">' +
+      m[1] + '<small>' + m[2] + '</small></button>').join('') + '</div>' +
+    '<p class="mini" style="margin-top:10px">Pri <b>samodejni</b> težavnosti aplikacija dvigne stopnjo po 4 pravilnih odgovorih zapored ' +
+    'in jo zniža po 2 napakah zapored – ločeno za vsako igro.</p>' +
+    '<div class="row" style="margin-top:18px">' +
+      '<button class="btn btn-acc" id="closeModal">Zapri</button>' +
+      '<button class="btn btn-ghost" id="reset">🗑️ Ponastavi napredek</button>' +
+    '</div>' +
+    '<p class="mini" style="margin-top:12px">Napredek se hrani samo v tem brskalniku. Aplikacija ne pošilja ničesar na internet.</p>';
+  $('mask').hidden = false;
+}
+function closeParent(){ $('mask').hidden = true; if (!scrGames.hidden) renderGames(curArea); if (!scrSteps.hidden) renderSteps(); }
+
+/* ---------------------- DOGODKI ------------------------------------------ */
+let curArea = AREAS[0];
+
+document.addEventListener('click', e => {
+  const word = e.target.closest('.reading .w');
+  if (word){ speak(word.dataset.say || word.textContent); return; }
+  const b = e.target.closest('button');
+  if (!b) return;
+
+  if (b.dataset.area){ curArea = AREAS.find(a => a.id === +b.dataset.area); renderGames(curArea); return; }
+  if (b.id === 'backHome'){ renderSteps(); return; }
+  if (b.dataset.game){ startRound(curArea, b.dataset.game); return; }
+  if (b.id === 'quit'){ if ('speechSynthesis' in window) speechSynthesis.cancel(); renderGames(curArea); return; }
+  if (b.dataset.opt !== undefined){ answerChoice(+b.dataset.opt); return; }
+  if (b.dataset.tile !== undefined){ placeTile(+b.dataset.tile); return; }
+  if (b.dataset.slot !== undefined){ removeTile(+b.dataset.slot); return; }
+  if (b.id === 'undo'){ if (cur.picked.length) removeTile(cur.picked.length - 1); return; }
+  if (b.id === 'sayBtn' || b.id === 'sayAgain'){ speak(cur.q.say); b.classList.add('speaking'); setTimeout(() => b.classList.remove('speaking'), 900); return; }
+  if (b.id === 'slowBtn'){ speak(cur.q.say, true); return; }
+  if (b.id === 'hintBtn'){
+    if ($('hintBox')) { $('hintBox').remove(); return; }
+    const d = document.createElement('div');
+    d.className = 'hintbox'; d.id = 'hintBox'; d.innerHTML = '💡 ' + esc(cur.q.hint || 'Poskusi po občutku – napaka ni nič hudega.');
+    $('fbSlot').before(d); return;
+  }
+  if (b.id === 'next'){ goNext(); return; }
+  if (b.id === 'again'){ startRound(cur.area, cur.gid); return; }
+  if (b.id === 'other'){ renderGames(cur.area); return; }
+  if (b.id === 'home'){ renderSteps(); return; }
+  if (b.id === 'parentBtn'){ openParent(); return; }
+  if (b.id === 'closeModal'){ closeParent(); return; }
+  if (b.dataset.mode){ STATE.mode = b.dataset.mode; save(); openParent(); return; }
+  if (b.id === 'reset'){
+    if (confirm('Res želiš izbrisati ves napredek (zvezdice, stopnje in statistiko)?')){
+      STATE = Object.assign({}, FRESH, { lvl:{}, up:{}, down:{}, stats:{}, weak:{}, known:{} });
+      save(); paintStars(); closeParent(); renderSteps();
+    }
+    return;
+  }
+  if (b.id === 'soundBtn'){
+    STATE.sound = !STATE.sound; save();
+    b.textContent = STATE.sound ? '🔊' : '🔇';
+    if (!STATE.sound && 'speechSynthesis' in window) speechSynthesis.cancel();
+    return;
+  }
+});
+
+$('mask').addEventListener('click', e => { if (e.target.id === 'mask') closeParent(); });
+
+/* Tipkovnica: 1–4 izberejo odgovor, Enter nadaljuje. */
+document.addEventListener('keydown', e => {
+  if (scrPlay.hidden || !cur || !cur.q) return;
+  if (e.key === 'Enter' && cur.answered){ const n = $('next'); if (n){ e.preventDefault(); goNext(); } return; }
+  if (cur.q.kind === 'choice' && !cur.answered && /^[1-9]$/.test(e.key)){
+    const i = +e.key - 1;
+    if (i < cur.q.opts.length){ e.preventDefault(); answerChoice(i); }
+  }
+});
+
+/* Delovanje brez interneta in namestitev na začetni zaslon.
+   Pri odpiranju datoteke z diska (file://) service workerja ni – igra dela tako ali tako. */
+if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
+
+/* ---------------------- ZAGON -------------------------------------------- */
+$('soundBtn').textContent = STATE.sound ? '🔊' : '🔇';
+paintStars();
+renderSteps();
+</script>
+</body>
+</html>
