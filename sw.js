@@ -1,11 +1,12 @@
 /* Otroške igre – service worker.
    Poskrbi, da aplikaciji delujeta tudi brez interneta, ko sta nameščeni
    na začetni zaslon. Nova različica pride do otroka ob prvem odprtju s povezavo. */
-const CACHE = 'otroske-igre-v3';
+const CACHE = 'otroske-igre-v4';
 const ASSETS = [
   './',
   './index.html',
   './anglescina.html',
+  './pobarvanka.html',
   './matematika.html',
   './igre.webmanifest',
   './olly-icon-180.png',
@@ -20,6 +21,7 @@ const ASSETS = [
   './igre-icon-192.png',
   './igre-icon-512.png',
   './igre-icon-maskable-512.png',
+  './barvica-icon-192.png',
   'https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap'
 ];
 

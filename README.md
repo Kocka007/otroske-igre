@@ -1,18 +1,19 @@
 # 🎒 Otroške igre za učenje
 
-Dve interaktivni igri za učenje, obe v slovenščini, brez oglasov, brez računa in
+Tri interaktivne igre za otroke, vse v slovenščini, brez oglasov, brez računa in
 brez pošiljanja podatkov na internet:
 
 | | Igra | Kaj vadi | Starost | Datoteka |
 |---|---|---|---|---|
 | 🦊 | **Matko** | matematika in branje – od štetja do enačb, geometrije in Kenguručka | 5–15 let | [`matematika.html`](matematika.html) |
 | 🦉 | **Olly** | angleščina – od prvih besed do trpnika in pogojnikov | 5–15 let | [`anglescina.html`](anglescina.html) |
+| 🎨 | **Barvica** | pobarvanka: 19 slik, 5 stopenj, 5 načinov barvanja | za vse | [`pobarvanka.html`](pobarvanka.html) |
 
-Podroben opis: [matematika.md](matematika.md) · [anglescina.md](anglescina.md)
+Podroben opis: [matematika.md](matematika.md) · [anglescina.md](anglescina.md) · [pobarvanka.md](pobarvanka.md)
 
 ## Kako zaženeš
 
-**Najpreprosteje:** dvoklikni `matematika.html` ali `anglescina.html` – odpre se v brskalniku.
+**Najpreprosteje:** dvoklikni `matematika.html`, `anglescina.html` ali `pobarvanka.html` – odpre se v brskalniku.
 Ni namestitve, ni interneta, ni računa.
 
 **Na iPadu ali telefonu** se igri dasta namestiti kot pravi aplikaciji – glej spodaj.
@@ -49,13 +50,15 @@ tako se novo igro doda brez tveganja, da bi pokvarila obstoječi.
 
 ```
 index.html            aplikacija: izbira igre + okvir, v katerem teče izbrana igra
-matematika.html       🦊 Matko – cela igra v eni datoteki
-anglescina.html       🦉 Olly  – cela igra v eni datoteki
+matematika.html       🦊 Matko   – cela igra v eni datoteki
+anglescina.html       🦉 Olly    – cela igra v eni datoteki
+pobarvanka.html       🎨 Barvica – cela igra v eni datoteki
 igre.webmanifest      podatki za namestitev (ime, ikona, cel zaslon)
 sw.js                 skrbi za delovanje brez interneta
 igre-icon-*.png       ikona nameščene aplikacije (🎒)
 matko-icon-*.png      slika na kartici za Matka (🦊)
 olly-icon-*.png       slika na kartici za Ollyja (🦉)
+barvica-icon-192.png  slika na kartici za Barvico (🎨)
 ```
 
 Vsaka igra je samostojna: če vzameš samo `anglescina.html` in jo odpreš z diska,
