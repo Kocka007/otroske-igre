@@ -29,32 +29,44 @@ GitHub Pages na brezplačnem računu deluje samo za **javne** repozitorije.
 
 ## Namestitev na začetni zaslon 📱
 
-1. Naslov odpri v **Safariju** (iPad, iPhone) ali v **Chromu** (Android).
-2. Na začetni strani izberi igro.
-3. Tapni gumb za **deljenje** (kvadratek s puščico navzgor) → **Dodaj na začetni zaslon**.
+Namestitev je **ena sama** – obe igri prideta skupaj, pod eno ikono 🎒.
 
-Vsaka igra dobi svojo ikono. Nameščena igra:
+1. Naslov odpri v **Safariju** (iPad, iPhone) ali v **Chromu** (Android).
+2. Tapni gumb za **deljenje** (kvadratek s puščico navzgor) → **Dodaj na začetni zaslon**.
+
+Nameščena aplikacija:
 
 - se odpre **čez cel zaslon**, brez naslovne vrstice, ki bi jo otrok pomotoma spremenil,
-- **deluje tudi brez interneta** (datoteke so shranjene na napravi),
+- na začetnem zaslonu ponudi izbiro med igrama; z gumbom **⬅️ Domov** se vrne na izbiro,
+- **deluje tudi brez interneta** (obe igri sta shranjeni na napravi),
 - se ob naslednjem odprtju s povezavo **sama posodobi**, če je bila igra popravljena,
-- napredek hrani na napravi, zato zvezdice ostanejo tudi po zaprtju.
+- napredek hrani na napravi, ločeno za vsako igro.
+
+Vsaka igra teče v svojem okviru (`iframe`), zato se njuni slogi in koda ne mešajo –
+tako se novo igro doda brez tveganja, da bi pokvarila obstoječi.
 
 ## Kaj je v mapi
 
 ```
-index.html            začetna stran z izbiro igre
+index.html            aplikacija: izbira igre + okvir, v katerem teče izbrana igra
 matematika.html       🦊 Matko – cela igra v eni datoteki
 anglescina.html       🦉 Olly  – cela igra v eni datoteki
-matko.webmanifest     podatki za namestitev Matka (ime, ikone, cel zaslon)
-olly.webmanifest      podatki za namestitev Ollyja
+igre.webmanifest      podatki za namestitev (ime, ikona, cel zaslon)
 sw.js                 skrbi za delovanje brez interneta
-matko-icon-*.png      ikone za začetni zaslon (🦊)
-olly-icon-*.png       ikone za začetni zaslon (🦉)
+igre-icon-*.png       ikona nameščene aplikacije (🎒)
+matko-icon-*.png      slika na kartici za Matka (🦊)
+olly-icon-*.png       slika na kartici za Ollyja (🦉)
 ```
 
 Vsaka igra je samostojna: če vzameš samo `anglescina.html` in jo odpreš z diska,
 deluje v celoti tudi brez ostalih datotek.
+
+### Kako dodati novo igro
+
+1. Datoteko igre (npr. `pobarvanka.html`) dodaj v mapo.
+2. V `index.html` jo vpiši v seznam `IGRE` (datoteka, ime, emodži, slika, barva, opis).
+3. Dodaj jo v seznam `ASSETS` v `sw.js` in povečaj `CACHE` (npr. `-v4`), da se
+   nameščenim uporabnikom osveži predpomnilnik.
 
 ## Zasebnost
 

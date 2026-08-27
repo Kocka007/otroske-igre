@@ -1,0 +1,17 @@
+{
+  "name": "Otroške igre za učenje",
+  "short_name": "Igre",
+  "description": "Matko (matematika in branje) in Olly (angleščina) – interaktivni igri za učenje v slovenščini.",
+  "lang": "sl",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f2fb",
+  "theme_color": "#6a63ff",
+  "icons": [
+    { "src": "./igre-icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "./igre-icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "./igre-icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

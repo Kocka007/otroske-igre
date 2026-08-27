@@ -6,22 +6,31 @@
 <title>Otroške igre za učenje</title>
 <meta name="description" content="Interaktivne igre za učenje v slovenščini: matematika in branje (Matko) ter angleščina (Olly). Delujejo v brskalniku in tudi brez interneta.">
 <meta name="theme-color" content="#6a63ff">
+<link rel="manifest" href="igre.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Igre">
+<link rel="apple-touch-icon" href="igre-icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<!-- pisava se naloži ob strani: če je omrežje počasno ali ga ni, se stran izriše
+     takoj s sistemsko pisavo in ne čaka -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap"
+      media="print" onload="this.media='all'">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎒</text></svg>">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
   --ink:#282443; --ink-soft:#635d8c;
   --card:#ffffff; --line:#e7e4f6;
-  --matko:#5b6cff; --matko-d:#3f4fdd;
-  --olly:#7c5cff; --olly-d:#5c3ee0;
+  --matko:#5b6cff; --olly:#7c5cff;
   --acc:#6a63ff;
+  --top:env(safe-area-inset-top,0px);
+  --bot:env(safe-area-inset-bottom,0px);
 }
-html,body{height:100%}
+html,body{height:100%;margin:0;overscroll-behavior:none}
 body{
-  margin:0;
   font-family:"Nunito","Trebuchet MS",system-ui,-apple-system,sans-serif;
   color:var(--ink);
   background:#f4f2fb;
@@ -30,12 +39,13 @@ body{
     radial-gradient(800px 560px at 100% 0%, #f2e4ff 0%, transparent 55%),
     radial-gradient(900px 700px at 50% 118%, #dff4ff 0%, transparent 60%);
   background-attachment:fixed;
-  min-height:100dvh;
 }
-.wrap{
+
+/* ---------- začetni zaslon z izbiro igre ---------- */
+#home{
   max-width:720px;margin:0 auto;
-  padding:calc(26px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px))
-          calc(40px + env(safe-area-inset-bottom,0px)) calc(16px + env(safe-area-inset-left,0px));
+  padding:calc(26px + var(--top)) calc(16px + env(safe-area-inset-right,0px))
+          calc(40px + var(--bot)) calc(16px + env(safe-area-inset-left,0px));
   display:flex;flex-direction:column;gap:22px;
 }
 header{text-align:center;display:flex;flex-direction:column;gap:8px}
@@ -44,8 +54,9 @@ header p{margin:0;font-weight:700;color:var(--ink-soft);font-size:16.5px;line-he
 
 .apps{display:flex;flex-direction:column;gap:14px}
 .app{
-  display:flex;align-items:center;gap:16px;
-  background:var(--card);border-radius:22px;padding:18px;text-decoration:none;color:inherit;
+  display:flex;align-items:center;gap:16px;width:100%;text-align:left;
+  background:var(--card);border:0;border-radius:22px;padding:18px;color:inherit;
+  font-family:inherit;cursor:pointer;
   box-shadow:0 8px 22px rgba(40,36,67,.10);position:relative;overflow:hidden;
   transition:transform .12s ease, box-shadow .12s ease;
 }
@@ -55,8 +66,7 @@ header p{margin:0;font-weight:700;color:var(--ink-soft);font-size:16.5px;line-he
 .app:focus-visible{outline:4px solid var(--c);outline-offset:3px}
 .app img{width:78px;height:78px;border-radius:20px;flex:none;box-shadow:0 4px 10px rgba(40,36,67,.18)}
 .app .txt{display:flex;flex-direction:column;gap:3px;min-width:0}
-.app .nm{font-weight:900;font-size:22px}
-.app .nm span{color:var(--c)}
+.app .nm{font-weight:900;font-size:22px;color:var(--c)}
 .app .sub{font-weight:800;font-size:14.5px;color:var(--ink-soft);line-height:1.45}
 .app .ages{font-weight:900;font-size:13px;color:var(--c);letter-spacing:.3px;text-transform:uppercase}
 
@@ -67,6 +77,29 @@ header p{margin:0;font-weight:700;color:var(--ink-soft);font-size:16.5px;line-he
 .note ol b{color:var(--ink)}
 .note p{margin:12px 0 0;font-weight:700;font-size:14.5px;line-height:1.55;color:var(--ink-soft)}
 footer{text-align:center;font-weight:700;font-size:13.5px;color:var(--ink-soft);line-height:1.6}
+/* ko je aplikacija nameščena, navodil za namestitev ne rabimo */
+@media (display-mode:standalone){ #install{display:none} }
+
+/* ---------- igra v okviru ---------- */
+#player{position:fixed;inset:0;display:none;flex-direction:column;background:var(--card);z-index:10}
+body.playing #player{display:flex}
+body.playing{overflow:hidden}
+body.playing #home{display:none}
+#bar{
+  display:flex;align-items:center;gap:12px;flex:none;
+  padding:calc(8px + var(--top)) 14px 8px;
+  background:var(--c,var(--acc));color:#fff;
+  box-shadow:0 2px 10px rgba(40,36,67,.25);
+}
+#back{
+  display:inline-flex;align-items:center;gap:7px;border:0;cursor:pointer;font-family:inherit;
+  background:rgba(255,255,255,.22);color:#fff;border-radius:999px;
+  padding:10px 16px;font-weight:900;font-size:16px;
+}
+#back:active{background:rgba(255,255,255,.35)}
+#back:focus-visible{outline:3px solid #fff;outline-offset:2px}
+#ptitle{font-weight:900;font-size:17px;letter-spacing:.2px}
+#frame{flex:1;width:100%;border:0;display:block;background:#fff;padding-bottom:var(--bot)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media (max-width:430px){
   .app{padding:15px;gap:13px}
@@ -76,50 +109,112 @@ footer{text-align:center;font-weight:700;font-size:13.5px;color:var(--ink-soft);
 </style>
 </head>
 <body>
-<div class="wrap">
 
+<main id="home">
   <header>
     <h1>Otroške igre za učenje 🎒</h1>
     <p>Vse je v slovenščini, brez oglasov in brez računa.
        Napredek ostane na napravi, na internet se ne pošilja nič.</p>
   </header>
 
-  <div class="apps">
-    <a class="app" href="matematika.html" style="--c:var(--matko)">
-      <img src="matko-icon-192.png" alt="" width="192" height="192">
-      <span class="txt">
-        <span class="ages">5–15 let</span>
-        <span class="nm">🦊 <span>Matko</span></span>
-        <span class="sub">Matematika in branje – od štetja do enačb, Pitagorovega izreka in nalog v slogu Kenguručka.</span>
-      </span>
-    </a>
+  <div class="apps" id="apps"></div>
 
-    <a class="app" href="anglescina.html" style="--c:var(--olly)">
-      <img src="olly-icon-192.png" alt="" width="192" height="192">
-      <span class="txt">
-        <span class="ages">5–15 let</span>
-        <span class="nm">🦉 <span>Olly</span></span>
-        <span class="sub">Angleščina – od prvih besed do trpnika in pogojnikov, z izgovorjavo in branjem.</span>
-      </span>
-    </a>
-  </div>
-
-  <div class="note">
+  <div class="note" id="install">
     <h2>Namestitev na iPad ali telefon 📱</h2>
     <ol>
-      <li>Odpri igro (zgoraj) v <b>Safariju</b>, na Androidu v <b>Chromu</b>.</li>
+      <li>To stran odpri v <b>Safariju</b>, na Androidu v <b>Chromu</b>.</li>
       <li>Tapni gumb za <b>deljenje</b> – kvadratek s puščico navzgor.</li>
       <li>Izberi <b>Dodaj na začetni zaslon</b>.</li>
     </ol>
-    <p>Vsaka igra dobi svojo ikono. Odpre se čez cel zaslon, brez naslovne vrstice,
+    <p>Dobiš <b>eno ikono</b> 🎒 z obema igrama. Odpre se čez cel zaslon, brez naslovne vrstice,
        in <b>deluje tudi brez interneta</b> – primerno za avto ali počitnice.
        Ko je igra popravljena, se ob naslednjem odprtju s povezavo sama posodobi.</p>
   </div>
 
-  <footer>Obe igri sta ena sama datoteka HTML – brez namestitve, brez zbiranja podatkov.</footer>
+  <footer>Vsaka igra je ena sama datoteka HTML – brez namestitve, brez zbiranja podatkov.</footer>
+</main>
 
-</div>
+<section id="player" aria-hidden="true">
+  <div id="bar">
+    <button id="back" type="button">⬅️ Domov</button>
+    <span id="ptitle"></span>
+  </div>
+  <iframe id="frame" title="Igra" src="about:blank"></iframe>
+</section>
+
 <script>
+/* Igre živijo v svojih datotekah in tečejo v okviru, zato se njihovi slogi
+   in koda ne mešajo. Navzven je vse skupaj ena sama nameščena aplikacija. */
+const IGRE = {
+  matko: { f:'matematika.html', nm:'Matko', emo:'🦊', ikona:'matko-icon-192.png', c:'var(--matko)',
+           starost:'5–15 let',
+           opis:'Matematika in branje – od štetja do enačb, Pitagorovega izreka in nalog v slogu Kenguručka.' },
+  olly:  { f:'anglescina.html', nm:'Olly', emo:'🦉', ikona:'olly-icon-192.png', c:'var(--olly)',
+           starost:'5–15 let',
+           opis:'Angleščina – od prvih besed do trpnika in pogojnikov, z izgovorjavo in branjem.' }
+};
+
+const $ = id => document.getElementById(id);
+$('apps').innerHTML = Object.keys(IGRE).map(function(k){
+  const g = IGRE[k];
+  return '<button class="app" data-igra="' + k + '" style="--c:' + g.c + '">' +
+    '<img src="' + g.ikona + '" alt="" width="192" height="192">' +
+    '<span class="txt">' +
+      '<span class="ages">' + g.starost + '</span>' +
+      '<span class="nm">' + g.emo + ' ' + g.nm + '</span>' +
+      '<span class="sub">' + g.opis + '</span>' +
+    '</span></button>';
+}).join('');
+
+let odprta = null;   /* katera igra je naložena v okviru */
+
+function odpri(k, zabelezi){
+  const g = IGRE[k]; if (!g) return;
+  /* če je ista igra že naložena, jo pustimo pri miru – otrok nadaljuje, kjer je ostal.
+     Igro naložimo z location.replace, ker bi nastavljanje src dodalo vnos v zgodovino
+     in bi »nazaj« najprej razveljavil okvir namesto vrnitve na izbiro iger. */
+  if (odprta !== k){
+    try { $('frame').contentWindow.location.replace(g.f); }
+    catch (err) { $('frame').src = g.f; }
+    odprta = k;
+  }
+  $('ptitle').textContent = g.emo + ' ' + g.nm;
+  $('bar').style.setProperty('--c', g.c);
+  document.documentElement.style.setProperty('--theme', g.c);
+  $('player').setAttribute('aria-hidden', 'false');
+  document.body.classList.add('playing');
+  if (zabelezi !== false) history.pushState({ igra:k }, '', '#' + k);
+}
+
+function domov(zabelezi){
+  document.body.classList.remove('playing');
+  $('player').setAttribute('aria-hidden', 'true');
+  if (zabelezi !== false && location.hash) history.pushState({}, '', location.pathname + location.search);
+}
+
+document.addEventListener('click', function(e){
+  const kart = e.target.closest('[data-igra]');
+  if (kart){ odpri(kart.dataset.igra); return; }
+  if (e.target.closest('#back')){
+    if (history.state && history.state.igra) history.back(); else domov();
+  }
+});
+
+/* Tipka Esc in gumb/poteza »nazaj« na napravi vrneta na izbiro iger. */
+window.addEventListener('popstate', function(e){
+  /* Naslov je vir resnice: nekateri brskalniki ob nalaganju s ključnikom (#olly)
+     sprožijo popstate s praznim stanjem, kar bi igro takoj zaprlo. */
+  const k = (e.state && e.state.igra) || location.hash.replace('#','');
+  if (IGRE[k]) odpri(k, false); else domov(false);
+});
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape' && document.body.classList.contains('playing')) history.back();
+});
+
+/* Naslov s ključnikom (#olly) odpre igro neposredno. */
+const zacetna = location.hash.replace('#','');
+if (IGRE[zacetna]){ history.replaceState({ igra:zacetna }, '', '#' + zacetna); odpri(zacetna, false); }
+
 /* Delovanje brez interneta; pri odpiranju z diska (file://) service workerja ni. */
 if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0){
   window.addEventListener('load', function(){

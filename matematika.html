@@ -7,14 +7,14 @@
 <meta name="description" content="Interaktivna igra za učenje in vadbo matematike in branja za vso osnovno šolo (5–15 let).">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<!-- pisava se naloži ob strani: če je omrežje počasno ali ga ni, se stran izriše
+     takoj s sistemsko pisavo in ne čaka -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap"
+      media="print" onload="this.media='all'">
 <meta name="theme-color" content="#5b6cff">
-<link rel="manifest" href="matko.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Matko">
-<link rel="apple-touch-icon" href="matko-icon-180.png">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦊</text></svg>">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -2107,14 +2107,6 @@ window.matko = () => G;
 
 /* ================= start ================= */
 $("#soundBtn").textContent = P.sound ? "🔊" : "🔇";
-/* Delovanje brez interneta in namestitev na začetni zaslon.
-   Pri odpiranju datoteke z diska (file://) service workerja ni – igra dela tako ali tako. */
-if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0){
-  window.addEventListener('load', function(){
-    navigator.serviceWorker.register('sw.js').catch(function(){});
-  });
-}
-
 renderHome();
 show("home");
 })();

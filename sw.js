@@ -1,14 +1,13 @@
 /* Otroške igre – service worker.
    Poskrbi, da aplikaciji delujeta tudi brez interneta, ko sta nameščeni
    na začetni zaslon. Nova različica pride do otroka ob prvem odprtju s povezavo. */
-const CACHE = 'otroske-igre-v1';
+const CACHE = 'otroske-igre-v3';
 const ASSETS = [
   './',
   './index.html',
   './anglescina.html',
   './matematika.html',
-  './olly.webmanifest',
-  './matko.webmanifest',
+  './igre.webmanifest',
   './olly-icon-180.png',
   './olly-icon-192.png',
   './olly-icon-512.png',
@@ -16,7 +15,12 @@ const ASSETS = [
   './matko-icon-180.png',
   './matko-icon-192.png',
   './matko-icon-512.png',
-  './matko-icon-maskable-512.png'
+  './matko-icon-maskable-512.png',
+  './igre-icon-180.png',
+  './igre-icon-192.png',
+  './igre-icon-512.png',
+  './igre-icon-maskable-512.png',
+  'https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap'
 ];
 
 self.addEventListener('install', e => {
