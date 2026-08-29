@@ -1,0 +1,4008 @@
+<!doctype html>
+<html lang="sl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Kito – Krona trave</title>
+<meta name="description" content="Ploščadna igra o levjem mladiču Kitu, ki mu je ukradena reka. Izvirna zgodba, deset nivojev in štiri dodatne sobe, vse v eni datoteki HTML.">
+<meta name="theme-color" content="#3b2b1e">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap"
+      media="print" onload="this.media='all'">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦁</text></svg>">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+:root{
+  --lubje:#3b2b1e; --lubje-t:#2a1e15; --lubje-s:#54402d;
+  --oker:#d9a05a; --oker-t:#a8763f;
+  --trava:#7fa03f; --teal:#2f8f88; --indigo:#1d2140;
+  --pesek:#f0dfc0; --rdeca:#c8443a;
+  --top:env(safe-area-inset-top,0px); --bot:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none;background:#1a120c}
+body{
+  font-family:"Nunito","Trebuchet MS",system-ui,-apple-system,sans-serif;
+  font-weight:900; color:var(--pesek);
+  background:
+    radial-gradient(900px 500px at 50% -10%, #5a3f28 0%, transparent 70%),
+    repeating-linear-gradient(90deg,#241a12 0 6px,#2a1e15 6px 12px);
+}
+button{font-family:inherit;font-weight:900;color:inherit;cursor:pointer;border:0;background:none}
+b,i,u{font-style:normal;text-decoration:none}
+
+/* ---------- zasloni ---------- */
+.zaslon{
+  position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;
+  gap:14px;overflow-y:auto;
+  padding:calc(16px + var(--top)) 16px calc(20px + var(--bot));
+}
+.zaslon[hidden]{display:none}
+.plosca{
+  width:min(560px,100%);background:linear-gradient(180deg,var(--lubje-s),var(--lubje));
+  border-radius:16px;padding:16px 16px 18px;position:relative;
+  box-shadow:0 10px 0 var(--lubje-t),0 18px 34px rgba(0,0,0,.5);
+}
+/* jagode ob robu namesto okrasnega okvirja */
+.plosca::before,.plosca::after{
+  content:"";position:absolute;left:10px;right:10px;height:6px;
+  background:radial-gradient(circle,var(--oker) 0 2.4px,transparent 2.6px) repeat-x;
+  background-size:11px 6px;opacity:.85;
+}
+.plosca::before{top:5px}.plosca::after{bottom:5px}
+h1{margin:0;font-size:clamp(26px,7.5vw,44px);letter-spacing:1px;line-height:1}
+h1 span{display:block;font-size:.42em;letter-spacing:5px;color:var(--oker);margin-top:6px}
+h2{margin:0 0 10px;font-size:19px;letter-spacing:.5px;color:var(--oker)}
+p{margin:0 0 10px;font-weight:700;font-size:14.5px;line-height:1.55;color:#e6d5b6}
+.pojasnilo{font-size:13px;color:#c3ae8c;margin:2px 2px 12px}
+
+.gumb{
+  display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  background:var(--oker);color:#3a2413;border-radius:12px;padding:13px 16px;
+  font-size:17px;letter-spacing:.5px;box-shadow:0 5px 0 var(--oker-t);
+  transition:transform .08s,box-shadow .08s;margin-bottom:9px;
+}
+.gumb:active{transform:translateY(4px);box-shadow:0 1px 0 var(--oker-t)}
+.gumb.tih{background:var(--lubje-s);color:var(--pesek);box-shadow:0 5px 0 var(--lubje-t)}
+.gumb.tih:active{box-shadow:0 1px 0 var(--lubje-t)}
+.gumb[disabled]{opacity:.4;pointer-events:none}
+.vrsta{display:flex;gap:9px}.vrsta .gumb{margin-bottom:0}
+
+/* naslovnica */
+#naslovnica{width:100%;height:auto;image-rendering:pixelated;border-radius:10px;display:block;margin-bottom:12px}
+
+/* izbor nivojev */
+.nivo{display:flex;gap:11px;align-items:center;width:100%;text-align:left;
+  background:var(--lubje-s);border-radius:12px;padding:10px 12px;margin-bottom:8px;
+  box-shadow:0 4px 0 var(--lubje-t)}
+.nivo:active{transform:translateY(3px);box-shadow:0 1px 0 var(--lubje-t)}
+.nivo .st{flex:none;width:34px;height:34px;border-radius:9px;background:var(--oker);color:#3a2413;
+  display:grid;place-items:center;font-size:17px}
+.nivo.koncan .st{background:var(--teal);color:#08201e}
+.nivo.zaklenjen{opacity:.42}
+.nivo .tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.nivo b{font-size:15.5px}
+.nivo i{font-weight:700;font-size:12.5px;color:#c3ae8c;line-height:1.4}
+.nivo u{font-weight:900;font-size:11.5px;color:var(--oker);letter-spacing:.4px}
+#izbor-skupaj{font-size:13px;color:#c3ae8c;font-weight:700;text-align:center;margin:2px 0 10px}
+
+/* shrambe in nastavitve */
+.mesto{display:flex;flex-direction:column;gap:2px;width:100%;text-align:left;background:var(--lubje-s);
+  border-radius:12px;padding:11px 13px;margin-bottom:8px;box-shadow:0 4px 0 var(--lubje-t)}
+.mesto.izbrano{background:var(--oker);color:#3a2413}
+.mesto.izbrano i{color:#5a3a1c}
+.mesto i{font-weight:700;font-size:12.5px;color:#c3ae8c}
+.mesto.zbrisi{background:#5a2f28}.mesto.zbrisi i{color:#e0b0a8}
+.nas{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--lubje-s);
+  border-radius:12px;padding:11px 13px;margin-bottom:8px;box-shadow:0 4px 0 var(--lubje-t);flex-wrap:wrap}
+.nas b{font-size:14.5px}.nas i{font-weight:700;font-size:12px;color:#c3ae8c;flex:1;min-width:120px}
+.nas .lucka{width:22px;height:22px;border-radius:50%;background:#2a1e15;flex:none}
+.nas[aria-pressed="true"] .lucka{background:var(--trava);box-shadow:0 0 0 3px #2a1e15 inset}
+.nasIzbira{flex-direction:column;align-items:stretch;gap:8px}
+.nas .gumbi{display:flex;gap:7px;flex-wrap:wrap}
+.nas .gumbi button{flex:1;min-width:88px;background:#2a1e15;border-radius:9px;padding:9px 6px;font-size:13.5px}
+.nas .gumbi button.izbrano{background:var(--oker);color:#3a2413}
+.nas input[type=range]{width:100%;accent-color:var(--oker)}
+
+/* zgodba */
+#z-zgodba .plosca{max-width:520px}
+#zgodba-st{font-size:12.5px;letter-spacing:3px;color:var(--oker)}
+#zgodba-ime{font-size:26px;margin:2px 0 10px}
+#zgodba-glagol{display:block;background:#2a1e15;border-radius:10px;padding:10px 12px;
+  font-weight:700;font-size:13.5px;color:#bfe0c0;margin-bottom:14px;line-height:1.5}
+
+/* ---------- igra ---------- */
+#igra{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#100b07}
+#igra[hidden]{display:none}
+#oder{position:relative;line-height:0}
+#platno{image-rendering:pixelated;image-rendering:crisp-edges;display:block;
+  box-shadow:0 0 0 2px #000,0 10px 40px rgba(0,0,0,.6)}
+#hud{position:absolute;left:0;right:0;top:0;padding:8px 10px 0;line-height:1;
+  display:flex;align-items:flex-start;gap:10px;pointer-events:none}
+#oklep{display:flex;gap:3px}
+#oklep i{width:13px;height:15px;border-radius:6px 6px 5px 5px;background:#3a2b1e;
+  box-shadow:0 0 0 2px #1b120c inset}
+#oklep i.polna{background:linear-gradient(180deg,#7fe0c8,#2f8f88)}
+#rjov-meter{width:74px;height:9px;border-radius:6px;background:#2a1e15;overflow:hidden;
+  box-shadow:0 0 0 2px #1b120c}
+#rjov-meter.poln{box-shadow:0 0 0 2px #1b120c,0 0 8px #e8a12c}
+#rjov-polnilo{height:100%;background:linear-gradient(90deg,#e8a12c,#ffd76a);width:100%}
+#stevci{font-size:14px;letter-spacing:.5px;text-shadow:0 2px 0 #000}
+#napis{position:absolute;left:0;right:0;top:42%;line-height:1.3;text-align:center;font-size:16px;
+  letter-spacing:.6px;text-shadow:0 3px 0 #000,0 0 12px #000;pointer-events:none;transition:opacity .2s}
+#pavza{position:absolute;right:10px;top:8px;width:40px;height:34px;
+  border-radius:9px;background:rgba(59,43,30,.85);font-size:14px;pointer-events:auto}
+
+/* gumbi na zaslonu */
+#dotik{position:absolute;inset:auto 0 0 0;padding:0 12px calc(10px + var(--bot));
+  display:flex;justify-content:space-between;align-items:flex-end;pointer-events:none}
+#dotik[hidden]{display:none}
+#dotik .skupina{display:flex;gap:10px;align-items:flex-end;pointer-events:auto}
+#dotik button{width:62px;height:62px;border-radius:50%;background:rgba(59,43,30,.62);
+  color:var(--pesek);font-size:12.5px;line-height:1.1;display:grid;place-items:center;
+  box-shadow:0 0 0 2px rgba(240,223,192,.28) inset;backdrop-filter:blur(2px)}
+#dotik button.drzi{background:rgba(217,160,90,.85);color:#3a2413}
+#dotik button.velik{width:74px;height:74px;font-size:13.5px}
+#dotik .oznaka{font-size:20px;display:block}
+
+/* konec nivoja in premor */
+#z-premor,#z-konec,#z-ovire{background:rgba(16,11,7,.86);justify-content:center;backdrop-filter:blur(3px)}
+#konec-vrstice{display:flex;flex-direction:column;gap:6px;margin:4px 0 14px}
+#konec-vrstice div{display:flex;justify-content:space-between;background:#2a1e15;border-radius:9px;
+  padding:9px 12px;font-size:14px}
+#konec-vrstice span{font-weight:700;color:#c3ae8c}
+#konec-ime{color:var(--oker);font-size:15px;margin-bottom:10px;display:block}
+
+/* barvne sheme za lažje razločevanje */
+body[data-shema="visok"] #platno{filter:contrast(1.22) saturate(1.3)}
+body[data-shema="toplahladna"] #platno{filter:hue-rotate(-12deg) saturate(1.12)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-height:420px){ #dotik button{width:52px;height:52px;font-size:11px} }
+</style>
+</head>
+<body>
+
+<!-- ---------------- naslovni zaslon ---------------- -->
+<section class="zaslon" id="z-naslov">
+  <div class="plosca">
+    <canvas id="naslovnica" width="320" height="110" aria-hidden="true"></canvas>
+    <h1>KITO<span>KRONA TRAVE</span></h1>
+    <p>Reka je izginila, Kito pa je obtožen nečesa, česar ni storil.
+       Deset nivojev savane, štiri dodatne sobe in rjovenje, ki ni samo krik.</p>
+    <button class="gumb" data-dej="igraj">▶ Igraj</button>
+    <div class="vrsta">
+      <button class="gumb tih" data-dej="izbor">Nivoji</button>
+      <button class="gumb tih" data-dej="mesta">Shrambe</button>
+    </div>
+    <div class="vrsta" style="margin-top:9px">
+      <button class="gumb tih" data-dej="nastavitve">Nastavitve</button>
+      <button class="gumb tih" data-dej="zgodbaBesedilo">Zgodba</button>
+    </div>
+  </div>
+</section>
+
+<!-- ---------------- izbor nivojev ---------------- -->
+<section class="zaslon" id="z-izbor" hidden>
+  <div class="plosca">
+    <h2>Nivoji</h2>
+    <div id="izbor-skupaj"></div>
+    <div id="izbor-glavni"></div>
+    <h2 style="margin-top:14px">Dodatne sobe</h2>
+    <p class="pojasnilo">Kratke sobe, v katerih igraš za Kitove prijatelje. Odprejo se po tretjem nivoju.</p>
+    <div id="izbor-bonus"></div>
+    <button class="gumb tih" data-dej="naslov">⬅ Nazaj</button>
+  </div>
+</section>
+
+<!-- ---------------- shrambe ---------------- -->
+<section class="zaslon" id="z-mesta" hidden>
+  <div class="plosca">
+    <h2>Shrambe</h2>
+    <p class="pojasnilo">Napredek se hrani v brskalniku na tej napravi. Nič se ne pošilja na internet.</p>
+    <div id="mesta-seznam"></div>
+    <button class="gumb tih" data-dej="naslov">⬅ Nazaj</button>
+  </div>
+</section>
+
+<!-- ---------------- nastavitve ---------------- -->
+<section class="zaslon" id="z-nastavitve" hidden>
+  <div class="plosca">
+    <h2>Nastavitve</h2>
+    <div id="nastavitve-seznam"></div>
+    <button class="gumb tih" data-dej="naslov">⬅ Nazaj</button>
+  </div>
+</section>
+
+<!-- ---------------- zgodba pred nivojem ---------------- -->
+<section class="zaslon" id="z-zgodba" hidden>
+  <div class="plosca">
+    <div id="zgodba-st"></div>
+    <div id="zgodba-ime"></div>
+    <p id="zgodba-tekst"></p>
+    <b id="zgodba-glagol"></b>
+    <button class="gumb" id="zgodba-naprej" data-dej="zacni">Začni</button>
+    <button class="gumb tih" data-dej="izbor">⬅ Nazaj</button>
+  </div>
+</section>
+
+<!-- ---------------- knjiga zgodbe ---------------- -->
+<section class="zaslon" id="z-zgodba-knjiga" hidden>
+  <div class="plosca">
+    <h2>Kaj se je zgodilo</h2>
+    <p>V travi ne vlada kri, ampak <b>Dežna pogodba</b>: kdor po dolgi suši zbudi
+       Nevihtni baobab na Visokem kopju, sme nositi <b>Krono prahu</b>.</p>
+    <p><b>Kito</b> je pegast levji mladič z zlomljenim rjovenjem, zadnji otrok
+       osramočenega rodu dežnih pevcev, ki so mu očitali, da je ukradel mokro dobo.</p>
+    <p>Ko reka izgine, hijenska zveza <b>Smejoči dvor</b> zajezi izvire in začne
+       prodajati vodo. Kita obtožijo, da je zastrupil napajališče. Ne prežene ga
+       krivda – <b>prodajo</b> ga potujoči karavani.</p>
+    <p>Pobegne v slano ravnico, kjer sreča medojeda <b>N’punkta</b> in bradavičarja
+       <b>Goboja</b>. Nista šaljivca: prvi koplje rove, drugi gradi pasti.</p>
+    <p>Odrasel Kito ne pride po prestol. Podre jez, vrne reko – in krono vzame
+       samo, če mu jo <b>črede same izglasujejo</b>.</p>
+    <p class="pojasnilo">Vsa imena, kraji in dogodki so izmišljeni za to igro.
+       Živali so afriške, liki pa naši.</p>
+    <button class="gumb tih" data-dej="naslov">⬅ Nazaj</button>
+  </div>
+</section>
+
+<!-- ---------------- igra ---------------- -->
+<div id="igra" hidden>
+  <div id="oder">
+    <canvas id="platno" width="320" height="180"></canvas>
+    <div id="hud">
+      <div id="oklep"></div>
+      <div id="rjov-meter"><div id="rjov-polnilo"></div></div>
+      <div id="stevci">🪲 <b id="hrosci">0</b> &nbsp; 🦁 <b id="zivljenja">3</b></div>
+    </div>
+    <div id="napis"></div>
+    <button id="pavza" data-dej="premor">❚❚</button>
+  </div>
+  <div id="dotik" hidden>
+    <div class="skupina">
+      <button data-g="levo"><span class="oznaka">◀</span></button>
+      <button data-g="desno"><span class="oznaka">▶</span></button>
+      <button data-g="dol"><span class="oznaka">▼</span></button>
+    </div>
+    <div class="skupina">
+      <button data-g="rjov">RJOVI</button>
+      <button data-g="napad">NAPAD</button>
+      <button data-g="skok" class="velik">SKOK</button>
+    </div>
+  </div>
+</div>
+
+<!-- ---------------- premor ---------------- -->
+<section class="zaslon" id="z-premor" hidden>
+  <div class="plosca">
+    <h2>Premor</h2>
+    <button class="gumb" data-dej="nadaljuj">Nadaljuj</button>
+    <button class="gumb tih" data-dej="nazajVCas">↺ Zavrti čas nazaj (8 s)</button>
+    <button class="gumb tih" data-dej="ponovi">Začni nivo znova</button>
+    <button class="gumb tih" data-dej="izbor-iz-igre">Nazaj na nivoje</button>
+  </div>
+</section>
+
+<!-- ---------------- konec nivoja ---------------- -->
+<section class="zaslon" id="z-konec" hidden>
+  <div class="plosca">
+    <h2 id="konec-naslov"></h2>
+    <b id="konec-ime"></b>
+    <div id="konec-vrstice"></div>
+    <button class="gumb" id="konec-naprej" data-dej="naprej">Naslednji nivo ▶</button>
+    <button class="gumb tih" data-dej="ponovi">Še enkrat</button>
+    <button class="gumb tih" data-dej="izbor-iz-igre">Nazaj na nivoje</button>
+  </div>
+</section>
+
+<!-- ---------------- izbira v finalu ---------------- -->
+<section class="zaslon" id="z-ovire" hidden>
+  <div class="plosca">
+    <h2 id="ovire-naslov"></h2>
+    <p id="ovire-besedilo"></p>
+    <button class="gumb" id="ovire-a" data-dej="izbira-a"></button>
+    <button class="gumb tih" id="ovire-b" data-dej="izbira-b"></button>
+  </div>
+</section>
+
+<script>
+/* =====================================================================
+   KITO: KRONA TRAVE – ploščadna igra v eni datoteki.
+
+   Vse je izvirno: imena, zgodba, liki, nivoji, glasba in risbe.
+   Navdih so afriške živali in ploščadne igre iz devetdesetih,
+   ne pa katera koli obstoječa igra ali risanka.
+
+   Zgradba datoteke:
+     1. jedro        – ploščice, karta, gradbenik nivojev   (čista logika)
+     2. nivoji       – 10 glavnih in 4 dodatne sobe          (čista logika)
+     3. fizika       – trki s ploščicami, gibanje            (čista logika)
+     4. igralec      – avtomat stanj (mladič / odrasel)
+     5. bitja        – sovražniki, plenišča, žive ploščadi
+     6. risanje      – slog, živali, ozadja, vreme
+     7. zvok         – glasba in učinki (Web Audio)
+     8. krmilje      – tipke, igralni plošček, zaslon na dotik
+     9. zasloni      – naslov, nastavitve, premor, HUD, shramba
+    10. samopreizkus – preveri vse nivoje ob zagonu
+   ===================================================================== */
+'use strict';
+
+/* ČISTA LOGIKA – ZAČETEK
+   Od tod do oznake KONEC ni dostopa do DOM-a, zato se ta del da pognati
+   in preveriti tudi v Node.js (glej samopreizkus na koncu datoteke). */
+
+const SIR = 320;          /* notranja ločljivost – širina  */
+const VIS = 180;          /* notranja ločljivost – višina  */
+const P   = 16;           /* velikost ploščice v pikah     */
+const KORAK = 1000 / 60;  /* dolžina koraka pri 60 sličicah na sekundo */
+
+/* ---------- vrste ploščic ---------- */
+const T = {
+  PRAZNO:  0,
+  ZEMLJA:  1,   /* prst s travo – osnovna trdna tla */
+  SKALA:   2,   /* kopje, pečine */
+  DESKA:   3,   /* enosmerna ploščad – skoziš od spodaj */
+  TRNJE:   4,   /* akacijevo trnje – rani */
+  RAZPOKA: 5,   /* počena skala – odrasel Kito jo zruši z rjovenjem */
+  LUBJE:   6,   /* deblo – mladič se ga oprime in pleza */
+  KRHKA:   7,   /* razpokana zemlja – se udre, ko stopiš nanjo */
+  VODA:    8,   /* voda – upočasni in nosi navzgor */
+  BLATO:   9,   /* blato – upočasni */
+  LAZ:    10,   /* lažna tla – rjovenje jih razkrije in podre */
+  SOL:    11,   /* slana skorja */
+  TERMIT: 12,   /* stena termitnjaka */
+  STEBER: 13,   /* nosilec jezu – odrasel ga podre z zamahom */
+  KOST:   14    /* kostni most */
+};
+
+const TRDNE   = [T.ZEMLJA, T.SKALA, T.RAZPOKA, T.LUBJE, T.KRHKA, T.LAZ, T.SOL, T.TERMIT, T.STEBER, T.KOST, T.BLATO];
+const trdna   = t => TRDNE.indexOf(t) >= 0;
+const enosmerna = t => t === T.DESKA;
+const nevarna = t => t === T.TRNJE;
+const mokra   = t => t === T.VODA || t === T.BLATO;
+
+/* ---------- majhni pripomočki ---------- */
+const omeji = (v, a, b) => v < a ? a : v > b ? b : v;
+const priblizaj = (v, cilj, korak) => v < cilj ? Math.min(cilj, v + korak) : Math.max(cilj, v - korak);
+const znak = v => v < 0 ? -1 : v > 0 ? 1 : 0;
+
+/* Ponovljivo naključje: isti seme da vedno isti nivo. */
+function nakljucje(seme){
+  let a = seme >>> 0;
+  return function(){
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/* ---------- karta ploščic ---------- */
+function Karta(w, h){
+  this.w = w; this.h = h;
+  this.t = new Uint8Array(w * h);
+  this.v = 0;          /* števec sprememb – po njem vemo, kdaj je treba karto shraniti */
+}
+Karta.prototype.pri = function(x, y){
+  /* Levo in desno je svet zaprt, zgoraj odprt, spodaj prepad. */
+  if (x < 0 || x >= this.w) return T.SKALA;
+  if (y < 0 || y >= this.h) return T.PRAZNO;
+  return this.t[y * this.w + x];
+};
+Karta.prototype.nastavi = function(x, y, tip){
+  if (x < 0 || y < 0 || x >= this.w || y >= this.h) return;
+  const i = y * this.w + x;
+  if (this.t[i] !== tip){ this.t[i] = tip; this.v++; }
+};
+Karta.prototype.pod = function(px, py){          /* po pikah, ne po ploščicah */
+  return this.pri(Math.floor(px / P), Math.floor(py / P));
+};
+
+/* ---------- gradbenik nivoja ----------
+   Nivoji so napisani z ukazi (tla, polica, steber …), ne s sličico po
+   sličici, zato so kratki, berljivi in se dajo hitro popraviti. */
+function Gradbenik(w, h, seme){
+  this.k = new Karta(w, h);
+  this.o = [];                    /* bitja in predmeti */
+  this.r = nakljucje(seme || 7);
+  this.zacetek = { x: 2 * P, y: (h - 5) * P };
+  this.izhod = null;
+  this.w = w; this.h = h;
+}
+const G = Gradbenik.prototype;
+
+G.blok = function(x, y, w, h, tip){
+  for (let j = 0; j < h; j++)
+    for (let i = 0; i < w; i++) this.k.nastavi(x + i, y + j, tip);
+  return this;
+};
+/* Tla od vrstice y navzdol do dna karte. */
+G.tla = function(x, w, y, tip){
+  return this.blok(x, y, w, this.h - y, tip || T.ZEMLJA);
+};
+G.polica = function(x, y, w, tip){ return this.blok(x, y, w, 1, tip || T.ZEMLJA); };
+G.deska  = function(x, y, w){ return this.blok(x, y, w, 1, T.DESKA); };
+G.trnje  = function(x, y, w){ return this.blok(x, y, w, 1, T.TRNJE); };
+G.steber = function(x, y, h, tip){ return this.blok(x, y, 1, h, tip || T.SKALA); };
+
+/* Stopnice navzgor ali navzdol; smer +1 gor, -1 dol. */
+G.stopnice = function(x, y, n, smer, tip){
+  for (let i = 0; i < n; i++){
+    const yy = y - smer * i;
+    this.tla(x + i, 1, yy, tip);
+  }
+  return this;
+};
+
+/* Doda bitje ali predmet. Koordinate so v ploščicah, shranimo pa jih v pikah
+   (sredina spodaj), ker fizika dela s pikami. */
+G.dodaj = function(tip, x, y, dodatno){
+  const b = { tip: tip, x: x * P + P / 2, y: y * P + P, id: this.o.length };
+  if (dodatno) for (const kl in dodatno) b[kl] = dodatno[kl];
+  this.o.push(b);
+  return b;
+};
+G.hrosci = function(x, y, n, razmik){
+  for (let i = 0; i < n; i++) this.dodaj('hrosc', x + i * (razmik || 1), y);
+  return this;
+};
+/* Lok hroščkov – nakaže skok in nagradi pravi lok. */
+G.lokHroscev = function(x, y, n, visina){
+  for (let i = 0; i < n; i++){
+    const d = (i / (n - 1)) * 2 - 1;
+    this.dodaj('hrosc', x + i, y - Math.round((1 - d * d) * (visina || 2)));
+  }
+  return this;
+};
+G.mravljisce = function(x, y){ return this.dodaj('mravljisce', x, y); };
+G.konec = function(x, y){ this.izhod = this.dodaj('izhod', x, y); return this; };
+G.start = function(x, y){ this.zacetek = { x: x * P + P / 2, y: y * P + P }; return this; };
+
+/* =====================================================================
+   2. NIVOJI
+   Vsak nivo ima svoj glagol – nekaj, česar ni v nobenem drugem.
+   Zgodba, imena in razporeditve so izvirni.
+   ===================================================================== */
+
+/* Travnata pot z blagimi valovi; vrne višino tal za vsak stolpec. */
+G.teren = function(x0, w, y0, o){
+  o = o || {};
+  const val = o.val === undefined ? 0 : o.val;
+  const vrh = [];
+  let y = y0;
+  for (let i = 0; i < w; i++){
+    if (val && i > 0 && i % (o.perioda || 9) === 0) y = omeji(y + (this.r() < 0.5 ? -val : val), y0 - (o.gor || 2), y0 + (o.dol || 1));
+    vrh.push(y);
+    this.tla(x0 + i, 1, y, o.tip);
+  }
+  return vrh;
+};
+
+/* Prepad z varnim robom na obeh straneh. */
+G.prepad = function(x, w, y, tip){
+  this.blok(x, y - 1, w, this.h - y + 1, T.PRAZNO);
+  if (tip) this.blok(x, this.h - 2, w, 2, tip);
+  return this;
+};
+
+const STOPNJE = [
+
+/* ---------------------------------------------------------------- 1 */
+{
+  id: 'kopje', st: 1, ime: 'Zorno kopje', biom: 'zora',
+  glagol: 'Rjovenje razžene tkalce s skrite veje.',
+  uvod: 'Dolga suša je pojedla reko. Kito lovi kobilice na kopju, kjer se je nekoč pelo dežju.',
+  w: 190, h: 16, seme: 101,
+  gradi: function(g){
+    g.start(3, 10);
+    g.teren(0, 34, 11);
+    g.dodaj('kuscar', 12, 10);
+    g.hrosci(7, 9, 3);
+    g.dodaj('kuscar', 22, 10);
+    g.lokHroscev(17, 9, 5, 2);
+
+    /* prvi prepad – dva skoka */
+    g.prepad(34, 3, 11);
+    g.teren(37, 8, 11, { val: 0 });
+    g.prepad(45, 3, 11);
+    g.teren(48, 14, 11, { val: 0 });
+    g.lokHroscev(34, 9, 4, 2);
+    g.lokHroscev(45, 9, 4, 2);
+    g.mravljisce(52, 10);
+
+    /* Tkalčeva veja je edini most čez strugo: dokler na njej sedijo
+       ptice, se po njej ne da hoditi. Rjovenje jih dvigne. */
+    g.prepad(58, 4, 11);
+    g.deska(58, 10, 4);
+    g.dodaj('tkalec', 59, 10, { sirina: 4, x0: 58 });
+    g.teren(62, 12, 11, { val: 0 });
+    g.dodaj('kuscar', 68, 10);
+    g.hrosci(58, 8, 4);
+
+
+    /* žirafin vrat kot počasna ploščad čez strugo */
+    g.prepad(74, 5, 11);
+    g.dodaj('zirafa', 76, 11, { pot: 4, hitrost: 0.85 });
+    g.teren(79, 21, 11, { val: 0 });
+    g.mravljisce(94, 10);
+    g.dodaj('klop', 90, 10);
+
+    g.teren(100, 10, 11);
+    g.dodaj('hijena', 106, 10);
+    /* Stopnička navzgor: po deskah gre vsak, po deblu pa hitreje –
+       mladič se lubja oprime in spleza naravnost. */
+    g.tla(110, 10, 8);
+    g.steber(110, 8, 3, T.LUBJE);
+    g.deska(106, 10, 3); g.deska(107, 9, 3);
+    g.hrosci(111, 7, 4);
+    g.dodaj('kuscar', 115, 7);
+    g.dodaj('soncnihrosc', 108, 6);
+
+    g.teren(120, 6, 10, { val: 0 });
+    g.prepad(126, 4, 10);
+    g.deska(126, 9, 4);
+    g.dodaj('tkalec', 127, 9, { sirina: 4, x0: 126 });
+    g.teren(130, 9, 10, { val: 0 });
+    g.hrosci(126, 7, 4);
+    g.dodaj('hijena', 133, 9);
+
+    g.prepad(139, 3, 10);
+    g.teren(142, 18, 10, { val: 0 });
+    g.mravljisce(146, 9);
+    g.dodaj('soncnihrosc', 152, 6);
+    g.blok(150, 7, 4, 1, T.DESKA);
+    g.dodaj('kuscar', 156, 9);
+
+    g.teren(160, 30, 10, { val: 1, perioda: 7 });
+    g.dodaj('hijena', 166, 9);
+    g.dodaj('hijena', 176, 9);
+    g.hrosci(170, 8, 5);
+    g.konec(186, 9);
+  }
+},
+
+/* ---------------------------------------------------------------- 2 */
+{
+  id: 'tkalci', st: 2, ime: 'Tkalčeva cesta', biom: 'zora',
+  glagol: 'Plezanje po živalih – vsaka te nese naprej samo, če ujameš ritem.',
+  uvod: 'Nad trnjem visi vas tkalcev. Kdor hoče pogledati čez savano, mora po hrbtih tistih, ki mu niso nič dolžni.',
+  w: 46, h: 52, navpicna: true, seme: 202,
+  gradi: function(g){
+    g.start(5, 48);
+    g.tla(0, 46, 49, T.ZEMLJA);
+    g.blok(0, 0, 2, 52, T.SKALA);
+    g.blok(44, 0, 2, 52, T.SKALA);
+    g.trnje(14, 48, 22);
+    g.hrosci(4, 47, 3);
+
+    /* Stopnišče iz živali. Vsaka stopnica je dve ploščici više – točno
+       toliko, kolikor mladič skoči, in nič več. Cikcak se vsakih pet
+       stopnic obrne, da se pleza sem in tja, ne le naravnost. */
+    const vrste = ['volovka', 'storklja', 'volovka', 'storklja', 'volovka'];
+    for (let i = 0; i < 21; i++){
+      const t = i % 8;
+      const x = 8 + 2 * (t <= 4 ? t : 8 - t);      /* cikcak po dve ploščici */
+      const y = 47 - 2 * i;
+      const tip = vrste[i % 5];
+      /* premika se vsaka tretja – takrat je treba ujeti pravi trenutek */
+      g.dodaj(tip, x, y, { pot: (i % 3 === 1 && tip === 'volovka') ? 2 : 0, hitrost: 0.34 });
+      if (i % 2 === 0) g.dodaj('hrosc', x + 4, y - 1);
+    }
+    /* varne police, da padec ne vrne čisto na dno */
+    g.polica(2, 38, 5, T.LUBJE);  g.mravljisce(4, 37);
+    g.polica(28, 28, 6, T.LUBJE); g.mravljisce(30, 27);
+    g.polica(2, 18, 5, T.LUBJE);  g.mravljisce(4, 17);
+    /* spečega nosoroga postavimo na tla, ne v stopnišče: njegov hrbet je
+       previsok in naslednji skok bi bil predolg */
+    g.polica(30, 44, 8, T.LUBJE);
+    g.dodaj('nosorog', 33, 44, { spi: true });
+    g.dodaj('kobra', 32, 27);
+    g.dodaj('komarji', 26, 31, { pot: 5 });
+    g.dodaj('jastreb', 16, 20);
+    g.dodaj('soncnihrosc', 6, 17);
+    g.polica(6, 7, 14, T.ZEMLJA);
+    g.konec(12, 6);
+  }
+},
+
+/* ---------------------------------------------------------------- 3 */
+{
+  id: 'dvor', st: 3, ime: 'Smejoči dvor', biom: 'brlog',
+  glagol: 'Odmev rjovenja podre lažna tla – slišiš, kje so votla.',
+  uvod: 'Smejoči dvor prodaja vodo, ki ni njegova. V brlogu se sliši vsak korak – in vsaka laž.',
+  w: 200, h: 22, seme: 303,
+  gradi: function(g){
+    g.start(3, 12);
+    g.blok(0, 0, 200, 3, T.SKALA);
+    g.teren(0, 30, 13, { val: 0, tip: T.SKALA });
+    g.dodaj('hijena', 12, 12);
+    g.dodaj('hijena', 22, 12);
+    g.hrosci(6, 11, 4);
+
+    /* lažna tla nad prepadom: rjovenje jih zruši in odpre spodnjo pot */
+    g.blok(30, 13, 10, 1, T.LAZ);
+    g.blok(30, 15, 10, 1, T.SKALA);
+    g.hrosci(32, 14, 6);
+    g.teren(40, 12, 13, { val: 0, tip: T.SKALA });
+    g.mravljisce(44, 12);
+    g.dodaj('kuscar', 47, 12);
+
+    /* kostni most čez brezno – deli mostu so lažni */
+    g.blok(52, 13, 4, 1, T.KOST);
+    g.blok(56, 13, 3, 1, T.LAZ);
+    g.blok(59, 13, 4, 1, T.KOST);
+    g.blok(63, 13, 3, 1, T.LAZ);
+    g.blok(66, 13, 6, 1, T.KOST);
+    g.deska(57, 10, 2); g.deska(64, 10, 2);
+    g.hrosci(57, 9, 2); g.hrosci(64, 9, 2);
+    g.teren(72, 14, 13, { val: 0, tip: T.SKALA });
+    g.dodaj('hijena', 76, 12);
+    g.dodaj('luskavec', 82, 12);
+
+    /* brlogi: iz lukenj v steni skačejo hijene */
+    g.blok(86, 12, 30, 1, T.PRAZNO);
+    g.teren(86, 30, 13, { val: 0, tip: T.SKALA });
+    for (let i = 0; i < 4; i++){
+      g.blok(90 + i * 7, 10, 2, 3, T.PRAZNO);
+      g.dodaj('brlog', 90 + i * 7, 12);
+    }
+    g.mravljisce(100, 12);
+    g.hrosci(92, 11, 3);
+
+    g.blok(116, 13, 8, 1, T.LAZ);
+    g.blok(116, 15, 8, 1, T.SKALA);
+    g.dodaj('soncnihrosc', 120, 14);
+    g.teren(124, 16, 13, { val: 0, tip: T.SKALA });
+    g.dodaj('kobra', 130, 12);
+    g.dodaj('hijena', 136, 12);
+
+    g.blok(140, 13, 5, 1, T.KOST);
+    g.blok(145, 13, 4, 1, T.LAZ);
+    g.blok(149, 13, 5, 1, T.KOST);
+    g.teren(154, 20, 13, { val: 0, tip: T.SKALA });
+    g.mravljisce(158, 12);
+    g.dodaj('luskavec', 164, 12);
+    g.dodaj('hijena', 170, 12);
+    g.blok(160, 10, 4, 1, T.DESKA);
+    g.hrosci(160, 9, 4);
+
+    g.teren(174, 26, 13, { val: 0, tip: T.SKALA });
+    g.dodaj('hijena', 180, 12);
+    g.dodaj('brlog', 186, 12);
+    g.blok(186, 10, 2, 3, T.PRAZNO);
+    g.konec(196, 12);
+  }
+},
+
+/* ---------------------------------------------------------------- 4 */
+{
+  id: 'reka', st: 4, ime: 'Pogreb reke', biom: 'blato',
+  glagol: 'Suha struga se udira pod nogami; ribe v mlakah lahko rešiš.',
+  uvod: 'Reke ni več – ostala je le njena postelja. V zadnjih mlakah se dušijo ribe.',
+  w: 210, h: 16, seme: 404, ribe: true,
+  gradi: function(g){
+    g.start(3, 11);
+    g.teren(0, 24, 12, { val: 0, tip: T.BLATO ? T.ZEMLJA : T.ZEMLJA });
+    g.hrosci(6, 10, 4);
+    g.dodaj('kuscar', 14, 11);
+    g.dodaj('riba', 20, 11);
+    g.blok(19, 12, 4, 1, T.VODA);
+
+    /* razpokana zemlja: stopiš – in se udre */
+    let x = 24;
+    for (let i = 0; i < 6; i++){ g.blok(x, 12, 2, 1, T.KRHKA); g.blok(x + 2, 12, 1, 1, T.PRAZNO); x += 3; }
+    g.teren(42, 12, 12, { val: 0 });
+    g.mravljisce(46, 11);
+    g.dodaj('riba', 50, 11); g.blok(49, 12, 4, 1, T.VODA);
+    g.dodaj('hijena', 52, 11);
+
+    g.blok(54, 12, 16, 1, T.KRHKA);
+    g.blok(58, 9, 3, 1, T.DESKA); g.hrosci(58, 8, 3);
+    g.blok(64, 9, 3, 1, T.DESKA); g.hrosci(64, 8, 3);
+    g.teren(70, 14, 12, { val: 0 });
+    g.dodaj('komarji', 74, 10, { pot: 6 });
+    g.dodaj('riba', 80, 11); g.blok(79, 12, 4, 1, T.VODA);
+    g.mravljisce(82, 11);
+
+    g.blok(84, 12, 20, 1, T.BLATO);
+    g.blok(84, 13, 20, 3, T.BLATO);
+    g.dodaj('krokodil', 92, 11);
+    g.dodaj('krokodil', 99, 11);
+    g.teren(104, 12, 12, { val: 0 });
+    g.dodaj('riba', 110, 11); g.blok(109, 12, 4, 1, T.VODA);
+    g.dodaj('soncnihrosc', 113, 9);
+
+    x = 116;
+    for (let i = 0; i < 8; i++){ g.blok(x, 12, 2, 1, T.KRHKA); g.blok(x + 2, 12, 1, 1, T.PRAZNO); x += 3; }
+    g.teren(140, 14, 12, { val: 0 });
+    g.mravljisce(144, 11);
+    g.dodaj('hijena', 148, 11);
+    g.dodaj('riba', 152, 11); g.blok(151, 12, 4, 1, T.VODA);
+
+    g.teren(154, 20, 11, { val: 1, perioda: 6 });
+    g.dodaj('kobra', 160, 10);
+    g.dodaj('hijena', 168, 10);
+    g.blok(158, 8, 4, 1, T.DESKA); g.hrosci(158, 7, 4);
+
+    for (let i = 0; i < 4; i++){ g.blok(174 + i * 5, 12, 4, 1, T.KRHKA); g.blok(178 + i * 5, 12, 1, 1, T.ZEMLJA); }
+    g.dodaj('riba', 186, 11); g.blok(185, 12, 3, 1, T.VODA);
+    g.teren(192, 18, 12, { val: 0 });
+    g.dodaj('hijena', 198, 11);
+    g.konec(206, 11);
+  }
+},
+
+/* ---------------------------------------------------------------- 5 */
+{
+  id: 'sol', st: 5, ime: 'Slani krst', biom: 'sol',
+  glagol: 'Vročinski zrak laže: privid ploščadi izgine, ko stopiš nanj.',
+  uvod: 'Slana ravnica ne skriva ničesar in vseeno vse zlaže. Kdor jo prehodi, ni več mladič.',
+  w: 200, h: 16, seme: 505, preobrazba: true,
+  gradi: function(g){
+    g.start(3, 11);
+    g.teren(0, 22, 12, { val: 0, tip: T.SOL });
+    g.hrosci(6, 10, 4);
+    g.dodaj('kuscar', 14, 11);
+
+    /* Pod privide gre pravo slano dno: kdor pade, ne umre – izgubi čas
+       in se po stopnici vrne gor. */
+    g.tla(24, 38, 15, T.SOL);  g.blok(60, 14, 2, 1, T.SOL);
+    g.tla(76, 26, 15, T.SOL);  g.blok(100, 14, 2, 1, T.SOL);
+    g.tla(146, 22, 15, T.SOL); g.blok(166, 14, 2, 1, T.SOL);
+    g.trnje(30, 14, 2); g.trnje(44, 14, 2); g.trnje(86, 14, 2); g.trnje(156, 14, 2);
+
+    /* prividne ploščadi utripajo v svojem ritmu */
+    const priv = [
+      [24, 11, 0], [28, 10, 30], [32, 9, 60], [36, 10, 90], [40, 11, 20],
+      [46, 10, 50], [50, 9, 80], [54, 10, 10], [58, 11, 40]
+    ];
+    for (const p of priv){ g.dodaj('privid', p[0], p[1], { faza: p[2], sirina: 3 }); g.dodaj('hrosc', p[0] + 1, p[1] - 2); }
+    g.teren(62, 14, 12, { val: 0, tip: T.SOL });
+    g.mravljisce(66, 11);
+    g.dodaj('komarji', 70, 10, { pot: 5 });
+
+    const priv2 = [[78, 11, 0], [82, 10, 45], [86, 9, 90], [90, 10, 15], [94, 11, 60], [98, 10, 30]];
+    for (const p of priv2){ g.dodaj('privid', p[0], p[1], { faza: p[2], sirina: 3 }); }
+    g.dodaj('soncnihrosc', 88, 7);
+    g.teren(102, 16, 12, { val: 0, tip: T.SOL });
+    g.mravljisce(106, 11);
+    g.dodaj('hijena', 110, 11);
+    g.dodaj('luskavec', 114, 11);
+
+    /* slani stolpi in vetrni sunki */
+    g.teren(118, 30, 12, { val: 0, tip: T.SOL });
+    for (let i = 0; i < 5; i++){
+      g.steber(122 + i * 5, 8, 4, T.SOL);
+      g.dodaj('hrosc', 122 + i * 5, 7);
+    }
+    g.dodaj('jastreb', 132, 8);
+    g.dodaj('hijena', 140, 11);
+
+    const priv3 = [[148, 11, 0], [152, 10, 40], [156, 11, 80], [160, 10, 20], [164, 11, 55]];
+    for (const p of priv3) g.dodaj('privid', p[0], p[1], { faza: p[2], sirina: 3 });
+    g.teren(168, 32, 12, { val: 0, tip: T.SOL });
+    g.mravljisce(172, 11);
+    g.dodaj('preobrazba', 182, 11);
+    g.konec(196, 11);
+  }
+},
+
+/* ---------------------------------------------------------------- 6 */
+{
+  id: 'karavana', st: 6, ime: 'Razbita karavana', biom: 'noc',
+  glagol: 'Stražarji te vidijo – rjovenje iz teme jih razkropi.',
+  uvod: 'Karavana prodaja živali kot vodo. Ponoči so kletke tiho, straže pa ne.',
+  w: 200, h: 16, seme: 606, noc: true,
+  gradi: function(g){
+    g.start(3, 11);
+    g.teren(0, 26, 12, { val: 0 });
+    g.hrosci(6, 10, 4);
+    g.dodaj('straza', 14, 11, { pot: 6 });
+    g.dodaj('kletka', 22, 11);
+
+    g.blok(26, 9, 6, 1, T.DESKA);
+    g.teren(26, 18, 12, { val: 0 });
+    g.dodaj('straza', 32, 11, { pot: 8 });
+    g.dodaj('kletka', 38, 11);
+    g.mravljisce(42, 11);
+
+    g.prepad(44, 3, 12);
+    g.teren(47, 20, 12, { val: 0 });
+    g.dodaj('straza', 52, 11, { pot: 7 });
+    g.dodaj('straza', 60, 11, { pot: 5 });
+    g.blok(54, 9, 4, 1, T.DESKA); g.hrosci(54, 8, 4);
+    g.dodaj('kletka', 64, 11);
+
+    /* vozovi kot ploščadi */
+    g.teren(67, 30, 12, { val: 0 });
+    /* pred prepadom pustimo raven zalet – z voza se ne skače v luknjo */
+    for (let i = 0; i < 3; i++){
+      g.blok(70 + i * 7, 10, 4, 2, T.LUBJE);
+      g.dodaj('hrosc', 71 + i * 7, 9);
+    }
+    g.dodaj('straza', 89, 11, { pot: 5 });
+    g.mravljisce(90, 11);
+    g.dodaj('soncnihrosc', 94, 8);
+
+    g.prepad(97, 3, 12);
+    g.teren(100, 24, 12, { val: 0 });
+    g.dodaj('kletka', 104, 11);
+    g.dodaj('straza', 110, 11, { pot: 8 });
+    g.dodaj('komarji', 116, 10, { pot: 5 });
+    g.blok(118, 9, 5, 1, T.DESKA); g.hrosci(118, 8, 5);
+
+    g.teren(124, 30, 12, { val: 0 });
+    g.dodaj('straza', 130, 11, { pot: 10 });
+    g.dodaj('kletka', 140, 11);
+    g.mravljisce(146, 11);
+    g.dodaj('hijena', 150, 11);
+
+    g.teren(154, 46, 12, { val: 0 });
+    g.dodaj('straza', 160, 11, { pot: 8 });
+    g.dodaj('kletka', 168, 11);
+    g.dodaj('hijena', 176, 11);
+    g.dodaj('straza', 184, 11, { pot: 6 });
+    g.hrosci(170, 10, 5);
+    g.konec(196, 11);
+  }
+},
+
+/* ---------------------------------------------------------------- 7 */
+{
+  id: 'jez', st: 7, ime: 'Jez iz zob', biom: 'jez',
+  glagol: 'Jahaš nosoroga skozi kotaleče se hlode in podiraš nosilce jezu.',
+  uvod: 'Nosorogi zidajo jez, ki ni njihov. Kdor podre nosilce, vrne reko vsem.',
+  w: 210, h: 16, seme: 707, stebri: true,
+  gradi: function(g){
+    g.start(3, 11);
+    g.teren(0, 30, 12, { val: 0 });
+    g.hrosci(6, 10, 4);
+    g.dodaj('hijena', 16, 11);
+    g.dodaj('steber', 24, 11);
+
+    /* jahanje nosoroga skozi hlode */
+    g.teren(30, 40, 12, { val: 0 });
+    g.dodaj('nosorog', 32, 11, { jezdec: true });
+    for (let i = 0; i < 6; i++) g.dodaj('hlod', 40 + i * 5, 11, { hitrost: 0.7 + i * 0.08 });
+    g.mravljisce(66, 11);
+    g.dodaj('steber', 60, 11);
+
+    g.prepad(70, 3, 12);
+    g.teren(73, 26, 12, { val: 0 });
+    g.dodaj('hijena', 78, 11);
+    g.dodaj('steber', 84, 11);
+    g.blok(88, 9, 5, 1, T.DESKA); g.hrosci(88, 8, 5);
+    g.dodaj('luskavec', 94, 11);
+
+    g.teren(99, 34, 12, { val: 0 });
+    g.dodaj('nosorog', 101, 11, { jezdec: true });
+    for (let i = 0; i < 7; i++) g.dodaj('hlod', 108 + i * 5, 11, { hitrost: 0.8 + i * 0.06 });
+    g.mravljisce(128, 11);
+    g.dodaj('steber', 122, 11);
+    g.dodaj('soncnihrosc', 126, 8);
+
+    g.teren(133, 30, 12, { val: 0 });
+    g.dodaj('hijena', 138, 11);
+    g.dodaj('hijena', 146, 11);
+    g.dodaj('steber', 152, 11);
+    g.blok(140, 9, 4, 1, T.DESKA);
+    g.blok(146, 7, 4, 1, T.DESKA); g.hrosci(146, 6, 4);
+
+    /* stena jezu: razpokan zid, ki ga zruši odraslo rjovenje */
+    g.teren(163, 47, 12, { val: 0 });
+    g.mravljisce(166, 11);
+    g.blok(172, 6, 3, 6, T.RAZPOKA);
+    g.dodaj('steber', 180, 11);
+    g.dodaj('hijena', 186, 11);
+    g.blok(190, 6, 3, 6, T.RAZPOKA);
+    g.konec(206, 11);
+  }
+},
+
+/* ---------------------------------------------------------------- 8 */
+{
+  id: 'katedrala', st: 8, ime: 'Termitna katedrala', biom: 'termit',
+  glagol: 'Stropni hrošči te nesejo z glavo navzdol skozi temo.',
+  uvod: 'Termitnjak je hladen in visok kot cerkev. Svetijo samo ličinke – in tiste ne posvetijo poti.',
+  w: 48, h: 56, navpicna: true, seme: 808, temno: true, jama: true,
+  gradi: function(g){
+    g.start(5, 52);
+    g.blok(0, 0, 2, 56, T.TERMIT);
+    g.blok(46, 0, 2, 56, T.TERMIT);
+    g.tla(2, 44, 53, T.TERMIT);
+    g.hrosci(4, 51, 3);
+    g.dodaj('larva', 8, 51);
+
+    /* Police so dve ploščici narazen – ravno za en skok. Cikcak gor. */
+    for (let i = 0; i < 22; i++){
+      const nazaj = i % 2;
+      const x = nazaj ? 16 : 6;
+      const y = 51 - 2 * i;
+      const w = 9;
+      g.polica(x, y, w, T.TERMIT);
+      if (i % 2 === 0) g.dodaj('larva', x + 2, y - 1);
+      if (i % 3 === 0) g.dodaj('hrosc', x + w - 2, y - 2);
+      if (i % 5 === 2) g.dodaj('kuscar', x + 3, y - 1);
+    }
+    /* stropni hrošči vozijo med policami */
+    g.dodaj('stropnik', 19, 48, { pot: 8, hitrost: 0.5 });
+    g.dodaj('stropnik', 20, 40, { pot: 9, hitrost: 0.55 });
+    g.dodaj('stropnik', 18, 32, { pot: 8, hitrost: 0.6 });
+    g.dodaj('stropnik', 20, 24, { pot: 10, hitrost: 0.55 });
+    g.dodaj('stropnik', 18, 16, { pot: 9, hitrost: 0.62 });
+
+    g.mravljisce(10, 50);
+    g.mravljisce(20, 40);
+    g.mravljisce(10, 30);
+    g.mravljisce(20, 20);
+    g.dodaj('kobra', 12, 42);
+    g.dodaj('komarji', 20, 32, { pot: 5 });
+    g.dodaj('luskavec', 12, 22);
+    g.dodaj('soncnihrosc', 22, 12);
+    g.trnje(2, 52, 44);
+    /* izhodna polica ne sme viseti tik nad zadnjo stopnico – tam ni
+       prostora za skok */
+    g.polica(4, 7, 12, T.TERMIT);
+    g.konec(10, 6);
+  }
+},
+
+/* ---------------------------------------------------------------- 9 */
+{
+  id: 'baobab', st: 9, ime: 'Nevihtni baobab', biom: 'nevihta',
+  glagol: 'Veter obrača skoke, strela za hip pokaže pot.',
+  uvod: 'Nevihtni baobab spi od zadnje mokre dobe. Kdor ga zbudi, sme nositi Krono prahu.',
+  w: 200, h: 20, seme: 909, veter: true,
+  gradi: function(g){
+    g.start(3, 15);
+    g.teren(0, 26, 16, { val: 0 });
+    g.hrosci(6, 14, 4);
+    g.dodaj('hijena', 16, 15);
+
+    g.prepad(26, 3, 16);
+    g.blok(29, 16, 6, 1, T.LUBJE);
+    g.prepad(35, 3, 16);
+    g.blok(38, 16, 6, 1, T.LUBJE);
+    g.prepad(44, 3, 16);
+    g.blok(47, 16, 11, 1, T.LUBJE);
+    g.mravljisce(53, 15);
+    g.lokHroscev(30, 14, 5, 2);
+    g.lokHroscev(40, 14, 5, 2);
+
+    g.teren(58, 16, 16, { val: 0 });
+    g.dodaj('gnu', 68, 15);
+    g.dodaj('jastreb', 64, 12);
+    g.dodaj('kobra', 70, 15);
+    g.blok(62, 13, 4, 1, T.DESKA);
+    g.blok(68, 11, 4, 1, T.DESKA); g.hrosci(68, 10, 4);
+
+    /* veje baobaba: veter te pri vsakem skoku nese na eno stran */
+    for (let i = 0; i < 7; i++){
+      const y = 15 - (i % 3);
+      g.blok(76 + i * 6, y, 4, 1, T.LUBJE);
+      g.dodaj('hrosc', 77 + i * 6, y - 2);
+    }
+    /* pod baobabom morajo biti tla: deblo je bližnjica za tistega, ki se
+       zna oprijeti lubja, ne pa edina pot */
+    g.teren(118, 22, 16, { val: 0 });
+    g.mravljisce(122, 15);
+    g.dodaj('soncnihrosc', 126, 12);
+    g.dodaj('hijena', 128, 15);
+
+    g.steber(132, 6, 10, T.LUBJE);
+    g.steber(133, 6, 10, T.LUBJE);
+    g.blok(128, 6, 12, 1, T.LUBJE);
+    g.deska(136, 10, 5); g.deska(126, 8, 5);
+    g.hrosci(136, 9, 5);
+    g.teren(140, 20, 16, { val: 0 });
+    g.dodaj('gnu', 152, 15);
+    g.dodaj('gnu', 156, 15);
+    g.dodaj('luskavec', 146, 15);
+    g.dodaj('komarji', 152, 13, { pot: 6 });
+
+    g.prepad(160, 3, 16);
+    g.blok(163, 16, 6, 1, T.LUBJE);
+    g.prepad(169, 3, 16);
+    g.blok(172, 16, 6, 1, T.LUBJE);
+    g.teren(178, 22, 14, { val: 0 });
+    g.mravljisce(182, 13);
+    g.dodaj('hijena', 188, 13);
+    g.konec(196, 13);
+  }
+},
+
+/* --------------------------------------------------------------- 10 */
+{
+  id: 'glasovanje', st: 10, ime: 'Glasovanje na Visokem kopju', biom: 'nevihta',
+  glagol: 'Tri dejanja: matriarhinja, beg pred vodo in izbira – boj ali dar.',
+  uvod: 'Čreda ne voli za tistega, ki največ kriči. Kito hoče krono le, če mu jo dajo sami.',
+  w: 220, h: 18, seme: 1010, finale: true,
+  gradi: function(g){
+    g.start(3, 13);
+    /* 1. dejanje – arena matriarhinje */
+    g.teren(0, 56, 14, { val: 0, tip: T.SKALA });
+    g.blok(0, 0, 1, 18, T.SKALA);
+    g.deska(10, 11, 4); g.deska(24, 10, 4); g.deska(40, 11, 4);
+    g.dodaj('matriarh', 40, 13);
+    g.mravljisce(6, 13);
+    g.hrosci(12, 10, 3);
+
+    /* 2. dejanje – jez poči, voda lovi */
+    g.teren(56, 80, 14, { val: 0 });
+    g.blok(74, 13, 3, 1, T.SKALA); g.blok(96, 13, 3, 1, T.SKALA);
+    g.blok(118, 13, 3, 1, T.SKALA);
+    g.dodaj('poplava', 57, 13);
+    g.mravljisce(60, 13);
+    for (let i = 0; i < 9; i++){
+      g.blok(66 + i * 7, 12 - (i % 3), 4, 1, T.SKALA);
+      g.dodaj('hrosc', 67 + i * 7, 11 - (i % 3));
+    }
+    g.dodaj('hijena', 90, 13);
+    g.dodaj('hijena', 110, 13);
+    g.blok(128, 10, 6, 1, T.SKALA);
+
+    /* 3. dejanje – izbira pri baobabu */
+    g.teren(136, 84, 14, { val: 0, tip: T.SKALA });
+    g.mravljisce(140, 13);
+    g.blok(150, 5, 3, 9, T.LUBJE);
+    g.blok(148, 4, 7, 1, T.LUBJE);
+    g.deska(158, 11, 5); g.deska(168, 9, 5); g.deska(178, 11, 5);
+    g.dodaj('duh', 176, 13);
+    g.dodaj('baobab', 151, 13);
+    g.konec(214, 13);
+  }
+},
+
+/* --------------------------------------- dodatne sobe (prijatelji) */
+{
+  id: 'rov', st: 11, bonus: true, ime: 'Jazbečev rov', biom: 'blato', lik: 'npunkt',
+  glagol: 'N’punkt koplje skozi zemljo tam, kjer drugi obidejo.',
+  uvod: 'Medojed N’punkt ne pozna strahu, pozna pa bližnjice.',
+  w: 120, h: 20, seme: 1111, jama: true,
+  gradi: function(g){
+    g.start(3, 4);
+    g.blok(0, 6, 120, 14, T.BLATO);
+    g.blok(0, 0, 120, 3, T.SKALA);
+    g.teren(0, 10, 5, { val: 0, tip: T.SKALA });
+    /* pod zemljo so predori, ki jih moraš izkopati sam */
+    for (let i = 0; i < 14; i++){
+      const x = 12 + i * 7, y = 7 + (i % 5);
+      g.blok(x, y, 4, 2, T.PRAZNO);
+      g.dodaj('hrosc', x + 1, y + 1);
+      if (i % 3 === 1) g.dodaj('kobra', x + 2, y + 1);
+      if (i % 4 === 2) g.dodaj('komarji', x + 2, y, { pot: 3 });
+    }
+    g.blok(30, 10, 6, 3, T.SKALA);
+    g.blok(70, 12, 8, 3, T.SKALA);
+    g.mravljisce(40, 8);
+    g.mravljisce(80, 9);
+    g.dodaj('soncnihrosc', 100, 9);
+    g.blok(110, 4, 8, 3, T.PRAZNO);
+    g.teren(110, 10, 7, { val: 0, tip: T.SKALA });
+    g.konec(116, 6);
+  }
+},
+{
+  id: 'sadje', st: 12, bonus: true, ime: 'Gobov lov na sadje', biom: 'zora', lik: 'gobo',
+  glagol: 'Sadje pada v ritmu – Gobo ga lovi, dokler zdrži.',
+  uvod: 'Bradavičar Gobo ni šaljivec. Gobo je inženir, ki je lačen.',
+  w: 40, h: 14, seme: 1212, lovljenje: true,
+  gradi: function(g){
+    g.start(20, 11);
+    g.tla(0, 40, 12);
+    g.blok(0, 0, 1, 14, T.SKALA);
+    g.blok(39, 0, 1, 14, T.SKALA);
+    g.blok(6, 6, 4, 1, T.LUBJE);
+    g.blok(30, 6, 4, 1, T.LUBJE);
+    g.konec(20, 11);
+  }
+},
+{
+  id: 'let', st: 13, bonus: true, ime: 'Nad savano', biom: 'zora', lik: 'ptic',
+  glagol: 'Volovka leti skozi obroče iz vetra – zamah ali padec.',
+  uvod: 'Volovka vidi celo savano naenkrat. Kito ji verjame bolj kot govoricam.',
+  w: 240, h: 16, seme: 1313, letenje: true,
+  gradi: function(g){
+    g.start(3, 8);
+    g.tla(0, 240, 14, T.ZEMLJA);
+    for (let i = 0; i < 22; i++){
+      const y = 4 + Math.round(3.4 + 3.2 * Math.sin(i * 0.8));
+      g.dodaj('obroc', 10 + i * 10, y);
+      if (i % 3 === 0) g.dodaj('hrosc', 10 + i * 10, y - 2);
+      if (i % 4 === 2) g.dodaj('jastreb', 14 + i * 10, y + 2);
+    }
+    g.konec(236, 13);
+  }
+},
+{
+  id: 'dirka', st: 14, bonus: true, ime: 'Skarabejeva dirka', biom: 'sol', lik: 'skarabej',
+  glagol: 'Kepa se kotali sama – ti samo skačeš čez tisto, kar je na poti.',
+  uvod: 'Skarabeji vozijo sonce po nebu, pravijo. Vsaj kepo znajo peljati naravnost.',
+  w: 300, h: 14, seme: 1414, dirka: true,
+  gradi: function(g){
+    g.start(3, 10);
+    g.teren(0, 300, 11, { val: 0, tip: T.SOL });
+    for (let i = 0; i < 26; i++){
+      const x = 14 + i * 11;
+      if (i % 4 === 0) g.blok(x, 10, 1, 1, T.SKALA);
+      else if (i % 4 === 2) g.trnje(x, 10, 1);
+      else { g.blok(x, 8, 2, 1, T.SOL); g.dodaj('hrosc', x, 7); }
+      if (i % 5 === 4) g.dodaj('hrosc', x + 2, 9);
+    }
+    g.mravljisce(90, 10);
+    g.mravljisce(190, 10);
+    g.konec(296, 10);
+  }
+}
+];
+
+/* Nivo se sestavi na zahtevo in je vedno enak (isto seme). */
+function sestaviNivo(st){
+  const g = new Gradbenik(st.w, st.h, st.seme);
+  st.gradi(g);
+  return { karta: g.k, objekti: g.o, zacetek: g.zacetek, st: st };
+}
+
+/* =====================================================================
+   3. FIZIKA
+   Trki so pravokotni in vidni: nič nevidnih bodic, nič skritih robov.
+   ===================================================================== */
+
+const FIZ = {
+  g: 0.42, maxPad: 6.2, vodaG: 0.16, vodaPad: 1.5,
+  coyote: 7,      /* še 7 sličic po robu se da skočiti */
+  medpomnilnik: 8 /* skok, pritisnjen tik pred pristankom, se izvede */
+};
+const LIKI = {
+  mladic:  { w: 9,  h: 12, hitrost: 2.08, posp: 0.40, trenje: 0.46, skok: 6.28, zrak: 0.28, oklep: 4 },
+  odrasel: { w: 13, h: 16, hitrost: 2.22, posp: 0.42, trenje: 0.44, skok: 6.45, zrak: 0.30, oklep: 5 },
+  npunkt:  { w: 10, h: 11, hitrost: 2.05, posp: 0.42, trenje: 0.52, skok: 5.95, zrak: 0.30, oklep: 4 },
+  gobo:    { w: 14, h: 12, hitrost: 2.05, posp: 0.34, trenje: 0.38, skok: 5.80, zrak: 0.24, oklep: 4 },
+  ptic:    { w: 10, h: 9,  hitrost: 2.10, posp: 0.32, trenje: 0.30, skok: 2.60, zrak: 0.32, oklep: 3 },
+  skarabej:{ w: 12, h: 12, hitrost: 2.80, posp: 0.22, trenje: 0.10, skok: 6.10, zrak: 0.20, oklep: 3 }
+};
+
+/* Pravokotnik telesa. */
+function okvir(t){ return { x: t.x - t.w / 2, y: t.y - t.h, w: t.w, h: t.h }; }
+function seka(a, b){
+  return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+}
+function sekaTelesi(a, b){ return seka(okvir(a), okvir(b)); }
+
+/* Ali je pravokotnik v trdni ploščici? Enosmerne ploščadi se ne štejejo. */
+function vTrdnem(k, x, y, w, h){
+  const x0 = Math.floor(x / P), x1 = Math.floor((x + w - 0.001) / P);
+  const y0 = Math.floor(y / P), y1 = Math.floor((y + h - 0.001) / P);
+  for (let j = y0; j <= y1; j++)
+    for (let i = x0; i <= x1; i++)
+      if (trdna(k.pri(i, j))) return true;
+  return false;
+}
+/* Ali se pravokotnik dotika ploščice dane vrste? */
+function vVrsti(k, x, y, w, h, jeVrsta){
+  const x0 = Math.floor(x / P), x1 = Math.floor((x + w - 0.001) / P);
+  const y0 = Math.floor(y / P), y1 = Math.floor((y + h - 0.001) / P);
+  for (let j = y0; j <= y1; j++)
+    for (let i = x0; i <= x1; i++)
+      if (jeVrsta(k.pri(i, j))) return { x: i, y: j };
+  return null;
+}
+
+/* Premik telesa s trki. Vodoravno in navpično ločeno, da se ne zatakne. */
+function premakni(t, k, doDeske){
+  const o = okvir(t);
+  t.natleh = false; t.obStena = 0; t.strop = false;
+
+  /* --- vodoravno --- */
+  let nx = o.x + t.vx;
+  if (vTrdnem(k, nx, o.y, o.w, o.h)){
+    const smer = znak(t.vx);
+    /* prilepimo se na rob ploščice */
+    while (!vTrdnem(k, o.x + smer * 0.5, o.y, o.w, o.h) && Math.abs(o.x - nx) > 0.01){
+      o.x += smer * Math.min(0.5, Math.abs(o.x - nx));
+    }
+    nx = o.x; t.obStena = smer; t.vx = 0;
+  }
+  o.x = nx;
+
+  /* --- navpično --- */
+  let ny = o.y + t.vy;
+  if (vTrdnem(k, o.x, ny, o.w, o.h)){
+    const smer = znak(t.vy);
+    while (!vTrdnem(k, o.x, o.y + smer * 0.5, o.w, o.h) && Math.abs(o.y - ny) > 0.01){
+      o.y += smer * Math.min(0.5, Math.abs(o.y - ny));
+    }
+    ny = o.y;
+    if (smer > 0) t.natleh = true; else t.strop = true;
+    t.vy = 0;
+  } else if (doDeske && t.vy >= 0){
+    /* enosmerne ploščadi: samo od zgoraj navzdol */
+    const dno = ny + o.h, prejDno = o.y + o.h;
+    const j = Math.floor(dno / P);
+    const x0 = Math.floor(o.x / P), x1 = Math.floor((o.x + o.w - 0.001) / P);
+    for (let i = x0; i <= x1; i++){
+      if (enosmerna(k.pri(i, j)) && prejDno <= j * P + 0.5 && dno >= j * P){
+        ny = j * P - o.h; t.vy = 0; t.natleh = true; t.deska = true; break;
+      }
+    }
+  }
+  o.y = ny;
+
+  t.x = o.x + t.w / 2; t.y = o.y + t.h;
+  /* svet je zaprt levo in desno */
+  t.x = omeji(t.x, t.w / 2, k.w * P - t.w / 2);
+  return t;
+}
+
+/* =====================================================================
+   4. IGRALEC – avtomat stanj
+   ===================================================================== */
+
+function Igralec(x, y, oblika){
+  this.x = x; this.y = y; this.vx = 0; this.vy = 0;
+  this.smer = 1;
+  this.oblika = oblika || 'mladic';
+  const l = LIKI[this.oblika];
+  this.w = l.w; this.h = l.h;
+  this.natleh = false; this.obStena = 0; this.strop = false;
+  this.stanje = 'stoji';
+  this.t = 0;                 /* števec sličic v trenutnem stanju */
+  this.faza = 0;              /* faza animacije */
+  this.zracjiCas = 0;         /* coyote */
+  this.medpomnik = 0;         /* shranjen skok */
+  this.oklepMax = l.oklep; this.oklep = l.oklep;
+  this.rjovMax = 100; this.rjov = 100;
+  this.neranljiv = 0;
+  this.zivi = true;
+  this.nosi = null;
+  this.napadCas = 0;
+  this.rjovCas = 0;
+  this.oprijem = 0;
+  this.zamahnil = false;
+  this.zadnjiSkok = 0;
+}
+const I = Igralec.prototype;
+
+I.postavi = function(x, y){
+  this.x = x; this.y = y; this.vx = 0; this.vy = 0;
+  this.stanje = 'stoji'; this.t = 0; this.neranljiv = 60; this.nosi = null;
+};
+I.preoblikuj = function(oblika){
+  const l = LIKI[oblika];
+  this.oblika = oblika;
+  this.w = l.w; this.h = l.h;
+  this.oklepMax = Math.max(this.oklepMax, l.oklep);
+  this.oklep = this.oklepMax;
+};
+I.odrasel = function(){ return this.oblika === 'odrasel'; };
+
+/* Škoda. Vrne true, če je res udarilo. */
+I.rani = function(sv, kolko, odX){
+  if (this.neranljiv > 0 || !this.zivi || sv.nesmrtnost) return false;
+  if (this.oblika === 'npunkt' && sv.strupeno){ sv.strupeno = false; return false; }
+  this.oklep -= (kolko || 1);
+  this.neranljiv = 66;
+  this.vy = -2.6;
+  this.vx = (this.x < odX ? -1 : 1) * 2.2;
+  this.stanje = 'ranjen'; this.t = 0;
+  sv.dogodek('rana');
+  sv.trese = Math.max(sv.trese, 5);
+  if (this.oklep <= 0){ this.oklep = 0; this.umri(sv); }
+  return true;
+};
+I.umri = function(sv){
+  if (!this.zivi) return;
+  this.zivi = false; this.stanje = 'mrtev'; this.t = 0;
+  this.vy = -4.2; this.vx = 0;
+  sv.dogodek('smrt');
+};
+
+/* Rjovenje – orodje, ne samo napad. */
+I.zarjovi = function(sv){
+  const dolgo = this.odrasel();
+  const cena = dolgo ? 42 : 30;
+  if (this.rjov < cena || this.rjovCas > 0 || !this.zivi) return false;
+  this.rjov -= cena;
+  this.rjovCas = dolgo ? 34 : 24;
+  sv.dodajVal(this.x, this.y - this.h / 2, dolgo ? 92 : 58, dolgo);
+  sv.dogodek(dolgo ? 'rjov-dolg' : 'rjov');
+  sv.trese = Math.max(sv.trese, dolgo ? 7 : 4);
+  return true;
+};
+
+/* Napad: mladič skoči na plen, odrasel zamahne / zaleti / vrže. */
+I.napadi = function(sv, drzi){
+  if (!this.zivi || this.napadCas > 0) return;
+  if (this.nosi){ this.vrzi(sv); return; }
+  if (this.oblika === 'npunkt'){
+    /* medojed ne tolče – koplje. Zemlja pred njim (ali pod njim) izgine. */
+    this.stanje = 'kop'; this.t = 0; this.napadCas = 14;
+    sv.kopaj(this, drzi);
+    return;
+  }
+  if (this.oblika === 'gobo'){
+    this.stanje = 'rame'; this.t = 0; this.napadCas = 30;
+    this.vx = this.smer * 3.6;
+    sv.dogodek('zalet');
+    return;
+  }
+  if (this.oblika === 'ptic' || this.oblika === 'skarabej') return;
+  if (this.odrasel()){
+    if (drzi && this.natleh){
+      this.stanje = 'rame'; this.t = 0; this.napadCas = 26;
+      this.vx = this.smer * 3.4;
+      sv.dogodek('zalet');
+    } else {
+      this.stanje = 'zamah'; this.t = 0; this.napadCas = 18; this.zamahnil = false;
+      sv.dogodek('zamah');
+    }
+  } else {
+    this.stanje = 'skok-napad'; this.t = 0; this.napadCas = 22;
+    if (this.natleh){ this.vx = this.smer * 3.2; this.vy = -3.0; }
+    else { this.vx = this.smer * 2.6; this.vy = 3.4; }
+    sv.dogodek('skok-napad');
+  }
+};
+I.vrzi = function(sv){
+  const b = this.nosi;
+  this.nosi = null;
+  b.nosen = false; b.omamljen = 0; b.vrzen = 30;
+  b.vx = this.smer * 4.2; b.vy = -2.4;
+  sv.dogodek('vrzi');
+};
+
+/* Pravokotnik napada – vidno enak temu, kar se nariše. */
+I.napadniOkvir = function(){
+  if (this.stanje === 'zamah' && this.t >= 4 && this.t <= 12)
+    return { x: this.x + (this.smer > 0 ? 2 : -this.w - 10), y: this.y - this.h + 1, w: this.w + 10, h: this.h };
+  if (this.stanje === 'rame')
+    return { x: this.x - this.w / 2 - 1, y: this.y - this.h, w: this.w + 2, h: this.h };
+  if (this.stanje === 'skok-napad')
+    return { x: this.x - this.w / 2 - 1, y: this.y - this.h, w: this.w + 2, h: this.h + 2 };
+  return null;
+};
+
+I.posodobi = function(v, sv){
+  const l = LIKI[this.oblika];
+  this.t++;
+  if (this.neranljiv > 0) this.neranljiv--;
+  if (this.rjovCas > 0) this.rjovCas--;
+  if (this.napadCas > 0) this.napadCas--;
+  this.rjov = Math.min(this.rjovMax, this.rjov + (this.odrasel() ? 0.30 : 0.26));
+
+  if (!this.zivi){
+    this.vy = Math.min(FIZ.maxPad, this.vy + FIZ.g);
+    this.y += this.vy;
+    return;
+  }
+
+  const vVodi = !!vVrsti(sv.karta, this.x - this.w / 2, this.y - this.h, this.w, this.h, t => t === T.VODA);
+  const vBlatu = !!vVrsti(sv.karta, this.x - this.w / 2, this.y - 3, this.w, 3, t => t === T.BLATO);
+  const upor = vVodi ? 0.55 : vBlatu ? 0.72 : 1;
+
+  /* --- vodoravno --- */
+  const smerVhoda = (v.desno ? 1 : 0) - (v.levo ? 1 : 0);
+  const nadzor = this.stanje !== 'rame' && this.stanje !== 'ranjen' && this.napadCas < 14;
+  if (nadzor){
+    if (smerVhoda !== 0){
+      this.smer = smerVhoda;
+      const cilj = smerVhoda * l.hitrost * upor * (this.nosi ? 0.82 : 1);
+      this.vx = priblizaj(this.vx, cilj, this.natleh ? l.posp : l.zrak);
+    } else if (this.natleh){
+      this.vx = priblizaj(this.vx, 0, l.trenje);
+    } else {
+      this.vx = priblizaj(this.vx, 0, 0.06);
+    }
+  }
+  if (sv.veter) this.vx += sv.veter * (this.natleh ? 0.010 : 0.028);
+
+  /* --- oprijem debla (samo mladič) --- */
+  const obLubju = this.oblika === 'mladic' && !this.natleh && this.obStena !== 0 &&
+    !!vVrsti(sv.karta, this.x - this.w / 2 + this.obStena * (this.w / 2 + 2), this.y - this.h + 2, 2, this.h - 4, t => t === T.LUBJE);
+  if (obLubju && smerVhoda === this.obStena && this.vy > -1){
+    this.stanje = 'oprijem';
+    this.vy = Math.min(this.vy, 0.85);
+    this.oprijem = 6;
+    this.zracjiCas = FIZ.coyote;
+  } else if (this.oprijem > 0) this.oprijem--;
+
+  /* --- skok --- */
+  if (this.natleh) this.zracjiCas = FIZ.coyote; else if (this.zracjiCas > 0) this.zracjiCas--;
+  if (v.skokPritisnjen) this.medpomnik = FIZ.medpomnilnik;
+  else if (this.medpomnik > 0) this.medpomnik--;
+
+  if (this.medpomnik > 0 && this.zracjiCas > 0 && this.stanje !== 'rame'){
+    this.medpomnik = 0; this.zracjiCas = 0;
+    this.vy = -l.skok * (vVodi ? 0.8 : 1);
+    if (this.stanje === 'oprijem' || this.oprijem > 0){
+      this.vx = -this.obStena * l.hitrost * 1.5 || this.smer * -l.hitrost * 1.5;
+      this.smer = -this.obStena || this.smer;
+      this.oprijem = 0;
+    }
+    this.stanje = 'skok'; this.t = 0;
+    this.zadnjiSkok = 0;
+    sv.dogodek('skok');
+    sv.prah(this.x, this.y, 4);
+  }
+  /* nizek skok, če tipko izpustiš */
+  if (!v.skok && this.vy < -1.4 && this.stanje !== 'oprijem') this.vy *= 0.86;
+
+  /* --- volovka leti: tipka za skok je zamah s krili --- */
+  if (this.oblika === 'ptic'){
+    if (v.skok) this.vy -= 0.40;
+    this.vy = omeji(this.vy + 0.17, -2.7, 2.4);
+    this.faza += 0.3;
+    premakni(this, sv.karta, false);
+    if (this.natleh || this.strop) this.vy = 0;
+    if (vVrsti(sv.karta, this.x - this.w / 2 + 1, this.y - this.h + 1, this.w - 2, this.h - 1, nevarna))
+      this.rani(sv, 1, this.x);
+    if (this.y - this.h > sv.karta.h * P + 8) this.umri(sv);
+    return;
+  }
+  /* --- skarabejeva kepa se kotali sama naprej --- */
+  if (this.oblika === 'skarabej'){
+    this.vx = priblizaj(this.vx, l.hitrost + smerVhoda * 0.5, 0.05);
+    this.smer = 1;
+  }
+
+  /* --- težnost --- */
+  if (this.stanje !== 'oprijem'){
+    const g = vVodi ? FIZ.vodaG : FIZ.g;
+    const maks = vVodi ? FIZ.vodaPad : FIZ.maxPad;
+    this.vy = Math.min(maks, this.vy + g);
+  }
+  if (this.stanje === 'skok-napad' && this.napadCas > 8) this.vy = Math.min(this.vy, 3.6);
+
+  /* --- premik --- */
+  const prejNatleh = this.natleh;
+  premakni(this, sv.karta, true);
+  if (this.natleh && !prejNatleh){
+    if (this.vyPrej > 4) sv.prah(this.x, this.y, 6);
+    if (this.stanje === 'skok' || this.stanje === 'pad' || this.stanje === 'skok-napad'){
+      this.stanje = 'stoji'; this.t = 0;
+    }
+  }
+  this.vyPrej = this.vy;
+
+  /* --- stanja --- */
+  if (this.stanje === 'ranjen' && this.t > 20) this.stanje = 'stoji';
+  if (this.napadCas === 0 && (this.stanje === 'zamah' || this.stanje === 'rame' || this.stanje === 'skok-napad'))
+    this.stanje = this.natleh ? 'stoji' : 'pad';
+  if (this.stanje === 'stoji' || this.stanje === 'tek'){
+    this.stanje = Math.abs(this.vx) > 0.25 ? 'tek' : 'stoji';
+    if (!this.natleh) this.stanje = this.vy < 0 ? 'skok' : 'pad';
+  }
+  if (this.stanje === 'skok' && this.vy > 0) this.stanje = 'pad';
+  if (this.stanje === 'oprijem' && (this.natleh || !obLubju)) this.stanje = this.natleh ? 'stoji' : 'pad';
+  this.faza += (this.stanje === 'tek' ? Math.abs(this.vx) * 0.20 : 0.06);
+
+  /* --- trnje in prepad --- */
+  if (vVrsti(sv.karta, this.x - this.w / 2 + 1, this.y - this.h + 1, this.w - 2, this.h - 1, nevarna))
+    this.rani(sv, 1, this.x);
+  if (this.y - this.h > sv.karta.h * P + 8) this.umri(sv);
+
+  /* nesen plen se drži nad glavo */
+  if (this.nosi){
+    this.nosi.x = this.x; this.nosi.y = this.y - this.h - 2;
+    this.nosi.vx = 0; this.nosi.vy = 0;
+  }
+};
+
+/* =====================================================================
+   5. BITJA
+   Vsako bitje ima svoje vedenje; skupno jim je le, kako jih je mogoče
+   ustaviti. Nič ne umre "kar tako" – vsakega premaga določeno dejanje.
+   ===================================================================== */
+
+const BITJA = {
+
+  /* ---------------- plenišča ---------------- */
+  hrosc: { w: 7, h: 7, pobira: true, posodobi(b, sv){
+    b.faza += 0.1;
+    if (sv.blizu(b, 11)) sv.poberi(b, 'hrosc');
+  }},
+  soncnihrosc: { w: 11, h: 11, pobira: true, posodobi(b, sv){
+    b.faza += 0.06;
+    b.y += Math.sin(b.faza) * 0.14;
+    if (sv.blizu(b, 12)) sv.poberi(b, 'sonce');
+  }},
+  klop: { w: 7, h: 6, sovraznik: true, plen: true, posodobi(b, sv){
+    const i = sv.igralec;
+    b.vx = priblizaj(b.vx, znak(i.x - b.x) * 0.35, 0.02);
+    b.vy = Math.min(3, b.vy + 0.2);
+    premakni(b, sv.karta, false);
+    if (b.natleh) b.vy = -1.6;
+    if (sekaTelesi(b, i)) i.rani(sv, 1, b.x);
+  }},
+  riba: { w: 9, h: 7, posodobi(b, sv){
+    b.faza += 0.14;
+    if (!b.resena && sv.blizu(b, 11)){
+      b.resena = true; b.zivo = false;
+      sv.resene++; sv.hroscev += 3;
+      sv.iskrica(b.x, b.y - 4, 8, '#7fe3ff');
+      sv.dogodek('riba');
+      sv.napis('Riba rešena  ' + sv.resene + '/' + sv.ribSkupaj);
+    }
+  }},
+  obroc: { w: 22, h: 22, posodobi(b, sv){
+    b.faza += 0.08;
+    if (!b.skozi && sv.blizu(b, 13)){
+      b.skozi = true; b.zivo = false;
+      sv.hroscev += 2; sv.obroci++;
+      sv.iskrica(b.x, b.y, 10, '#ffd76a');
+      sv.dogodek('obroc');
+    }
+  }},
+  sadje: { w: 9, h: 9, posodobi(b, sv){
+    b.vy = Math.min(2.6, b.vy + 0.11);
+    b.y += b.vy;
+    if (sekaTelesi(b, sv.igralec)){
+      b.zivo = false; sv.hroscev += 2; sv.ujeto++;
+      sv.iskrica(b.x, b.y, 7, '#ffb03a'); sv.dogodek('hrosc');
+    } else if (b.y > sv.karta.h * P - P * 2){
+      b.zivo = false; sv.zgreseno++;
+      sv.iskrica(b.x, b.y, 5, '#8a6b4a');
+      if (sv.zgreseno >= 5) sv.igralec.rani(sv, 1, b.x);
+    }
+  }},
+
+  /* ---------------- sovražniki ---------------- */
+  kuscar: { w: 11, h: 7, sovraznik: true, plen: true, zacni(b){ b.smer = -1; b.cakaj = 0; },
+    posodobi(b, sv){
+      if (b.omamljen > 0){ b.vx = 0; }
+      else if (b.cakaj > 0){ b.cakaj--; b.vx = 0; }
+      else {
+        b.vx = b.smer * 1.25;
+        if (sv.r() < 0.012) b.cakaj = 24 + Math.floor(sv.r() * 30);
+        if (!sv.tlaSpredaj(b) || b.obStena) { b.smer = -b.smer; b.cakaj = 8; }
+      }
+      b.vy = Math.min(4, b.vy + FIZ.g);
+      premakni(b, sv.karta, false);
+      b.faza += Math.abs(b.vx) * 0.3;
+      sv.dotikSovraznika(b);
+    }},
+
+  hijena: { w: 14, h: 12, sovraznik: true, srednji: true, hp: 1, zacni(b){ b.smer = -1; b.skok = 0; },
+    posodobi(b, sv){
+      const i = sv.igralec;
+      if (b.omamljen > 0){ b.vx = priblizaj(b.vx, 0, 0.3); }
+      else {
+        const razd = i.x - b.x;
+        const vidi = Math.abs(razd) < 70 && Math.abs(i.y - b.y) < 26;
+        if (vidi && b.skok <= 0 && b.natleh && Math.abs(razd) < 40){
+          b.skok = 46; b.smer = znak(razd) || 1;
+          b.vx = b.smer * 2.5; b.vy = -3.4; sv.dogodek('smeh');
+        } else if (b.skok > 0){ b.skok--; }
+        else {
+          if (vidi) b.smer = znak(razd) || b.smer;
+          b.vx = priblizaj(b.vx, b.smer * (vidi ? 1.15 : 0.7), 0.12);
+          if (b.natleh && (!sv.tlaSpredaj(b) || b.obStena)){ b.smer = -b.smer; b.vx = 0; }
+        }
+      }
+      b.vy = Math.min(5, b.vy + FIZ.g);
+      premakni(b, sv.karta, true);
+      b.faza += Math.abs(b.vx) * 0.22;
+      sv.dotikSovraznika(b);
+    }},
+
+  straza: { w: 14, h: 13, sovraznik: true, srednji: true, hp: 1,
+    zacni(b){ b.smer = -1; b.dom = b.x; b.beg = 0; b.alarm = 0; },
+    posodobi(b, sv){
+      const i = sv.igralec;
+      if (b.beg > 0){
+        b.beg--; b.vx = priblizaj(b.vx, b.smer * 2.2, 0.2);
+      } else if (b.omamljen > 0){ b.vx = priblizaj(b.vx, 0, 0.3); }
+      else {
+        const razd = i.x - b.x;
+        const gleda = znak(razd) === b.smer;
+        const vidi = gleda && Math.abs(razd) < 78 && Math.abs(i.y - b.y) < 20 && i.stanje !== 'skrit';
+        if (vidi){ b.alarm = Math.min(60, b.alarm + 3); }
+        else b.alarm = Math.max(0, b.alarm - 1);
+        if (b.alarm > 34){
+          b.smer = znak(razd) || b.smer;
+          b.vx = priblizaj(b.vx, b.smer * 1.5, 0.14);
+        } else {
+          b.vx = priblizaj(b.vx, b.smer * 0.6, 0.1);
+          if (Math.abs(b.x - b.dom) > (b.pot || 6) * P) { b.smer = znak(b.dom - b.x); }
+        }
+        if (b.natleh && (!sv.tlaSpredaj(b) || b.obStena)) b.smer = -b.smer;
+      }
+      b.vy = Math.min(5, b.vy + FIZ.g);
+      premakni(b, sv.karta, true);
+      b.faza += Math.abs(b.vx) * 0.22;
+      sv.dotikSovraznika(b);
+    },
+    naRjov(b, sv){ b.beg = 200; b.alarm = 0; b.smer = znak(b.x - sv.igralec.x) || 1; sv.dogodek('beg'); }},
+
+  komarji: { w: 20, h: 16, sovraznik: true, mehki: true, zacni(b){ b.dom = b.x; b.smer = 1; b.razgnan = 0; },
+    posodobi(b, sv){
+      if (b.razgnan > 0){ b.razgnan--; b.faza += 0.3; return; }
+      b.faza += 0.16;
+      b.x += b.smer * 0.5;
+      if (Math.abs(b.x - b.dom) > (b.pot || 4) * P) b.smer = -b.smer;
+      b.y += Math.sin(b.faza) * 0.4;
+      if (sekaTelesi(b, sv.igralec) && sv.cas % 26 === 0) sv.igralec.rani(sv, 1, b.x);
+    },
+    naRjov(b, sv){ b.razgnan = 260; sv.iskrica(b.x, b.y - 6, 8, '#cfd8a0'); }},
+
+  kobra: { w: 10, h: 14, sovraznik: true, plen: true, zacni(b){ b.cas = 40; },
+    posodobi(b, sv){
+      const i = sv.igralec;
+      b.vy = Math.min(4, b.vy + FIZ.g);
+      premakni(b, sv.karta, false);
+      if (b.omamljen > 0) return;
+      b.smer = znak(i.x - b.x) || 1;
+      b.cas--;
+      if (b.cas <= 0 && Math.abs(i.x - b.x) < 110 && Math.abs(i.y - b.y) < 40){
+        b.cas = 96;
+        sv.dodaj('pljunek', b.x + b.smer * 6, b.y - 10, { vx: b.smer * 1.9, vy: -0.5 });
+        sv.dogodek('sik');
+      }
+      b.faza += 0.05;
+      sv.dotikSovraznika(b);
+    }},
+  pljunek: { w: 5, h: 5, sovraznik: true, izstrelek: true, posodobi(b, sv){
+    b.vy += 0.035; b.x += b.vx; b.y += b.vy;
+    if (trdna(sv.karta.pod(b.x, b.y)) || b.y > sv.karta.h * P){ b.zivo = false; return; }
+    if (sekaTelesi(b, sv.igralec)){ sv.igralec.rani(sv, 1, b.x); b.zivo = false; }
+  }, naRjov(b, sv){ b.zivo = false; sv.iskrica(b.x, b.y, 4, '#b6e58a'); }},
+
+  luskavec: { w: 15, h: 11, sovraznik: true, srednji: true, oklepljen: true,
+    zacni(b){ b.smer = -1; b.odprt = 0; },
+    posodobi(b, sv){
+      if (b.odprt > 0){ b.odprt--; b.vx = priblizaj(b.vx, 0, 0.2); }
+      else {
+        b.vx = b.smer * 1.5;
+        if (b.natleh && (!sv.tlaSpredaj(b) || b.obStena)) b.smer = -b.smer;
+      }
+      b.vy = Math.min(5, b.vy + FIZ.g);
+      premakni(b, sv.karta, true);
+      b.faza += Math.abs(b.vx) * 0.3;
+      sv.dotikSovraznika(b);
+    },
+    naRjov(b, sv){ b.odprt = 150; b.omamljen = 0; sv.dogodek('luska'); }},
+
+  jastreb: { w: 16, h: 10, sovraznik: true, plen: true, zacni(b){ b.dom = { x: b.x, y: b.y }; b.napad = 0; },
+    posodobi(b, sv){
+      const i = sv.igralec;
+      if (b.omamljen > 0){ b.vy += 0.2; b.y += b.vy; return; }
+      b.faza += 0.1;
+      if (b.napad > 0){
+        b.napad--;
+        b.x += b.vx; b.y += b.vy;
+        b.vy += 0.06;
+        if (b.napad === 0){ b.vx = 0; b.vy = 0; }
+      } else {
+        b.x = b.dom.x + Math.sin(b.faza * 0.5) * 26;
+        b.y = b.dom.y + Math.sin(b.faza) * 5;
+        if (Math.abs(i.x - b.x) < 50 && i.y > b.y && sv.r() < 0.02){
+          b.napad = 70; b.vx = znak(i.x - b.x) * 1.5; b.vy = 1.5; sv.dogodek('krik');
+        }
+      }
+      b.smer = znak(b.vx) || b.smer || -1;
+      sv.dotikSovraznika(b);
+    }},
+
+  krokodil: { w: 20, h: 10, sovraznik: true, srednji: true, zacni(b){ b.skrit = true; b.cas = 0; },
+    posodobi(b, sv){
+      const i = sv.igralec;
+      if (b.omamljen > 0){ b.skrit = false; }
+      else if (b.skrit){
+        if (Math.abs(i.x - b.x) < 26 && Math.abs(i.y - b.y) < 24){ b.skrit = false; b.cas = 90; sv.dogodek('smeh'); }
+      } else {
+        b.cas--;
+        b.vx = priblizaj(b.vx, znak(i.x - b.x) * 1.0, 0.08);
+        if (b.cas <= 0){ b.skrit = true; b.vx = 0; }
+      }
+      b.vy = Math.min(5, b.vy + FIZ.g);
+      premakni(b, sv.karta, false);
+      b.faza += Math.abs(b.vx) * 0.2;
+      if (!b.skrit) sv.dotikSovraznika(b);
+    }},
+
+  brlog: { w: 16, h: 14, posodobi(b, sv){
+    b.cas = (b.cas || 90) - 1;
+    if (b.cas <= 0){
+      b.cas = 260;
+      if (sv.steviloBitij('hijena') < 5 && Math.abs(sv.igralec.x - b.x) < 170)
+        sv.dodaj('hijena', b.x, b.y - 2, {});
+    }
+  }, naRjov(b, sv){ b.cas = Math.max(b.cas || 0, 200); }},
+
+  hlod: { w: 22, h: 12, sovraznik: true, nezlomljiv: true,
+    zacni(b){ b.desno = b.x + 10 * P; b.levo = b.x - 26 * P; },
+    posodobi(b, sv){
+    b.x -= (b.hitrost || 0.9);
+    b.faza += 0.14;
+    if (b.x < b.levo) { b.x = b.desno; }
+    if (sekaTelesi(b, sv.igralec)){
+      if (sv.igralec.jaha) { b.zivo = false; sv.iskrica(b.x, b.y, 10, '#a5703c'); sv.trese = 6; sv.dogodek('lom'); }
+      else sv.igralec.rani(sv, 1, b.x);
+    }
+  }},
+
+  gnu: { w: 18, h: 15, sovraznik: true, nezlomljiv: true, zacni(b){ b.smer = -1; b.hitrost = 1.4; },
+    posodobi(b, sv){
+      b.vx = b.smer * b.hitrost;
+      b.vy = Math.min(5, b.vy + FIZ.g);
+      premakni(b, sv.karta, true);
+      b.faza += 0.2;
+      if (b.obStena || !sv.tlaSpredaj(b)) b.smer = -b.smer;
+      if (sekaTelesi(b, sv.igralec)) sv.igralec.rani(sv, 1, b.x);
+    },
+    naRjov(b, sv){ b.smer = znak(b.x - sv.igralec.x) || 1; b.hitrost = 2.2; sv.dogodek('cred'); }},
+
+  /* ---------------- žive ploščadi ---------------- */
+  zirafa: { w: 40, h: 8, nosilna: true, zacni(b){ b.dom = b.x; b.smer = 1; b.y -= P * 1.5; },
+    posodobi(b, sv){
+      b.x += b.smer * (b.hitrost || 0.3);
+      if (Math.abs(b.x - b.dom) > (b.pot || 8) * P) b.smer = -b.smer;
+      b.y = b.dom_y === undefined ? (b.dom_y = b.y) : b.dom_y + Math.sin(sv.cas * 0.02) * 3;
+    }},
+  volovka: { w: 20, h: 7, nosilna: true, zacni(b){ b.dom = b.x; b.domY = b.y; b.smer = 1; },
+    posodobi(b, sv){
+      if (b.pot){ b.x += b.smer * (b.hitrost || 0.4);
+        if (Math.abs(b.x - b.dom) > b.pot * P) b.smer = -b.smer; }
+      b.y = b.domY + Math.sin(sv.cas * 0.05 + b.id) * 4;
+      b.faza += 0.35;
+    }},
+  storklja: { w: 18, h: 8, nosilna: true, zacni(b){ b.domY = b.y; b.pot2 = 0; },
+    posodobi(b, sv){
+      const nosi = b.nosen2;
+      b.pot2 = omeji(b.pot2 + (nosi ? 0.5 : -0.35), 0, 11);
+      b.y = b.domY + b.pot2;
+      b.nosen2 = false;
+      b.faza += nosi ? 0.2 : 0.04;
+    }},
+  nosorog: { w: 32, h: 24, nosilna: true, zacni(b){ b.tece = 0; b.domY = b.y; },
+    posodobi(b, sv){
+      if (b.jezdec && b.nosen2 && !b.tece){ b.tece = 1; sv.dogodek('nosorog'); }
+      if (b.tece){
+        b.x += 1.9;
+        b.faza += 0.3;
+        if (b.x > sv.karta.w * P - 40) b.tece = 0;
+      } else b.faza += 0.02;
+      b.nosen2 = false;
+    }},
+  stropnik: { w: 22, h: 8, nosilna: true, zacni(b){ b.dom = b.x; b.smer = 1; },
+    posodobi(b, sv){
+      b.x += b.smer * (b.hitrost || 0.5);
+      if (Math.abs(b.x - b.dom) > (b.pot || 6) * P) b.smer = -b.smer;
+      b.faza += 0.3;
+    }},
+  privid: { w: 0, h: 8, nosilna: true, zacni(b){ b.w = (b.sirina || 3) * P; b.vidno = 1; },
+    posodobi(b, sv){
+      const c = (sv.cas + (b.faza0 === undefined ? (b.faza0 = b.faza || 0) : b.faza0)) % 200;
+      b.vidno = c < 120 ? 1 : c < 150 ? 1 - (c - 120) / 30 : c < 180 ? 0 : (c - 180) / 20;
+      b.trden = b.vidno > 0.45;
+    }},
+  poplava: { w: 8, h: 8, vedno: true, posodobi(b, sv){
+    /* voda lovi igralca skozi drugo dejanje finala */
+    if (!b.zacela){ b.zacela = sv.igralec.x > b.x - 40; if (!b.zacela) return; sv.napis('Jez je počil – teci!'); sv.dogodek('lom'); }
+    b.x += 0.92;
+    if (sv.igralec.x < b.x + 8){ sv.igralec.rani(sv, 2, b.x); sv.igralec.vx = 3; }
+  }},
+
+  steber: { w: 12, h: 30, zacni(b){ b.y += 2; }, posodobi(b, sv){
+    const i = sv.igralec;
+    if (b.padel) return;
+    const nap = i.napadniOkvir();
+    const mocan = i.oblika === 'odrasel' || i.oblika === 'gobo';
+    if (nap && mocan && seka(nap, okvir(b))){
+      b.padel = true; b.zivo = false;
+      sv.podrtiStebri++;
+      sv.hroscev += 4;
+      sv.iskrica(b.x, b.y - 16, 20, '#9fd4ff');
+      sv.trese = 9; sv.dogodek('lom');
+      sv.napis('Nosilec jezu podrt  ' + sv.podrtiStebri + '/' + sv.stebriSkupaj);
+    }
+  }},
+
+  /* ---------------- predmeti ---------------- */
+  mravljisce: { w: 14, h: 20, posodobi(b, sv){
+    if (!b.vklop && sv.blizu(b, 16)){
+      b.vklop = true; sv.shraniTocko(b);
+      sv.iskrica(b.x, b.y - 18, 10, '#ffd76a');
+      sv.dogodek('tocka'); sv.napis('Termitnjak: shranjeno');
+    }
+  }},
+  izhod: { w: 16, h: 26, posodobi(b, sv){
+    b.faza += 0.05;
+    if (b.speci) return;
+    if (sv.blizu(b, 14) && sv.stanje === 'igra') sv.koncajNivo();
+  }},
+  kletka: { w: 18, h: 16, posodobi(b, sv){
+    const i = sv.igralec;
+    if (b.odprta) return;
+    if (sekaTelesi(b, i) && (i.stanje === 'rame' || (i.stanje === 'skok-napad' && i.oblika !== 'mladic'))){
+      b.odprta = true; sv.hroscev += 5; sv.osvobojeni++;
+      sv.iskrica(b.x, b.y - 8, 14, '#ffd76a'); sv.trese = 5;
+      sv.dogodek('lom'); sv.napis('Žival osvobojena  ' + sv.osvobojeni);
+    }
+  }},
+  tkalec: { w: 16, h: 10, zacni(b, sv){
+    /* dokler tkalci sedijo na veji, se po njej ne da hoditi */
+    b.tla = [];
+    for (let i = 0; i < (b.sirina || 3); i++){
+      const tx = (b.x0 !== undefined ? b.x0 + i : Math.floor(b.x / P) + i);
+      const ty = Math.floor(b.y / P);
+      b.tla.push([tx, ty, sv.karta.pri(tx, ty)]);
+      sv.karta.nastavi(tx, ty, T.PRAZNO);
+    }
+  }, posodobi(b, sv){ b.faza += b.odletel ? 0.4 : 0.08; if (b.odletel){ b.y -= 0.7; b.x += 0.4; if (b.y < -20) b.zivo = false; } },
+    naRjov(b, sv){
+      if (b.odletel) return;
+      b.odletel = true;
+      for (const t of b.tla) sv.karta.nastavi(t[0], t[1], t[2] === T.PRAZNO ? T.DESKA : t[2]);
+      sv.iskrica(b.x, b.y - 4, 12, '#f4e2b8');
+      sv.dogodek('ptice'); sv.napis('Tkalci so odleteli – veja je prosta');
+    }},
+  larva: { w: 6, h: 6, luc: 46, posodobi(b, sv){ b.faza += 0.04; }},
+  preobrazba: { w: 20, h: 26, posodobi(b, sv){
+    if (!b.uporabljen && sv.blizu(b, 16) && sv.igralec.oblika === 'mladic'){
+      b.uporabljen = true; sv.zacniPreobrazbo();
+    }
+  }},
+  baobab: { w: 26, h: 40, posodobi(b, sv){
+    b.faza += 0.02;
+    if (!b.ponudil && sv.blizu(b, 22)){ b.ponudil = true; sv.ponudiIzbiro(); }
+  }},
+
+  /* ---------------- šefa ---------------- */
+  matriarh: { w: 22, h: 20, sovraznik: true, sef: true, hp: 3,
+    zacni(b){ b.faza = 0; b.stanje = 'hodi'; b.cas = 90; b.smer = -1; b.hp = 3; },
+    posodobi(b, sv){
+      const i = sv.igralec;
+      b.cas--;
+      if (b.omamljen > 0){ b.vx = priblizaj(b.vx, 0, 0.3); }
+      else if (b.stanje === 'hodi'){
+        b.smer = znak(i.x - b.x) || b.smer;
+        b.vx = priblizaj(b.vx, b.smer * 1.1, 0.1);
+        if (b.cas <= 0){ b.stanje = sv.r() < 0.5 ? 'skok' : 'klic'; b.cas = b.stanje === 'skok' ? 60 : 46; }
+      } else if (b.stanje === 'skok'){
+        if (b.natleh && b.cas > 40){ b.vy = -5.2; b.vx = b.smer * 2.4; sv.dogodek('smeh'); }
+        if (b.natleh && b.cas < 30){ b.stanje = 'hodi'; b.cas = 80; sv.trese = 6; }
+      } else {
+        if (b.cas === 40 && sv.steviloBitij('hijena') < 3){
+          /* dvor pokliče pomoč, a arena se ne sme zamašiti s hijenami */
+          for (let n = -1; n <= 1; n += 2)
+            sv.dodaj('hijena', b.x + n * 30, b.y - 4, {});
+          sv.dogodek('cred');
+        }
+        if (b.cas <= 0){ b.stanje = 'hodi'; b.cas = 100; }
+      }
+      b.vy = Math.min(5, b.vy + FIZ.g);
+      premakni(b, sv.karta, true);
+      b.faza += Math.abs(b.vx) * 0.2;
+      sv.dotikSovraznika(b);
+    }},
+
+  duh: { w: 26, h: 30, sovraznik: true, sef: true, hp: 4, mehki: true,
+    zacni(b){ b.domY = b.y; b.stanje = 'lebdi'; b.cas = 70; b.hp = 4; },
+    posodobi(b, sv){
+      const i = sv.igralec;
+      b.faza += 0.05;
+      b.cas--;
+      if (b.omamljen > 0){ b.y = b.domY + 10; return; }
+      if (b.stanje === 'lebdi'){
+        b.x += znak(i.x - b.x) * 0.5;
+        b.y = b.domY + Math.sin(b.faza) * 8;
+        if (b.cas <= 0){ b.stanje = 'prah'; b.cas = 70; }
+      } else {
+        if (b.cas % 18 === 0){
+          sv.dodaj('pljunek', b.x, b.y - 10, { vx: znak(i.x - b.x) * 1.6, vy: -1.1 });
+          sv.dogodek('sik');
+        }
+        if (b.cas <= 0){ b.stanje = 'lebdi'; b.cas = 90; }
+      }
+      sv.dotikSovraznika(b);
+    }}
+};
+
+/* =====================================================================
+   6. SVET
+   Drži karto, bitja, igralca in vse, kar se med njimi zgodi.
+   Zvok in risbe se tu samo najavijo (dogodki, delci) – naredi jih
+   predstavitveni del, zato je svet mogoče pognati tudi brez brskalnika.
+   ===================================================================== */
+
+function Svet(stopnja, mozn){
+  mozn = mozn || {};
+  const s = sestaviNivo(stopnja);
+  this.st = stopnja;
+  this.karta = s.karta;
+  this.zacetek = s.zacetek;
+  this.tezavnost = mozn.tezavnost || 'zgodba';
+  this.nesmrtnost = !!mozn.nesmrtnost;
+  this.r = nakljucje(stopnja.seme + 1);
+
+  this.igralec = new Igralec(s.zacetek.x, s.zacetek.y, stopnja.lik || mozn.oblika || 'mladic');
+  if (mozn.oklepMax) { this.igralec.oklepMax = mozn.oklepMax; this.igralec.oklep = mozn.oklepMax; }
+  if (mozn.rjovMax) { this.igralec.rjovMax = mozn.rjovMax; this.igralec.rjov = mozn.rjovMax; }
+
+  this.objekti = [];
+  for (const o of s.objekti) this.dodaj(o.tip, o.x, o.y, o);
+
+  /* Teren valovi, bitja pa so postavljena na okroglo ploščico – tisto,
+     ki se znajde v hribu, dvignemo iz njega, da se ne zatakne. */
+  for (const b of this.objekti){
+    const d = BITJA[b.tip];
+    if (d.nosilna || d.izstrelek || b.tip === 'baobab' || b.tip === 'larva' || b.tip === 'obroc') continue;
+    let n = 0;
+    while (n++ < 8 && vTrdnem(this.karta, b.x - b.w / 2 + 1, b.y - b.h + 1, b.w - 2, b.h - 2)) b.y -= P;
+  }
+
+  this.cas = 0;
+  this.stanje = 'igra';           /* igra | preobrazba | izbira | zmaga | konec */
+  this.hroscev = mozn.hroscev || 0;
+  this.hroscevOb = this.hroscev;  /* koliko jih je bilo ob zadnji kontrolni točki */
+  this.zivljenja = mozn.zivljenja === undefined ? 3 : mozn.zivljenja;
+  this.resene = 0; this.osvobojeni = 0; this.obroci = 0; this.ujeto = 0; this.zgreseno = 0;
+  this.podrtiStebri = 0;
+  this.stebriSkupaj = s.objekti.filter(o => o.tip === 'steber').length;
+  this.ribSkupaj = s.objekti.filter(o => o.tip === 'riba').length;
+  this.hroscevSkupaj = s.objekti.filter(o => o.tip === 'hrosc').length;
+  this.valovi = [];
+  this.delci = [];
+  this.dogodki = [];
+  this.napisi = [];
+  this.krhke = {};
+  this.trese = 0;
+  this.veter = 0;
+  this.strela = 0;
+  this.kam = { x: 0, y: 0, dol: 0 };
+  this.tocka = null;               /* zadnja kontrolna točka */
+  this.posnetki = [];              /* za vrtenje časa nazaj */
+  this.mrtevCas = 0;
+  this.koncano = false;
+  this.izbira = null;
+  this.preobrazbaCas = 0;
+  this.pogled = { x: 0, y: 0 };
+  if (stopnja.finale) for (const b of this.objekti) if (b.tip === 'duh') b.speci = true;
+  /* V Gobojevi sobi izhoda ni – konča se, ko je sadja dovolj. */
+  if (stopnja.lovljenje) for (const b of this.objekti) if (b.tip === 'izhod') b.speci = true;
+  this.shraniTocko({ x: s.zacetek.x, y: s.zacetek.y, zacetna: true });
+  this.posnemi(true);
+}
+const S = Svet.prototype;
+
+/* ---------- pomožno ---------- */
+S.dodaj = function(tip, x, y, dodatno){
+  const d = BITJA[tip];
+  if (!d) return null;
+  const b = { tip: tip, x: x, y: y, vx: 0, vy: 0, w: d.w, h: d.h,
+              zivo: true, faza: 0, smer: -1, omamljen: 0, natleh: false,
+              obStena: 0, hp: d.hp || 1, id: this.objekti.length };
+  if (dodatno) for (const k in dodatno) if (k !== 'tip' && k !== 'x' && k !== 'y' && k !== 'id') b[k] = dodatno[k];
+  if (d.zacni) d.zacni(b, this);
+  this.objekti.push(b);
+  return b;
+};
+S.dogodek = function(ime){ this.dogodki.push(ime); };
+S.napis = function(t){ this.napisi.push({ t: t, cas: 150 }); };
+S.blizu = function(b, r){
+  const i = this.igralec;
+  return Math.abs(i.x - b.x) < r + b.w / 2 && Math.abs((i.y - i.h / 2) - (b.y - b.h / 2)) < r + b.h / 2;
+};
+S.steviloBitij = function(tip){
+  let n = 0; for (const b of this.objekti) if (b.zivo && b.tip === tip) n++;
+  return n;
+};
+/* Ali so pred bitjem tla? Tako se ne zvrne s police. */
+S.tlaSpredaj = function(b){
+  const x = b.x + b.smer * (b.w / 2 + 3);
+  const t = this.karta.pod(x, b.y + 3);
+  return trdna(t) || enosmerna(t);
+};
+S.prah = function(x, y, n){
+  for (let i = 0; i < n; i++)
+    this.delci.push({ x: x, y: y, vx: (this.r() - 0.5) * 1.4, vy: -this.r() * 0.9,
+                      cas: 16 + this.r() * 12, barva: '#d9c39b', r: 1 + this.r() });
+};
+S.iskrica = function(x, y, n, barva){
+  for (let i = 0; i < n; i++){
+    const a = this.r() * Math.PI * 2, h = 0.6 + this.r() * 1.6;
+    this.delci.push({ x: x, y: y, vx: Math.cos(a) * h, vy: Math.sin(a) * h - 0.4,
+                      cas: 20 + this.r() * 16, barva: barva || '#ffd76a', r: 1 + this.r() * 1.4 });
+  }
+};
+
+/* ---------- plenišča in nagrade ---------- */
+S.poberi = function(b, kaj){
+  b.zivo = false;
+  if (kaj === 'hrosc'){
+    this.hroscev++;
+    this.iskrica(b.x, b.y, 5, '#7fe0c8');
+    this.dogodek('hrosc');
+  } else {
+    /* sončni hrošč: trajno poveča oklep ali rjovenje */
+    const i = this.igralec;
+    if ((this.hroscevSonca = (this.hroscevSonca || 0) + 1) % 2 === 1){
+      i.oklepMax++; i.oklep = i.oklepMax;
+      this.napis('Sončni hrošč: oklep je večji');
+    } else {
+      i.rjovMax += 25; i.rjov = i.rjovMax;
+      this.napis('Sončni hrošč: rjovenje je daljše');
+    }
+    this.iskrica(b.x, b.y, 16, '#ffd76a');
+    this.dogodek('sonce');
+    this.trese = 4;
+  }
+};
+
+/* ---------- boj ---------- */
+S.dotikSovraznika = function(b){
+  const i = this.igralec;
+  if (!i.zivi || !b.zivo || b.nosen) return;
+  const d = BITJA[b.tip];
+  const nap = i.napadniOkvir();
+  if (nap && seka(nap, okvir(b))){ this.udariBitje(b, i.stanje); return; }
+  if (!sekaTelesi(b, i)) return;
+
+  /* skok na glavo: če padeš nanj z višine */
+  const spredaj = i.y - i.h / 2 < b.y - b.h * 0.55;
+  if (i.vy > 1.1 && spredaj && !d.nezlomljiv && !(d.oklepljen && !b.odprt)){
+    this.udariBitje(b, 'skok');
+    i.vy = -3.9; i.stanje = 'skok'; i.t = 0;
+    return;
+  }
+  /* odrasel pobere omamljenega nasprotnika */
+  if (i.odrasel() && b.omamljen > 0 && d.srednji && !i.nosi){
+    i.nosi = b; b.nosen = true; this.dogodek('prijem'); return;
+  }
+  if (b.omamljen > 0 && !d.sef) return;
+  i.rani(this, 1, b.x);
+};
+
+S.udariBitje = function(b, vrsta){
+  const d = BITJA[b.tip];
+  if (!b.zivo || d.nezlomljiv) return;
+  if (d.oklepljen && !b.odprt){
+    this.iskrica(b.x, b.y - b.h / 2, 5, '#cbb894');
+    this.dogodek('odboj');
+    this.igralec.vx = znak(this.igralec.x - b.x) * 2.4;
+    return;
+  }
+  if (d.sef){
+    if (b.neranljiv > 0) return;
+    b.hp--; b.neranljiv = 50; b.omamljen = 60;
+    this.iskrica(b.x, b.y - b.h / 2, 12, '#ff9a6a');
+    this.trese = 7; this.dogodek('udar');
+    if (b.hp <= 0) this.premagajSefa(b);
+    return;
+  }
+  if (vrsta === 'rjov' && !d.mehki){ b.omamljen = 150; this.dogodek('omam'); return; }
+  b.zivo = false;
+  this.iskrica(b.x, b.y - b.h / 2, 9, '#ffb27a');
+  this.dogodek('udar');
+  this.trese = Math.max(this.trese, 3);
+  if (this.r() < 0.6) this.dodaj('hrosc', b.x, b.y - 6, {});
+};
+
+S.premagajSefa = function(b){
+  b.zivo = false;
+  this.iskrica(b.x, b.y - b.h / 2, 30, '#ffd76a');
+  this.trese = 12;
+  this.dogodek('sef');
+  if (b.tip === 'matriarh') this.napis('Matriarhinja se umakne. Dvor ni več enoten.');
+  if (b.tip === 'duh'){ this.napis('Duh suše razpade v prah.'); this.konecIzbire('boj'); }
+};
+
+/* ---------- rjovenje ---------- */
+S.dodajVal = function(x, y, r, dolg){
+  this.valovi.push({ x: x, y: y, r: 6, rMax: r, dolg: !!dolg, zadeti: {}, cas: 0 });
+};
+S.posodobiValove = function(){
+  for (let n = this.valovi.length - 1; n >= 0; n--){
+    const v = this.valovi[n];
+    v.r += (v.rMax - v.r) * 0.16 + 1.2;
+    v.cas++;
+    /* bitja */
+    for (const b of this.objekti){
+      if (!b.zivo || v.zadeti[b.id]) continue;
+      const dx = b.x - v.x, dy = (b.y - b.h / 2) - v.y;
+      if (dx * dx + dy * dy > v.r * v.r) continue;
+      v.zadeti[b.id] = 1;
+      const d = BITJA[b.tip];
+      if (d.naRjov) d.naRjov(b, this);
+      else if (d.izstrelek) b.zivo = false;
+      else if (d.sovraznik && !d.nezlomljiv){
+        if (d.mehki) this.udariBitje(b, 'rjov');
+        else { b.omamljen = v.dolg ? 200 : 130; this.dogodek('omam'); }
+      }
+    }
+    /* ploščice: lažna tla se podrejo, odraslo rjovenje razbije razpoke */
+    if (v.cas === 1 || v.cas === 6){
+      const x0 = Math.floor((v.x - v.rMax) / P), x1 = Math.floor((v.x + v.rMax) / P);
+      const y0 = Math.floor((v.y - v.rMax) / P), y1 = Math.floor((v.y + v.rMax) / P);
+      for (let j = y0; j <= y1; j++) for (let i = x0; i <= x1; i++){
+        const t = this.karta.pri(i, j);
+        if (t !== T.LAZ && !(t === T.RAZPOKA && v.dolg)) continue;
+        const dx = i * P + P / 2 - v.x, dy = j * P + P / 2 - v.y;
+        if (dx * dx + dy * dy > v.rMax * v.rMax) continue;
+        this.karta.nastavi(i, j, T.PRAZNO);
+        this.prah(i * P + P / 2, j * P + P, 4);
+        this.dogodek('lom');
+      }
+    }
+    if (v.cas > 26) this.valovi.splice(n, 1);
+  }
+};
+
+/* Medojed koplje: mehka zemlja pred njim (ali pod njim) izgine. */
+S.kopaj = function(i, navzdol){
+  const mehka = t => t === T.BLATO || t === T.KRHKA || t === T.SOL;
+  const tx = Math.floor((i.x + i.smer * (i.w / 2 + 4)) / P);
+  const ty = Math.floor((i.y - i.h / 2) / P);
+  let kaj = 0;
+  const polja = navzdol
+    ? [[Math.floor(i.x / P), Math.floor((i.y + 4) / P)], [Math.floor(i.x / P), Math.floor((i.y + 20) / P)]]
+    : [[tx, ty], [tx, ty + 1], [tx, Math.floor((i.y - 2) / P)]];
+  for (const p of polja){
+    if (mehka(this.karta.pri(p[0], p[1]))){
+      this.karta.nastavi(p[0], p[1], T.PRAZNO);
+      this.prah(p[0] * P + P / 2, p[1] * P + P / 2, 5);
+      kaj++;
+    }
+  }
+  this.dogodek(kaj ? 'kop' : 'zamah');
+};
+
+/* ---------- krhka tla ---------- */
+S.posodobiKrhke = function(){
+  const i = this.igralec;
+  if (i.natleh){
+    const tx = Math.floor(i.x / P), ty = Math.floor((i.y + 2) / P);
+    if (this.karta.pri(tx, ty) === T.KRHKA){
+      const kl = tx + ',' + ty;
+      if (this.krhke[kl] === undefined) this.krhke[kl] = 45;
+    }
+  }
+  for (const kl in this.krhke){
+    this.krhke[kl]--;
+    if (this.krhke[kl] <= 0){
+      const d = kl.split(','), tx = +d[0], ty = +d[1];
+      this.karta.nastavi(tx, ty, T.PRAZNO);
+      this.prah(tx * P + P / 2, ty * P + P / 2, 6);
+      this.dogodek('lom');
+      delete this.krhke[kl];
+    } else if (this.krhke[kl] % 6 === 0){
+      const d = kl.split(',');
+      this.prah(+d[0] * P + P / 2, +d[1] * P, 1);
+    }
+  }
+};
+
+/* ---------- žive ploščadi ---------- */
+S.posodobiPloscadi = function(prej){
+  const i = this.igralec;
+  for (const b of this.objekti){
+    const d = BITJA[b.tip];
+    if (!b.zivo || !d.nosilna) continue;
+    if (b.tip === 'privid' && !b.trden) continue;
+    const dx = b.x - (b.prejX === undefined ? b.x : b.prejX);
+    const dy = b.y - (b.prejY === undefined ? b.y : b.prejY);
+    const vrh = b.y - b.h;
+    const stoji = i.x + i.w / 2 > b.x - b.w / 2 && i.x - i.w / 2 < b.x + b.w / 2 &&
+                  i.y >= vrh - 3 && i.y <= vrh + Math.max(6, i.vy + 5) && i.vy >= -0.1;
+    if (stoji){
+      i.y = vrh; i.vy = 0; i.natleh = true; i.zracjiCas = FIZ.coyote;
+      i.x += dx; i.y += dy;
+      b.nosen2 = true;
+      if (b.tece) i.jaha = true;
+      if (i.stanje === 'skok' || i.stanje === 'pad') i.stanje = 'stoji';
+    }
+    b.prejX = b.x; b.prejY = b.y;
+  }
+};
+
+/* ---------- kontrolne točke, smrt, vrtenje časa ---------- */
+S.stanjePosnetka = function(){
+  const i = this.igralec;
+  return {
+    karta: this.karta.t.slice(), kartaV: this.karta.v,
+    igralec: { x: i.x, y: i.y, vx: i.vx, vy: i.vy, oblika: i.oblika, oklep: i.oklep,
+               oklepMax: i.oklepMax, rjov: i.rjov, rjovMax: i.rjovMax, zivi: i.zivi,
+               stanje: i.stanje, smer: i.smer },
+    objekti: this.objekti.map(b => ({ x: b.x, y: b.y, vx: b.vx, vy: b.vy, zivo: b.zivo,
+                                      omamljen: b.omamljen, hp: b.hp, odprt: b.odprt,
+                                      beg: b.beg, razgnan: b.razgnan, tece: b.tece,
+                                      odletel: b.odletel, vklop: b.vklop, odprta: b.odprta,
+                                      ponudil: b.ponudil, uporabljen: b.uporabljen, padel: b.padel,
+                                      zacela: b.zacela, speci: b.speci, nosen: false })),
+    hroscev: this.hroscev, resene: this.resene, osvobojeni: this.osvobojeni,
+    krhke: Object.assign({}, this.krhke), cas: this.cas
+  };
+};
+S.vrniStanje = function(p){
+  const i = this.igralec;
+  this.karta.t.set(p.karta); this.karta.v = p.kartaV + 1;
+  for (const k in p.igralec) i[k] = p.igralec[k];
+  i.w = LIKI[i.oblika].w; i.h = LIKI[i.oblika].h;
+  i.nosi = null; i.neranljiv = 50; i.napadCas = 0; i.t = 0;
+  for (let n = 0; n < this.objekti.length && n < p.objekti.length; n++)
+    Object.assign(this.objekti[n], p.objekti[n]);
+  this.hroscev = p.hroscev; this.resene = p.resene; this.osvobojeni = p.osvobojeni;
+  this.krhke = Object.assign({}, p.krhke);
+  this.valovi = []; this.mrtevCas = 0; this.stanje = 'igra';
+};
+S.posnemi = function(vsili){
+  if (this.cas % 6 !== 0 && !vsili) return;
+  this.posnetki.push(this.stanjePosnetka());
+  if (this.posnetki.length > 80) this.posnetki.shift();   /* 8 sekund */
+};
+S.nazajVCas = function(){
+  if (this.tezavnost === 'prah' || this.posnetki.length < 2) return false;
+  const p = this.posnetki[0];
+  this.vrniStanje(p);
+  this.posnetki = [this.stanjePosnetka()];
+  this.dogodek('nazaj');
+  this.napis('Čas se je zavrtel nazaj');
+  return true;
+};
+S.shraniTocko = function(b){
+  this.tocka = this.stanjePosnetka();
+  this.tocka.x = b.x; this.tocka.y = b.y;
+  this.hroscevOb = this.hroscev;
+};
+S.oziviPriTocki = function(){
+  const t = this.tocka;
+  this.zivljenja--;
+  if (this.zivljenja < 0){ this.stanje = 'konec'; return; }
+  if (t){
+    this.vrniStanje(t);
+    this.igralec.postavi(t.x, t.y - 2);
+    this.igralec.oklep = this.igralec.oklepMax;
+    this.igralec.zivi = true;
+    this.igralec.rjov = this.igralec.rjovMax;
+  }
+  this.posnetki = [this.stanjePosnetka()];
+  this.stanje = 'igra';
+  this.dogodek('ozivi');
+};
+
+/* ---------- posebna dejanja nivojev ---------- */
+S.zacniPreobrazbo = function(){
+  this.stanje = 'preobrazba';
+  this.preobrazbaCas = 0;
+  this.dogodek('preobrazba');
+  this.napis('Slani krst: Kito ni več mladič');
+};
+S.ponudiIzbiro = function(){
+  if (this.izbira) return;
+  this.stanje = 'izbira';
+  this.izbira = { cena: 120, dovolj: this.hroscev >= 120 };
+};
+S.konecIzbire = function(kako){
+  this.izbira = null;
+  if (kako === 'dar'){
+    this.hroscev -= 120;
+    this.napis('Baobab se je prebudil brez boja.');
+    this.izidFinala = 'dar';
+    this.iskrica(this.igralec.x, this.igralec.y - 20, 40, '#7fe0c8');
+    this.dogodek('sef');
+    this.koncajNivo();
+  } else {
+    this.izidFinala = this.izidFinala || 'boj';
+    for (const b of this.objekti) if (b.tip === 'duh') b.speci = false;
+    this.stanje = 'igra';
+    if (this.objekti.every(b => b.tip !== 'duh' || !b.zivo)) this.koncajNivo();
+  }
+};
+S.koncajNivo = function(){
+  if (this.koncano) return;
+  this.koncano = true;
+  this.stanje = 'zmaga';
+  this.dogodek('zmaga');
+};
+
+/* ---------- glavni korak ---------- */
+S.korak = function(v){
+  this.cas++;
+  const i = this.igralec;
+
+  if (this.stanje === 'izbira' || this.stanje === 'konec') return;
+
+  if (this.stanje === 'preobrazba'){
+    this.preobrazbaCas++;
+    this.trese = 3;
+    if (this.preobrazbaCas === 90){
+      i.preoblikuj('odrasel');
+      i.rjovMax = Math.max(i.rjovMax, 125); i.rjov = i.rjovMax;
+      this.iskrica(i.x, i.y - 10, 40, '#ffd76a');
+    }
+    if (this.preobrazbaCas > 150){ this.stanje = 'igra'; this.napis('Rjovenje zdaj lomi kamen'); }
+    return;
+  }
+
+  /* Gobov lov na sadje: sadje pada v ritmu, izhod se odpre po rundi */
+  if (this.st.lovljenje){
+    if (this.cas % 46 === 0 && this.ujeto + this.zgreseno < 30)
+      this.dodaj('sadje', 60 + this.r() * (this.karta.w * P - 120), 40, {});
+    if (this.cas === 30) this.napis('Ujemi 30 kosov sadja');
+    if (this.ujeto + this.zgreseno >= 30 && !this.koncano){
+      this.napis('Ujel si ' + this.ujeto + ' od 30');
+      this.koncajNivo();
+    }
+  }
+
+  /* veter in strele */
+  if (this.st.veter){
+    this.veter = Math.sin(this.cas * 0.008) * 0.85 + Math.sin(this.cas * 0.021) * 0.35;
+    if (this.cas % 190 === 0) this.strela = 16;
+    if (this.strela > 0) this.strela--;
+  }
+
+  /* vhod v dejanja */
+  if (this.stanje === 'igra'){
+    if (v.rjovPritisnjen) i.zarjovi(this);
+    if (v.napadPritisnjen) i.napadi(this, v.dol);
+  }
+
+  i.jaha = false;
+  for (const b of this.objekti){
+    if (!b.zivo || b.speci) continue;
+    if (b.omamljen > 0) b.omamljen--;
+    if (b.neranljiv > 0) b.neranljiv--;
+    if (b.vrzen > 0){
+      b.vrzen--;
+      b.vy = Math.min(5, b.vy + FIZ.g);
+      premakni(b, this.karta, false);
+      if (b.natleh || b.obStena){ this.udariBitje(b, 'vrzen'); }
+      /* vržen plen podre, kar zadene */
+      for (const c of this.objekti)
+        if (c.zivo && c !== b && BITJA[c.tip].sovraznik && sekaTelesi(b, c)) this.udariBitje(c, 'vrzen');
+      continue;
+    }
+    if (b.nosen) continue;
+    /* daleč od igralca bitja mirujejo – tako je gibanje enakomerno hitro */
+    if (Math.abs(b.x - i.x) > SIR * 1.4 && !BITJA[b.tip].vedno) continue;
+    BITJA[b.tip].posodobi(b, this);
+  }
+
+  this.posodobiValove();
+  if (this.stanje === 'izbira') return;
+
+  if (i.zivi) i.posodobi(v, this);
+  else { i.posodobi(v, this); this.mrtevCas++; }
+  this.posodobiPloscadi();
+  this.posodobiKrhke();
+
+  /* delci */
+  for (let n = this.delci.length - 1; n >= 0; n--){
+    const d = this.delci[n];
+    d.x += d.vx; d.y += d.vy; d.vy += 0.05; d.cas--;
+    if (d.cas <= 0) this.delci.splice(n, 1);
+  }
+  for (let n = this.napisi.length - 1; n >= 0; n--)
+    if (--this.napisi[n].cas <= 0) this.napisi.splice(n, 1);
+  if (this.trese > 0) this.trese *= 0.86;
+
+  /* kamera */
+  const cx = i.x + i.smer * 22;
+  const gledaDol = v.dol && i.natleh ? 1 : 0;
+  this.kam.dol = priblizaj(this.kam.dol, gledaDol * 34, 1.5);
+  const cy = i.y - i.h / 2 + this.kam.dol;
+  this.kam.x = priblizaj(this.kam.x, cx - SIR / 2, Math.max(1.6, Math.abs(cx - SIR / 2 - this.kam.x) * 0.12));
+  this.kam.y = priblizaj(this.kam.y, cy - VIS / 2, Math.max(1.2, Math.abs(cy - VIS / 2 - this.kam.y) * 0.10));
+  this.kam.x = omeji(this.kam.x, 0, Math.max(0, this.karta.w * P - SIR));
+  this.kam.y = omeji(this.kam.y, 0, Math.max(0, this.karta.h * P - VIS));
+
+  if (this.stanje === 'igra') this.posnemi();
+
+  /* smrt */
+  if (!i.zivi && this.mrtevCas > 70 && this.stanje === 'igra'){
+    if (this.tezavnost === 'zgodba' && this.posnetki.length > 4 && this.nazajVCas()){
+      i.zivi = true; i.oklep = Math.max(1, i.oklepMax - 1); this.mrtevCas = 0;
+    } else this.oziviPriTocki();
+  }
+};
+
+/* ČISTA LOGIKA – KONEC */
+
+/* =====================================================================
+   7. RISANJE
+   Vse je narisano s kodo – nobene slike, nobene knjižnice.
+   Ločljivost je 320×180 pik, povečana na celo število, zato so pike
+   ostre in enako velike na vseh zaslonih.
+   ===================================================================== */
+
+const BIOMI = {
+  zora:    { nebo: ['#f6a94e', '#fbd98f', '#fdeec6'], sonce: '#fff6d2',
+             dalec: '#c58a5c', srednje: '#a06a3c', drevo: '#6b4a2c', kroslja: '#7d9a44',
+             tla: '#d9a05a', tlaT: '#b57a3c', trava: '#86a844', travaT: '#5f7d2c',
+             skala: '#b08a68', skalaT: '#8d6a4c', megla: 'rgba(253,222,170,.30)' },
+  brlog:   { nebo: ['#2d2230', '#43303a', '#5c3f3f'], sonce: null,
+             dalec: '#3a2b33', srednje: '#4a3540', drevo: '#3a2a22', kroslja: '#4e4030',
+             tla: '#8a6a4a', tlaT: '#6a4d34', trava: '#6d7a3a', travaT: '#4c5628',
+             skala: '#6f5a52', skalaT: '#54423c', megla: 'rgba(60,40,50,.35)' },
+  blato:   { nebo: ['#c9b58a', '#e0d2ab', '#efe6cc'], sonce: '#fff8de',
+             dalec: '#a89372', srednje: '#8c7859', drevo: '#5f4a34', kroslja: '#8a8f52',
+             tla: '#b09569', tlaT: '#8d7550', trava: '#93974e', travaT: '#6d7038',
+             skala: '#9c8b74', skalaT: '#7a6b58', megla: 'rgba(225,210,175,.35)' },
+  sol:     { nebo: ['#dfe7ef', '#f0f3f6', '#ffffff'], sonce: '#ffffff',
+             dalec: '#c3ccd6', srednje: '#aab6c2', drevo: '#8d7f6c', kroslja: '#9fae7a',
+             tla: '#e6e3d8', tlaT: '#c6c2b4', trava: '#cfd0b4', travaT: '#adae92',
+             skala: '#d2d0c4', skalaT: '#b0aea0', megla: 'rgba(255,255,255,.45)' },
+  noc:     { nebo: ['#141a37', '#222a4f', '#33406b'], sonce: null, zvezde: true,
+             dalec: '#1c2444', srednje: '#252e52', drevo: '#141a2c', kroslja: '#22314a',
+             tla: '#3a4064', tlaT: '#2a2f4c', trava: '#3d5a52', travaT: '#2c4239',
+             skala: '#333a58', skalaT: '#252a42', megla: 'rgba(30,40,80,.40)' },
+  jez:     { nebo: ['#8fb6c4', '#bcd6da', '#dfeae6'], sonce: '#f4ffff',
+             dalec: '#7e9aa0', srednje: '#65807f', drevo: '#5a4a38', kroslja: '#6f8a4a',
+             tla: '#9a8f74', tlaT: '#77705a', trava: '#79924c', travaT: '#566b34',
+             skala: '#8b8f92', skalaT: '#6a6e72', megla: 'rgba(180,210,210,.30)' },
+  termit:  { nebo: ['#2a1c16', '#3a2820', '#4a352a'], sonce: null,
+             dalec: '#3a2a20', srednje: '#4a352a', drevo: '#3a2a20', kroslja: '#5a4030',
+             tla: '#7a5a3e', tlaT: '#5c432c', trava: '#6a5030', travaT: '#4a3820',
+             skala: '#6a4e36', skalaT: '#4e3826', megla: 'rgba(40,25,18,.55)' },
+  nevihta: { nebo: ['#2f3a52', '#4a5670', '#6d7b93'], sonce: null, dez: true,
+             dalec: '#3d4a62', srednje: '#4e5c74', drevo: '#3a3428', kroslja: '#556b3c',
+             tla: '#7e7a5e', tlaT: '#5f5c44', trava: '#5f7a3e', travaT: '#44582a',
+             skala: '#5f6674', skalaT: '#464c58', megla: 'rgba(70,85,110,.35)' }
+};
+
+/* Barvne sheme za lažje razločevanje (dostopnost). */
+const SHEME = {
+  privzeta:  { sovraznik: '#8d6b4e', plen: '#7fe0c8', nevarno: '#c8443a', prijatelj: '#f0c060' },
+  toplahladna:{ sovraznik: '#5b4a8c', plen: '#ffd76a', nevarno: '#2f6fd0', prijatelj: '#ff9a4a' },
+  visok:     { sovraznik: '#101010', plen: '#00ffd0', nevarno: '#ff2f2f', prijatelj: '#ffe800' }
+};
+
+let C = null, ctx = null, mer = 1;      /* platno, risalnik, povečava */
+
+function p2(v){ return Math.round(v); }
+function pr(x, y, w, h, b){ ctx.fillStyle = b; ctx.fillRect(p2(x), p2(y), Math.max(1, p2(w)), Math.max(1, p2(h))); }
+function el(x, y, rx, ry, b){
+  ctx.fillStyle = b; ctx.beginPath();
+  ctx.ellipse(p2(x) + 0.5, p2(y) + 0.5, Math.max(0.5, rx), Math.max(0.5, ry), 0, 0, 6.2832);
+  ctx.fill();
+}
+function crta(x1, y1, x2, y2, w, b){
+  ctx.strokeStyle = b; ctx.lineWidth = w; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(p2(x1) + .5, p2(y1) + .5); ctx.lineTo(p2(x2) + .5, p2(y2) + .5); ctx.stroke();
+}
+function trikot(x1, y1, x2, y2, x3, y3, b){
+  ctx.fillStyle = b; ctx.beginPath();
+  ctx.moveTo(p2(x1), p2(y1)); ctx.lineTo(p2(x2), p2(y2)); ctx.lineTo(p2(x3), p2(y3));
+  ctx.closePath(); ctx.fill();
+}
+/* ponovljiv šum za pege, travo in kamne */
+function sum(a, b){
+  let t = (a * 374761393 + b * 668265263) ^ 0x5bf03635;
+  t = (t ^ (t >> 13)) * 1274126177;
+  return ((t ^ (t >> 16)) >>> 0) / 4294967296;
+}
+
+/* ---------------------------------------------------------------------
+   Obroba: brez nje se zlato bitje na peščenih tleh preprosto izgubi.
+   Risbo najprej narišemo na pomožno platno, iz nje naredimo temno senco
+   in jo odtisnemo štirikrat naokrog – šele nato pride barvna risba.
+   --------------------------------------------------------------------- */
+const OB = 128;
+let sprC = null, sprX = null, silC = null, silX = null;
+function zObrobo(cx, cy, risi, barva){
+  if (!sprC){
+    sprC = document.createElement('canvas'); sprC.width = OB; sprC.height = OB; sprX = sprC.getContext('2d');
+    silC = document.createElement('canvas'); silC.width = OB; silC.height = OB; silX = silC.getContext('2d');
+  }
+  const c0 = ctx, pol = OB / 2;
+  const dx = Math.round(cx) - pol, dy = Math.round(cy) - pol;
+  sprX.setTransform(1, 0, 0, 1, 0, 0);
+  sprX.clearRect(0, 0, OB, OB);
+  sprX.translate(-dx, -dy);
+  sprX.imageSmoothingEnabled = false;
+  ctx = sprX;
+  risi();
+  ctx = c0;
+  silX.setTransform(1, 0, 0, 1, 0, 0);
+  silX.clearRect(0, 0, OB, OB);
+  silX.globalCompositeOperation = 'source-over';
+  silX.drawImage(sprC, 0, 0);
+  silX.globalCompositeOperation = 'source-in';
+  silX.fillStyle = barva || '#2b1d12';
+  silX.fillRect(0, 0, OB, OB);
+  silX.globalCompositeOperation = 'source-over';
+  ctx.drawImage(silC, dx - 1, dy); ctx.drawImage(silC, dx + 1, dy);
+  ctx.drawImage(silC, dx, dy - 1); ctx.drawImage(silC, dx, dy + 1);
+  ctx.drawImage(sprC, dx, dy);
+}
+
+/* ---------------------------------------------------------------------
+   Štirinožec: iz istega ogrodja nastanejo lev, hijena, nosorog, žirafa …
+   --------------------------------------------------------------------- */
+function stirinozec(o){
+  const s = o.smer || 1, f = o.faza || 0;
+  const dl = o.dolzina, vi = o.visina, ng = o.noge;
+  const x = o.x, y = o.y;                     /* y = tla pod nogami */
+  const tel = y - ng - vi / 2;                /* sredina telesa */
+  const kor = Math.sin(f) * (o.tek || 0), kor2 = Math.sin(f + 2.1) * (o.tek || 0);
+  const t = o.temno, sv = o.svetlo, b = o.barva;
+
+  /* zadnji nogi */
+  crta(x - s * dl * 0.28, tel + vi * 0.3, x - s * dl * 0.28 + kor * 3, y, o.nogeDeb || 3, t);
+  crta(x + s * dl * 0.22, tel + vi * 0.3, x + s * dl * 0.22 + kor2 * 3, y, o.nogeDeb || 3, t);
+  /* rep */
+  if (o.rep){
+    const rx = x - s * dl * 0.5, ry = tel - vi * 0.15;
+    const kot = o.repKot === undefined ? -0.5 : o.repKot;
+    const dolz = o.repDolz || dl * 0.5;
+    const ex = rx - s * Math.cos(kot) * dolz, ey = ry + Math.sin(kot + Math.sin(f * 0.7) * 0.3) * dolz;
+    crta(rx, ry, ex, ey, o.repDeb || 2, t);
+    if (o.rep === 'copek') el(ex, ey, 2.4, 2.4, o.copek || t);
+  }
+  /* telo */
+  el(x, tel, dl / 2, vi / 2, b);
+  el(x, tel + vi * 0.18, dl / 2.3, vi / 2.6, sv);
+  if (o.pike) for (let i = 0; i < 7; i++){
+    const a = sum(i, 3) * 6.28, r = sum(i, 7);
+    el(x + Math.cos(a) * dl * 0.32 * r, tel + Math.sin(a) * vi * 0.32 * r, 1.3, 1.1, o.pikeB || t);
+  }
+  if (o.proge) for (let i = 0; i < 5; i++)
+    pr(x - dl / 2 + 3 + i * (dl - 6) / 5, tel - vi / 2 + 1, 1.4, vi - 2, o.progeB || t);
+  /* sprednji nogi */
+  crta(x + s * dl * 0.30, tel + vi * 0.28, x + s * dl * 0.30 - kor * 3, y, o.nogeDeb || 3, b);
+  crta(x - s * dl * 0.10, tel + vi * 0.28, x - s * dl * 0.10 - kor2 * 3, y, o.nogeDeb || 3, b);
+  /* vrat in glava */
+  const vx = x + s * (dl * 0.40), vy = tel - vi * 0.25;
+  const gx = vx + s * (o.vrat || 3), gy = vy - (o.vratV === undefined ? 3 : o.vratV);
+  if (o.vrat > 4) crta(vx, vy, gx, gy, o.vratDeb || 4, b);
+  const gr = o.glava || 4;
+  if (o.griva){ el(gx - s * 1, gy, gr + 2.4, gr + 2.4, o.griva); }
+  el(gx, gy, gr, gr * (o.glavaP || 0.92), b);
+  if (o.gobec) el(gx + s * gr * 0.75, gy + gr * 0.35, gr * 0.5, gr * 0.38, sv);
+  /* uho */
+  if (o.uho === 'okroglo'){ el(gx - s * gr * 0.4, gy - gr * 0.85, gr * 0.42, gr * 0.42, b); el(gx + s * gr * 0.55, gy - gr * 0.8, gr * 0.36, gr * 0.36, b); }
+  else if (o.uho === 'trikotno'){ trikot(gx - s * gr * .8, gy - gr * .4, gx - s * gr * .2, gy - gr * 1.5, gx + s * gr * .1, gy - gr * .5, b);
+                                  trikot(gx + s * gr * .3, gy - gr * .5, gx + s * gr * .8, gy - gr * 1.4, gx + s * gr, gy - gr * .3, b); }
+  else if (o.uho === 'dolgo'){ el(gx - s * gr * .3, gy - gr * 1.3, gr * .3, gr * .9, b); el(gx + s * gr * .4, gy - gr * 1.2, gr * .28, gr * .8, b); }
+  /* oko in nos */
+  const ox = gx + s * gr * 0.45, oy = gy - gr * 0.12;
+  el(ox, oy, 1.5, 1.5, '#fdf6e6');
+  el(ox + s * 0.4, oy, 0.9, 1.0, '#20160f');
+  if (o.obrv) pr(ox - s * 1.6, oy - 2.6, 3.2, 1, t);
+  el(gx + s * gr * (o.gobec ? 1.15 : 0.95), gy + gr * 0.35, 1.1, 0.9, '#3a2418');
+  return { gx: gx, gy: gy, tel: tel };
+}
+
+/* ---------------------------------------------------------------------
+   Kito – mladič in odrasel
+   --------------------------------------------------------------------- */
+function narisiKita(i, sv){
+  zObrobo(i.x, i.y - i.h / 2, () => narisiKita0(i, sv));
+}
+function narisiKita0(i, sv){
+  const s = i.smer, x = i.x, y = i.y;
+  const odr = i.oblika === 'odrasel';
+  const utrip = i.neranljiv > 0 && (sv.cas % 8) < 4;
+  if (utrip) ctx.globalAlpha = 0.45;
+
+  if (i.oblika === 'ptic'){ narisiVolovko(x, y - 4, s, i.faza, true); ctx.globalAlpha = 1; return; }
+  if (i.oblika === 'skarabej'){
+    el(x, y - 7, 7, 7, '#8a6b4a'); el(x, y - 7, 5.4, 5.4, '#a5825c');
+    for (let n = 0; n < 5; n++){ const a = i.faza * 0.5 + n * 1.25; el(x + Math.cos(a) * 4.6, y - 7 + Math.sin(a) * 4.6, 1, 1, '#6b4f34'); }
+    el(x + s * 7, y - 4, 3, 2.4, '#2f2a24'); el(x + s * 8, y - 5.5, .8, .8, '#ffd76a');
+    ctx.globalAlpha = 1; return;
+  }
+  if (i.oblika === 'npunkt'){
+    stirinozec({ x: x, y: y, smer: s, faza: i.faza, tek: i.stanje === 'tek' ? 1 : 0,
+      dolzina: 17, visina: 8, noge: 4, vrat: 3, vratV: 2, glava: 4, glavaP: .9,
+      barva: '#2e2a2a', svetlo: '#4a4442', temno: '#1c1a1a', rep: 'tanek', repDolz: 7,
+      uho: 'okroglo', gobec: true, nogeDeb: 3 });
+    pr(x - 9, y - 13, 18, 3.2, '#e8e2d2');           /* bela proga po hrbtu */
+    ctx.globalAlpha = 1; return;
+  }
+  if (i.oblika === 'gobo'){
+    stirinozec({ x: x, y: y, smer: s, faza: i.faza, tek: i.stanje === 'tek' ? 1 : 0,
+      dolzina: 20, visina: 11, noge: 4, vrat: 3, vratV: 1, glava: 5, glavaP: .85,
+      barva: '#6b5340', svetlo: '#7d6249', temno: '#4a3828', rep: 'copek', repKot: 1.4,
+      copek: '#3a2c20', uho: 'trikotno', gobec: true, nogeDeb: 3 });
+    pr(x - 6, y - 18, 12, 2, '#3a2c20');
+    ctx.globalAlpha = 1; return;
+  }
+
+  /* lev */
+  const dolz = odr ? 26 : 19, vis = odr ? 12 : 9, ng = odr ? 6 : 4;
+  const tek = i.stanje === 'tek' ? 1 : 0;
+  const skace = !i.natleh;
+  const napada = i.stanje === 'skok-napad' || i.stanje === 'zamah' || i.stanje === 'rame';
+  const g = stirinozec({
+    x: x, y: y + (i.stanje === 'oprijem' ? 0 : 0), smer: s,
+    faza: skace ? 1.6 : i.faza, tek: skace ? 0.6 : tek,
+    dolzina: dolz, visina: vis, noge: skace ? ng * 0.7 : ng,
+    vrat: odr ? 6 : 4, vratV: odr ? 4 : 3, vratDeb: odr ? 6 : 4,
+    glava: odr ? 6 : 5, glavaP: odr ? .95 : 1,
+    barva: odr ? '#d9a05a' : '#e2b06a', svetlo: odr ? '#e7bd7e' : '#f0c98d',
+    temno: odr ? '#a87840' : '#c08f4e',
+    rep: 'copek', repDolz: odr ? 13 : 9, repKot: napada ? 0.9 : -0.3 + Math.sin(i.faza * 0.6) * .25,
+    copek: odr ? '#6b4a2a' : '#a8763f',
+    uho: 'okroglo', gobec: true, nogeDeb: odr ? 4 : 3,
+    griva: odr ? '#8a5c2e' : null, pike: !odr, pikeB: '#c68f52', obrv: odr
+  });
+  if (odr){
+    /* griva s slano belo progo */
+    for (let n = 0; n < 9; n++){
+      const a = n / 9 * 6.28;
+      el(g.gx - s * 1 + Math.cos(a) * 7.5, g.gy + Math.sin(a) * 7.5, 2.4, 2.4, n % 3 === 0 ? '#e6dcc6' : '#8a5c2e');
+    }
+    el(g.gx, g.gy, 6, 5.6, '#e7bd7e');
+    el(g.gx + s * 4.4, g.gy + 2.2, 3, 2.3, '#f2d6a4');
+    el(g.gx + s * 2.6, g.gy - 0.8, 1.5, 1.5, '#fdf6e6');
+    el(g.gx + s * 3.0, g.gy - 0.8, 0.9, 1.0, '#20160f');
+    el(g.gx + s * 6.6, g.gy + 2.2, 1.2, 1, '#3a2418');
+  }
+  /* rjovenje: odprt gobec */
+  if (i.rjovCas > 6){
+    el(g.gx + s * (odr ? 6 : 5), g.gy + 3, 2.6, 2.2, '#8a3a3a');
+    el(g.gx + s * (odr ? 6 : 5), g.gy + 3.6, 1.6, 1.1, '#e4a0a0');
+  }
+  if (i.stanje === 'zamah' && i.t >= 4 && i.t <= 12){
+    ctx.globalAlpha = utrip ? .3 : .8;
+    for (let n = 0; n < 3; n++)
+      crta(x + s * (6 + n * 3), y - 20 + n * 4, x + s * (16 + n * 3), y - 12 + n * 4, 1.6, '#fff2cf');
+    ctx.globalAlpha = utrip ? .45 : 1;
+  }
+  if (i.nosi) ctx.globalAlpha = 1;
+  ctx.globalAlpha = 1;
+}
+
+/* ---------------------------------------------------------------------
+   Ostala bitja
+   --------------------------------------------------------------------- */
+function narisiVolovko(x, y, s, faza, velika){
+  const k = Math.sin(faza) * 3;
+  const m = velika ? 1.25 : 1;
+  el(x, y, 6 * m, 4 * m, '#5a6b7a');
+  el(x + s * 5 * m, y - 1.5 * m, 3 * m, 2.6 * m, '#6d8090');
+  trikot(x + s * 7 * m, y - 1 * m, x + s * 11 * m, y, x + s * 7 * m, y + 2 * m, '#e8a33c');
+  el(x + s * 6 * m, y - 2.4 * m, 1, 1, '#141414');
+  crta(x - 1, y - 1, x - s * 5 * m, y - 3 - k, 3 * m, '#42505e');
+  crta(x - 1, y + 1, x - s * 6 * m, y + 3 + k, 2 * m, '#4e5e6c');
+}
+
+const BREZ_OBROBE = { privid: 1, poplava: 1, obroc: 1, larva: 1, baobab: 1, zirafa: 1, komarji: 1, duh: 1, pljunek: 1 };
+function narisiBitje(b, sv){
+  if (BREZ_OBROBE[b.tip]) { narisiBitje0(b, sv); return; }
+  zObrobo(b.x, b.y - b.h / 2 - 4, () => narisiBitje0(b, sv));
+}
+function narisiBitje0(b, sv){
+  const s = b.smer || 1, x = b.x, y = b.y, f = b.faza || 0;
+  const om = b.omamljen > 0;
+  if (om){ ctx.globalAlpha = 0.75; }
+  switch (b.tip){
+
+  case 'hrosc': {
+    const t = Math.sin(f) * 1.2;
+    el(x, y - 4 + t, 3.4, 3, '#2f7f6a');
+    el(x - 1, y - 5 + t, 2.4, 1.8, '#7fe0c8');
+    el(x + 2.6, y - 4.6 + t, 1.4, 1.2, '#1f5a4c');
+    break; }
+  case 'soncnihrosc': {
+    ctx.globalAlpha = 0.35; el(x, y - 6, 9 + Math.sin(f * 2) * 1.5, 9, '#ffd76a'); ctx.globalAlpha = 1;
+    el(x, y - 6, 5, 4.4, '#e8a12c'); el(x - 1.4, y - 7.4, 3.4, 2.6, '#ffe9a8');
+    el(x + 3.6, y - 6.6, 1.8, 1.6, '#b4741c');
+    break; }
+  case 'klop': {
+    el(x, y - 3, 3.4, 2.8, '#3a2630'); el(x + s * 2.6, y - 3.6, 1.6, 1.4, '#6a3040');
+    for (let n = -1; n <= 1; n += 2){ crta(x, y - 3, x + n * 4, y - 1, 1, '#241820'); crta(x, y - 4, x + n * 4, y - 6, 1, '#241820'); }
+    break; }
+  case 'riba': {
+    const t = Math.sin(f) * 2;
+    el(x, y - 4, 4.4, 2.6, '#7fb8d8'); trikot(x - 4, y - 4, x - 8, y - 6 + t, x - 8, y - 2 + t, '#5f98b8');
+    el(x + 2.4, y - 4.8, .9, .9, '#10202c');
+    break; }
+  case 'obroc': {
+    ctx.strokeStyle = '#ffd76a'; ctx.lineWidth = 2; ctx.globalAlpha = .85;
+    ctx.beginPath(); ctx.ellipse(p2(x), p2(y - 11), 11, 11 + Math.sin(f) * 1.5, 0, 0, 6.2832); ctx.stroke();
+    ctx.globalAlpha = 1; break; }
+  case 'sadje': {
+    el(x, y - 4, 4, 4.4, '#e2622c'); el(x - 1.4, y - 5.4, 1.6, 1.4, '#ff9a5a');
+    crta(x, y - 8, x + 1, y - 10, 1.4, '#5a7a2c'); break; }
+
+  case 'kuscar': {
+    stirinozec({ x: x, y: y, smer: s, faza: f, tek: 1, dolzina: 13, visina: 4.6, noge: 2.4,
+      vrat: 2, vratV: 0, glava: 3, glavaP: .8, barva: '#6f8f4a', svetlo: '#88a85e',
+      temno: '#4e6a30', rep: 'tanek', repDolz: 11, repKot: -0.1, nogeDeb: 2, gobec: true });
+    for (let n = 0; n < 4; n++) pr(x - 5 + n * 3, y - 9.5, 1.4, 1.4, '#4e6a30');
+    break; }
+
+  case 'hijena': {
+    stirinozec({ x: x, y: y, smer: s, faza: f, tek: 1, dolzina: 17, visina: 9, noge: 5,
+      vrat: 4, vratV: 4, vratDeb: 5, glava: 4.6, glavaP: .9,
+      barva: '#a08a68', svetlo: '#b39c78', temno: '#6f5c42', rep: 'copek', repDolz: 7, repKot: -0.9,
+      copek: '#4e402c', uho: 'okroglo', gobec: true, pike: true, pikeB: '#6f5c42', obrv: true, nogeDeb: 3 });
+    /* nasršena griva po hrbtu */
+    for (let n = 0; n < 5; n++) trikot(x - 6 + n * 3, y - 15, x - 5 + n * 3, y - 19, x - 4 + n * 3, y - 15, '#4e402c');
+    break; }
+
+  case 'straza': {
+    stirinozec({ x: x, y: y, smer: s, faza: f, tek: 1, dolzina: 17, visina: 9, noge: 5,
+      vrat: 4, vratV: 4, vratDeb: 5, glava: 4.6, glavaP: .9,
+      barva: '#8d7a5c', svetlo: '#9e8b6c', temno: '#5f4f38', rep: 'copek', repDolz: 7, repKot: -0.9,
+      copek: '#443828', uho: 'okroglo', gobec: true, pike: true, pikeB: '#5f4f38', nogeDeb: 3 });
+    pr(x - 7, y - 17, 14, 2.4, '#8a3a2a');           /* jermen karavane */
+    if (b.beg > 0){ for (let n = 0; n < 3; n++) el(x - s * (6 + n * 4), y - 20 - n * 2, 1.6, 1.6, '#e8e0c8'); }
+    else if (b.alarm > 10){
+      ctx.globalAlpha = 0.13 + (b.alarm / 60) * 0.16; ctx.fillStyle = '#ffe08a';
+      ctx.beginPath(); ctx.moveTo(p2(x), p2(y - 13));
+      ctx.lineTo(p2(x + s * 78), p2(y - 26)); ctx.lineTo(p2(x + s * 78), p2(y + 2)); ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = 1;
+      if (b.alarm > 34) pr(x - 1, y - 26, 2, 6, '#ffdf6a');
+    }
+    break; }
+
+  case 'komarji': {
+    ctx.globalAlpha = b.razgnan > 0 ? 0.25 : 0.55;
+    el(x, y - 8, 11, 8, '#6b6a48'); ctx.globalAlpha = 1;
+    for (let n = 0; n < 9; n++){
+      const a = f * (1 + n * 0.13) + n;
+      el(x + Math.cos(a) * 9, y - 8 + Math.sin(a * 1.3) * 6, 1, 1, '#2e2c1c');
+    }
+    break; }
+
+  case 'kobra': {
+    const zib = Math.sin(f * 3) * 1.6;
+    crta(x, y, x, y - 8, 4, '#5c7a3c');
+    el(x + zib * 0.4, y - 11, 3.4, 4, '#6f8f4a');
+    el(x + s * 3 + zib, y - 12, 4.6, 3.4, '#7fa055');       /* razprt vrat */
+    el(x + s * 4.6 + zib, y - 12.6, 1.2, 1.2, '#f4e08a');
+    el(x + s * 5 + zib, y - 12.6, .7, .8, '#20160f');
+    break; }
+  case 'pljunek': el(x, y - 2, 2.4, 2, '#b6e58a'); break;
+
+  case 'luskavec': {
+    if (b.odprt > 0){
+      stirinozec({ x: x, y: y, smer: s, faza: f, tek: 1, dolzina: 15, visina: 7, noge: 3,
+        vrat: 3, vratV: 1, glava: 3.4, barva: '#9a7d52', svetlo: '#b08f5e', temno: '#6f5836',
+        rep: 'tanek', repDolz: 9, nogeDeb: 3, gobec: true });
+    } else {
+      el(x, y - 6, 8, 6, '#8a6f48');
+      for (let n = 0; n < 5; n++){
+        const a = n / 5 * 6.28 + f * 0.1;
+        el(x + Math.cos(a) * 5, y - 6 + Math.sin(a) * 4, 2.6, 2.2, '#a5885c');
+      }
+      el(x, y - 6, 3, 2.6, '#6f5836');
+    }
+    break; }
+
+  case 'jastreb': {
+    const k = Math.sin(f) * 4;
+    el(x, y - 4, 6, 3.4, '#4a4038');
+    crta(x, y - 5, x - s * 9, y - 8 - k, 3, '#3a322c');
+    crta(x, y - 5, x + s * 9, y - 8 - k, 3, '#3a322c');
+    el(x + s * 5, y - 6, 2.6, 2.4, '#c8b8a0');
+    trikot(x + s * 7, y - 6, x + s * 11, y - 5, x + s * 7, y - 4, '#e8a33c');
+    el(x + s * 6, y - 7, .9, .9, '#141414');
+    break; }
+
+  case 'krokodil': {
+    if (b.skrit){ pr(x - 10, y - 3, 20, 3, '#6a5a3e'); el(x + s * 7, y - 4, 2, 1.6, '#4e6a30'); }
+    else {
+      el(x, y - 5, 10, 4, '#4e6a3c'); el(x, y - 6.5, 9, 2.4, '#6a8a52');
+      el(x + s * 9, y - 5, 5, 2.6, '#4e6a3c');
+      for (let n = 0; n < 6; n++) trikot(x + s * (5 + n * 1.6), y - 6.6, x + s * (5.8 + n * 1.6), y - 8.6, x + s * (6.6 + n * 1.6), y - 6.6, '#7a9a5e');
+      el(x + s * 7, y - 7.6, 1.1, 1.1, '#f4e08a');
+      crta(x - 9, y - 5, x - 16, y - 3, 3, '#4e6a3c');
+    }
+    break; }
+
+  case 'brlog': {
+    el(x, y - 3, 13, 9, '#3a2c24'); el(x, y - 2, 8, 6, '#160f0c');
+    if (b.cas < 40){ el(x - 3, y - 4, 1.2, 1.2, '#ffd76a'); el(x + 3, y - 4, 1.2, 1.2, '#ffd76a'); }
+    break; }
+
+  case 'hlod': {
+    el(x, y - 6, 11, 6, '#8a6440');
+    for (let n = 0; n < 4; n++) crta(x - 8 + n * 5, y - 11 + Math.sin(f + n) * 1, x - 8 + n * 5, y - 1 + Math.sin(f + n) * 1, 1, '#6b4c30');
+    el(x - s * 10, y - 6, 2.4, 5.4, '#a5804f');
+    break; }
+
+  case 'gnu': {
+    stirinozec({ x: x, y: y, smer: s, faza: f, tek: 1, dolzina: 19, visina: 10, noge: 6,
+      vrat: 4, vratV: 3, vratDeb: 6, glava: 4.4, barva: '#4e4a52', svetlo: '#5e5a62',
+      temno: '#343038', rep: 'copek', repDolz: 9, copek: '#241f28', gobec: true, nogeDeb: 3 });
+    /* rogovi */
+    crta(x + s * 10, y - 16, x + s * 14, y - 19, 1.6, '#c8bca0');
+    crta(x + s * 10, y - 16, x + s * 6, y - 19, 1.6, '#c8bca0');
+    for (let n = 0; n < 4; n++) pr(x - 4 + n * 3, y - 18, 1.2, 3, '#6a646e');
+    break; }
+
+  case 'zirafa': {
+    const gy = y - b.h;
+    pr(x - b.w / 2, gy, b.w, b.h, '#e0b45c');
+    for (let n = 0; n < 5; n++) el(x - b.w / 2 + 4 + n * 5, gy + 4, 2.2, 2, '#a8763f');
+    /* vrat pada navzdol iz slike */
+    crta(x + b.w / 2 - 4, gy + 4, x + b.w / 2 + 6, gy + 40, 7, '#e0b45c');
+    el(x - b.w / 2 - 2, gy + 2, 6, 4.4, '#e6bf6e');
+    el(x - b.w / 2 - 6, gy + 3, 1.2, 1.1, '#20160f');
+    crta(x - b.w / 2 - 1, gy - 2, x - b.w / 2 - 1, gy - 5, 1.6, '#a8763f');
+    crta(x - b.w / 2 + 2, gy - 2, x - b.w / 2 + 2, gy - 5, 1.6, '#a8763f');
+    break; }
+
+  case 'volovka': narisiVolovko(x, y - 4, 1, f, true); pr(x - b.w / 2, y - b.h, b.w, 2, '#5a6b7a'); break;
+
+  case 'storklja': {
+    pr(x - b.w / 2, y - b.h, b.w, 3, '#e8e2d2');
+    el(x, y - b.h + 2, 8, 4, '#f0ece0');
+    crta(x - 3, y - b.h + 5, x - 3, y + 14, 1.6, '#e2a03c');
+    crta(x + 3, y - b.h + 5, x + 3, y + 14, 1.6, '#e2a03c');
+    el(x + 7, y - b.h - 1, 3, 2.6, '#f6f2e8');
+    trikot(x + 9, y - b.h - 1, x + 15, y - b.h, x + 9, y - b.h + 1, '#e2622c');
+    break; }
+
+  case 'nosorog': {
+    pr(x - b.w / 2, y - b.h, b.w, b.h, '#8d8a86');
+    el(x, y - b.h + 3, b.w / 2, 5, '#9c9995');
+    el(x + b.w / 2 - 2, y - b.h + 6, 7, 5, '#8d8a86');
+    trikot(x + b.w / 2 + 3, y - b.h + 4, x + b.w / 2 + 8, y - b.h - 3, x + b.w / 2 + 5, y - b.h + 5, '#e0dcd2');
+    el(x + b.w / 2 + 2, y - b.h + 3, 1.1, 1.1, '#20160f');
+    crta(x - b.w / 2 + 5, y, x - b.w / 2 + 5, y + 3, 4, '#6f6c68');
+    crta(x + b.w / 2 - 6, y, x + b.w / 2 - 6, y + 3, 4, '#6f6c68');
+    if (b.tece) for (let n = 0; n < 3; n++) el(x - b.w / 2 - 4 - n * 4, y - 2, 2 + n, 1.6, 'rgba(210,190,150,.5)');
+    break; }
+
+  case 'stropnik': {
+    pr(x - b.w / 2, y - b.h, b.w, 4, '#5a4630');
+    el(x, y - b.h + 5, b.w / 2 - 1, 4, '#7a5c3c');
+    for (let n = 0; n < 6; n++){
+      const k = Math.sin(f + n) * 2;
+      crta(x - b.w / 2 + 3 + n * 3.6, y - b.h + 4, x - b.w / 2 + 3 + n * 3.6 + k, y - b.h + 9, 1.2, '#3e2e1e');
+    }
+    el(x + b.w / 2 - 3, y - b.h + 5, 1.1, 1.1, '#ffd76a');
+    break; }
+
+  case 'privid': {
+    if (b.vidno <= 0.02) break;
+    ctx.globalAlpha = b.vidno * 0.9;
+    pr(x - b.w / 2, y - b.h, b.w, 4, '#e8e6da');
+    pr(x - b.w / 2, y - b.h + 4, b.w, 3, '#c4c0b0');
+    ctx.globalAlpha = b.vidno * 0.4;
+    pr(x - b.w / 2 + 2, y - b.h - 2, b.w - 4, 2, '#ffffff');
+    ctx.globalAlpha = 1;
+    break; }
+
+  case 'poplava': break;   /* vodo narišemo posebej, čez cel zaslon */
+
+  case 'mravljisce': {
+    const c = b.vklop ? '#c8964e' : '#9a7442';
+    trikot(x - 8, y, x, y - 22, x + 8, y, c);
+    trikot(x - 5, y, x + 2, y - 14, x + 7, y, b.vklop ? '#e0b45c' : '#ab8250');
+    for (let n = 0; n < 4; n++) el(x - 4 + n * 2.6, y - 5 - n * 3, 1, 1, '#5f4526');
+    if (b.vklop){
+      el(x, y - 25, 3 + Math.sin(sv.cas * 0.1) * 0.6, 3, '#ffd76a');
+      ctx.globalAlpha = .3; el(x, y - 25, 8, 7, '#ffd76a'); ctx.globalAlpha = 1;
+    }
+    break; }
+
+  case 'izhod': {
+    if (b.speci) break;
+    const t = Math.sin(f) * 2;
+    crta(x, y, x, y - 26, 4, '#6b4a2c');
+    for (let n = 0; n < 4; n++) el(x - 6 + n * 4, y - 24 - t * (n % 2), 3.4, 2.6, ['#c8443a', '#e8a33c', '#7fa03f', '#4a7ac8'][n]);
+    el(x, y - 30 - t, 3.4, 3.4, '#ffd76a');
+    ctx.globalAlpha = .25; el(x, y - 26, 11, 13, '#ffd76a'); ctx.globalAlpha = 1;
+    break; }
+
+  case 'kletka': {
+    const c = b.odprta ? '#7a6a52' : '#5a4a38';
+    pr(x - 9, y - 16, 18, 16, b.odprta ? 'rgba(90,74,56,.35)' : '#3a2e22');
+    for (let n = 0; n < 5; n++) pr(x - 8 + n * 4, y - 16, 1.6, b.odprta ? 6 : 16, c);
+    pr(x - 9, y - 17, 18, 2, '#6b5840');
+    if (!b.odprta){ el(x, y - 6, 5, 4, '#c8a06a'); el(x + 3, y - 8, 1.1, 1.1, '#20160f'); }
+    break; }
+
+  case 'tkalec': {
+    if (b.odletel){
+      for (let n = 0; n < 5; n++) narisiVolovko(x - 8 + n * 5, y - 6 - n * 3, 1, f + n, false);
+    } else {
+      pr(x - b.w / 2 - 6, y - 3, b.w + 12, 3, '#7a5c3c');
+      for (let n = 0; n < 6; n++){
+        const t = Math.sin(f * 2 + n) * 0.8;
+        el(x - 14 + n * 5.5, y - 7 + t, 3, 2.6, '#e8c25c');
+        el(x - 13 + n * 5.5, y - 8 + t, 1, 1, '#141414');
+        el(x - 15.6 + n * 5.5, y - 7 + t, 1.4, 1.2, '#3a2c1c');
+      }
+      /* viseča gnezda */
+      for (let n = 0; n < 3; n++) el(x - 8 + n * 8, y + 4, 3.4, 4, '#a8895c');
+    }
+    break; }
+
+  case 'larva': {
+    const j = 0.5 + Math.sin(f) * 0.15;
+    ctx.globalAlpha = .35 * j; el(x, y - 4, 14, 12, '#a8e86a'); ctx.globalAlpha = 1;
+    el(x, y - 4, 3, 2.4, '#e8f6b0');
+    break; }
+
+  case 'preobrazba': {
+    const t = Math.sin(sv.cas * 0.06) * 2;
+    for (let n = 0; n < 3; n++){
+      ctx.globalAlpha = .5 - n * .12;
+      el(x, y - 12 - n * 6 + t, 9 - n * 2, 10 - n * 2, '#ffe9a8');
+    }
+    ctx.globalAlpha = 1;
+    pr(x - 10, y - 2, 20, 3, '#e8e4d4');
+    break; }
+
+  case 'baobab': {
+    crta(x, y, x, y - 44, 16, '#8d7a5c');
+    el(x, y - 46, 15, 8, '#7a6a4e');
+    for (let n = 0; n < 6; n++){
+      const a = -0.4 - n * 0.4;
+      crta(x, y - 44, x + Math.cos(a) * 22 * (n % 2 ? 1 : -1), y - 44 + Math.sin(a) * 16, 3, '#7a6a4e');
+    }
+    if (b.ponudil){ ctx.globalAlpha = .3 + Math.sin(sv.cas * .07) * .1; el(x, y - 40, 26, 24, '#7fe0c8'); ctx.globalAlpha = 1; }
+    break; }
+
+  case 'steber': {
+    pr(x - 6, y - 30, 12, 30, '#6b5238');
+    for (let n = 0; n < 5; n++) pr(x - 6, y - 28 + n * 6, 12, 1.6, '#4e3c28');
+    pr(x - 8, y - 32, 16, 3, '#8a6b48');
+    break; }
+
+  case 'matriarh': {
+    stirinozec({ x: x, y: y, smer: s, faza: f, tek: 1, dolzina: 26, visina: 14, noge: 7,
+      vrat: 6, vratV: 6, vratDeb: 7, glava: 6, glavaP: .92,
+      barva: '#8d7048', svetlo: '#a08258', temno: '#5f4a2c', rep: 'copek', repDolz: 10, repKot: -1.1,
+      copek: '#3e3020', uho: 'okroglo', gobec: true, pike: true, pikeB: '#5f4a2c', obrv: true, nogeDeb: 4 });
+    for (let n = 0; n < 7; n++) trikot(x - 10 + n * 3, y - 22, x - 9 + n * 3, y - 28, x - 8 + n * 3, y - 22, '#3e3020');
+    pr(x - 8, y - 26, 16, 2.4, '#c8443a');
+    break; }
+
+  case 'duh': {
+    ctx.globalAlpha = .8;
+    for (let n = 0; n < 4; n++){
+      const t = Math.sin(f * 2 + n) * 3;
+      el(x + t, y - 8 - n * 7, 12 - n * 1.6, 8 - n, n % 2 ? '#c8b48a' : '#a89a72');
+    }
+    ctx.globalAlpha = 1;
+    el(x - 4, y - 26, 2, 2.4, '#ff9a4a'); el(x + 4, y - 26, 2, 2.4, '#ff9a4a');
+    for (let n = 0; n < 5; n++){
+      const a = f + n * 1.25;
+      el(x + Math.cos(a) * 16, y - 16 + Math.sin(a) * 12, 1.4, 1.4, '#e8d8a8');
+    }
+    break; }
+  }
+  ctx.globalAlpha = 1;
+  if (om){ /* zvezdice nad omamljenim */
+    for (let n = 0; n < 3; n++){
+      const a = sv.cas * 0.1 + n * 2.1;
+      el(b.x + Math.cos(a) * 6, b.y - b.h - 4 + Math.sin(a) * 2, 1.2, 1.2, '#ffe08a');
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Kulise: hribi, akacije in trava se za vsak nivo izračunajo enkrat.
+   --------------------------------------------------------------------- */
+const kulise = {};
+function kulisa(sv){
+  if (kulise[sv.st.id]) return kulise[sv.st.id];
+  const r = nakljucje(sv.st.seme + 99);
+  const sirina = sv.karta.w * P;
+  const k = { hribi: [], drevesa: [], travа: [], zvezde: [] };
+  for (let x = -60; x < sirina * 0.35 + 200; x += 40 + r() * 50)
+    k.hribi.push({ x: x, w: 60 + r() * 90, h: 22 + r() * 34 });
+  for (let x = -40; x < sirina * 0.6 + 200; x += 46 + r() * 60)
+    k.drevesa.push({ x: x, h: 22 + r() * 20, w: 14 + r() * 12, vrsta: r() < 0.7 ? 'akacija' : 'grm' });
+  for (let i = 0; i < 120; i++) k.zvezde.push({ x: r() * SIR, y: r() * VIS * 0.7, j: 0.3 + r() * 0.7 });
+  kulise[sv.st.id] = k;
+  return k;
+}
+
+function ozadje(sv, b){
+  /* nebo */
+  const g = ctx.createLinearGradient(0, 0, 0, VIS);
+  g.addColorStop(0, b.nebo[0]); g.addColorStop(0.55, b.nebo[1]); g.addColorStop(1, b.nebo[2]);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, SIR, VIS);
+
+  const k = kulisa(sv);
+  if (b.zvezde){
+    for (const z of k.zvezde){
+      ctx.globalAlpha = z.j * (0.5 + Math.sin(sv.cas * 0.02 + z.x) * 0.3);
+      pr(z.x, z.y, 1, 1, '#ffffff');
+    }
+    ctx.globalAlpha = 1;
+    el(SIR - 54, 34, 11, 11, '#f4f0d8'); el(SIR - 50, 31, 9, 9, b.nebo[0]);
+  } else if (b.sonce){
+    const sy = sv.st.biom === 'zora' ? 46 : 34;
+    ctx.globalAlpha = .5; el(SIR - 70, sy, 26, 26, b.sonce); ctx.globalAlpha = 1;
+    el(SIR - 70, sy, 14, 14, b.sonce);
+  }
+
+  /* daljni hribi */
+  const kx = sv.kam.x;
+  ctx.globalAlpha = .85;
+  for (const h of k.hribi){
+    const x = h.x - kx * 0.18;
+    if (x < -h.w || x > SIR + h.w) continue;
+    ctx.fillStyle = b.dalec; ctx.beginPath();
+    ctx.ellipse(p2(x), p2(VIS * 0.72), h.w / 2, h.h, 0, Math.PI, 0);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  /* srednji pas z akacijami */
+  pr(0, VIS * 0.72, SIR, VIS, b.srednje);
+  for (const d of k.drevesa){
+    const x = d.x - kx * 0.42, y = VIS * 0.72 + 4;
+    if (x < -40 || x > SIR + 40) continue;
+    if (d.vrsta === 'akacija'){
+      crta(x, y, x, y - d.h, 2.4, b.drevo);
+      el(x, y - d.h - 2, d.w, 4.5, b.kroslja);
+      el(x - d.w * 0.4, y - d.h - 5, d.w * 0.5, 3, b.kroslja);
+    } else {
+      el(x, y - 4, d.w * 0.6, 5, b.kroslja);
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Ploščice
+   --------------------------------------------------------------------- */
+function ploscica(t, x, y, tx, ty, sv, b){
+  switch (t){
+  }
+  const globlje = trdna(sv.karta.pri(tx, ty - 1)) ? (trdna(sv.karta.pri(tx, ty - 4)) ? 2 : 1) : 0;
+  switch (t){
+  case T.ZEMLJA: {
+    pr(x, y, P, P, b.tla);
+    ctx.globalAlpha = .55;
+    for (let i = 0; i < 2; i++){ const s1 = sum(tx * 4 + i, ty); pr(x + s1 * 12, y + 4 + sum(ty, i) * 9, 3, 2, b.tlaT); }
+    ctx.globalAlpha = 1;
+    if (!trdna(sv.karta.pri(tx, ty - 1))){
+      pr(x, y, P, 4, b.trava);
+      for (let i = 0; i < 5; i++){
+        const h = 2 + sum(tx, i) * 4;
+        pr(x + i * 3 + 1, y - h, 1.4, h, sum(tx, i + 5) < .5 ? b.trava : b.travaT);
+      }
+      pr(x, y + 4, P, 1.4, b.travaT);
+    }
+    break; }
+  case T.SKALA: {
+    pr(x, y, P, P, b.skala);
+    pr(x, y, P, 2, b.skalaT);
+    ctx.globalAlpha = .5;
+    for (let i = 0; i < 2; i++) pr(x + 2 + sum(tx, ty + i) * 10, y + 5 + sum(ty + i, tx) * 8, 4, 2, b.skalaT);
+    ctx.globalAlpha = 1;
+    if (!trdna(sv.karta.pri(tx, ty - 1))) pr(x, y, P, 2, '#ffffff22');
+    break; }
+  case T.DESKA:
+    pr(x, y, P, 4, '#7a5c3c'); pr(x, y, P, 1.4, '#96744c');
+    for (let i = 0; i < 3; i++) pr(x + 2 + i * 5, y + 2, 2, 1.4, '#5e442a');
+    break;
+  case T.TRNJE:
+    for (let i = 0; i < 4; i++) trikot(x + i * 4, y + P, x + i * 4 + 2, y + 3, x + i * 4 + 4, y + P, '#6b5a3c');
+    for (let i = 0; i < 4; i++) trikot(x + i * 4 + 0.6, y + P, x + i * 4 + 2, y + 6, x + i * 4 + 3.4, y + P, '#a8905c');
+    break;
+  case T.RAZPOKA:
+    pr(x, y, P, P, b.skala); pr(x, y, P, 2, b.skalaT);
+    crta(x + 3, y + 1, x + 8, y + 8, 1, b.skalaT); crta(x + 8, y + 8, x + 5, y + 15, 1, b.skalaT);
+    crta(x + 8, y + 8, x + 14, y + 12, 1, b.skalaT);
+    pr(x + 1, y + 1, 2, 2, '#00000022');
+    break;
+  case T.LUBJE:
+    pr(x, y, P, P, '#7a5c3c');
+    for (let i = 0; i < 4; i++) pr(x + 1 + i * 4, y, 2, P, sum(tx, ty + i) < .5 ? '#694d31' : '#8a6a46');
+    if (!trdna(sv.karta.pri(tx, ty - 1))) pr(x, y, P, 2, '#96744c');
+    break;
+  case T.KRHKA: {
+    const kl = tx + ',' + ty, kaj = sv.krhke[kl];
+    const tr = kaj !== undefined ? Math.sin(sv.cas * 0.9) * 1.2 : 0;
+    pr(x + tr, y, P, P, b.tla);
+    crta(x + 2 + tr, y + 2, x + 7 + tr, y + 9, 1, b.tlaT);
+    crta(x + 7 + tr, y + 9, x + 13 + tr, y + 6, 1, b.tlaT);
+    crta(x + 5 + tr, y + 14, x + 7 + tr, y + 9, 1, b.tlaT);
+    if (kaj !== undefined){ ctx.globalAlpha = .5; pr(x + tr, y, P, 2, '#7a5236'); ctx.globalAlpha = 1; }
+    break; }
+  case T.VODA: {
+    ctx.globalAlpha = .62; pr(x, y, P, P, '#3f8fb0'); ctx.globalAlpha = 1;
+    if (sv.karta.pri(tx, ty - 1) !== T.VODA){
+      const v = Math.sin(sv.cas * 0.06 + tx) * 1.2;
+      pr(x, y + v, P, 2, '#8fd8ea');
+    }
+    break; }
+  case T.BLATO:
+    pr(x, y, P, P, '#7a6244');
+    for (let i = 0; i < 3; i++) el(x + 3 + sum(tx, ty + i) * 10, y + 4 + sum(ty, i) * 9, 2, 1.4, '#63503a');
+    if (!trdna(sv.karta.pri(tx, ty - 1))) pr(x, y, P, 3, '#8d7350');
+    break;
+  case T.LAZ: {
+    /* Lažna tla: na pogled skoraj kot skala, le razpoka je pretemna. */
+    pr(x, y, P, P, b.skala); pr(x, y, P, 2, b.skalaT);
+    ctx.globalAlpha = .35;
+    crta(x + 1, y + 5, x + 15, y + 4, 1, '#100c0a'); crta(x + 6, y + 5, x + 6, y + 15, 1, '#100c0a');
+    ctx.globalAlpha = 1;
+    break; }
+  case T.SOL:
+    pr(x, y, P, P, '#e6e3d8');
+    ctx.globalAlpha = .5;
+    crta(x, y + 5, x + 9, y + 7, 1, '#b8b4a4'); crta(x + 9, y + 7, x + P, y + 4, 1, '#b8b4a4');
+    crta(x + 9, y + 7, x + 7, y + P, 1, '#b8b4a4');
+    ctx.globalAlpha = 1;
+    if (!trdna(sv.karta.pri(tx, ty - 1))) pr(x, y, P, 2, '#ffffff');
+    break;
+  case T.TERMIT:
+    pr(x, y, P, P, '#7a5a3e');
+    for (let i = 0; i < 3; i++) pr(x, y + 1 + i * 5, P, 1.6, '#63482f');
+    if (!trdna(sv.karta.pri(tx, ty - 1))) pr(x, y, P, 2, '#8f6b4a');
+    break;
+  case T.STEBER:
+    pr(x + 2, y, 12, P, '#6b5238');
+    pr(x + 2, y, 12, 2, '#8a6b48');
+    break;
+  case T.KOST:
+    pr(x, y + 4, P, 5, '#ddd6c2');
+    el(x + 2, y + 6.5, 3, 3.4, '#e8e2d0'); el(x + 14, y + 6.5, 3, 3.4, '#e8e2d0');
+    pr(x, y + 9, P, 1.4, '#b8b0a0');
+    break;
+  }
+  if (globlje && t !== T.DESKA && t !== T.VODA && t !== T.KOST && t !== T.TRNJE){
+    ctx.globalAlpha = globlje === 1 ? .10 : .20;
+    pr(x, y, P, P, '#1a1008');
+    ctx.globalAlpha = 1;
+  }
+}
+
+function ploscice(sv, b){
+  /* Kamera je že v preslikavi risalnika, zato rišemo v koordinatah sveta. */
+  const x0 = Math.floor(sv.kx / P), x1 = x0 + Math.ceil(SIR / P) + 1;
+  const y0 = Math.floor(sv.ky / P), y1 = y0 + Math.ceil(VIS / P) + 1;
+  for (let ty = y0; ty <= y1; ty++)
+    for (let tx = x0; tx <= x1; tx++){
+      const t = sv.karta.pri(tx, ty);
+      if (t === T.PRAZNO) continue;
+      ploscica(t, tx * P, ty * P, tx, ty, sv, b);
+    }
+}
+
+/* ---------------------------------------------------------------------
+   Vreme, tema in celotni prizor
+   --------------------------------------------------------------------- */
+let temaC = null, temaX = null;
+function narisiTemo(sv){
+  if (!temaC){ temaC = document.createElement('canvas'); temaC.width = SIR; temaC.height = VIS; temaX = temaC.getContext('2d'); }
+  const x = temaX;
+  x.globalCompositeOperation = 'source-over';
+  x.fillStyle = sv.st.temno ? 'rgba(12,8,6,.86)' : 'rgba(10,14,40,.52)';
+  x.fillRect(0, 0, SIR, VIS);
+  x.globalCompositeOperation = 'destination-out';
+  const luc = (lx, ly, r) => {
+    const g = x.createRadialGradient(lx, ly, 0, lx, ly, r);
+    g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(0.55, 'rgba(0,0,0,.75)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    x.fillStyle = g; x.beginPath(); x.arc(lx, ly, r, 0, 6.2832); x.fill();
+  };
+  const i = sv.igralec;
+  luc(i.x - sv.kx, i.y - i.h / 2 - sv.ky, 80 + Math.sin(sv.cas * 0.08) * 4);
+  for (const b of sv.objekti){
+    if (!b.zivo) continue;
+    const d = BITJA[b.tip];
+    if (d.luc) luc(b.x - sv.kx, b.y - 4 - sv.ky, d.luc);
+    else if (b.tip === 'mravljisce' && b.vklop) luc(b.x - sv.kx, b.y - 24 - sv.ky, 40);
+    else if (b.tip === 'izhod') luc(b.x - sv.kx, b.y - 26 - sv.ky, 44);
+  }
+  if (sv.strela > 8) x.clearRect(0, 0, SIR, VIS);
+  x.globalCompositeOperation = 'source-over';
+  ctx.drawImage(temaC, 0, 0);
+}
+
+function vreme(sv, b, nast){
+  if (b.dez){
+    ctx.globalAlpha = .35; ctx.strokeStyle = '#cfe0ee'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let n = 0; n < 60; n++){
+      const x = (n * 61 + sv.cas * 7) % (SIR + 40) - 20;
+      const y = (n * 37 + sv.cas * 11) % (VIS + 20) - 10;
+      ctx.moveTo(x, y); ctx.lineTo(x - 2 + sv.veter * 2, y + 7);
+    }
+    ctx.stroke(); ctx.globalAlpha = 1;
+    if (sv.strela > 0 && !nast.manjBliskov){
+      ctx.globalAlpha = Math.min(.75, sv.strela / 16);
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, SIR, VIS); ctx.globalAlpha = 1;
+    } else if (sv.strela > 0){
+      ctx.globalAlpha = .12; ctx.fillStyle = '#dce8ff'; ctx.fillRect(0, 0, SIR, VIS); ctx.globalAlpha = 1;
+    }
+  }
+  if (sv.st.biom === 'sol' && !nast.manjBliskov){
+    /* vročinsko migetanje: spodnje vrstice zamaknemo vsako svoje */
+    for (let y = VIS - 60; y < VIS; y += 3){
+      const d = Math.sin(sv.cas * 0.05 + y * 0.3) * ((y - (VIS - 60)) / 60) * 2.2;
+      ctx.drawImage(C, 0, y, SIR, 3, d, y, SIR, 3);
+    }
+  }
+  if (b.megla){ ctx.fillStyle = b.megla; ctx.fillRect(0, VIS * 0.6, SIR, VIS * 0.4); }
+}
+
+function narisiPrizor(sv, nast){
+  const b = BIOMI[sv.st.biom] || BIOMI.zora;
+  sv.kx = Math.round(sv.kam.x); sv.ky = Math.round(sv.kam.y);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, SIR, VIS);
+  ozadje(sv, b);
+  if (sv.st.jama){ ctx.fillStyle = sv.st.temno ? '#1c1109' : '#2a1d12'; ctx.fillRect(0, 0, SIR, VIS); }
+
+  /* Kamera in stresanje ob rjovenju gresta v preslikavo risalnika,
+     zato vse od tu naprej rišemo v koordinatah sveta. */
+  const tr = sv.trese;
+  const stx = tr > 0.4 ? Math.round((Math.random() - .5) * tr) : 0;
+  const sty = tr > 0.4 ? Math.round((Math.random() - .5) * tr) : 0;
+  ctx.save();
+  ctx.translate(-sv.kx + stx, -sv.ky + sty);
+
+  ploscice(sv, b);
+
+  /* poplava v finalu */
+  for (const o of sv.objekti){
+    if (o.tip !== 'poplava' || !o.zacela) continue;
+    ctx.globalAlpha = .78;
+    pr(o.x - SIR, sv.ky, SIR, VIS, '#3f7fa8');
+    ctx.globalAlpha = 1;
+    for (let n = 0; n < 8; n++){
+      const yy = sv.ky + (n * 23 + sv.cas * 3) % VIS;
+      pr(o.x - 20 + Math.sin(sv.cas * .1 + n) * 6, yy, 18, 2, '#8fd8ea');
+    }
+    pr(o.x - 3, sv.ky, 3, VIS, '#bfeaf6');
+  }
+
+  for (const o of sv.objekti) if (o.zivo && o.tip !== 'poplava') narisiBitje(o, sv);
+  narisiKita(sv.igralec, sv);
+  if (sv.igralec.nosi) narisiBitje(sv.igralec.nosi, sv);
+
+  /* valovi rjovenja */
+  for (const v of sv.valovi){
+    ctx.globalAlpha = Math.max(0, 1 - v.cas / 26) * 0.75;
+    ctx.strokeStyle = v.dolg ? '#ffd76a' : '#fff2cf';
+    ctx.lineWidth = v.dolg ? 3 : 2;
+    ctx.beginPath(); ctx.arc(p2(v.x), p2(v.y), v.r, 0, 6.2832); ctx.stroke();
+    ctx.globalAlpha = Math.max(0, 1 - v.cas / 26) * 0.35;
+    ctx.beginPath(); ctx.arc(p2(v.x), p2(v.y), v.r * 0.7, 0, 6.2832); ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  for (const d of sv.delci){
+    ctx.globalAlpha = Math.min(1, d.cas / 14);
+    pr(d.x, d.y, d.r, d.r, d.barva);
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+
+  if (sv.st.temno || sv.st.noc) narisiTemo(sv);
+  vreme(sv, b, nast);
+
+  /* preobrazba: zaslon pobeli in Kito zraste */
+  if (sv.stanje === 'preobrazba'){
+    const t = sv.preobrazbaCas;
+    ctx.globalAlpha = Math.min(.85, Math.abs(90 - t) < 40 ? (40 - Math.abs(90 - t)) / 40 : 0);
+    ctx.fillStyle = '#fff6d2'; ctx.fillRect(0, 0, SIR, VIS); ctx.globalAlpha = 1;
+  }
+}
+
+/* =====================================================================
+   8. ZVOK
+   Glasba in učinki nastanejo sproti (Web Audio) – nobene zvočne datoteke,
+   nobenih tujih posnetkov. Trije kanali: glasba, učinki in rjovenje;
+   ob rjovenju se glasba za hip umakne (ducking).
+   ===================================================================== */
+
+const Zvok = {
+  ac: null, glasba: null, ucinki: null, rjov: null, glavni: null,
+  vklop: true, glasnostGlasba: 0.5, glasnostUcinki: 0.75,
+  ura: 0, korakBara: 0, casovnik: null, biom: null, tece: false,
+
+  zbudi(){
+    if (this.ne) return;
+    if (this.ac) { if (this.ac.state === 'suspended') { try { this.ac.resume(); } catch (e) {} } return; }
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) { this.ne = true; return; }
+    try { this.ac = new AC(); } catch (e) { this.ne = true; return; }
+    this.glavni = this.ac.createGain(); this.glavni.gain.value = 0.9;
+    this.glavni.connect(this.ac.destination);
+    this.glasba = this.ac.createGain(); this.glasba.gain.value = this.glasnostGlasba;
+    this.ucinki = this.ac.createGain(); this.ucinki.gain.value = this.glasnostUcinki;
+    this.rjov = this.ac.createGain(); this.rjov.gain.value = 0.85;
+    this.glasba.connect(this.glavni); this.ucinki.connect(this.glavni); this.rjov.connect(this.glavni);
+  },
+
+  /* --- osnovni gradnik: en ton --- */
+  ton(o){
+    if (!this.ac || !this.vklop) return;
+    try {
+    const t = o.ob || this.ac.currentTime;
+    const osc = this.ac.createOscillator();
+    const g = this.ac.createGain();
+    osc.type = o.tip || 'square';
+    osc.frequency.setValueAtTime(o.f, t);
+    if (o.f2) osc.frequency.exponentialRampToValueAtTime(Math.max(20, o.f2), t + o.d);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0002, o.g || 0.2), t + (o.napad || 0.01));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + o.d);
+    osc.connect(g); g.connect(o.kanal || this.ucinki);
+    osc.start(t); osc.stop(t + o.d + 0.02);
+    } catch (e) { this.ne = true; }
+  },
+  /* --- šum: bobni, prah, veter --- */
+  sum(o){
+    if (!this.ac || !this.vklop) return;
+    try {
+    const t = o.ob || this.ac.currentTime;
+    const n = Math.floor(this.ac.sampleRate * o.d);
+    const buf = this.ac.createBuffer(1, n, this.ac.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+    const src = this.ac.createBufferSource(); src.buffer = buf;
+    const f = this.ac.createBiquadFilter();
+    f.type = o.filter || 'lowpass'; f.frequency.value = o.fc || 900;
+    const g = this.ac.createGain(); g.gain.value = o.g || 0.2;
+    src.connect(f); f.connect(g); g.connect(o.kanal || this.ucinki);
+    src.start(t); src.stop(t + o.d);
+    } catch (e) { this.ne = true; }
+  },
+
+  /* --- učinki po imenih dogodkov iz sveta --- */
+  ucinek(ime){
+    if (!this.ac || !this.vklop) return;
+    const t = this.ac.currentTime;
+    switch (ime){
+    case 'skok':      this.ton({ f: 320, f2: 620, d: 0.10, g: 0.14, tip: 'square' }); break;
+    case 'skok-napad':this.ton({ f: 520, f2: 180, d: 0.14, g: 0.16, tip: 'sawtooth' }); break;
+    case 'zamah':     this.sum({ d: 0.12, fc: 2400, filter: 'bandpass', g: 0.24 }); break;
+    case 'zalet':     this.sum({ d: 0.26, fc: 700, g: 0.28 });
+                      this.ton({ f: 150, f2: 90, d: 0.24, g: 0.18, tip: 'sawtooth' }); break;
+    case 'kop':       this.sum({ d: 0.16, fc: 500, g: 0.3 }); break;
+    case 'udar':      this.sum({ d: 0.14, fc: 1600, g: 0.3 });
+                      this.ton({ f: 220, f2: 110, d: 0.12, g: 0.2, tip: 'square' }); break;
+    case 'odboj':     this.ton({ f: 900, f2: 1400, d: 0.08, g: 0.16, tip: 'triangle' }); break;
+    case 'omam':      this.ton({ f: 700, f2: 420, d: 0.18, g: 0.12, tip: 'triangle' }); break;
+    case 'hrosc':     this.ton({ f: 880, d: 0.06, g: 0.14, tip: 'triangle' });
+                      this.ton({ f: 1320, d: 0.08, g: 0.10, tip: 'triangle', ob: t + 0.05 }); break;
+    case 'sonce':     [0, 1, 2, 3].forEach(n => this.ton({ f: 523 * Math.pow(1.1892, n * 2), d: 0.22, g: 0.16, tip: 'triangle', ob: t + n * 0.08 })); break;
+    case 'riba':      this.ton({ f: 640, f2: 1180, d: 0.18, g: 0.14, tip: 'sine' }); break;
+    case 'obroc':     this.ton({ f: 1046, d: 0.10, g: 0.12, tip: 'sine' }); break;
+    case 'tocka':     [0, 1, 2].forEach(n => this.ton({ f: 392 * Math.pow(1.1892, n * 3), d: 0.26, g: 0.15, tip: 'triangle', ob: t + n * 0.11 })); break;
+    case 'rana':      this.ton({ f: 300, f2: 120, d: 0.24, g: 0.24, tip: 'sawtooth' });
+                      this.sum({ d: 0.18, fc: 800, g: 0.2 }); break;
+    case 'smrt':      [0, 1, 2, 3].forEach(n => this.ton({ f: 440 / (1 + n * 0.35), d: 0.28, g: 0.2, tip: 'square', ob: t + n * 0.13 })); break;
+    case 'ozivi':     [0, 1, 2].forEach(n => this.ton({ f: 330 * (1 + n * 0.4), d: 0.2, g: 0.14, tip: 'triangle', ob: t + n * 0.1 })); break;
+    case 'nazaj':     this.ton({ f: 1200, f2: 300, d: 0.5, g: 0.14, tip: 'sine' }); break;
+    case 'lom':       this.sum({ d: 0.4, fc: 420, g: 0.34 });
+                      this.ton({ f: 110, f2: 50, d: 0.36, g: 0.22, tip: 'sawtooth' }); break;
+    case 'smeh':      [0, 1, 2, 3, 4].forEach(n => this.ton({ f: 620 + n * 90, d: 0.07, g: 0.12, tip: 'square', ob: t + n * 0.07 })); break;
+    case 'krik':      this.ton({ f: 1500, f2: 700, d: 0.2, g: 0.12, tip: 'sawtooth' }); break;
+    case 'sik':       this.sum({ d: 0.22, fc: 3200, filter: 'highpass', g: 0.16 }); break;
+    case 'luska':     this.ton({ f: 260, f2: 520, d: 0.16, g: 0.14, tip: 'triangle' }); break;
+    case 'beg':       [0, 1, 2].forEach(n => this.ton({ f: 900 - n * 180, d: 0.09, g: 0.12, tip: 'square', ob: t + n * 0.06 })); break;
+    case 'ptice':     [0, 1, 2, 3, 4, 5].forEach(n => this.ton({ f: 1400 + Math.sin(n) * 500, d: 0.06, g: 0.10, tip: 'sine', ob: t + n * 0.05 })); break;
+    case 'cred':      this.sum({ d: 0.7, fc: 260, g: 0.3 }); break;
+    case 'nosorog':   this.ton({ f: 90, f2: 60, d: 0.5, g: 0.26, tip: 'sawtooth' });
+                      this.sum({ d: 0.6, fc: 300, g: 0.24 }); break;
+    case 'prijem':    this.ton({ f: 400, f2: 300, d: 0.08, g: 0.14, tip: 'square' }); break;
+    case 'vrzi':      this.ton({ f: 300, f2: 800, d: 0.14, g: 0.16, tip: 'square' }); break;
+    case 'preobrazba':[0, 1, 2, 3, 4, 5].forEach(n => this.ton({ f: 196 * Math.pow(1.1892, n * 2), d: 0.6, g: 0.14, tip: 'triangle', ob: t + n * 0.18 })); break;
+    case 'sef':       [0, 1, 2, 3].forEach(n => this.ton({ f: 130 * (n + 1), d: 0.5, g: 0.16, tip: 'sawtooth', ob: t + n * 0.1 })); break;
+    case 'zmaga':     [0, 2, 4, 7, 9].forEach((n, i) => this.ton({ f: 262 * Math.pow(1.05946, n + 12), d: 0.42, g: 0.18, tip: 'triangle', ob: t + i * 0.14 })); break;
+    case 'rjov': case 'rjov-dolg': {
+      const dolg = ime === 'rjov-dolg';
+      this.ton({ f: dolg ? 150 : 200, f2: dolg ? 62 : 95, d: dolg ? 0.75 : 0.5,
+                 g: 0.34, tip: 'sawtooth', kanal: this.rjov, napad: 0.03 });
+      this.ton({ f: dolg ? 76 : 100, f2: dolg ? 40 : 60, d: dolg ? 0.8 : 0.55,
+                 g: 0.26, tip: 'square', kanal: this.rjov, napad: 0.04 });
+      this.sum({ d: dolg ? 0.7 : 0.45, fc: 600, g: 0.2, kanal: this.rjov });
+      /* glasba se za hip umakne */
+      if (this.glasba){
+        const g = this.glasba.gain;
+        g.cancelScheduledValues(t);
+        g.setValueAtTime(g.value, t);
+        g.linearRampToValueAtTime(this.glasnostGlasba * 0.22, t + 0.05);
+        g.linearRampToValueAtTime(this.glasnostGlasba, t + (dolg ? 1.1 : 0.8));
+      }
+      break; }
+    }
+  },
+
+  /* --- glasba: kratka zanka za vsak biom --- */
+  zanke: {
+    zora:    { tempo: 104, lestvica: [0, 3, 5, 7, 10], bas: [0, 0, 5, 0, 3, 0, 5, 7], koren: 98,
+               boben: [1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1], motiv: [0, 2, 4, 2, 3, 1, 0, -1] },
+    brlog:   { tempo: 96,  lestvica: [0, 1, 5, 6, 10], bas: [0, 0, 1, 0, 0, 6, 0, 1], koren: 82,
+               boben: [1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0], motiv: [0, 1, 0, 3, 2, 1, 0, 0] },
+    blato:   { tempo: 88,  lestvica: [0, 2, 3, 7, 9], bas: [0, 0, 0, 3, 0, 0, 7, 5], koren: 87,
+               boben: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0], motiv: [0, 2, 3, 2, 0, -1, 0, 2] },
+    sol:     { tempo: 76,  lestvica: [0, 2, 4, 7, 11], bas: [0, 0, 0, 0, 7, 0, 0, 0], koren: 110,
+               boben: [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0], motiv: [0, 4, 7, 4, 2, 0, -3, 0] },
+    noc:     { tempo: 92,  lestvica: [0, 2, 3, 7, 8], bas: [0, 0, 3, 0, 0, 7, 0, 3], koren: 73,
+               boben: [1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0], motiv: [0, 3, 2, 0, -2, 0, 3, 5] },
+    jez:     { tempo: 118, lestvica: [0, 2, 5, 7, 9], bas: [0, 7, 0, 5, 0, 7, 3, 0], koren: 92,
+               boben: [1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0], motiv: [0, 2, 5, 7, 5, 2, 0, 2] },
+    termit:  { tempo: 84,  lestvica: [0, 3, 5, 8, 10], bas: [0, 0, 0, 5, 0, 0, 3, 0], koren: 65,
+               boben: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0], motiv: [0, 3, 5, 3, 0, 5, 8, 5] },
+    nevihta: { tempo: 126, lestvica: [0, 2, 3, 5, 7], bas: [0, 0, 3, 3, 5, 5, 7, 3], koren: 78,
+               boben: [1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1], motiv: [0, 3, 7, 3, 5, 3, 0, -2] }
+  },
+
+  zacniGlasbo(biom){
+    this.zbudi();
+    if (!this.ac) return;
+    this.biom = this.zanke[biom] ? biom : 'zora';
+    if (this.casovnik) return;
+    this.ura = this.ac.currentTime + 0.1;
+    this.korakBara = 0;
+    this.tece = true;
+    this.casovnik = setInterval(() => this.razporedi(), 30);
+  },
+  ustaviGlasbo(){
+    if (this.casovnik){ clearInterval(this.casovnik); this.casovnik = null; }
+    this.tece = false;
+  },
+  razporedi(){
+    if (!this.ac || !this.vklop || !this.tece) return;
+    const z = this.zanke[this.biom];
+    const dolzina = 60 / z.tempo / 4;                  /* šestnajstinka */
+    while (this.ura < this.ac.currentTime + 0.25){
+      const k = this.korakBara % 16;
+      const ob = this.ura;
+      /* boben */
+      if (z.boben[k]) this.sum({ d: 0.09, fc: k % 4 === 0 ? 240 : 1800, filter: k % 4 === 0 ? 'lowpass' : 'highpass',
+                                 g: k % 4 === 0 ? 0.30 : 0.10, ob: ob, kanal: this.glasba });
+      /* bas */
+      if (k % 2 === 0){
+        const n = z.bas[(k / 2) % 8];
+        this.ton({ f: z.koren * Math.pow(1.05946, n), d: dolzina * 1.7, g: 0.13, tip: 'triangle', ob: ob, kanal: this.glasba });
+      }
+      /* motiv */
+      if (k % 2 === 1 && (this.korakBara % 64) >= 16){
+        const m = z.motiv[((this.korakBara / 2) | 0) % 8];
+        const st = z.lestvica[((m % 5) + 5) % 5] + 12 * (m >= 5 ? 1 : 0);
+        this.ton({ f: z.koren * 2 * Math.pow(1.05946, st), d: dolzina * 1.3, g: 0.075, tip: 'square', ob: ob, kanal: this.glasba });
+      }
+      this.ura += dolzina;
+      this.korakBara++;
+    }
+  }
+};
+
+/* =====================================================================
+   9. KRMILJE, ZASLONI IN ZANKA
+   ===================================================================== */
+
+const $ = id => document.getElementById(id);
+
+/* ---------- nastavitve in shramba ---------- */
+const PRIVZETO = {
+  tezavnost: 'zgodba', shema: 'privzeta', manjBliskov: false, drziPounce: false,
+  nesmrtnost: false, glasba: 0.5, ucinki: 0.75, dotik: 'samodejno', mesto: 0
+};
+let nast = Object.assign({}, PRIVZETO);
+let shramba = { mesta: [null, null, null], nast: {} };
+const KLJUC = 'kito-shramba-v1';
+
+function beriShrambo(){
+  try {
+    const s = JSON.parse(localStorage.getItem(KLJUC));
+    if (s && s.mesta){ shramba = s; Object.assign(nast, PRIVZETO, s.nast || {}); }
+  } catch (e) {}
+  Zvok.glasnostGlasba = nast.glasba; Zvok.glasnostUcinki = nast.ucinki;
+}
+function pisiShrambo(){
+  shramba.nast = {
+    tezavnost: nast.tezavnost, shema: nast.shema, manjBliskov: nast.manjBliskov,
+    drziPounce: nast.drziPounce, nesmrtnost: nast.nesmrtnost,
+    glasba: nast.glasba, ucinki: nast.ucinki, dotik: nast.dotik, mesto: nast.mesto
+  };
+  try { localStorage.setItem(KLJUC, JSON.stringify(shramba)); } catch (e) {}
+}
+function novoMesto(){
+  return { odklenjeno: 1, hrosci: 0, oblika: 'mladic', oklepMax: 4, rjovMax: 100,
+           zivljenja: 3, koncani: {}, izidFinala: null, cas: 0 };
+}
+function mesto(){
+  if (!shramba.mesta[nast.mesto]) shramba.mesta[nast.mesto] = novoMesto();
+  return shramba.mesta[nast.mesto];
+}
+
+/* ---------- vhod ---------- */
+const V = { levo: 0, desno: 0, gor: 0, dol: 0, skok: 0, napad: 0, rjov: 0,
+            skokPritisnjen: 0, napadPritisnjen: 0, rjovPritisnjen: 0 };
+const tipke = {};
+const dotikGumbi = {};
+const PRESLIKAVA = {
+  ArrowLeft: 'levo', KeyA: 'levo', ArrowRight: 'desno', KeyD: 'desno',
+  ArrowUp: 'gor', KeyW: 'gor', ArrowDown: 'dol', KeyS: 'dol',
+  Space: 'skok', KeyZ: 'skok', KeyJ: 'skok',
+  KeyX: 'napad', KeyK: 'napad', ShiftLeft: 'napad',
+  KeyC: 'rjov', KeyL: 'rjov', Enter: 'rjov'
+};
+let prejSkok = 0, prejNapad = 0, prejRjov = 0;
+
+function osveziVhod(){
+  const g = navigator.getGamepads ? navigator.getGamepads()[0] : null;
+  const gp = t => g && g.buttons[t] && g.buttons[t].pressed;
+  const os = (n, m) => g && g.axes.length > n && (m > 0 ? g.axes[n] > 0.4 : g.axes[n] < -0.4);
+  V.levo  = (tipke.levo || dotikGumbi.levo || gp(14) || os(0, -1)) ? 1 : 0;
+  V.desno = (tipke.desno || dotikGumbi.desno || gp(15) || os(0, 1)) ? 1 : 0;
+  V.gor   = (tipke.gor || gp(12) || os(1, -1)) ? 1 : 0;
+  V.dol   = (tipke.dol || dotikGumbi.dol || gp(13) || os(1, 1)) ? 1 : 0;
+  V.skok  = (tipke.skok || dotikGumbi.skok || gp(0)) ? 1 : 0;
+  V.napad = (tipke.napad || dotikGumbi.napad || gp(2) || gp(1)) ? 1 : 0;
+  V.rjov  = (tipke.rjov || dotikGumbi.rjov || gp(3) || gp(5) || gp(7)) ? 1 : 0;
+  V.skokPritisnjen  = V.skok && !prejSkok ? 1 : 0;
+  /* »drži za skok na plen« ponavlja napad, dokler tipko držiš */
+  V.napadPritisnjen = (V.napad && !prejNapad) || (nast.drziPounce && V.napad) ? 1 : 0;
+  V.rjovPritisnjen  = V.rjov && !prejRjov ? 1 : 0;
+  prejSkok = V.skok; prejNapad = V.napad; prejRjov = V.rjov;
+}
+
+addEventListener('keydown', e => {
+  const k = PRESLIKAVA[e.code];
+  if (k){ tipke[k] = 1; e.preventDefault(); Zvok.zbudi(); }
+  if (e.code === 'Escape' || e.code === 'KeyP'){ if (zaslon === 'igra') premor(true); else if (zaslon === 'premor') premor(false); }
+  if (e.code === 'KeyR' && zaslon === 'igra' && nast.tezavnost === 'zgodba' && sv) { if (sv.nazajVCas()) sv.igralec.zivi = true; }
+});
+addEventListener('keyup', e => { const k = PRESLIKAVA[e.code]; if (k){ tipke[k] = 0; e.preventDefault(); } });
+addEventListener('blur', () => { for (const k in tipke) tipke[k] = 0; });
+
+function veziDotik(){
+  const gumbi = document.querySelectorAll('#dotik [data-g]');
+  for (const el of gumbi){
+    const ime = el.dataset.g;
+    const dol = e => { dotikGumbi[ime] = 1; el.classList.add('drzi'); Zvok.zbudi(); e.preventDefault(); };
+    const gor = e => { dotikGumbi[ime] = 0; el.classList.remove('drzi'); e.preventDefault(); };
+    el.addEventListener('pointerdown', dol);
+    el.addEventListener('pointerup', gor);
+    el.addEventListener('pointercancel', gor);
+    el.addEventListener('pointerleave', gor);
+    el.addEventListener('contextmenu', e => e.preventDefault());
+  }
+}
+
+/* ---------- platno ---------- */
+function postaviPlatno(){
+  const p = $('platno');
+  const okvir = $('igra').getBoundingClientRect();
+  const prosto = Math.min(okvir.width / SIR, okvir.height / VIS);
+  /* Cela povečava da najostrejše pike; če bi tako ostala več kot petina
+     zaslona prazna, raje zapolnimo zaslon – na iPadu je večja slika več
+     vredna od popolnoma enakih pik. */
+  const cela = Math.max(1, Math.floor(prosto));
+  const m = (cela / prosto > 0.9) ? cela : prosto;
+  p.width = SIR; p.height = VIS;
+  p.style.width = Math.round(SIR * m) + 'px';
+  p.style.height = Math.round(VIS * m) + 'px';
+  ctx = p.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  C = p; mer = 1;
+}
+addEventListener('resize', () => { if (C) postaviPlatno(); });
+
+/* ---------- zasloni ---------- */
+let zaslon = 'naslov';
+const ZASLONI = ['naslov', 'mesta', 'izbor', 'nastavitve', 'zgodba', 'igra', 'premor', 'konec', 'ovire'];
+function pokazi(ime){
+  zaslon = ime;
+  for (const z of ZASLONI){ const el = $('z-' + z); if (el) el.hidden = (z !== ime); }
+  $('igra').hidden = !(ime === 'igra' || ime === 'premor' || ime === 'konec' || ime === 'ovire');
+  if (ime === 'igra') postaviPlatno();
+  document.body.dataset.zaslon = ime;
+}
+
+/* ---------- igra ---------- */
+let sv = null, zadnjiCas = 0, akum = 0, tece = false, zacetekNivoja = 0;
+let stopnjaIdx = 0;
+
+function zacniNivo(idx, nadaljuj){
+  const st = STOPNJE[idx];
+  const m = mesto();
+  stopnjaIdx = idx;
+  sv = new Svet(st, {
+    tezavnost: nast.tezavnost,
+    nesmrtnost: nast.nesmrtnost,
+    /* Kito je mladič do Slanega krsta (5. nivo) in odrasel po njem. */
+    oblika: st.lik || (st.st >= 6 ? 'odrasel' : 'mladic'),
+    oklepMax: st.lik ? null : Math.max(m.oklepMax, st.st >= 6 ? LIKI.odrasel.oklep : LIKI.mladic.oklep),
+    rjovMax: st.lik ? null : Math.max(m.rjovMax, st.st >= 6 ? 125 : 100),
+    hroscev: 0,
+    zivljenja: nast.tezavnost === 'prah' ? 3 : 5
+  });
+  zacetekNivoja = performance.now();
+  Zvok.zacniGlasbo(st.biom);
+  sv.napis(st.ime);
+  pokazi('igra');
+  tece = true; zadnjiCas = performance.now(); akum = 0;
+  requestAnimationFrame(zanka);
+}
+
+function zanka(t){
+  if (!tece) return;
+  requestAnimationFrame(zanka);
+  let dt = t - zadnjiCas; zadnjiCas = t;
+  if (dt > 200) dt = 200;
+  akum += dt;
+  let n = 0;
+  while (akum >= KORAK && n < 5){
+    if (zaslon === 'igra'){ osveziVhod(); sv.korak(V); obdelajDogodke(); }
+    akum -= KORAK; n++;
+  }
+  if (sv){ narisiPrizor(sv, nast); osveziHUD(); }
+}
+
+function obdelajDogodke(){
+  for (const d of sv.dogodki) Zvok.ucinek(d);
+  sv.dogodki.length = 0;
+  if (sv.stanje === 'izbira' && zaslon === 'igra') odpriIzbiro();
+  if (sv.stanje === 'zmaga' && zaslon === 'igra') koncajNivo(true);
+  if (sv.stanje === 'konec' && zaslon === 'igra') koncajNivo(false);
+}
+
+function odpriIzbiro(){
+  const c = sv.izbira.cena;
+  $('ovire-naslov').textContent = 'Zadnja beseda';
+  $('ovire-besedilo').textContent =
+    'Baobab spi. Duh suše čaka. Krono lahko vzameš na dva načina – ' +
+    'ali pa je sploh ne vzameš in pustiš, da odločijo črede.';
+  $('ovire-a').textContent = 'Bori se z duhom suše';
+  $('ovire-b').textContent = 'Podari ' + c + ' skarabejev drevesu  (imaš ' + sv.hroscev + ')';
+  $('ovire-b').disabled = sv.hroscev < c;
+  pokazi('ovire');
+}
+function izberi(kaj){
+  pokazi('igra');
+  sv.konecIzbire(kaj);
+  if (kaj === 'boj') sv.napis('Duh suše se je zbudil');
+}
+
+function premor(vklop){
+  if (vklop){ pokazi('premor'); Zvok.ustaviGlasbo(); }
+  else { pokazi('igra'); zadnjiCas = performance.now(); Zvok.zacniGlasbo(STOPNJE[stopnjaIdx].biom); }
+}
+
+function koncajNivo(zmaga){
+  const st = STOPNJE[stopnjaIdx], m = mesto();
+  tece = false;
+  Zvok.ustaviGlasbo();
+  const sek = Math.round((performance.now() - zacetekNivoja) / 1000);
+  if (zmaga){
+    m.hrosci += sv.hroscev;
+    m.oklepMax = Math.max(m.oklepMax, sv.igralec.oklepMax);
+    m.rjovMax = Math.max(m.rjovMax, sv.igralec.rjovMax);
+    if (sv.igralec.oblika === 'odrasel') m.oblika = 'odrasel';
+    if (st.preobrazba) m.oblika = 'odrasel';
+    const prej = m.koncani[st.id];
+    m.koncani[st.id] = {
+      cas: prej && prej.cas < sek ? prej.cas : sek,
+      hrosci: Math.max(prej ? prej.hrosci : 0, sv.hroscev),
+      ribe: Math.max(prej ? prej.ribe : 0, sv.resene),
+      skupaj: sv.hroscevSkupaj
+    };
+    if (!st.bonus) m.odklenjeno = Math.max(m.odklenjeno, Math.min(10, st.st + 1));
+    if (st.finale) m.izidFinala = sv.izidFinala || 'boj';
+    pisiShrambo();
+  }
+  $('konec-naslov').textContent = zmaga ? 'Nivo končan' : 'Zmanjkalo je življenj';
+  $('konec-ime').textContent = st.st + '. ' + st.ime;
+  const vr = [];
+  vr.push(['Skarabeji', sv.hroscev + ' / ' + sv.hroscevSkupaj]);
+  vr.push(['Čas', sek + ' s']);
+  if (sv.ribSkupaj) vr.push(['Rešene ribe', sv.resene + ' / ' + sv.ribSkupaj]);
+  if (sv.stebriSkupaj) vr.push(['Podrti nosilci', sv.podrtiStebri + ' / ' + sv.stebriSkupaj]);
+  if (st.id === 'karavana') vr.push(['Osvobojene živali', sv.osvobojeni]);
+  if (st.letenje) vr.push(['Obroči', sv.obroci]);
+  if (st.lovljenje) vr.push(['Ujeto sadje', sv.ujeto + ' (zgrešeno ' + sv.zgreseno + ')']);
+  if (st.finale && zmaga) vr.push(['Konec', sv.izidFinala === 'dar' ? 'Drevo si zbudil z darom' : 'Duha suše si premagal']);
+  $('konec-vrstice').innerHTML = vr.map(v => '<div><span>' + v[0] + '</span><b>' + v[1] + '</b></div>').join('');
+  $('konec-naprej').hidden = !(zmaga && !st.bonus && st.st < 10);
+  pokazi('konec');
+}
+
+/* ---------- HUD ---------- */
+let hudOklep = -1, hudNapis = '';
+function osveziHUD(){
+  const i = sv.igralec;
+  if (hudOklep !== i.oklep + i.oklepMax * 100){
+    hudOklep = i.oklep + i.oklepMax * 100;
+    let h = '';
+    for (let n = 0; n < i.oklepMax; n++) h += '<i class="' + (n < i.oklep ? 'polna' : '') + '"></i>';
+    $('oklep').innerHTML = h;
+  }
+  $('rjov-polnilo').style.width = Math.round(i.rjov / i.rjovMax * 100) + '%';
+  $('rjov-meter').classList.toggle('poln', i.rjov >= (i.odrasel() ? 42 : 30));
+  $('hrosci').textContent = sv.hroscev;
+  $('zivljenja').textContent = Math.max(0, sv.zivljenja);
+  const n = sv.napisi.length ? sv.napisi[sv.napisi.length - 1] : null;
+  const t = n ? n.t : '';
+  if (t !== hudNapis){ hudNapis = t; $('napis').textContent = t; }
+  $('napis').style.opacity = n ? Math.min(1, n.cas / 40) : 0;
+}
+
+/* ---------- meniji ---------- */
+function sestaviIzbor(){
+  const m = mesto();
+  const kart = st => {
+    const k = m.koncani[st.id];
+    const zaklenjen = !st.bonus && st.st > m.odklenjeno;
+    const bonusZaklenjen = st.bonus && m.odklenjeno < 3;
+    const z = zaklenjen || bonusZaklenjen;
+    return '<button class="nivo' + (z ? ' zaklenjen' : '') + (k ? ' koncan' : '') + '" ' +
+      (z ? 'disabled' : '') + ' data-nivo="' + st.id + '">' +
+      '<span class="st">' + (st.bonus ? '★' : st.st) + '</span>' +
+      '<span class="tx"><b>' + st.ime + '</b><i>' + st.glagol + '</i>' +
+      (k ? '<u>🪲 ' + k.hrosci + '/' + k.skupaj + ' · ' + k.cas + ' s' + (k.ribe ? ' · 🐟 ' + k.ribe : '') + '</u>' : '') +
+      (z ? '<u>zaklenjeno</u>' : '') + '</span></button>';
+  };
+  $('izbor-glavni').innerHTML = STOPNJE.filter(s => !s.bonus).map(kart).join('');
+  $('izbor-bonus').innerHTML = STOPNJE.filter(s => s.bonus).map(kart).join('');
+  const skup = STOPNJE.reduce((a, s) => a + (m.koncani[s.id] ? m.koncani[s.id].hrosci : 0), 0);
+  const vsi = STOPNJE.reduce((a, s) => a + (m.koncani[s.id] ? m.koncani[s.id].skupaj : 0), 0);
+  $('izbor-skupaj').textContent = 'Nabranih skarabejev: ' + m.hrosci +
+    (vsi ? '   ·   najdenih na nivojih: ' + skup + '/' + vsi : '');
+}
+
+function sestaviMesta(){
+  $('mesta-seznam').innerHTML = [0, 1, 2].map(n => {
+    const s = shramba.mesta[n];
+    const opis = s ? ('nivo ' + s.odklenjeno + ' · 🪲 ' + s.hrosci + ' · ' +
+      (s.oblika === 'odrasel' ? 'odrasel Kito' : 'mladič')) : 'prazno';
+    return '<button class="mesto' + (nast.mesto === n ? ' izbrano' : '') + '" data-mesto="' + n + '">' +
+      '<b>Shramba ' + (n + 1) + '</b><i>' + opis + '</i></button>';
+  }).join('') + '<button class="mesto zbrisi" data-zbrisi="1"><b>Izbriši to shrambo</b><i>napredek gre v nič</i></button>';
+}
+
+function sestaviNastavitve(){
+  const stikalo = (kl, ime, opis) =>
+    '<button class="nas" data-stikalo="' + kl + '" aria-pressed="' + (nast[kl] ? 'true' : 'false') + '">' +
+    '<b>' + ime + '</b><i>' + opis + '</i><span class="lucka"></span></button>';
+  const izbira = (kl, ime, moznosti) =>
+    '<div class="nas nasIzbira"><b>' + ime + '</b><div class="gumbi">' +
+    moznosti.map(m => '<button data-izbira="' + kl + '" data-vrednost="' + m[0] + '"' +
+      (nast[kl] === m[0] ? ' class="izbrano"' : '') + '>' + m[1] + '</button>').join('') + '</div></div>';
+  const drsnik = (kl, ime) =>
+    '<div class="nas nasIzbira"><b>' + ime + '</b>' +
+    '<input type="range" min="0" max="100" value="' + Math.round(nast[kl] * 100) + '" data-drsnik="' + kl + '"></div>';
+
+  $('nastavitve-seznam').innerHTML =
+    izbira('tezavnost', 'Težavnost', [['zgodba', 'Zgodba'], ['prah', 'Prah']]) +
+    '<p class="pojasnilo">Zgodba: ob smrti se čas zavrti 8 sekund nazaj, kontrolnih točk je več. ' +
+    'Prah: brez vračanja časa, tako kot v starih igrah.</p>' +
+    stikalo('drziPounce', 'Drži za skok na plen', 'napad se ponavlja, dokler držiš tipko') +
+    stikalo('manjBliskov', 'Manj bliskov', 'strele in vročinsko migetanje so blažji') +
+    stikalo('nesmrtnost', 'Nesmrtnost', 'za vadbo in za najmlajše') +
+    izbira('shema', 'Barvna shema', [['privzeta', 'Privzeta'], ['toplahladna', 'Toplo–hladna'], ['visok', 'Visok kontrast']]) +
+    izbira('dotik', 'Gumbi na zaslonu', [['samodejno', 'Samodejno'], ['vedno', 'Vedno'], ['nikoli', 'Nikoli']]) +
+    drsnik('glasba', 'Glasnost glasbe') +
+    drsnik('ucinki', 'Glasnost učinkov');
+}
+
+function uporabiNastavitve(){
+  Zvok.glasnostGlasba = nast.glasba; Zvok.glasnostUcinki = nast.ucinki;
+  if (Zvok.glasba) Zvok.glasba.gain.value = nast.glasba;
+  if (Zvok.ucinki) Zvok.ucinki.gain.value = nast.ucinki;
+  const dotikVklop = nast.dotik === 'vedno' ||
+    (nast.dotik === 'samodejno' && (matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window));
+  $('dotik').hidden = !dotikVklop;
+  document.body.dataset.shema = nast.shema;
+  if (sv) sv.nesmrtnost = nast.nesmrtnost;
+  pisiShrambo();
+}
+
+function pokaziZgodbo(idx){
+  const st = STOPNJE[idx];
+  $('zgodba-st').textContent = st.bonus ? 'Dodatna soba' : 'Nivo ' + st.st;
+  $('zgodba-ime').textContent = st.ime;
+  $('zgodba-tekst').textContent = st.uvod;
+  $('zgodba-glagol').textContent = st.glagol;
+  $('zgodba-naprej').dataset.nivo = idx;
+  pokazi('zgodba');
+}
+
+/* ---------- klik po vsem programu ---------- */
+document.addEventListener('click', e => {
+  const c = e.target.closest('[data-dej],[data-nivo],[data-mesto],[data-stikalo],[data-izbira],[data-zbrisi]');
+  if (!c) return;
+  Zvok.zbudi();
+
+  if (c.dataset.nivo !== undefined && c.dataset.dej === undefined){
+    const idx = STOPNJE.findIndex(s => s.id === c.dataset.nivo);
+    if (idx >= 0) pokaziZgodbo(idx);
+    return;
+  }
+  if (c.dataset.mesto !== undefined){ nast.mesto = +c.dataset.mesto; pisiShrambo(); sestaviMesta(); sestaviIzbor(); return; }
+  if (c.dataset.zbrisi){ shramba.mesta[nast.mesto] = novoMesto(); pisiShrambo(); sestaviMesta(); sestaviIzbor(); return; }
+  if (c.dataset.stikalo){ nast[c.dataset.stikalo] = !nast[c.dataset.stikalo]; sestaviNastavitve(); uporabiNastavitve(); return; }
+  if (c.dataset.izbira){ nast[c.dataset.izbira] = c.dataset.vrednost; sestaviNastavitve(); uporabiNastavitve(); return; }
+
+  switch (c.dataset.dej){
+  case 'igraj': {
+    const m = mesto();
+    const idx = STOPNJE.findIndex(s => !s.bonus && s.st === Math.min(10, m.odklenjeno));
+    pokaziZgodbo(idx < 0 ? 0 : idx);
+    break; }
+  case 'izbor': sestaviIzbor(); pokazi('izbor'); break;
+  case 'mesta': sestaviMesta(); pokazi('mesta'); break;
+  case 'nastavitve': sestaviNastavitve(); pokazi('nastavitve'); break;
+  case 'zgodbaBesedilo': pokazi('zgodba-knjiga'); break;
+  case 'naslov': tece = false; Zvok.ustaviGlasbo(); pokazi('naslov'); break;
+  case 'zacni': zacniNivo(+$('zgodba-naprej').dataset.nivo); break;
+  case 'nadaljuj': premor(false); break;
+  case 'ponovi': zacniNivo(stopnjaIdx); break;
+  case 'naprej': {
+    const naslednji = STOPNJE.findIndex(s => !s.bonus && s.st === STOPNJE[stopnjaIdx].st + 1);
+    if (naslednji >= 0) pokaziZgodbo(naslednji); else { sestaviIzbor(); pokazi('izbor'); }
+    break; }
+  case 'izbor-iz-igre': tece = false; Zvok.ustaviGlasbo(); sestaviIzbor(); pokazi('izbor'); break;
+  case 'premor': premor(true); break;
+  case 'nazajVCas': if (sv && sv.nazajVCas()){ sv.igralec.zivi = true; premor(false); } break;
+  case 'izbira-a': izberi('boj'); break;
+  case 'izbira-b': izberi('dar'); break;
+  }
+});
+document.addEventListener('input', e => {
+  const d = e.target.dataset.drsnik;
+  if (!d) return;
+  nast[d] = +e.target.value / 100;
+  uporabiNastavitve();
+});
+
+/* ---------- zagon ---------- */
+function zacetek(){
+  beriShrambo();
+  veziDotik();
+  uporabiNastavitve();
+  postaviPlatno();
+  sestaviMesta(); sestaviIzbor(); sestaviNastavitve();
+  pokazi('naslov');
+  narisiNaslovnico();
+}
+
+/* Naslovnica se riše na svoje platno – Kito na kopju ob zori. */
+function narisiNaslovnico(){
+  const p = $('naslovnica');
+  if (!p) return;
+  p.width = SIR; p.height = 110;
+  const c0 = C, x0 = ctx;
+  C = p; ctx = p.getContext('2d'); ctx.imageSmoothingEnabled = false;
+  const g = ctx.createLinearGradient(0, 0, 0, 110);
+  g.addColorStop(0, '#f6a94e'); g.addColorStop(.6, '#fbd98f'); g.addColorStop(1, '#fdeec6');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, SIR, 110);
+  el(250, 30, 16, 16, '#fff6d2');
+  ctx.globalAlpha = .35; el(250, 30, 28, 28, '#fff6d2'); ctx.globalAlpha = 1;
+  for (let i = 0; i < 5; i++){
+    ctx.fillStyle = '#c58a5c'; ctx.beginPath();
+    ctx.ellipse(20 + i * 70, 92, 60, 26 + (i % 3) * 8, 0, Math.PI, 0); ctx.fill();
+  }
+  pr(0, 92, SIR, 18, '#a06a3c');
+  for (let i = 0; i < 4; i++){
+    const x = 24 + i * 84;
+    crta(x, 92, x, 92 - 18, 2.4, '#6b4a2c');
+    el(x, 72, 14, 4.5, '#7d9a44');
+  }
+  /* kopje in Kito */
+  ctx.fillStyle = '#8d6a4c'; ctx.beginPath();
+  ctx.moveTo(150, 92); ctx.lineTo(168, 62); ctx.lineTo(206, 62); ctx.lineTo(220, 92); ctx.closePath(); ctx.fill();
+  pr(166, 60, 42, 3, '#a5825c');
+  stirinozec({ x: 186, y: 60, smer: -1, faza: 0, tek: 0, dolzina: 26, visina: 12, noge: 6,
+    vrat: 6, vratV: 5, vratDeb: 6, glava: 6, barva: '#d9a05a', svetlo: '#e7bd7e', temno: '#a87840',
+    rep: 'copek', repDolz: 13, repKot: -0.7, copek: '#6b4a2a', uho: 'okroglo', gobec: true,
+    griva: '#8a5c2e', nogeDeb: 4, obrv: true });
+  C = c0; ctx = x0;
+}
+
+/* =====================================================================
+   10. SAMOPREIZKUS
+   Ob zagonu preveri vse nivoje in fiziko. Če kaj ni v redu, se izpiše
+   v razvijalski konzoli – igra pa vseeno teče naprej.
+   Isti preizkusi tečejo tudi zunaj brskalnika (Node.js).
+   ===================================================================== */
+function preizkus(){
+  const napake = [];
+  const najdaljsiSkok = (oblika) => {
+    for (let luknja = 1; luknja <= 8; luknja++){
+      const k = new Karta(60, 14);
+      for (let x = 0; x < 60; x++) for (let y = 11; y < 14; y++)
+        if (x < 20 || x >= 20 + luknja) k.nastavi(x, y, T.ZEMLJA);
+      const i = new Igralec(4 * P, 11 * P, oblika);
+      const sv = { karta: k, dogodek(){}, prah(){}, iskrica(){}, dodajVal(){}, trese: 0, veter: 0, nesmrtnost: true };
+      const v = { levo: 0, desno: 1, dol: 0, skok: 0, skokPritisnjen: 0 };
+      let skocil = false, uspel = false;
+      for (let f = 0; f < 400; f++){
+        const rob = 20 * P - (i.x + i.w / 2);
+        if (!skocil && i.natleh && rob < 2 && rob > -6){ v.skokPritisnjen = 1; v.skok = 1; skocil = true; }
+        else v.skokPritisnjen = 0;
+        i.posodobi(v, sv);
+        if (skocil && i.natleh && i.x > 20 * P){ uspel = true; break; }
+        if (i.y > 14 * P + 20) break;
+      }
+      if (!uspel) return luknja - 1;
+    }
+    return 8;
+  };
+
+  const dolzMladic = najdaljsiSkok('mladic');
+  if (dolzMladic < 3) napake.push('mladič ne preskoči 3 ploščic (samo ' + dolzMladic + ')');
+
+  for (const st of STOPNJE){
+    const sv = new Svet(st, {});
+    const k = sv.karta;
+    if (!sv.objekti.some(o => o.tip === 'izhod')) napake.push(st.ime + ': ni izhoda');
+    if (!st.bonus && !sv.objekti.some(o => o.tip === 'mravljisce')) napake.push(st.ime + ': ni kontrolne točke');
+    if (vTrdnem(k, sv.zacetek.x - 5, sv.zacetek.y - 12, 9, 11)) napake.push(st.ime + ': začetek je v steni');
+    for (const o of sv.objekti) if (!BITJA[o.tip]) napake.push(st.ime + ': neznano bitje ' + o.tip);
+    /* prepad, ki ga ne premosti niti živa ploščad, bi bil slepa ulica */
+    if (!st.navpicna && !st.letenje){
+      const nosilci = sv.objekti.filter(o => BITJA[o.tip].nosilna)
+        .map(o => [o.x / P - (o.pot || 3) - 3, o.x / P + (o.pot || 3) + 3]);
+      let luk = 0;
+      for (let x = 0; x < k.w; x++){
+        let trdno = false;
+        for (let y = 0; y < k.h; y++){ const t = k.pri(x, y); if (trdna(t) || enosmerna(t)){ trdno = true; break; } }
+        if (trdno) luk = 0;
+        else if (++luk > 4 && !nosilci.some(r => x >= r[0] && x <= r[1]))
+          { napake.push(st.ime + ': prepad širok ' + luk + ' pri x=' + x); luk = -999; }
+      }
+    }
+  }
+  /* --- Dosegljivost ---
+     Iz vsake police naredimo vozlišče in preverimo, ali se da od začetka
+     res priti do izhoda: navzgor s skokom (višje ko je, manj vodoravnega
+     dosega ostane), navzdol pa s padcem. Tako se slepa polica opazi
+     takoj, ne šele pri igranju. */
+  const V0 = LIKI.mladic.hitrost, SK = LIKI.mladic.skok, GR = FIZ.g;
+  function dosegSkoka(dvig){
+    const D = SK * SK - 2 * GR * dvig;
+    if (D < 0) return -1;                      /* tako visoko ne skoči */
+    return V0 * (SK + Math.sqrt(D)) / GR;      /* največ vodoravno pri tem dvigu */
+  }
+  for (const st of STOPNJE){
+    if (st.letenje || st.lovljenje || st.lik === 'npunkt') continue;   /* te sobe imajo svoja pravila */
+    const sv = new Svet(st, {});
+    const k = sv.karta;
+    /* police iz ploščic – strnjeni odseki na isti višini */
+    const police = [];
+    for (let ty = 0; ty < k.h; ty++){
+      let od = -1;
+      for (let tx = 0; tx <= k.w; tx++){
+        const t = k.pri(tx, ty);
+        const stojna = (trdna(t) || enosmerna(t)) && !trdna(k.pri(tx, ty - 1));
+        if (stojna && od < 0) od = tx;
+        if (!stojna && od >= 0){ police.push({ x0: od * P, x1: tx * P, y: ty * P }); od = -1; }
+      }
+    }
+    for (const o of sv.objekti){
+      if (!BITJA[o.tip].nosilna) continue;
+      const p = (o.pot || 0) * P;
+      police.push({ x0: o.x - o.w / 2 - p, x1: o.x + o.w / 2 + p, y: o.y - o.h, ziva: true });
+    }
+    if (!police.length) continue;
+    const razmik = (a, b) => Math.max(0, Math.max(a.x0 - b.x1, b.x0 - a.x1));
+    const zacetnaP = police.reduce((naj, p) => {
+      const d = Math.abs((p.x0 + p.x1) / 2 - sv.zacetek.x) + Math.abs(p.y - sv.zacetek.y) * 3;
+      return (!naj || d < naj.d) ? { p: p, d: d } : naj;
+    }, null).p;
+    const vrsta = [zacetnaP], vidno = new Set([police.indexOf(zacetnaP)]);
+    while (vrsta.length){
+      const a = vrsta.pop();
+      for (let n = 0; n < police.length; n++){
+        if (vidno.has(n)) continue;
+        const c = police[n], dvig = a.y - c.y, vod = razmik(a, c);
+        let gre;
+        if (dvig >= 0) { const d = dosegSkoka(dvig); gre = d >= 0 && vod <= d; }
+        else gre = vod <= dosegSkoka(0) + Math.min(120, -dvig * 0.5);
+        if (gre){ vidno.add(n); vrsta.push(c); }
+      }
+    }
+    const izhod = sv.objekti.find(o => o.tip === 'izhod');
+    if (izhod){
+      const blizu = police.some((p, n) => vidno.has(n) &&
+        izhod.x > p.x0 - 24 && izhod.x < p.x1 + 24 && Math.abs(p.y - izhod.y) < 30);
+      if (!blizu) napake.push(st.ime + ': do izhoda se ne da priti (dosegljivih ' +
+        vidno.size + ' polic od ' + police.length + ')');
+    }
+    const nedosegljive = police.length - vidno.size;
+    if (st.navpicna && nedosegljive > police.length * 0.5)
+      napake.push(st.ime + ': ' + nedosegljive + ' polic od ' + police.length + ' je nedosegljivih');
+  }
+
+  if (napake.length) console.warn('KITO – preizkus je našel napake:\n' + napake.join('\n'));
+  else console.log('KITO: ' + STOPNJE.length + ' nivojev, vsi v redu ✅  (mladič preskoči ' + dolzMladic + ' ploščic)');
+  return napake;
+}
+
+/* ---------- zaženemo ---------- */
+zacetek();
+try { preizkus(); } catch (e) { console.warn('preizkus se ni izšel:', e); }
+</script>
+</body>
+</html>
