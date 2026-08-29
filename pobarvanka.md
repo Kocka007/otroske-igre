@@ -79,7 +79,7 @@ Z gumbom **🎨** se odpre izbirnik lastne barve:
 - 🐻 **Živali** (12) – mucka, kuža, medvedek, zajček, lisica, panda, tiger, prašiček, ovčka, miška,
   koala, levček v savani
 - 🐬 **Morje** (8) – hobotnica, morski konjiček, delfin, kit, rak, meduza, morska zvezda, želva
-- 🦜 **Ptice** (6) – sova, papiga, pingvin, raca, petelin, flamingo
+- 🦜 **Ptice** (6) – sova, papiga na veji, pingvin, raca, petelin, flamingo
 - 🦕 **Dinozavri** (4) – brontozaver, triceratops, tiranozaver, stegozaver
 - 🚂 **Vozila** (7) – avto, avtobus, vlak, letalo, traktor, gasilski avto, bager
 - 🌻 **Rastline in sadje** (11) – jabolko, hruška, jagoda, ananas, lubenica, korenje, drevo, kaktus, sončnica, tulipan, gobica
@@ -99,7 +99,7 @@ Z gumbom **🎨** se odpre izbirnik lastne barve:
   koi ribi, pav, lovilec sanj, mehndi roka, keltski vozel, japonski val, mesečeve mene,
   geometrijski volk, čipkasta rozeta, panjska končnica, ornamentalni balon, galaksijska mandala
 
-Skupaj **146 slik v 583 različicah** (24.980 polj za barvanje) v 17 temah.
+Skupaj **146 slik v 583 različicah** (25.819 polj za barvanje) v 17 temah.
 
 Nabor tem je zastavljen tako, da pokriva to, kar otroci pri pobarvankah iščejo – živali,
 vozila, pravljice, šport, glasba, prazniki, letni časi, šola in srčkane sličice – ter zahtevnejše
