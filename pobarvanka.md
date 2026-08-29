@@ -99,7 +99,7 @@ Z gumbom **🎨** se odpre izbirnik lastne barve:
   koi ribi, pav, lovilec sanj, mehndi roka, keltski vozel, japonski val, mesečeve mene,
   geometrijski volk, čipkasta rozeta, panjska končnica, ornamentalni balon, galaksijska mandala
 
-Skupaj **146 slik v 583 različicah** (25.819 polj za barvanje) v 17 temah.
+Skupaj **146 slik v 583 različicah** (25.684 polj za barvanje) v 17 temah.
 
 Nabor tem je zastavljen tako, da pokriva to, kar otroci pri pobarvankah iščejo – živali,
 vozila, pravljice, šport, glasba, prazniki, letni časi, šola in srčkane sličice – ter zahtevnejše
