@@ -1,6 +1,6 @@
 # 🎨 Barvica – pobarvanka
 
-Interaktivna pobarvanka s **131 slikami** (od tega **10 za odrasle**), **petimi stopnjami zahtevnosti** in **šestimi načini
+Interaktivna pobarvanka s **143 slikami** (od tega **22 za odrasle**), **petimi stopnjami zahtevnosti** in **šestimi načini
 barvanja** – vključno z barvanjem s **svinčnikom ali Apple Pencil**, tako kot v pravi papirnati
 pobarvanki. Ista slika ima na višji stopnji več in manjša polja, zato je primerna tako za
 petletnika kot za odraslega, ki se ob mandali umiri.
@@ -91,10 +91,12 @@ Z gumbom **🎨** se odpre izbirnik lastne barve:
 - 🎵 **Glasba in ples** (5) – kitara, boben, klavir, note, balerina
 - 🧁 **Srčkano** (6) – skodelica kakava, sladoled, krof, piškotek, oblaček z mavrico, mucka v skodelici
 - 🎒 **Šola in izleti** (4) – šolska torba, tabla z abecedo, šotor, ribolov
-- 🧘 **Za odrasle** (10) – lotosova mandala, rozetno okno, zentangle, paisley, cvetlični venec,
-  šestkotniki, ornamentalna sova, ornamentalni metulj, ornamentalno pero, drevo življenja
+- 🧘 **Za odrasle** (22) – lotosova mandala, rozetno okno, zentangle, paisley, cvetlični venec,
+  šestkotniki, ornamentalna sova, ornamentalni metulj, ornamentalno pero, drevo življenja,
+  koi ribi, pav, lovilec sanj, mehndi roka, keltski vozel, japonski val, mesečeve mene,
+  geometrijski volk, čipkasta rozeta, panjska končnica, ornamentalni balon, galaksijska mandala
 
-Skupaj **131 slik v 525 različicah** (16.880 polj za barvanje) v 17 temah.
+Skupaj **143 slik v 573 različicah** (20.941 polj za barvanje) v 17 temah.
 
 Nabor tem je zastavljen tako, da pokriva to, kar otroci pri pobarvankah iščejo – živali,
 vozila, pravljice, šport, glasba, prazniki, letni časi, šola in srčkane sličice – ter zahtevnejše
@@ -103,9 +105,12 @@ vzorce za odrasle. Vse risbe so izvirne, sestavljene v kodi te aplikacije.
 ### Za odrasle 🧘
 
 Zahtevnejši, meditativni vzorci z veliko drobnimi polji – na najvišji stopnji jih ima
-šestkotniška mreža 271, zentangle 263, paisley 241 in lotosova mandala 218. Pri simetričnih
-vzorcih je najbolj zabaven način **🔄 Simetrija**: en dotik pobarva vsa enakoležna polja
-in vzorec zraste sam od sebe.
+šestkotniška mreža 271, čipkasta rozeta 265, zentangle 263, paisley 241 in lotosova
+mandala 218. Poleg čistih vzorcev so tu tudi risbe s podobo: koi ribi v vodnih krogih,
+pav z razprtim repom, lovilec sanj, mehndi roka, keltski vozel, japonski val, mesečeve
+mene, nizkopoligonski volk, panjska končnica, ornamentalni balon in galaksijska mandala.
+Pri simetričnih vzorcih je najbolj zabaven način **🔄 Simetrija**: en dotik pobarva vsa
+enakoležna polja in vzorec zraste sam od sebe.
 
 ## Ko je slika končana
 

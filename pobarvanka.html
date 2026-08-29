@@ -3508,6 +3508,480 @@ slika('travnik','Pomladni travnik','pokrajine',[1,2,3,4], function(lv){
   return { w:W, h:H, R:R, L:L };
 });
 
+
+/* =============== ZA ODRASLE: druga serija =============================== */
+slika('koi','Koi ribi','odrasli',[2,3,4,5], function(lv){
+  const R=[],L=[];
+  const W=400, H=400, cx=200, cy=200;
+  R.push(obm(ci(cx,cy,190), '#eaf6ff'));
+  /* mirni krogi na vodi */
+  const obr = [0,0,4,5,7,9][lv];
+  for (let i=obr;i>=1;i--)
+    R.push(obm(ci(cx,cy,40 + i*(150/obr)), i%2 ? '#cfefff' : '#dff1ff', { sym:'v'+(i%2) }));
+  function koi(sx, sy, kot, b1, b2, ozn){
+    const T = P => vrti(P.map(function(q){ return [sx+q[0], sy+q[1]]; }), sx, sy, kot);
+    const T1 = q => T([q])[0];
+    const telo = bl(T([[-96,0],[-56,-52],[10,-62],[68,-36],[92,4],[56,52],[-16,62],[-70,42]]), .95);
+    R.push(obm(bl(T([[76,-10],[152,-58],[134,4],[156,60],[80,20]]), .8), b2, { sym:'r'+ozn }));
+    R.push(obm(bl(T([[-4,58],[-34,110],[18,90],[34,58]]), .85), b2, { sym:'p'+ozn }));
+    R.push(obm(bl(T([[4,-62],[-28,-116],[34,-98],[48,-60]]), .85), b2, { sym:'h'+ozn }));
+    R.push(obm(bl(T([[-40,44],[-70,80],[-24,72],[-8,48]]), .85), b2, { sym:'s'+ozn }));
+    R.push(obm(telo, b1, { sym:'t'+ozn }));
+    /* luske kot polkrogi, vrsta za vrsto */
+    const vr = lv >= 4 ? 5 : 3, st = lv >= 4 ? 7 : 5, rr = 22;
+    for (let a=0;a<vr;a++)
+      for (let c=0;c<st;c++){
+        const x = -80 + c*26 + (a%2 ? 13 : 0), y = -40 + a*22;
+        const p1 = T1([x-rr, y]), p2 = T1([x+rr, y]);
+        R.push(obm(pa('M' + f1(p1[0]) + ' ' + f1(p1[1]) + 'A' + rr + ' ' + rr + ' 0 0 0 ' +
+          f1(p2[0]) + ' ' + f1(p2[1]) + 'Z'), (a+c)%2 ? b2 : '#ffffff', { rez:telo, sym:'l'+ozn+a }));
+      }
+    const o = T1([-66,-16]);
+    R.push(obm(ci(o[0],o[1],13), '#ffffff', { sym:'o'+ozn }));
+    R.push(obm(ci(o[0],o[1],7), '#2f2a26', { sym:'z'+ozn }));
+    const u = T1([-92,6]);
+    L.push(crt(cr([[u[0],u[1]],[u[0]-10,u[1]+8]], 2)));
+  }
+  koi(cx-26, cy-74, 0.42, '#f77f00', '#e63946', 'a');
+  koi(cx+26, cy+74, Math.PI+0.42, '#f7f3ea', '#118ab2', 'b');
+  if (lv >= 3){
+    const m = lv >= 4 ? 9 : 5;
+    for (let i=0;i<m;i++){
+      const a = i*2*Math.PI/m + 0.3;
+      R.push(obm(ci(cx+Math.cos(a)*172, cy+Math.sin(a)*172, 13), '#ffffff', { sym:'m'+(i%2) }));
+    }
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+
+slika('pav','Pav','odrasli',[2,3,4,5], function(lv){
+  const R=[],L=[];
+  const W=380, H=340, cx=190, cy=250;
+  R.push(obm(re(0,0,W,H,0), '#f3faf7'));
+  const per = [0,0,9,13,17,21][lv];
+  for (let i=0;i<per;i++){
+    const t = i/(per-1), a = -Math.PI + 0.35 + t*(Math.PI - 0.7);
+    const dol = 150 + Math.sin(t*Math.PI)*44;
+    const kon = [cx + Math.cos(a)*dol, cy + Math.sin(a)*dol];
+    R.push(obm(trak([[cx,cy-10],[cx+Math.cos(a)*dol*0.55, cy+Math.sin(a)*dol*0.55], kon], 9, 5, .9),
+      '#43aa8b', { sym:'s'+(i%2) }));
+    R.push(obm(el(kon[0],kon[1],26,20,a), '#118ab2', { sym:'a'+(i%2) }));
+    R.push(obm(el(kon[0],kon[1],17,13,a), '#7c5cff', { sym:'b'+(i%2) }));
+    R.push(obm(el(kon[0],kon[1],9,7,a), '#ffd60a', { sym:'c'+(i%2) }));
+    if (lv >= 4) R.push(obm(el(kon[0],kon[1],4,3,a), '#2f2a26', { sym:'d'+(i%2) }));
+  }
+  R.push(obm(bl([[cx,cy-40],[cx-38,cy+4],[cx-26,cy+72],[cx+26,cy+72],[cx+38,cy+4]], .9), '#118ab2'));
+  R.push(obm(trak([[cx,cy-24],[cx+16,cy-72],[cx+10,cy-104]], 30, 22, .9), '#0d6d8f'));
+  R.push(obm(ci(cx+8,cy-116,26), '#118ab2'));
+  R.push(obm(po([[cx+30,cy-112],[cx+62,cy-104],[cx+30,cy-100]]), '#f77f00'));
+  R.push(obm(ci(cx+16,cy-122,9), '#ffffff'));
+  R.push(obm(ci(cx+18,cy-122,4.5), '#2f2a26'));
+  for (let i=0;i<3;i++){
+    R.push(obm(trak([[cx+4,cy-140],[cx+4+(i-1)*14, cy-160]], 4, 4), '#43aa8b'));
+    R.push(obm(ci(cx+4+(i-1)*14, cy-164, 7), '#ffd60a'));
+  }
+  if (lv >= 3)
+    for (let i=0;i<(lv>=4?7:4);i++)
+      R.push(obm(bl([[cx-30+i*10, cy+8+i*8],[cx-14+i*10, cy+20+i*8],[cx-30+i*10, cy+32+i*8],[cx-44+i*10, cy+20+i*8]], .9),
+        '#0d6d8f'));
+  return { w:W, h:H, R:R, L:L };
+});
+
+slika('lovilecsanj','Lovilec sanj','odrasli',[2,3,4,5], function(lv){
+  const R=[],L=[];
+  const W=300, H=400, cx=150, cy=150, rr=120;
+  R.push(obm(re(0,0,W,H,0), '#f7f0e8'));
+  R.push(obm(ci(cx,cy,rr+16), '#8b5e34'));
+  R.push(obm(ci(cx,cy,rr), '#f7f0e8'));
+  const obr = [0,0,3,4,5,6][lv], seg = [0,0,8,10,12,14][lv];
+  for (let o=0;o<obr;o++){
+    const r1 = 16 + o*((rr-16)/obr), r2 = 16 + (o+1)*((rr-16)/obr);
+    for (let i=0;i<seg;i++){
+      const a1 = i*2*Math.PI/seg + (o%2)*(Math.PI/seg);
+      R.push(obm(listek(cx,cy,r1,r2,a1,a1+2*Math.PI/seg), BP_ODR[(o*2+i)%BP_ODR.length], { sym:'m'+o+'_'+(i%2) }));
+    }
+  }
+  R.push(obm(ci(cx,cy,16), '#ffd60a'));
+  /* obeski s peresi */
+  [[-70,'#e63946'],[0,'#7c5cff'],[70,'#43aa8b']].forEach(function(o, k){
+    const x = cx + o[0], y0 = cy + Math.sqrt(Math.max(0, (rr+16)*(rr+16) - o[0]*o[0]));
+    R.push(obm(trak([[x,y0],[x,y0+40]], 4, 4), '#8b5e34'));
+    for (let b=0;b<3;b++) R.push(obm(ci(x, y0 + 12 + b*12, 7), BP_ODR[(k+b)%BP_ODR.length], { sym:'k'+b }));
+    const py = y0 + 56;
+    const pero = bl([[x,py],[x-20,py+34],[x-14,py+86],[x,py+108],[x+14,py+86],[x+20,py+34]], .95);
+    R.push(obm(pero, o[1]));
+    const n = lv >= 4 ? 8 : 5;
+    for (let i=0;i<n;i++){
+      const yy = py + 10 + i*(92/n);
+      R.push(obm(bl([[x,yy],[x-20,yy+6],[x-16,yy+(92/n)],[x,yy+(92/n)*0.8]], .9),
+        BP_ODR[(i+k)%BP_ODR.length], { rez:pero, sym:'pl'+i }));
+      R.push(obm(bl([[x,yy],[x+20,yy+6],[x+16,yy+(92/n)],[x,yy+(92/n)*0.8]], .9),
+        BP_ODR[(i+k+3)%BP_ODR.length], { rez:pero, sym:'pd'+i }));
+    }
+  });
+  return { w:W, h:H, R:R, L:L };
+});
+
+slika('mehndi','Mehndi roka','odrasli',[2,3,4,5], function(lv){
+  const R=[],L=[];
+  const W=300, H=380;
+  R.push(obm(re(0,0,W,H,0), '#fdf3e7'));
+  const dlan = bl([[150,150],[92,164],[74,224],[92,300],[150,330],[208,300],[226,224],[208,164]], .95);
+  const prsti = [
+    trak([[104,178],[86,116],[80,72]], 34, 26, .9),
+    trak([[132,164],[124,92],[122,44]], 34, 26, .9),
+    trak([[164,164],[176,92],[182,44]], 34, 26, .9),
+    trak([[192,178],[214,116],[222,74]], 32, 24, .9),
+    trak([[220,232],[266,206],[286,182]], 34, 26, .9)
+  ];
+  prsti.forEach(function(p){ R.push(obm(p, '#f0c9a0')); });
+  R.push(obm(dlan, '#f0c9a0'));
+  /* henin vzorec: mandala na dlani in pike po prstih */
+  const obr = [0,0,3,4,5,6][lv], seg = [0,0,8,10,12,14][lv];
+  for (let o=0;o<obr;o++){
+    const r1 = 12 + o*(62/obr), r2 = 12 + (o+1)*(62/obr);
+    for (let i=0;i<seg;i++){
+      const a1 = i*2*Math.PI/seg + (o%2)*(Math.PI/seg);
+      R.push(obm(listek(150,232,r1,r2,a1,a1+2*Math.PI/seg), BP_ODR[(o+i)%BP_ODR.length],
+        { rez:dlan, sym:'d'+o+'_'+(i%2) }));
+    }
+  }
+  R.push(obm(ci(150,232,12), '#bc4749', { rez:dlan }));
+  prsti.forEach(function(p, k){
+    const n = lv >= 4 ? 5 : 3;
+    for (let i=0;i<n;i++){
+      const t = 0.2 + i*(0.62/n);
+      const c = [[104,178],[132,164],[164,164],[192,178],[220,232]][k];
+      const e = [[80,72],[122,44],[182,44],[222,74],[286,182]][k];
+      const x = c[0] + (e[0]-c[0])*t, y = c[1] + (e[1]-c[1])*t;
+      R.push(obm(bl([[x,y-13],[x-11,y],[x,y+13],[x+11,y]], .95), BP_ODR[(k+i)%BP_ODR.length], { rez:p, sym:'p'+i }));
+    }
+  });
+  if (lv >= 4)
+    for (let i=0;i<8;i++){
+      const a = i*2*Math.PI/8;
+      R.push(obm(ci(150+Math.cos(a)*88, 250+Math.sin(a)*62, 10), BP_ODR[(i+4)%BP_ODR.length], { rez:dlan, sym:'z'+(i%2) }));
+    }
+  return { w:W, h:H, R:R, L:L };
+});
+
+slika('keltski','Keltski vozel','odrasli',[2,3,4,5], function(lv){
+  const R=[],L=[];
+  const W=340, H=340, cx=170, cy=170, sir=30;
+  R.push(obm(re(0,0,W,H,0), '#f2e8cf'));
+  const zank = [0,0,4,5,6,8][lv];
+  /* zanke rišemo izmenično: lihe pridejo čez sode in nastane videz prepleta */
+  for (let pass=0; pass<2; pass++)
+    for (let i=0;i<zank;i++){
+      if (i % 2 !== pass) continue;
+      const a = i*2*Math.PI/zank;
+      const c = tocka(cx,cy,58,a);
+      R.push(obm(ci(c[0],c[1],72), BP_ODR[i%BP_ODR.length], { sym:'z'+(i%2) }));
+      R.push(obm(ci(c[0],c[1],72-sir), '#f2e8cf', { sym:'l'+(i%2) }));
+    }
+  R.push(obm(ci(cx,cy,34), '#bc4749'));
+  R.push(obm(ci(cx,cy,20), '#ffd60a'));
+  const rob = lv >= 4 ? 24 : 16;
+  for (let i=0;i<rob;i++){
+    const a1 = i*2*Math.PI/rob;
+    R.push(obm(kolobar(cx,cy,148,164,a1,a1+2*Math.PI/rob), BP_ODR[i%BP_ODR.length], { sym:'r'+(i%2) }));
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+
+slika('japonskival','Japonski val','odrasli',[2,3,4,5], function(lv){
+  const R=[],L=[];
+  const W=400, H=320;
+  const okvir = re(0,0,W,H,0);
+  R.push(obm(okvir, '#f7f0e0'));
+  R.push(obm(ci(322,72,48), '#e63946'));
+  R.push(obm(ci(322,72,32), '#ffd166'));
+  /* morje iz lusk – seigaiha */
+  const st = [0,0,6,8,10,13][lv], rr = W/st*0.85, vrst = [0,0,3,4,5,6][lv];
+  for (let a=0;a<vrst;a++)
+    for (let b=0;b<=st;b++){
+      const x = b*(W/st) + (a%2 ? W/(st*2) : 0), y = 150 + a*rr*0.62;
+      R.push(obm(pa('M' + f1(x-rr) + ' ' + f1(y) + 'A' + f1(rr) + ' ' + f1(rr) + ' 0 0 0 ' + f1(x+rr) + ' ' + f1(y) + 'Z'),
+        (a+b)%3 === 0 ? '#a9def9' : ((a+b)%3 === 1 ? '#7fc6f2' : '#4cc9f0'),
+        { rez:okvir, sym:'l'+(a%2) }));
+    }
+  /* veliki val s kodrastim grebenom */
+  const val = bl([[0,320],[0,196],[54,140],[140,112],[236,128],[300,178],[268,214],[176,200],[96,236],[42,320]], .92);
+  R.push(obm(val, '#0d6d8f'));
+  R.push(obm(bl([[14,320],[16,208],[70,158],[146,132],[224,146],[268,182],[206,196],[120,222],[62,320]], .92), '#118ab2'));
+  R.push(obm(bl([[30,320],[34,222],[86,178],[152,156],[210,168],[228,188],[150,208],[86,246],[70,320]], .92), '#4cc9f0'));
+  /* pena: kremplji na grebenu */
+  const krem = [0,0,4,6,8,10][lv];
+  for (let i=0;i<krem;i++){
+    const t = i/(krem-1);
+    const x = 40 + t*250, y = 150 - Math.sin(t*Math.PI)*46 + t*10;
+    R.push(obm(bl([[x,y],[x+22,y-24],[x+40,y-6],[x+18,y+16]], .9), '#ffffff', { sym:'p'+(i%2) }));
+    if (lv >= 4) R.push(obm(ci(x+30, y-4, 9), '#e8f6ff', { sym:'q'+(i%2) }));
+  }
+  R.push(obm(bl([[236,128],[286,92],[330,112],[300,152],[262,156]], .92), '#ffffff'));
+  R.push(obm(bl([[254,124],[288,106],[308,120],[286,140]], .92), '#e8f6ff'));
+  if (lv >= 3){
+    for (let i=0;i<4;i++) R.push(obm(ci(60 + i*30, 96 - (i%2)*18, 12), '#ffffff', { sym:'b'+(i%2) }));
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+
+slika('lune','Mesečeve mene','odrasli',[2,3,4,5], function(lv){
+  const R=[],L=[];
+  const W=400, H=400, cx=200, cy=200;
+  R.push(obm(ci(cx,cy,196), '#1d2b53'));
+  R.push(obm(ci(cx,cy,182), '#f6f1e4'));
+  const zob = lv >= 4 ? 36 : 24;
+  for (let i=0;i<zob;i++){
+    const a1 = i*2*Math.PI/zob;
+    R.push(obm(kolobar(cx,cy,166,180,a1,a1+2*Math.PI/zob), BP_ODR[i%BP_ODR.length], { sym:'v'+(i%2) }));
+  }
+  /* mene: polna luna, ki jo senca postopoma prekrije in spet odkrije */
+  const men = [0,0,6,8,10,12][lv], rm = 34;
+  for (let i=0;i<men;i++){
+    const a = -Math.PI/2 + i*2*Math.PI/men;
+    const c = tocka(cx,cy,120,a);
+    const luna = ci(c[0],c[1],rm);
+    R.push(obm(luna, '#ffd166', { sym:'m'+(i%2) }));
+    const t = i/men;
+    R.push(obm(ci(c[0] + (4*t-2)*rm, c[1], rm), '#3d5a80', { rez:luna, sym:'s'+(i%2) }));
+    if (lv >= 4){
+      R.push(obm(ci(c[0]-12, c[1]-10, 7), '#e0a52a', { rez:luna, sym:'k'+(i%2) }));
+      R.push(obm(ci(c[0]+9, c[1]+13, 5), '#e0a52a', { rez:luna, sym:'k'+(i%2) }));
+    }
+  }
+  const zv = lv >= 3 ? men : Math.round(men/2);
+  for (let i=0;i<zv;i++){
+    const a = -Math.PI/2 + (i+0.5)*2*Math.PI/zv;
+    const c = tocka(cx,cy,120,a);
+    R.push(obm(zvezda(c[0],c[1],15,5,0.45), BP_ODR[(i+3)%BP_ODR.length], { sym:'z'+(i%2) }));
+  }
+  R.push(obm(ci(cx,cy,62), '#f4a259'));
+  const kraki = lv >= 4 ? 16 : 12;
+  for (let i=0;i<kraki;i++){
+    const a1 = i*2*Math.PI/kraki;
+    R.push(obm(listek(cx,cy,25,58,a1,a1+2*Math.PI/kraki), BP_ODR[(i+5)%BP_ODR.length], { sym:'l'+(i%2) }));
+  }
+  R.push(obm(ci(cx,cy,25), '#ffd166'));
+  R.push(obm(ci(cx,cy,12), '#e63946'));
+  return { w:W, h:H, R:R, L:L };
+});
+
+slika('volk','Geometrijski volk','odrasli',[2,3,4,5], function(lv){
+  const R=[],L=[];
+  const W=360, H=400;
+  const ozadje = re(0,0,W,H,0);
+  R.push(obm(ozadje, '#eef3f8'));
+  const zar = [0,0,10,14,18,24][lv];
+  for (let i=0;i<zar;i++){
+    const a1 = i*2*Math.PI/zar;
+    R.push(obm(listek(180,210,110,320,a1,a1+2*Math.PI/zar,.8), i%2 ? '#dbe6f0' : '#e7eef6',
+      { rez:ozadje, sym:'ž'+(i%2) }));
+  }
+  /* ušesa gredo pod glavo, da se zlijejo z njo */
+  R.push(obm(po([[100,150],[92,58],[154,120]]), '#6c757d', { sym:'u' }));
+  R.push(obm(po([[260,150],[268,58],[206,120]]), '#6c757d', { sym:'u' }));
+  R.push(obm(po([[106,144],[102,86],[144,126]]), '#e8a0a0', { sym:'nu' }));
+  R.push(obm(po([[254,144],[258,86],[216,126]]), '#e8a0a0', { sym:'nu' }));
+  const glava = po([[100,150],[140,118],[180,128],[220,118],[260,150],[252,220],[222,278],
+                    [196,328],[180,342],[164,328],[138,278],[108,220]]);
+  R.push(obm(glava, '#adb5bd'));
+  /* ploskve nizkopoligonskega obraza; pari imajo enako oznako za simetrijo */
+  const fac = [
+    { p:[[100,150],[108,220],[150,196],[128,176]], s:'a' },
+    { p:[[260,150],[252,220],[210,196],[232,176]], s:'a' },
+    { p:[[108,220],[138,278],[152,262],[150,196]], s:'b' },
+    { p:[[252,220],[222,278],[208,262],[210,196]], s:'b' },
+    { p:[[180,128],[140,118],[128,176],[150,196],[180,182]], s:'c' },
+    { p:[[180,128],[220,118],[232,176],[210,196],[180,182]], s:'c' },
+    { p:[[180,182],[150,196],[152,262],[180,240]], s:'d' },
+    { p:[[180,182],[210,196],[208,262],[180,240]], s:'d' }
+  ];
+  fac.forEach(function(o,i){ R.push(obm(po(o.p), BP_ODR[i%BP_ODR.length], { rez:glava, sym:o.s })); });
+  if (lv >= 3) fac.forEach(function(o,i){
+    const c = [o.p.reduce(function(s,q){ return s+q[0]; },0)/o.p.length,
+               o.p.reduce(function(s,q){ return s+q[1]; },0)/o.p.length];
+    for (let k=0;k<(lv>=5?3:(lv>=4?2:1));k++){
+      const f = 0.72 - k*0.22;
+      R.push(obm(po(o.p.map(function(pt){ return [c[0]+(pt[0]-c[0])*f, c[1]+(pt[1]-c[1])*f]; })),
+        BP_ODR[(i+k+4)%BP_ODR.length], { rez:glava, sym:o.s+'g'+k }));
+    }
+  });
+  /* gobec, nos, oči */
+  R.push(obm(po([[180,240],[152,262],[164,318],[180,332],[196,318],[208,262]]), '#f8f3ea'));
+  R.push(obm(po([[180,290],[162,268],[198,268]]), '#2b2d42'));
+  R.push(obm(po([[180,302],[170,320],[190,320]]), '#e8a0a0'));
+  R.push(obm(po([[128,186],[166,176],[152,206]]), '#ffd166', { sym:'o' }));
+  R.push(obm(po([[232,186],[194,176],[208,206]]), '#ffd166', { sym:'o' }));
+  R.push(obm(po([[144,188],[158,184],[152,198]]), '#2b2d42', { sym:'zn' }));
+  R.push(obm(po([[216,188],[202,184],[208,198]]), '#2b2d42', { sym:'zn' }));
+  return { w:W, h:H, R:R, L:L };
+});
+
+slika('cipka','Čipkasta rozeta','odrasli',[2,3,4,5], function(lv){
+  const R=[],L=[];
+  const W=380, H=380, cx=190, cy=190;
+  R.push(obm(re(0,0,W,H,0), '#5c7a89'));
+  const zob = [0,0,14,18,22,28][lv];
+  for (let i=0;i<zob;i++){
+    const a = i*2*Math.PI/zob;
+    const c = tocka(cx,cy,158,a);
+    R.push(obm(ci(c[0],c[1],20), '#fdfbf5', { sym:'r'+(i%2) }));
+    R.push(obm(ci(c[0],c[1],9), '#c3d3dc', { sym:'p'+(i%2) }));
+  }
+  R.push(obm(ci(cx,cy,158), '#fdfbf5'));
+  const obr = [0,0,3,4,5,6][lv];
+  for (let o=0;o<obr;o++){
+    const rr = 140 - o*(112/obr);
+    const n = Math.max(8, Math.round(2*Math.PI*rr/36));
+    for (let i=0;i<n;i++){
+      const a = i*2*Math.PI/n + (o%2)*(Math.PI/n);
+      const c = tocka(cx,cy,rr,a);
+      R.push(obm(listek(cx,cy,rr-16,rr+16,a-Math.PI/n,a+Math.PI/n), o%2 ? '#e3ecf1' : '#f6f1e4',
+        { sym:'l'+o+'_'+(i%2) }));
+      R.push(obm(ci(c[0],c[1],7), '#5c7a89', { sym:'o'+o+'_'+(i%2) }));
+    }
+  }
+  const src = lv >= 4 ? 12 : 8;
+  for (let i=0;i<src;i++){
+    const a1 = i*2*Math.PI/src;
+    R.push(obm(listek(cx,cy,10,30,a1,a1+2*Math.PI/src), BP_ODR[(i+2)%BP_ODR.length], { sym:'s'+(i%2) }));
+  }
+  R.push(obm(ci(cx,cy,10), '#e63946'));
+  return { w:W, h:H, R:R, L:L };
+});
+
+slika('panjska','Panjska končnica','odrasli',[2,3,4,5], function(lv){
+  const R=[],L=[];
+  const W=400, H=260;
+  R.push(obm(re(0,0,W,H,0), '#8d5524'));
+  R.push(obm(re(10,10,380,240,0), '#e63946'));
+  R.push(obm(re(22,22,356,216,0), '#f7f0dc'));
+  const zob = [0,0,8,11,14,18][lv], sz = 356/zob;
+  for (let i=0;i<zob;i++){
+    const x = 22 + (i+0.5)*sz;
+    R.push(obm(po([[x-sz/2,22],[x+sz/2,22],[x,50]]), BP_ODR[i%BP_ODR.length], { sym:'z'+(i%2) }));
+    R.push(obm(po([[x-sz/2,238],[x+sz/2,238],[x,210]]), BP_ODR[(i+4)%BP_ODR.length], { sym:'s'+(i%2) }));
+  }
+  /* sonce v levem kotu */
+  for (let i=0;i<10;i++){
+    const a = i*2*Math.PI/10;
+    R.push(obm(listek(52,74,17,31,a-0.17,a+0.17,.9), '#f4a259', { sym:'ž'+(i%2) }));
+  }
+  R.push(obm(ci(52,74,17), '#ffd166'));
+  R.push(obm(ci(47,71,2.6), '#8d5524'));
+  R.push(obm(ci(57,71,2.6), '#8d5524'));
+  /* šopek tulipanov: sosednja cveta sta različno visoka, da se ne prekrivata */
+  const cvet = [0,0,3,5,5,7][lv];
+  for (let i=0;i<cvet;i++){
+    const u = cvet === 1 ? 0 : (i/(cvet-1))*2 - 1;
+    const x = 200 + u*104, y = 104 + Math.abs(u)*34 + (i%2 ? 22 : 0);
+    R.push(obm(trak([[200,160],[200+u*44,138],[x,y+18]], 9, 5), '#43aa8b', { sym:'st'+(i%2) }));
+    R.push(obm(bl([[x,y-22],[x+16,y-5],[x+11,y+17],[x-11,y+17],[x-16,y-5]], .9),
+      BP_ODR[i%BP_ODR.length], { sym:'c'+(i%2) }));
+    R.push(obm(bl([[x,y-11],[x+7,y+2],[x,y+13],[x-7,y+2]], .95),
+      BP_ODR[(i+5)%BP_ODR.length], { sym:'n'+(i%2) }));
+    if (lv >= 4)
+      R.push(obm(listek(200, 162, 8, 40, -Math.PI/2 + u*1.15 - 0.13, -Math.PI/2 + u*1.15 + 0.13),
+        '#06d6a0', { sym:'li'+(i%2) }));
+  }
+  R.push(obm(po([[168,206],[232,206],[224,166],[176,166]]), '#3a86ff'));
+  R.push(obm(re(170,154,60,14,4), '#118ab2'));
+  /* ptici ob straneh */
+  [[80,176,1],[320,176,-1]].forEach(function(p){
+    R.push(obm(bl([[p[0],p[1]],[p[0]+p[2]*30,p[1]-14],[p[0]+p[2]*42,p[1]+6],[p[0]+p[2]*12,p[1]+22]], .9),
+      '#7c5cff', { sym:'pt' }));
+    R.push(obm(bl([[p[0]+p[2]*16,p[1]-2],[p[0]+p[2]*34,p[1]-8],[p[0]+p[2]*28,p[1]+12]], .9),
+      '#ff70a6', { sym:'kr' }));
+    R.push(obm(ci(p[0]-p[2]*4, p[1]-10, 9), '#7c5cff', { sym:'gl' }));
+    R.push(obm(po([[p[0]-p[2]*12,p[1]-10],[p[0]-p[2]*24,p[1]-13],[p[0]-p[2]*12,p[1]-5]]),
+      '#ffd166', { sym:'kl' }));
+    R.push(obm(ci(p[0]-p[2]*6, p[1]-13, 2.6), '#2b2d42', { sym:'ok' }));
+  });
+  if (lv >= 3){
+    [[130,70],[270,70],[200,58]].forEach(function(p,i){
+      R.push(obm(bl([[p[0],p[1]+12],[p[0]-14,p[1]-2],[p[0]-7,p[1]-12],[p[0],p[1]-5],
+                     [p[0]+7,p[1]-12],[p[0]+14,p[1]-2]], .9), '#e63946', { sym:'sr'+(i%2) }));
+    });
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+
+slika('balon','Ornamentalni balon','odrasli',[2,3,4,5], function(lv){
+  const R=[],L=[];
+  const W=340, H=440, cx=170, y0=24, Hb=252, Rb=138;
+  R.push(obm(re(0,0,W,H,0), '#eaf4fb'));
+  const sir = function(t){ return Rb * Math.pow(Math.sin(Math.PI*(0.07 + 0.88*t)), 0.8); };
+  const gor = [0,0,5,6,8,10][lv], pas = [0,0,3,4,5,6][lv];
+  const rob = [];
+  for (let j=0;j<=24;j++) rob.push([cx + sir(j/24), y0 + (j/24)*Hb]);
+  for (let j=24;j>=0;j--) rob.push([cx - sir(j/24), y0 + (j/24)*Hb]);
+  const kupola = po(rob);
+  R.push(obm(kupola, '#f6f1e4'));
+  for (let g=0;g<gor;g++)
+    for (let b=0;b<pas;b++){
+      const u1 = -1 + 2*g/gor, u2 = -1 + 2*(g+1)/gor;
+      const t1 = b/pas, t2 = (b+1)/pas, P=[];
+      for (let s=0;s<=4;s++){ const t = t1 + (t2-t1)*s/4; P.push([cx + u1*sir(t), y0 + t*Hb]); }
+      for (let s=4;s>=0;s--){ const t = t1 + (t2-t1)*s/4; P.push([cx + u2*sir(t), y0 + t*Hb]); }
+      R.push(obm(po(P), BP_ODR[(g+b*3)%BP_ODR.length], { rez:kupola, sym:'p'+b+'_'+(g%2) }));
+      if (lv >= 4){
+        const tm = (t1+t2)/2, xm = cx + (u1+u2)/2*sir(tm), ym = y0 + tm*Hb;
+        R.push(obm(ci(xm, ym, Math.max(4, sir(tm)/gor*0.55)), BP_ODR[(g+b+6)%BP_ODR.length],
+          { rez:kupola, sym:'o'+b+'_'+(g%2) }));
+      }
+    }
+  const yd = y0 + Hb, ky = yd + 60;
+  R.push(obm(po([[cx-sir(1)-2,yd],[cx-30,ky],[cx-22,ky],[cx-sir(1)+9,yd]]), '#8d5524', { sym:'vr' }));
+  R.push(obm(po([[cx+sir(1)+2,yd],[cx+30,ky],[cx+22,ky],[cx+sir(1)-9,yd]]), '#8d5524', { sym:'vr' }));
+  const kos = po([[cx-36,ky],[cx+36,ky],[cx+29,ky+58],[cx-29,ky+58]]);
+  R.push(obm(kos, '#b5651d'));
+  const pl = lv >= 4 ? 5 : 3;
+  for (let i=0;i<pl;i++)
+    R.push(obm(re(cx-36+i*(72/pl), ky+5, 72/pl-5, 48, 3), i%2 ? '#8d5524' : '#d69f6b',
+      { rez:kos, sym:'k'+(i%2) }));
+  const obl = lv >= 3 ? 4 : 2;
+  for (let i=0;i<obl;i++){
+    const x = 46 + (i%2)*242, y = 316 + (i>>1)*62;
+    R.push(obm(bl([[x-36,y],[x-20,y-20],[x+4,y-26],[x+28,y-12],[x+36,y+6],[x-26,y+8]], .95),
+      '#ffffff', { sym:'ob'+(i%2) }));
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+
+slika('galaksija','Galaksijska mandala','odrasli',[2,3,4,5], function(lv){
+  const R=[],L=[];
+  const W=400, H=400, cx=200, cy=200;
+  R.push(obm(ci(cx,cy,196), '#10002b'));
+  R.push(obm(ci(cx,cy,182), '#241546'));
+  const kraki = [0,0,3,4,5,6][lv];
+  for (let k=0;k<kraki;k++){
+    const a0 = k*2*Math.PI/kraki, sp=[];
+    for (let j=0;j<=16;j++) sp.push(tocka(cx,cy,30 + j*8.4, a0 + j*0.2));
+    R.push(obm(trak(sp, 54, 10), BP_ODR[(k*2)%BP_ODR.length], { sym:'r'+(k%2) }));
+    const zvz = lv >= 4 ? 7 : 5;
+    for (let j=0;j<zvz;j++){
+      const t = (j+1)/(zvz+1), c = tocka(cx,cy,30 + t*16*8.4, a0 + t*16*0.2);
+      R.push(obm(ci(c[0],c[1],9 + (j%2)*4), BP_ODR[(k+j+5)%BP_ODR.length], { sym:'z'+k+'_'+(j%2) }));
+    }
+  }
+  R.push(obm(ci(cx,cy,54), '#ffd166'));
+  const jed = lv >= 4 ? 14 : 10;
+  for (let i=0;i<jed;i++){
+    const a1 = i*2*Math.PI/jed;
+    R.push(obm(listek(cx,cy,22,52,a1,a1+2*Math.PI/jed), BP_ODR[(i+3)%BP_ODR.length], { sym:'j'+(i%2) }));
+  }
+  R.push(obm(ci(cx,cy,22), '#f4a259'));
+  R.push(obm(ci(cx,cy,10), '#e63946'));
+  const rz = [0,0,10,12,16,20][lv];
+  for (let i=0;i<rz;i++){
+    const a = i*2*Math.PI/rz + 0.3;
+    const c = tocka(cx,cy,174,a);
+    R.push(obm(zvezda(c[0],c[1],13,5,0.44), BP_ODR[(i+7)%BP_ODR.length], { sym:'v'+(i%2) }));
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+
 /* ===================== ČISTA LOGIKA – KONEC ============================= */
 
 /* ======================= STANJE ========================================= */
