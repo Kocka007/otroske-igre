@@ -7,7 +7,7 @@ brez pošiljanja podatkov na internet:
 |---|---|---|---|---|
 | 🦊 | **Matko** | matematika in branje – od štetja do enačb, geometrije in Kenguručka | 5–15 let | [`matematika.html`](matematika.html) |
 | 🦉 | **Olly** | angleščina – od prvih besed do trpnika in pogojnikov | 5–15 let | [`anglescina.html`](anglescina.html) |
-| 🎨 | **Barvica** | pobarvanka: 95 slik, 5 stopenj, 6 načinov – tudi risanje z Apple Pencil | za vse | [`pobarvanka.html`](pobarvanka.html) |
+| 🎨 | **Barvica** | pobarvanka: 105 slik (tudi za odrasle), 9 orodij, risanje z Apple Pencil | za vse | [`pobarvanka.html`](pobarvanka.html) |
 
 Podroben opis: [matematika.md](matematika.md) · [anglescina.md](anglescina.md) · [pobarvanka.md](pobarvanka.md)
 

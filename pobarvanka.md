@@ -1,6 +1,6 @@
 # 🎨 Barvica – pobarvanka
 
-Interaktivna pobarvanka z **95 slikami**, **petimi stopnjami zahtevnosti** in **šestimi načini
+Interaktivna pobarvanka s **105 slikami** (od tega **10 za odrasle**), **petimi stopnjami zahtevnosti** in **šestimi načini
 barvanja** – vključno z barvanjem s **svinčnikom ali Apple Pencil**, tako kot v pravi papirnati
 pobarvanki. Ista slika ima na višji stopnji več in manjša polja, zato je primerna tako za
 petletnika kot za odraslega, ki se ob mandali umiri.
@@ -25,14 +25,27 @@ z **↩️** razveljaviš zadnjo potezo, z **🧽 radirko** pa polje spet pobel�
 
 Ta način ne barva polj, ampak riše po sliki kot po papirju:
 
-- **Štiri orodja:** ✏️ svinčnik (tanka, svetla sled), 🖍️ voščenka (zrnata, kot vosek na hrapavem
-  papirju), 🖊️ flomaster (gladka, polna barva) in 🧽 radirka.
+- **Devet orodij**, vsako s svojo sledjo:
+
+  | Orodje | Sled |
+  |---|---|
+  | ✏️ Svinčnik | tanka, svetla, mehka |
+  | 🖋️ Tanko pero | tanka in ostra, enakomerna – za obrise |
+  | 🖊️ Flomaster | gladka, polna barva |
+  | 🖍️ Voščenka | zrnata, kot vosek na hrapavem papirju |
+  | 🧴 Kreda | mat in razpršena, mehkih robov |
+  | 🖌️ Akvarel | mehke prosojne lise, ki se ob ponovnem prehodu nabirajo |
+  | 💨 Sprej | fina meglica pikic, gostejša ob močnejšem pritisku |
+  | ✨ Bleščice | barvna črta z bleščečimi iskricami |
+  | 🧽 Radirka | pobriše samo narisano, tiskane črte ostanejo |
+
+- **Pet debelin** od zelo tanke do zelo debele.
 - **Pritisk:** močneje ko otrok pritisne z Apple Pencil, širša in močnejša je sled.
 - **Dlan na zaslonu ne riše:** ko aplikacija zazna pero, začne prezirati dotike s prstom, zato
   lahko otrok med risanjem naslanja roko na zaslon.
 - **📏 Ostani v črtah:** ko je vklopljeno, sled ostane v polju, kjer se je poteza začela – kot da
   bi otrok imel zelo mirno roko. Izklopljeno pa barva teče čez črte, tako kot v resnici.
-- **Tri debeline** in vse barve iz palet; poteza se razveljavi v enem koraku.
+- Vse barve iz palet in **lastne barve**; poteza se razveljavi v enem koraku.
 - Barva se s črtno risbo **množi**, zato črne obrobe prosevajo skozi barvo – enako kot voščenka
   na natisnjeni pobarvanki.
 - Risba se shrani skupaj s sliko: ko se otrok vrne, barva naprej, kjer je ostal.
@@ -47,10 +60,18 @@ Vsaka slika ima na višji stopnji zajamčeno več polj: če risba sama po sebi n
 podrobnosti, jih aplikacija doda kot okrasne pike v njenih največjih poljih (kot pege v kožuhu).
 Pike se vrinejo takoj za svojim poljem, da ne prekrijejo oči in drugih podrobnosti.
 
-### Palete
+### Palete in lastne barve
 
 Pet palet po 12 barv: **Osnovne**, **Pastelne**, **Zemeljske**, **Neon** in **Narava**.
 Ista slika je v pastelnih barvah povsem drugačna kot v neonskih.
+
+Z gumbom **🎨** se odpre izbirnik lastne barve:
+
+- **barvna lestvica** – vodoravno odtenek, navpično od svetle proti temni; barva se izbere z dotikom
+  ali potegom po lestvici,
+- pod njo **lestvica sivin** za bele, sive in črne odtenke,
+- **drsniki R, G in B** za natančno nastavitev, s prikazano vrednostjo in zapisom `#RRGGBB`,
+- izbrana barva se shrani med **Moje barve** (do 12) in se pojavi v paleti poleg ostalih.
 
 ## Slike po temah
 
@@ -66,8 +87,17 @@ Ista slika je v pastelnih barvah povsem drugačna kot v neonskih.
 - 🏔️ **Pokrajine** (7) – gore in jezero, svetilnik, mesto ponoči, sončni zahod, zimska vas, otok s palmo, slap
 - 🎁 **Prazniki** (6) – snežak, božična jelka, buča, pirhi, torta, srce
 - 🌀 **Vzorci** (9) – mandala, rozeta, vitraž, mozaik, snežinka, luske, krogi, valovi, cvetni vzorec
+- 🧘 **Za odrasle** (10) – lotosova mandala, rozetno okno, zentangle, paisley, cvetlični venec,
+  šestkotniki, ornamentalna sova, ornamentalni metulj, ornamentalno pero, drevo življenja
 
-Skupaj **95 slik v 380 različicah** (10.431 polj za barvanje).
+Skupaj **105 slik v 421 različicah** (14.628 polj za barvanje).
+
+### Za odrasle 🧘
+
+Zahtevnejši, meditativni vzorci z veliko drobnimi polji – na najvišji stopnji jih ima
+šestkotniška mreža 271, zentangle 263, paisley 241 in lotosova mandala 218. Pri simetričnih
+vzorcih je najbolj zabaven način **🔄 Simetrija**: en dotik pobarva vsa enakoležna polja
+in vzorec zraste sam od sebe.
 
 ## Ko je slika končana
 
@@ -93,6 +123,10 @@ Napredek se shranjuje **samo v brskalniku** (`localStorage`): trenutna slika se 
 nadaljuje tam, kjer si ostal.
 
 ## Preverjeno
+
+Preverjeno je tudi, da vseh **devet orodij** pusti vidno in med seboj različno sled, da
+izbirnik barv vrne pravo barvo z lestvice in iz drsnikov (R=18, G=200, B=140 → `#12C88C`) ter
+da se izbrana barva shrani med Moje barve in pojavi v paleti.
 
 V motorju **WebKit** (Safari) je preverjeno: vseh šest načinov barvanja (tapni, čopič,
 po številkah z zavrnitvijo napačne barve, preliv z izrisom prelivov, simetrija in svinčnik),
