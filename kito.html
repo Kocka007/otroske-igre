@@ -3507,7 +3507,7 @@ const $ = id => document.getElementById(id);
 /* ---------- nastavitve in shramba ---------- */
 const PRIVZETO = {
   tezavnost: 'zgodba', shema: 'privzeta', manjBliskov: false, drziPounce: false,
-  nesmrtnost: false, glasba: 0.5, ucinki: 0.75, dotik: 'samodejno', mesto: 0
+  nesmrtnost: false, vsiNivoji: false, glasba: 0.5, ucinki: 0.75, dotik: 'samodejno', mesto: 0
 };
 let nast = Object.assign({}, PRIVZETO);
 let shramba = { mesta: [null, null, null], nast: {} };
@@ -3523,7 +3523,7 @@ function beriShrambo(){
 function pisiShrambo(){
   shramba.nast = {
     tezavnost: nast.tezavnost, shema: nast.shema, manjBliskov: nast.manjBliskov,
-    drziPounce: nast.drziPounce, nesmrtnost: nast.nesmrtnost,
+    drziPounce: nast.drziPounce, nesmrtnost: nast.nesmrtnost, vsiNivoji: nast.vsiNivoji,
     glasba: nast.glasba, ucinki: nast.ucinki, dotik: nast.dotik, mesto: nast.mesto
   };
   try { localStorage.setItem(KLJUC, JSON.stringify(shramba)); } catch (e) {}
@@ -3755,8 +3755,8 @@ function sestaviIzbor(){
   const m = mesto();
   const kart = st => {
     const k = m.koncani[st.id];
-    const zaklenjen = !st.bonus && st.st > m.odklenjeno;
-    const bonusZaklenjen = st.bonus && m.odklenjeno < 3;
+    const zaklenjen = !nast.vsiNivoji && !st.bonus && st.st > m.odklenjeno;
+    const bonusZaklenjen = !nast.vsiNivoji && st.bonus && m.odklenjeno < 3;
     const z = zaklenjen || bonusZaklenjen;
     return '<button class="nivo' + (z ? ' zaklenjen' : '') + (k ? ' koncan' : '') + '" ' +
       (z ? 'disabled' : '') + ' data-nivo="' + st.id + '">' +
@@ -3802,6 +3802,7 @@ function sestaviNastavitve(){
     stikalo('drziPounce', 'Drži za skok na plen', 'napad se ponavlja, dokler držiš tipko') +
     stikalo('manjBliskov', 'Manj bliskov', 'strele in vročinsko migetanje so blažji') +
     stikalo('nesmrtnost', 'Nesmrtnost', 'za vadbo in za najmlajše') +
+    stikalo('vsiNivoji', 'Odkleni vse nivoje', 'za preizkušanje in za tistega, ki hoče kar naprej isti nivo') +
     izbira('shema', 'Barvna shema', [['privzeta', 'Privzeta'], ['toplahladna', 'Toplo–hladna'], ['visok', 'Visok kontrast']]) +
     izbira('dotik', 'Gumbi na zaslonu', [['samodejno', 'Samodejno'], ['vedno', 'Vedno'], ['nikoli', 'Nikoli']]) +
     drsnik('glasba', 'Glasnost glasbe') +
