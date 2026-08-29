@@ -386,7 +386,9 @@ function dodajPodrobnosti(sl, id, lv, koliko){
     const bb = pribBBox(o.s);
     return { i:i, o:o, bb:bb, a:bb[2]*bb[3] };
   }).filter(function(k){
-    return !k.o.rez && k.bb[2] > 34 && k.bb[3] > 34 && /^#[0-9a-f]{6}$/i.test(k.o.c || '');
+    /* ozadja (nebo, trava) izpustimo – pike na njih so videti kot potepuški krogi */
+    return !k.o.rez && k.bb[2] > 34 && k.bb[3] > 34 &&
+      k.a < sl.w * sl.h * 0.42 && /^#[0-9a-f]{6}$/i.test(k.o.c || '');
   }).sort(function(a, b){ return b.a - a.a; }).slice(0, 6);
   if (!kand.length) return;
   const vrini = [];
@@ -2900,6 +2902,612 @@ slika('drevozivljenja','Drevo življenja','odrasli',[2,3,4,5], function(lv){
   return { w:W, h:H, R:R, L:L };
 });
 
+
+/* ======================= ŠPORT ========================================== */
+slika('nogomet','Nogomet','sport',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  const W=340, H=280;
+  if (lv >= 2){
+    R.push(obm(re(0,0,W,H,0), '#bfe6f5'));
+    R.push(obm(bl([[0,200],[90,192],[180,202],[260,192],[W,200],[W,H],[0,H]], .8), '#8ac926'));
+  }
+  if (lv >= 3){
+    R.push(obm(re(24,64,292,136,4), '#e8eef2'));
+    const mr = lv >= 4 ? 8 : 5;
+    for (let i=0;i<mr;i++) R.push(obm(re(28 + i*(284/mr), 68, 5, 128, 0), '#c9d3da'));
+    for (let i=0;i<4;i++) R.push(obm(re(28, 72 + i*32, 284, 5, 0), '#c9d3da'));
+  }
+  const zoga = ci(170,168,84);
+  R.push(obm(zoga, '#ffffff'));
+  /* petkotniki, kot na pravi žogi */
+  R.push(obm(po([[170,124],[204,150],[190,190],[150,190],[136,150]]), '#2f2a3a'));
+  const zunaj = lv >= 3 ? 5 : 3;
+  for (let i=0;i<zunaj;i++){
+    const a = -Math.PI/2 + i*2*Math.PI/zunaj + Math.PI/zunaj;
+    const c = tocka(170,168,86,a);
+    R.push(obm(po(vrti([[c[0],c[1]-26],[c[0]+25,c[1]-8],[c[0]+15,c[1]+22],[c[0]-15,c[1]+22],[c[0]-25,c[1]-8]], c[0],c[1], a+Math.PI/2)),
+      '#2f2a3a', { rez:zoga }));
+  }
+  if (lv >= 2){
+    R.push(obm(ci(46,54,24), '#ffd60a'));
+    R.push(obm(bl([[280,222],[310,214],[330,226],[300,236]], .9), '#6aa84f'));
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+slika('kosarka','Košarka','sport',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  const W=300, H=300;
+  if (lv >= 2) R.push(obm(re(0,0,W,H,0), '#ffe9d6'));
+  R.push(obm(re(66,20,168,110,8), '#f2f2f2'));
+  R.push(obm(re(104,60,92,58,5), '#e63946'));
+  R.push(obm(re(120,130,60,12,4), '#e63946'));
+  const mreza = lv >= 3 ? 7 : 4;
+  for (let i=0;i<mreza;i++){
+    const x = 122 + i*(56/(mreza-1));
+    R.push(obm(bl([[x,142],[x-6,168],[x+4,196]], .8), '#e8eef2'));
+  }
+  const zoga = ci(150,232,58);
+  R.push(obm(zoga, '#f77f00'));
+  R.push(obm(re(146,172,8,120,0), '#2f2a3a', { rez:zoga }));
+  R.push(obm(pa('M96 214C130 226,170 226,204 214L204 226C170 238,130 238,96 226Z'), '#2f2a3a', { rez:zoga }));
+  if (lv >= 3){
+    R.push(obm(pa('M104 190C132 206,168 206,196 190L200 198C168 216,132 216,100 198Z'), '#2f2a3a', { rez:zoga }));
+    R.push(obm(pa('M104 274C132 258,168 258,196 274L192 282C166 268,134 268,108 282Z'), '#2f2a3a', { rez:zoga }));
+  }
+  if (lv >= 2){ R.push(obm(ci(40,60,20), '#ffd60a')); R.push(obm(ci(262,72,14), '#ffd60a')); }
+  return { w:W, h:H, R:R, L:L };
+});
+slika('kolo','Kolo','sport',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  const W=360, H=250;
+  if (lv >= 2){
+    R.push(obm(re(0,0,W,H,0), '#dff0ff'));
+    R.push(obm(re(0,204,W,46,0), '#8d99ae'));
+  }
+  [[86,180],[274,180]].forEach(function(n, ki){
+    R.push(obm(ci(n[0],n[1],56), '#2f2a3a'));
+    R.push(obm(ci(n[0],n[1],46), '#f2f2f2'));
+    const spic = lv >= 3 ? 10 : 6;
+    for (let i=0;i<spic;i++){
+      const a = i*Math.PI/spic;
+      R.push(obm(trak([[n[0]-Math.cos(a)*44, n[1]-Math.sin(a)*44],[n[0]+Math.cos(a)*44, n[1]+Math.sin(a)*44]], 4, 4), '#c9d3da'));
+    }
+    R.push(obm(ci(n[0],n[1],12), '#8d99ae'));
+  });
+  R.push(obm(trak([[86,180],[150,110],[214,110]], 12, 12, .9), '#e63946'));
+  R.push(obm(trak([[150,110],[164,180],[274,180]], 12, 12, .9), '#e63946'));
+  R.push(obm(trak([[164,180],[214,110]], 12, 12), '#e63946'));
+  R.push(obm(trak([[214,110],[274,180]], 12, 12), '#e63946'));
+  R.push(obm(trak([[214,108],[228,74],[262,72]], 10, 9, .9), '#5c5450'));
+  R.push(obm(re(238,62,54,12,5), '#2f2a3a'));
+  R.push(obm(bl([[126,102],[170,96],[178,110],[130,116]], .8), '#2f2a3a'));
+  R.push(obm(ci(164,180,18), '#8d99ae'));
+  R.push(obm(trak([[164,180],[186,204]], 9, 9), '#5c5450'));
+  R.push(obm(re(178,204,26,9,4), '#2f2a3a'));
+  if (lv >= 3){ R.push(obm(ci(56,60,22), '#ffd60a')); }
+  return { w:W, h:H, R:R, L:L };
+});
+slika('smucanje','Smučanje','sport',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  const W=320, H=300;
+  R.push(obm(re(0,0,W,H,0), '#cfe8f7'));
+  R.push(obm(po([[0,150],[80,50],[170,150]]), '#8d99ae'));
+  R.push(obm(po([[46,96],[80,50],[114,96]]), '#ffffff'));
+  R.push(obm(po([[140,150],[230,66],[320,150]]), '#7b8fa1'));
+  R.push(obm(bl([[0,168],[90,158],[190,172],[280,158],[W,168],[W,H],[0,H]], .8), '#ffffff'));
+  if (lv >= 3){ const r=nak(zrno('smuk'));
+    for (let i=0;i<12;i++) R.push(obm(ci(12+r()*300, 10+r()*150, 6), '#ffffff')); }
+  /* smučar */
+  R.push(obm(bl([[150,190],[100,214],[104,226],[168,206]], .6), '#e63946'));
+  R.push(obm(bl([[176,208],[126,232],[130,244],[194,224]], .6), '#e63946'));
+  R.push(obm(trak([[152,166],[150,196],[146,214]], 20, 16), '#3d5a80'));
+  R.push(obm(trak([[172,168],[176,198],[174,222]], 20, 16), '#3d5a80'));
+  R.push(obm(bl([[162,108],[132,132],[130,176],[196,176],[194,132]], .9), '#f77f00'));
+  R.push(obm(trak([[136,132],[112,158],[100,186]], 16, 12), '#f77f00'));
+  R.push(obm(trak([[190,132],[214,158],[226,186]], 16, 12), '#f77f00'));
+  R.push(obm(ci(162,90,28), '#ffd7c2'));
+  R.push(obm(bl([[162,62],[128,78],[128,92],[196,92],[196,78]], .8), '#118ab2'));
+  R.push(obm(ci(162,58,11), '#e63946'));
+  R.push(obm(el(150,90,12,9), '#2f2a3a'));
+  R.push(obm(el(176,90,12,9), '#2f2a3a'));
+  R.push(obm(trak([[100,186],[96,240]], 6, 6), '#5c5450'));
+  R.push(obm(trak([[226,186],[232,240]], 6, 6), '#5c5450'));
+  return { w:W, h:H, R:R, L:L };
+});
+slika('tenis','Tenis','sport',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  const W=280, H=320;
+  if (lv >= 2) R.push(obm(re(0,0,W,H,0), '#e8f4d0'));
+  R.push(obm(el(140,116,86,102), '#e63946'));
+  const okvir = el(140,116,72,88);
+  R.push(obm(okvir, '#f7f3ea'));
+  const st = lv >= 3 ? 7 : 4, vr = lv >= 3 ? 8 : 5;
+  for (let i=0;i<st;i++) R.push(obm(re(140-72 + i*(144/st) + 4, 26, 5, 180, 0), '#c9d3da', { rez:okvir }));
+  for (let i=0;i<vr;i++) R.push(obm(re(64, 116-88 + i*(176/vr) + 4, 152, 5, 0), '#c9d3da', { rez:okvir }));
+  R.push(obm(trak([[128,212],[132,270],[134,300]], 26, 30), '#f7b32b'));
+  R.push(obm(re(114,296,42,16,7), '#5e3a1e'));
+  R.push(obm(ci(216,246,34), '#c5e17a'));
+  R.push(obm(pa('M186 232C204 244,204 260,190 274'), '#ffffff'));
+  if (lv >= 3){
+    R.push(obm(pa('M244 234C228 246,228 258,242 272'), '#ffffff'));
+    R.push(obm(ci(44,64,22), '#ffd60a'));
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+slika('rolka','Rolka','sport',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  const W=340, H=240;
+  if (lv >= 2){
+    R.push(obm(re(0,0,W,H,0), '#f3e8ff'));
+    R.push(obm(re(0,190,W,50,0), '#c9d3da'));
+  }
+  const deska = bl([[30,120],[70,96],[270,96],[310,120],[270,146],[70,146]], .8);
+  R.push(obm(deska, '#7c5cff'));
+  const prog = lv >= 3 ? 6 : 3;
+  for (let i=0;i<prog;i++)
+    R.push(obm(po([[60+i*40,92],[86+i*40,92],[62+i*40,150],[36+i*40,150]]), i%2 ? '#ffd60a' : '#ff70a6', { rez:deska }));
+  if (lv >= 4)
+    for (let i=0;i<5;i++) R.push(obm(zvezda(80+i*46,120,15,5,.45), '#ffffff', { rez:deska }));
+  [[92,150],[248,150]].forEach(function(n){
+    R.push(obm(re(n[0]-16, n[1], 32, 18, 5), '#8d99ae'));
+    R.push(obm(ci(n[0]-22, n[1]+26, 18), '#f77f00'));
+    R.push(obm(ci(n[0]+22, n[1]+26, 18), '#f77f00'));
+    R.push(obm(ci(n[0]-22, n[1]+26, 7), '#e8eef2'));
+    R.push(obm(ci(n[0]+22, n[1]+26, 7), '#e8eef2'));
+  });
+  return { w:W, h:H, R:R, L:L };
+});
+
+/* ======================= GLASBA IN PLES ================================= */
+slika('kitara','Kitara','glasba',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  const W=240, H=340;
+  if (lv >= 2) R.push(obm(re(0,0,W,H,0), '#ffeedd'));
+  R.push(obm(re(104,20,32,150,6), '#7f4f24'));
+  R.push(obm(re(96,10,48,34,6), '#5e3a1e'));
+  const kljuc = lv >= 3 ? 3 : 2;
+  for (let i=0;i<kljuc;i++){
+    R.push(obm(ci(88, 20 + i*10, 6), '#c9d3da'));
+    R.push(obm(ci(152, 20 + i*10, 6), '#c9d3da'));
+  }
+  const telo = bl([[120,160],[60,180],[46,224],[74,254],[52,290],[86,324],[154,324],[188,290],[166,254],[194,224],[180,180]], .95);
+  R.push(obm(telo, '#e07a3f'));
+  R.push(obm(ci(120,222,34), '#5e3a1e'));
+  R.push(obm(ci(120,222,26), '#2f2a26'));
+  const strun = lv >= 3 ? 6 : 4;
+  for (let i=0;i<strun;i++)
+    R.push(obm(re(104 + i*(32/strun), 40, 2.6, 268, 0), '#f2f2f2'));
+  R.push(obm(re(88,286,64,16,4), '#5e3a1e'));
+  if (lv >= 3){
+    for (let i=0;i<5;i++) R.push(obm(re(106, 60 + i*22, 28, 4, 0), '#a9744f'));
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+slika('boben','Boben','glasba',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  const W=320, H=280;
+  if (lv >= 2) R.push(obm(re(0,0,W,H,0), '#e6f4ff'));
+  R.push(obm(el(160,96,110,42), '#f2f2f2'));
+  R.push(obm(re(50,96,220,110,0), '#e63946'));
+  R.push(obm(el(160,206,110,42), '#c1121f'));
+  R.push(obm(el(160,96,110,42), '#f7f3ea'));
+  const nap = lv >= 3 ? 8 : 5;
+  for (let i=0;i<nap;i++){
+    const x = 50 + i*(220/(nap-1));
+    R.push(obm(po([[x,110],[x+14,150],[x,196],[x-14,150]]), '#ffd60a'));
+  }
+  R.push(obm(el(160,96,84,30), '#e8eef2'));
+  R.push(obm(trak([[236,60],[290,26]], 12, 8), '#c9a227'));
+  R.push(obm(ci(292,22,11), '#7f4f24'));
+  R.push(obm(trak([[84,60],[30,26]], 12, 8), '#c9a227'));
+  R.push(obm(ci(28,22,11), '#7f4f24'));
+  if (lv >= 3){
+    for (let i=0;i<4;i++) R.push(obm(ci(84 + i*52, 152, 12), '#ffffff'));
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+slika('klavir','Klavir','glasba',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  const W=360, H=250;
+  if (lv >= 2) R.push(obm(re(0,0,W,H,0), '#f3e8ff'));
+  R.push(obm(re(20,40,320,60,8), '#2f2a3a'));
+  R.push(obm(re(28,100,304,110,6), '#f7f3ea'));
+  const belih = lv >= 4 ? 14 : (lv >= 3 ? 10 : 7);
+  for (let i=0;i<belih;i++)
+    R.push(obm(re(30 + i*(300/belih), 104, (300/belih)-4, 100, 4), '#ffffff'));
+  const crnih = lv >= 3 ? belih-3 : 4;
+  for (let i=0;i<crnih;i++){
+    if (i % 7 === 2 || i % 7 === 6) continue;
+    R.push(obm(re(30 + (i+1)*(300/belih) - (300/belih)*0.22, 104, (300/belih)*0.44, 60, 3), '#2f2a3a'));
+  }
+  R.push(obm(re(20,210,320,18,6), '#5c5450'));
+  if (lv >= 2){
+    R.push(obm(bl([[62,26],[74,10],[86,26],[74,34]], .9), '#7c5cff'));
+    R.push(obm(re(84,4,7,26,3), '#7c5cff'));
+    R.push(obm(bl([[262,22],[274,6],[286,22],[274,30]], .9), '#ff70a6'));
+    R.push(obm(re(284,0,7,26,3), '#ff70a6'));
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+slika('note','Note','glasba',[2,3,4,5], function(lv){
+  const R=[],L=[];
+  const W=340, H=260;
+  R.push(obm(re(0,0,W,H,0), '#fdf6ec'));
+  for (let i=0;i<5;i++) R.push(obm(re(24, 70 + i*26, 292, 5, 0), '#c9d3da'));
+  const not = [0,0,4,6,8,10][lv];
+  const bp = ['#e63946','#f77f00','#ffd60a','#43aa8b','#118ab2','#7c5cff','#ff70a6'];
+  for (let i=0;i<not;i++){
+    const x = 46 + i*(268/not), y = 84 + (i%4)*24;
+    R.push(obm(el(x, y, 17, 12, -0.3), bp[i%bp.length]));
+    R.push(obm(re(x+13, y-52, 6, 54, 2), bp[i%bp.length]));
+    if (i % 2 === 0) R.push(obm(bl([[x+19,y-52],[x+38,y-40],[x+30,y-18],[x+19,y-28]], .9), bp[i%bp.length]));
+  }
+  R.push(obm(bl([[40,196],[24,214],[40,232],[56,214]], .9), '#e63946'));
+  R.push(obm(bl([[300,196],[284,214],[300,232],[316,214]], .9), '#7c5cff'));
+  return { w:W, h:H, R:R, L:L };
+});
+slika('balerina','Balerina','glasba',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  const W=260, H=340;
+  if (lv >= 3){
+    R.push(obm(re(0,0,W,H,0), '#ffeef5'));
+    const r=nak(zrno('balet'));
+    for (let i=0;i<8;i++) R.push(obm(zvezda(14+r()*230, 12+r()*300, 8, 4, .4), '#ffd60a'));
+  }
+  R.push(obm(trak([[126,214],[112,268],[96,308]], 20, 14), '#ffd7c2'));
+  R.push(obm(trak([[146,214],[168,262],[188,296]], 20, 14), '#ffd7c2'));
+  R.push(obm(bl([[92,306],[74,318],[104,322],[112,308]], .8), '#ff70a6'));
+  R.push(obm(bl([[186,294],[204,306],[176,312],[168,298]], .8), '#ff70a6'));
+  R.push(obm(bl([[136,196],[76,214],[54,236],[128,240],[204,236],[184,214]], .9), '#ff8fab'));
+  const kril = lv >= 3 ? 7 : 4;
+  for (let i=0;i<kril;i++)
+    R.push(obm(bl([[136,200],[76+i*22,222],[92+i*22,244],[136,224]], .9), i%2 ? '#ffb3c6' : '#ff70a6'));
+  R.push(obm(bl([[136,120],[110,144],[108,196],[164,196],[162,144]], .9), '#ff70a6'));
+  R.push(obm(trak([[116,140],[86,102],[74,64]], 15, 11), '#ffd7c2'));
+  R.push(obm(trak([[156,140],[186,102],[198,64]], 15, 11), '#ffd7c2'));
+  R.push(obm(bl([[136,60],[104,74],[100,110],[122,124],[152,124],[172,110],[168,74]], .9), '#7f4f24'));
+  R.push(obm(ci(136,96,30), '#ffd7c2'));
+  R.push(obm(ci(136,58,22), '#7f4f24'));
+  R.push(obm(ci(126,96,4), '#2f2a26'));
+  R.push(obm(ci(146,96,4), '#2f2a26'));
+  L.push(crt(cr([[130,110],[136,114],[142,110]], .9)));
+  if (lv >= 2){
+    R.push(obm(ci(118,106,5), '#ffb3c6'));
+    R.push(obm(ci(154,106,5), '#ffb3c6'));
+    R.push(obm(bl([[136,36],[120,44],[136,52],[152,44]], .9), '#ffd60a'));
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+
+
+/* ======================= SRČKANO ======================================== */
+function obrazek(R, x, y, r, barva){
+  R.push(obm(ci(x-r*0.34, y, r*0.13), '#2f2a26'));
+  R.push(obm(ci(x+r*0.34, y, r*0.13), '#2f2a26'));
+  R.push(obm(ci(x-r*0.56, y+r*0.26, r*0.16), barva || '#ffb3c6'));
+  R.push(obm(ci(x+r*0.56, y+r*0.26, r*0.16), barva || '#ffb3c6'));
+}
+slika('kakav','Skodelica kakava','srckano',[1,2,3,4], function(lv){
+  const R=[],L=[];
+  const W=280, H=280;
+  if (lv >= 3) R.push(obm(re(0,0,W,H,0), '#ffeedd'));
+  R.push(obm(bl([[140,120],[62,132],[74,232],[140,258],[206,232],[218,132]], .9), '#f2f2f2'));
+  R.push(obm(trak([[212,158],[250,166],[248,200],[210,206]], 22, 20, .9), '#f2f2f2'));
+  R.push(obm(el(140,132,74,22), '#8b5e34'));
+  const pen = lv >= 3 ? 6 : 3;
+  for (let i=0;i<pen;i++){
+    const a = i*2*Math.PI/pen;
+    R.push(obm(ci(140 + Math.cos(a)*38, 132 + Math.sin(a)*10, 13), '#ffffff'));
+  }
+  R.push(obm(ci(140,132,16), '#ffffff'));
+  obrazek(R, 140, 190, 46);
+  L.push(crt(cr([[126,206],[140,216],[154,206]], 2)));
+  if (lv >= 2){
+    R.push(obm(bl([[110,84],[96,62],[112,44],[126,64]], .9), '#e8eef2'));
+    R.push(obm(bl([[168,84],[154,60],[170,40],[184,62]], .9), '#e8eef2'));
+  }
+  if (lv >= 3) R.push(obm(bl([[60,242],[140,232],[220,242],[228,258],[52,258]], .8), '#c9a227'));
+  return { w:W, h:H, R:R, L:L };
+});
+slika('sladoled','Sladoled','srckano',[1,2,3,4], function(lv){
+  const W=260, H=320, R=[], L=[];
+  if (lv >= 3) R.push(obm(re(0,0,W,H,0), '#e6f7ff'));
+  const stozec = po([[92,168],[168,168],[130,300]]);
+  R.push(obm(stozec, '#f0b25a'));
+  const mr = lv >= 3 ? 5 : 3;
+  for (let i=0;i<mr;i++){
+    R.push(obm(po([[92+i*16,168],[130+i*16,300],[136+i*16,300],[98+i*16,168]]), '#d99a3f', { rez:stozec }));
+    R.push(obm(po([[168-i*16,168],[130-i*16,300],[124-i*16,300],[162-i*16,168]]), '#d99a3f', { rez:stozec }));
+  }
+  R.push(obm(bl([[130,96],[74,118],[70,158],[130,178],[190,158],[186,118]], .9), '#ff8fab'));
+  if (lv >= 2){
+    R.push(obm(bl([[130,66],[86,84],[84,116],[130,132],[176,116],[174,84]], .9), '#c5e17a'));
+    R.push(obm(bl([[130,44],[96,58],[96,84],[130,96],[164,84],[164,58]], .9), '#ffd166'));
+  }
+  R.push(obm(ci(130,32,15), '#e63946'));
+  obrazek(R, 130, 140, 40);
+  L.push(crt(cr([[116,156],[130,166],[144,156]], 2)));
+  if (lv >= 4){
+    const bp=['#e63946','#43aa8b','#7c5cff','#ffd60a'];
+    for (let i=0;i<8;i++) R.push(obm(re(84+i*22, 108+(i%3)*16, 12, 5, 2), bp[i%bp.length]));
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+slika('krof','Krof','srckano',[1,2,3,4], function(lv){
+  const W=280, H=280, R=[], L=[];
+  if (lv >= 3) R.push(obm(re(0,0,W,H,0), '#fff0f6'));
+  R.push(obm(ci(140,146,104), '#e0a45e'));
+  R.push(obm(bl([[140,54],[68,84],[46,150],[80,224],[200,224],[234,150],[212,84]], .9), '#ff8fab'));
+  R.push(obm(ci(140,146,34), '#fff0f6'));
+  const posip = lv >= 4 ? 20 : (lv >= 2 ? 12 : 6);
+  const bp = ['#e63946','#ffd60a','#43aa8b','#7c5cff','#ffffff','#118ab2'];
+  for (let i=0;i<posip;i++){
+    const a = i*2*Math.PI/posip, rr = 52 + (i%3)*16;
+    R.push(obm(bl(vrti([[140+rr-9,146],[140+rr+9,146-4],[140+rr+9,146+4],[140+rr-9,146+4]], 140, 146, a), .6),
+      bp[i%bp.length]));
+  }
+  obrazek(R, 140, 200, 40);
+  return { w:W, h:H, R:R, L:L };
+});
+slika('piskotek','Piškotek','srckano',[1,2,3,4], function(lv){
+  const W=270, H=270, R=[], L=[];
+  if (lv >= 3) R.push(obm(re(0,0,W,H,0), '#f7f0e2'));
+  const p = ci(135,140,100);
+  R.push(obm(p, '#e0b070'));
+  const kosc = lv >= 4 ? 11 : (lv >= 2 ? 7 : 4);
+  const r = nak(zrno('piskotek'));
+  for (let i=0;i<kosc;i++){
+    const a = r()*Math.PI*2, rr = r()*76;
+    R.push(obm(ci(135 + Math.cos(a)*rr, 140 + Math.sin(a)*rr, 13 + r()*7), '#5e3a1e', { rez:p }));
+  }
+  obrazek(R, 135, 150, 44, '#e08b6a');
+  L.push(crt(cr([[118,168],[135,180],[152,168]], 2.4)));
+  if (lv >= 2) R.push(obm(bl([[196,74],[232,64],[236,96],[206,104]], .9), '#f7f0e2'));
+  return { w:W, h:H, R:R, L:L };
+});
+slika('oblacek','Oblaček z mavrico','srckano',[1,2,3,4], function(lv){
+  const W=320, H=280, R=[], L=[];
+  if (lv >= 3) R.push(obm(re(0,0,W,H,0), '#e6f4ff'));
+  const bp = ['#e63946','#f77f00','#ffd60a','#43aa8b','#118ab2','#7c5cff'];
+  const lok = lv >= 3 ? 6 : 4;
+  for (let i=0;i<lok;i++){
+    const rr = 118 - i*17;
+    R.push(obm(pa('M' + (160-rr) + ' 220A' + rr + ' ' + rr + ' 0 0 1 ' + (160+rr) + ' 220L' + (160+rr-17) +
+      ' 220A' + (rr-17) + ' ' + (rr-17) + ' 0 0 0 ' + (160-rr+17) + ' 220Z'), bp[i % bp.length]));
+  }
+  R.push(obm(bl([[160,110],[100,124],[74,164],[104,196],[216,196],[246,164],[220,124]], .9), '#ffffff'));
+  obrazek(R, 160, 154, 44);
+  L.push(crt(cr([[144,172],[160,182],[176,172]], 2.4)));
+  if (lv >= 2){
+    R.push(obm(bl([[54,214],[38,238],[54,258],[70,238]], .9), '#a9def9'));
+    R.push(obm(bl([[266,214],[250,238],[266,258],[282,238]], .9), '#a9def9'));
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+slika('mucka','Mucka v skodelici','srckano',[1,2,3,4], function(lv){
+  const W=280, H=280, R=[], L=[];
+  if (lv >= 3) R.push(obm(re(0,0,W,H,0), '#fff0f6'));
+  R.push(obm(po([[104,86],[96,40],[136,74]]), '#e0a45e'));
+  R.push(obm(po([[176,86],[184,40],[144,74]]), '#e0a45e'));
+  R.push(obm(po([[110,82],[106,54],[132,76]]), '#ffb3c6'));
+  R.push(obm(po([[170,82],[174,54],[148,76]]), '#ffb3c6'));
+  R.push(obm(ci(140,116,56), '#f0b25a'));
+  R.push(obm(bl([[140,158],[76,172],[70,224],[210,224],[204,172]], .9), '#ffffff'));
+  R.push(obm(trak([[204,196],[244,204],[240,232],[202,236]], 20, 18, .9), '#ffffff'));
+  R.push(obm(el(140,172,72,16), '#e8eef2'));
+  R.push(obm(ci(122,112,11), '#2f2a26'));
+  R.push(obm(ci(158,112,11), '#2f2a26'));
+  R.push(obm(po([[140,132],[130,122],[150,122]]), '#ff8fab'));
+  L.push(crt(cr([[140,134],[140,142]], 2)));
+  L.push(crt(cr([[140,142],[128,150]], 2)));
+  L.push(crt(cr([[140,142],[152,150]], 2)));
+  R.push(obm(ci(102,128,10), '#ffb3c6'));
+  R.push(obm(ci(178,128,10), '#ffb3c6'));
+  if (lv >= 2){
+    L.push(crt(cr([[112,136],[64,128]], 1.8)));
+    L.push(crt(cr([[112,144],[66,150]], 1.8)));
+    L.push(crt(cr([[168,136],[216,128]], 1.8)));
+    L.push(crt(cr([[168,144],[214,150]], 1.8)));
+  }
+  if (lv >= 3) R.push(obm(bl([[60,232],[140,222],[220,232],[228,250],[52,250]], .8), '#c9a227'));
+  return { w:W, h:H, R:R, L:L };
+});
+
+/* ======================= ŠOLA IN IZLETI ================================= */
+slika('torba','Šolska torba','sola',[1,2,3,4], function(lv){
+  const W=280, H=300, R=[], L=[];
+  if (lv >= 3) R.push(obm(re(0,0,W,H,0), '#e6f0ff'));
+  R.push(obm(trak([[92,110],[70,60],[140,44]], 20, 16, .9), '#3d5a80'));
+  R.push(obm(trak([[188,110],[210,60],[140,44]], 20, 16, .9), '#3d5a80'));
+  R.push(obm(re(52,100,176,168,22), '#118ab2'));
+  R.push(obm(bl([[52,142],[140,116],[228,142],[228,178],[52,178]], .8), '#0d6d8f'));
+  R.push(obm(re(114,160,52,34,7), '#ffd60a'));
+  R.push(obm(re(64,196,152,64,12), '#0d6d8f'));
+  if (lv >= 2){
+    R.push(obm(re(80,206,50,44,6), '#f77f00'));
+    R.push(obm(re(150,206,50,44,6), '#e63946'));
+  }
+  if (lv >= 3){
+    R.push(obm(re(84,60,14,52,4), '#ffd60a'));
+    R.push(obm(po([[84,60],[91,44],[98,60]]), '#ffd7c2'));
+    R.push(obm(re(182,58,14,54,4), '#43aa8b'));
+    R.push(obm(po([[182,58],[189,42],[196,58]]), '#ffd7c2'));
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+slika('tabla','Tabla z abecedo','sola',[1,2,3,4], function(lv){
+  const W=340, H=280, R=[], L=[];
+  if (lv >= 3) R.push(obm(re(0,0,W,H,0), '#fdf6ec'));
+  R.push(obm(re(24,24,292,196,10), '#7f4f24'));
+  R.push(obm(re(38,38,264,168,6), '#2f6b52'));
+  const crk = lv >= 4 ? 10 : (lv >= 2 ? 6 : 4);
+  const abc = 'ABCČDEFGHIJ';
+  const bp = ['#ffd60a','#ff70a6','#4cc9f0','#8ac926','#f77f00','#ffffff','#c77dff','#e63946','#43aa8b','#ffb703'];
+  for (let i=0;i<crk;i++){
+    const x = 60 + (i%5)*52, y = 76 + Math.floor(i/5)*70;
+    R.push(obm(ci(x,y,26), bp[i%bp.length]));
+    R.push(obm(ci(x,y,15), '#2f6b52'));
+  }
+  R.push(obm(re(38,206,264,16,4), '#a9744f'));
+  R.push(obm(re(90,210,44,10,4), '#ffffff'));
+  R.push(obm(re(150,210,44,10,4), '#e63946'));
+  R.push(obm(trak([[110,224],[110,268]], 16, 14), '#7f4f24'));
+  R.push(obm(trak([[230,224],[230,268]], 16, 14), '#7f4f24'));
+  return { w:W, h:H, R:R, L:L };
+});
+slika('sotor','Šotor','sola',[1,2,3,4], function(lv){
+  const W=340, H=280, R=[], L=[];
+  R.push(obm(re(0,0,W,H,0), '#1b2a49'));
+  if (lv >= 2){
+    R.push(obm(ci(276,52,26), '#fff3b0'));
+    const r=nak(zrno('sotor'));
+    for (let i=0;i<(lv>=3?12:6);i++) R.push(obm(zvezda(14+r()*300, 10+r()*110, 7, 4, .4), '#ffe066'));
+  }
+  R.push(obm(bl([[0,222],[90,214],[180,224],[260,214],[W,222],[W,H],[0,H]], .8), '#2f6b52'));
+  R.push(obm(po([[52,224],[130,86],[208,224]]), '#e63946'));
+  R.push(obm(po([[130,86],[130,224],[208,224]]), '#c1121f'));
+  R.push(obm(po([[104,224],[130,120],[156,224]]), '#2f2a3a'));
+  if (lv >= 3){
+    for (let i=0;i<4;i++) R.push(obm(po([[62+i*14,224],[70+i*14,180],[78+i*14,224]]), '#ff8fab'));
+  }
+  R.push(obm(ci(266,214,24), '#f77f00'));
+  R.push(obm(ci(266,214,14), '#ffd60a'));
+  R.push(obm(trak([[240,232],[292,232]], 10, 10), '#7f4f24'));
+  R.push(obm(trak([[248,222],[286,242]], 10, 10), '#7f4f24'));
+  if (lv >= 2) for (let i=0;i<3;i++) R.push(obm(ci(250+i*16, 186-i*14, 9), '#f2f2f2'));
+  return { w:W, h:H, R:R, L:L };
+});
+slika('ribolov','Ribolov','sola',[1,2,3,4], function(lv){
+  const W=340, H=280, R=[], L=[];
+  R.push(obm(re(0,0,W,H,0), '#bfe6f5'));
+  R.push(obm(ci(60,52,24), '#ffd60a'));
+  R.push(obm(re(0,150,W,130,0), '#3d9be9'));
+  if (lv >= 2) for (let i=0;i<(lv>=3?5:3);i++)
+    R.push(obm(bl([[16+i*66,178+i*10],[62+i*66,170+i*10],[108+i*66,178+i*10],[62+i*66,186+i*10]], .9), '#7fc6f2'));
+  R.push(obm(bl([[64,150],[130,138],[210,138],[268,150],[236,186],[96,186]], .9), '#8b5e34'));
+  R.push(obm(bl([[64,150],[268,150],[262,162],[70,162]], .7), '#a9744f'));
+  R.push(obm(trak([[150,138],[186,86],[214,52]], 9, 5), '#7f4f24'));
+  L.push(crt(cr([[214,52],[234,110],[236,170]], 1.8)));
+  R.push(obm(ci(236,176,11), '#e63946'));
+  R.push(obm(bl([[150,102],[124,116],[124,138],[176,138],[176,116]], .9), '#f77f00'));
+  R.push(obm(ci(150,86,22), '#ffd7c2'));
+  R.push(obm(bl([[150,66],[122,76],[178,76]], .8), '#e63946'));
+  R.push(obm(ci(144,88,4), '#2f2a26'));
+  R.push(obm(ci(158,88,4), '#2f2a26'));
+  if (lv >= 3){
+    R.push(obm(bl([[262,214],[290,206],[312,216],[288,228]], .9), '#f08a3c'));
+    R.push(obm(po([[262,216],[244,206],[246,228]]), '#f08a3c'));
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+
+/* ======================= ZABAVA IN LETNI ČASI =========================== */
+slika('baloni','Baloni','prazniki',[1,2,3,4], function(lv){
+  const W=300, H=320, R=[], L=[];
+  if (lv >= 3) R.push(obm(re(0,0,W,H,0), '#e6f4ff'));
+  const n = lv >= 4 ? 7 : (lv >= 2 ? 5 : 3);
+  const bp = ['#e63946','#ffd60a','#43aa8b','#7c5cff','#ff70a6','#f77f00','#118ab2'];
+  for (let i=0;i<n;i++){
+    const x = 46 + i*((W-92)/(n-1)), y = 78 + (i%3)*30;
+    L.push(crt(cr([[x, y+58],[x + (i%2?14:-14), y+150],[x, y+240]], 1.8)));
+    R.push(obm(el(x, y, 40, 50), bp[i%bp.length]));
+    R.push(obm(po([[x-9,y+48],[x+9,y+48],[x,y+62]]), bp[i%bp.length]));
+    if (lv >= 3) R.push(obm(el(x-14, y-16, 10, 15, -0.4), '#ffffff'));
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+slika('darilo','Darilo','prazniki',[1,2,3,4], function(lv){
+  const W=280, H=280, R=[], L=[];
+  if (lv >= 3) R.push(obm(re(0,0,W,H,0), '#ffeef5'));
+  R.push(obm(re(46,116,188,144,10), '#e63946'));
+  R.push(obm(re(38,88,204,40,8), '#c1121f'));
+  R.push(obm(re(122,88,36,172,0), '#ffd60a'));
+  R.push(obm(bl([[140,88],[86,52],[68,74],[118,92]], .9), '#ffd60a'));
+  R.push(obm(bl([[140,88],[194,52],[212,74],[162,92]], .9), '#ffd60a'));
+  R.push(obm(ci(140,88,18), '#f7b32b'));
+  if (lv >= 2){
+    const pik = lv >= 4 ? 12 : 6, okvir = re(46,116,188,144,10);
+    for (let i=0;i<pik;i++)
+      R.push(obm(ci(64 + (i%4)*52, 148 + Math.floor(i/4)*44, 12), '#ffffff', { rez:okvir }));
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+slika('klovn','Klovn','prazniki',[1,2,3,4], function(lv){
+  const W=280, H=320, R=[], L=[];
+  if (lv >= 3){
+    R.push(obm(re(0,0,W,H,0), '#fff6e5'));
+    for (let i=0;i<6;i++) R.push(obm(ci(24+i*46, 24+(i%3)*20, 12), ['#e63946','#43aa8b','#7c5cff'][i%3]));
+  }
+  R.push(obm(bl([[140,150],[86,180],[74,268],[206,268],[194,180]], .9), '#118ab2'));
+  R.push(obm(trak([[100,186],[62,214],[46,244]], 22, 17), '#118ab2'));
+  R.push(obm(trak([[180,186],[218,214],[234,244]], 22, 17), '#118ab2'));
+  R.push(obm(ci(42,250,15), '#ffd7c2'));
+  R.push(obm(ci(238,250,15), '#ffd7c2'));
+  R.push(obm(bl([[140,150],[100,166],[104,190],[176,190],[180,166]], .9), '#ffd60a'));
+  R.push(obm(ci(140,104,48), '#ffd7c2'));
+  R.push(obm(ci(96,96,26), '#e63946'));
+  R.push(obm(ci(184,96,26), '#e63946'));
+  R.push(obm(bl([[140,58],[96,66],[104,44],[130,54],[140,28],[152,54],[178,44],[184,66]], .8), '#e63946'));
+  R.push(obm(ci(126,100,7), '#2f2a26'));
+  R.push(obm(ci(154,100,7), '#2f2a26'));
+  R.push(obm(ci(140,118,15), '#e63946'));
+  L.push(crt(cr([[116,134],[140,148],[164,134]], 2.4)));
+  if (lv >= 2){
+    R.push(obm(po([[140,150],[118,182],[162,182]]), '#ff70a6'));
+    R.push(obm(ci(140,196,11), '#ffd60a'));
+    R.push(obm(ci(140,222,11), '#43aa8b'));
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+slika('jesen','Jesensko drevo','pokrajine',[1,2,3,4], function(lv){
+  const W=320, H=300, R=[], L=[];
+  R.push(obm(re(0,0,W,H,0), '#fdf0dc'));
+  R.push(obm(bl([[0,242],[80,234],[170,244],[250,234],[W,242],[W,H],[0,H]], .8), '#c9a227'));
+  R.push(obm(trak([[160,250],[156,180],[160,140]], 40, 26), '#7f4f24'));
+  R.push(obm(trak([[158,186],[116,164],[92,150]], 16, 9, .9), '#7f4f24'));
+  R.push(obm(trak([[162,180],[204,158],[228,146]], 16, 9, .9), '#7f4f24'));
+  const bp = ['#e63946','#f77f00','#ffd60a','#c1440e','#e07a3f'];
+  const kron = lv >= 4 ? 14 : (lv >= 2 ? 9 : 5);
+  for (let i=0;i<kron;i++){
+    const a = i*2*Math.PI/kron;
+    R.push(obm(ci(160 + Math.cos(a)*62, 120 + Math.sin(a)*46, 34), bp[i%bp.length]));
+  }
+  R.push(obm(ci(160,120,44), bp[2]));
+  const list = lv >= 4 ? 10 : (lv >= 2 ? 6 : 3);
+  for (let i=0;i<list;i++){
+    const x = 26 + i*((W-52)/list), y = 230 + (i%3)*20;
+    R.push(obm(bl(vrti([[x,y-12],[x-11,y],[x,y+12],[x+11,y]], x, y, i*0.7), .95), bp[i%bp.length]));
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+slika('travnik','Pomladni travnik','pokrajine',[1,2,3,4], function(lv){
+  const W=340, H=280, R=[], L=[];
+  R.push(obm(re(0,0,W,H,0), '#cfeaf7'));
+  R.push(obm(ci(288,50,26), '#ffd60a'));
+  if (lv >= 2){
+    R.push(obm(bl([[40,50],[62,34],[90,40],[104,56],[78,68],[46,64]], .9), '#ffffff'));
+    R.push(obm(bl([[150,32],[168,20],[192,26],[202,40],[178,50],[156,46]], .9), '#ffffff'));
+  }
+  R.push(obm(bl([[0,148],[90,138],[180,150],[260,138],[W,148],[W,H],[0,H]], .8), '#8ac926'));
+  const cvet = lv >= 4 ? 12 : (lv >= 2 ? 8 : 5);
+  const bp = ['#e63946','#ffd60a','#ff70a6','#7c5cff','#ffffff'];
+  for (let i=0;i<cvet;i++){
+    const x = 24 + (i%6)*((W-48)/6) + (Math.floor(i/6)%2)*24, y = 178 + Math.floor(i/6)*54;
+    R.push(obm(trak([[x,y+34],[x,y+8]], 7, 6), '#4b8f3a'));
+    for (let k=0;k<5;k++){
+      const a = k*2*Math.PI/5;
+      R.push(obm(el(x + Math.cos(a)*13, y + Math.sin(a)*13, 10, 8, a), bp[i%bp.length]));
+    }
+    R.push(obm(ci(x,y,8), '#ffd60a'));
+  }
+  if (lv >= 3){
+    R.push(obm(bl([[62,120],[42,102],[22,112],[36,132]], .9), '#ff70a6'));
+    R.push(obm(bl([[74,120],[94,102],[114,112],[100,132]], .9), '#ff70a6'));
+    R.push(obm(el(68,124,8,20), '#7f4f24'));
+  }
+  return { w:W, h:H, R:R, L:L };
+});
+
 /* ===================== ČISTA LOGIKA – KONEC ============================= */
 
 /* ======================= STANJE ========================================= */
@@ -2931,6 +3539,10 @@ const TEME = [
   { id:'vozila', nm:'Vozila', emo:'🚂' },
   { id:'rastline', nm:'Rastline in sadje', emo:'🌻' },
   { id:'prazniki', nm:'Prazniki', emo:'🎁' },
+  { id:'sport', nm:'Šport', emo:'🏀' },
+  { id:'glasba', nm:'Glasba in ples', emo:'🎵' },
+  { id:'srckano', nm:'Srčkano', emo:'🧁' },
+  { id:'sola', nm:'Šola in izleti', emo:'🎒' },
   { id:'pravljica', nm:'Pravljično', emo:'🦄' },
   { id:'junaki', nm:'Junaki in roboti', emo:'🦸' },
   { id:'pokrajine', nm:'Pokrajine', emo:'🏔️' },
@@ -3012,12 +3624,16 @@ function izrisiIzbiro(){
   const kartice = izbrane.map(function(s){
     const lv = stopnjaZa(s, S.stopnja), sl = s.gradi(lv);
     const kljuc = s.id + ':' + lv;
+    /* sličico rišemo v nižji stopnji: enako berljiva je, zaslon z več kot sto
+       slikami pa se izriše bistveno hitreje. Število polj ostane pravo. */
+    const tlv = Math.min(lv, 3), enaka = tlv === lv;
+    const slT = enaka ? sl : s.gradi(tlv);
     const vTeku = (S.trenutna && S.trenutna.id === s.id && S.trenutna.lv === lv) ? S.trenutna : null;
-    const barve = vTeku ? vTeku.barve : [];
+    const barve = (vTeku && enaka) ? vTeku.barve : [];
     return '<button class="pic" data-slika="' + s.id + '">' +
       (S.koncane[kljuc] ? '<span class="done">✅</span>' : '') +
-      svgIz(sl, { barve:barve, pre:'t' + s.id + lv, plain:true,
-                  dodatek:risbaPlast(vTeku && vTeku.risba, sl) }) +
+      svgIz(slT, { barve:barve, pre:'t' + s.id + lv, plain:true,
+                  dodatek:risbaPlast(enaka && vTeku && vTeku.risba, slT) }) +
       '<span class="nm">' + esc(s.nm) + '</span>' +
       '<span class="meta">' + sl.R.length + ' polj · st. ' + lv + '</span></button>';
   }).join('');

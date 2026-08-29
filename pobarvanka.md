@@ -1,6 +1,6 @@
 # 🎨 Barvica – pobarvanka
 
-Interaktivna pobarvanka s **105 slikami** (od tega **10 za odrasle**), **petimi stopnjami zahtevnosti** in **šestimi načini
+Interaktivna pobarvanka s **131 slikami** (od tega **10 za odrasle**), **petimi stopnjami zahtevnosti** in **šestimi načini
 barvanja** – vključno z barvanjem s **svinčnikom ali Apple Pencil**, tako kot v pravi papirnati
 pobarvanki. Ista slika ima na višji stopnji več in manjša polja, zato je primerna tako za
 petletnika kot za odraslega, ki se ob mandali umiri.
@@ -87,10 +87,18 @@ Z gumbom **🎨** se odpre izbirnik lastne barve:
 - 🏔️ **Pokrajine** (7) – gore in jezero, svetilnik, mesto ponoči, sončni zahod, zimska vas, otok s palmo, slap
 - 🎁 **Prazniki** (6) – snežak, božična jelka, buča, pirhi, torta, srce
 - 🌀 **Vzorci** (9) – mandala, rozeta, vitraž, mozaik, snežinka, luske, krogi, valovi, cvetni vzorec
+- 🏀 **Šport** (6) – nogomet, košarka, kolo, smučanje, tenis, rolka
+- 🎵 **Glasba in ples** (5) – kitara, boben, klavir, note, balerina
+- 🧁 **Srčkano** (6) – skodelica kakava, sladoled, krof, piškotek, oblaček z mavrico, mucka v skodelici
+- 🎒 **Šola in izleti** (4) – šolska torba, tabla z abecedo, šotor, ribolov
 - 🧘 **Za odrasle** (10) – lotosova mandala, rozetno okno, zentangle, paisley, cvetlični venec,
   šestkotniki, ornamentalna sova, ornamentalni metulj, ornamentalno pero, drevo življenja
 
-Skupaj **105 slik v 421 različicah** (14.628 polj za barvanje).
+Skupaj **131 slik v 525 različicah** (16.880 polj za barvanje) v 17 temah.
+
+Nabor tem je zastavljen tako, da pokriva to, kar otroci pri pobarvankah iščejo – živali,
+vozila, pravljice, šport, glasba, prazniki, letni časi, šola in srčkane sličice – ter zahtevnejše
+vzorce za odrasle. Vse risbe so izvirne, sestavljene v kodi te aplikacije.
 
 ### Za odrasle 🧘
 
