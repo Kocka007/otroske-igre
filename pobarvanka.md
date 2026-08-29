@@ -1,6 +1,6 @@
 # 🎨 Barvica – pobarvanka
 
-Interaktivna pobarvanka s **143 slikami** (od tega **22 za odrasle**), **petimi stopnjami zahtevnosti** in **šestimi načini
+Interaktivna pobarvanka s **146 slikami** (od tega **22 za odrasle**), **petimi stopnjami zahtevnosti** in **šestimi načini
 barvanja** – vključno z barvanjem s **svinčnikom ali Apple Pencil**, tako kot v pravi papirnati
 pobarvanki. Ista slika ima na višji stopnji več in manjša polja, zato je primerna tako za
 petletnika kot za odraslega, ki se ob mandali umiri.
@@ -75,16 +75,19 @@ Z gumbom **🎨** se odpre izbirnik lastne barve:
 
 ## Slike po temah
 
-- 🐣 **Za najmlajše** (11) – riba, metulj, roža, mačka, ladjica, raketa, čebela, pikapolonica, polž, kačji pastir, hrošč
-- 🐻 **Živali** (10) – pes, medved, zajec, lisica, panda, tiger, prašič, ovca, miška, koala
+- 🐣 **Za najmlajše** (10) – riba, metulj, roža, ladjica, raketa, čebela, pikapolonica, polž, kačji pastir, hrošč
+- 🐻 **Živali** (12) – mucka, kuža, medvedek, zajček, lisica, panda, tiger, prašiček, ovčka, miška,
+  koala, levček v savani
 - 🐬 **Morje** (8) – hobotnica, morski konjiček, delfin, kit, rak, meduza, morska zvezda, želva
 - 🦜 **Ptice** (6) – sova, papiga, pingvin, raca, petelin, flamingo
 - 🦕 **Dinozavri** (4) – brontozaver, triceratops, tiranozaver, stegozaver
 - 🚂 **Vozila** (7) – avto, avtobus, vlak, letalo, traktor, gasilski avto, bager
 - 🌻 **Rastline in sadje** (11) – jabolko, hruška, jagoda, ananas, lubenica, korenje, drevo, kaktus, sončnica, tulipan, gobica
-- 🦄 **Pravljično** (10) – zmaj, samorog, vila, škrat, grad, princesa, vitez, čarovnica, sirena, feniks
-- 🦸 **Junaki in roboti** (6) – superjunak, robot, astronavt, pirat, nindža, vesoljček
-- 🏔️ **Pokrajine** (7) – gore in jezero, svetilnik, mesto ponoči, sončni zahod, zimska vas, otok s palmo, slap
+- 🦄 **Pravljično** (10) – zmajček, samorog, vila v cvetju, škrat, pravljični grad, princesa pred
+  gradom, vitez, čarovnica, morska deklica, feniks
+- 🦸 **Junaki in roboti** (7) – superjunak, superjunakinja, robot, astronavt, pirat, nindža, vesoljček
+- 🏔️ **Pokrajine** (10) – gore in jezero, otok sredi jezera, slap v džungli, sončni zahod ob morju,
+  zimska vas, otok s palmo, svetilnik, mesto ponoči, jesensko drevo, pomladni travnik
 - 🎁 **Prazniki** (6) – snežak, božična jelka, buča, pirhi, torta, srce
 - 🌀 **Vzorci** (9) – mandala, rozeta, vitraž, mozaik, snežinka, luske, krogi, valovi, cvetni vzorec
 - 🏀 **Šport** (6) – nogomet, košarka, kolo, smučanje, tenis, rolka
@@ -96,11 +99,21 @@ Z gumbom **🎨** se odpre izbirnik lastne barve:
   koi ribi, pav, lovilec sanj, mehndi roka, keltski vozel, japonski val, mesečeve mene,
   geometrijski volk, čipkasta rozeta, panjska končnica, ornamentalni balon, galaksijska mandala
 
-Skupaj **143 slik v 573 različicah** (20.941 polj za barvanje) v 17 temah.
+Skupaj **146 slik v 583 različicah** (24.980 polj za barvanje) v 17 temah.
 
 Nabor tem je zastavljen tako, da pokriva to, kar otroci pri pobarvankah iščejo – živali,
 vozila, pravljice, šport, glasba, prazniki, letni časi, šola in srčkane sličice – ter zahtevnejše
 vzorce za odrasle. Vse risbe so izvirne, sestavljene v kodi te aplikacije.
+
+### Slog risb
+
+Risbe so narejene po vzoru tiskanih pobarvank: junak je velik in zapolni stran, okoli njega je
+cel prizor (nebo, tla, sonce, drevesa, rože), obraz ima velike oči z odsvitom in nasmeh.
+Debelina obrobe ni povsod enaka – velika polja imajo krepko črto, drobne podrobnosti tanko,
+tako kot v pobarvankah, ki jih otrok dobi natisnjene.
+
+Pravljični in superjunaški liki so izvirni (princesa, vila, zmajček, superjunak, superjunakinja),
+ne pa liki iz risank ali stripov.
 
 ### Za odrasle 🧘
 
