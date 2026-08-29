@@ -107,7 +107,10 @@ p{margin:0 0 10px;font-weight:700;font-size:14.5px;line-height:1.55;color:#e6d5b
 #zgodba-st{font-size:12.5px;letter-spacing:3px;color:var(--oker)}
 #zgodba-ime{font-size:26px;margin:2px 0 10px}
 #zgodba-glagol{display:block;background:#2a1e15;border-radius:10px;padding:10px 12px;
-  font-weight:700;font-size:13.5px;color:#bfe0c0;margin-bottom:14px;line-height:1.5}
+  font-weight:700;font-size:13.5px;color:#bfe0c0;margin-bottom:10px;line-height:1.5}
+#zgodba-krmilje{font-weight:700;font-size:12.5px;color:#c3ae8c;line-height:1.7;margin-bottom:14px}
+#zgodba-krmilje b{color:var(--oker);background:#2a1e15;border-radius:5px;padding:1px 6px;
+  display:inline-block;margin-right:3px}
 
 /* ---------- igra ---------- */
 #igra{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#100b07}
@@ -218,6 +221,7 @@ body[data-shema="toplahladna"] #platno{filter:hue-rotate(-12deg) saturate(1.12)}
     <div id="zgodba-ime"></div>
     <p id="zgodba-tekst"></p>
     <b id="zgodba-glagol"></b>
+    <div id="zgodba-krmilje"></div>
     <button class="gumb" id="zgodba-naprej" data-dej="zacni">Začni</button>
     <button class="gumb tih" data-dej="izbor">⬅ Nazaj</button>
   </div>
@@ -491,6 +495,15 @@ const STOPNJE = [
   glagol: 'Rjovenje razžene tkalce s skrite veje.',
   uvod: 'Dolga suša je pojedla reko. Kito lovi kobilice na kopju, kjer se je nekoč pelo dežju.',
   w: 190, h: 16, seme: 101,
+  namigi: [
+    [4,  'Teci in skoči'],
+    [10, 'Skoči na kuščarja (napad)'],
+    [30, 'Zaleti se čez prepad'],
+    [55, 'Zarjovi – tkalci ti bodo odstopili vejo'],
+    [72, 'Počakaj žirafo in stopi na njen vrat'],
+    [108,'Ob deblu se lahko oprimeš in splezaš'],
+    [150,'Sončni hrošč trajno poveča oklep']
+  ],
   gradi: function(g){
     g.start(3, 10);
     g.teren(0, 34, 11);
@@ -609,6 +622,11 @@ const STOPNJE = [
   glagol: 'Odmev rjovenja podre lažna tla – slišiš, kje so votla.',
   uvod: 'Smejoči dvor prodaja vodo, ki ni njegova. V brlogu se sliši vsak korak – in vsaka laž.',
   w: 200, h: 22, seme: 303,
+  namigi: [
+    [28, 'Nekatera tla so lažna – rjovenje jih razkrije'],
+    [86, 'Iz brlogov skačejo hijene'],
+    [140,'Kost drži, laž se udre']
+  ],
   gradi: function(g){
     g.start(3, 12);
     g.blok(0, 0, 200, 3, T.SKALA);
@@ -736,6 +754,11 @@ const STOPNJE = [
   glagol: 'Vročinski zrak laže: privid ploščadi izgine, ko stopiš nanj.',
   uvod: 'Slana ravnica ne skriva ničesar in vseeno vse zlaže. Kdor jo prehodi, ni več mladič.',
   w: 200, h: 16, seme: 505, preobrazba: true,
+  namigi: [
+    [22, 'Prividne ploščadi izginjajo – opazuj ritem'],
+    [26, 'Če padeš, te ujame slano dno'],
+    [178,'Slani krst: tu se mladič konča']
+  ],
   gradi: function(g){
     g.start(3, 11);
     g.teren(0, 22, 12, { val: 0, tip: T.SOL });
@@ -791,6 +814,10 @@ const STOPNJE = [
   glagol: 'Stražarji te vidijo – rjovenje iz teme jih razkropi.',
   uvod: 'Karavana prodaja živali kot vodo. Ponoči so kletke tiho, straže pa ne.',
   w: 200, h: 16, seme: 606, noc: true,
+  namigi: [
+    [10, 'Straža vidi naprej – rjovenje jo razkropi'],
+    [20, 'Kletko odpreš z zaletom (napad + dol)']
+  ],
   gradi: function(g){
     g.start(3, 11);
     g.teren(0, 26, 12, { val: 0 });
@@ -851,6 +878,11 @@ const STOPNJE = [
   glagol: 'Jahaš nosoroga skozi kotaleče se hlode in podiraš nosilce jezu.',
   uvod: 'Nosorogi zidajo jez, ki ni njihov. Kdor podre nosilce, vrne reko vsem.',
   w: 210, h: 16, seme: 707, stebri: true,
+  namigi: [
+    [20, 'Nosilce jezu podreš z zamahom'],
+    [30, 'Stopi na nosoroga – hlode bo razbil namesto tebe'],
+    [168,'Razpokano skalo zruši dolgo rjovenje']
+  ],
   gradi: function(g){
     g.start(3, 11);
     g.teren(0, 30, 12, { val: 0 });
@@ -1057,6 +1089,7 @@ const STOPNJE = [
   glagol: 'N’punkt koplje skozi zemljo tam, kjer drugi obidejo.',
   uvod: 'Medojed N’punkt ne pozna strahu, pozna pa bližnjice.',
   w: 120, h: 20, seme: 1111, jama: true,
+  namigi: [[4, 'Z napadom koplješ – z ▼ tudi navzdol']],
   gradi: function(g){
     g.start(3, 4);
     g.blok(0, 6, 120, 14, T.BLATO);
@@ -2311,6 +2344,15 @@ S.korak = function(v){
     }
     if (this.preobrazbaCas > 150){ this.stanje = 'igra'; this.napis('Rjovenje zdaj lomi kamen'); }
     return;
+  }
+
+  /* Namigi ob prvem prehodu mimo določenega mesta – vsak samo enkrat. */
+  if (this.st.namigi){
+    if (!this.namignil) this.namignil = {};
+    for (let n = 0; n < this.st.namigi.length; n++){
+      const nm = this.st.namigi[n];
+      if (!this.namignil[n] && i.x > nm[0] * P){ this.namignil[n] = 1; this.napis(nm[1]); }
+    }
   }
 
   /* Gobov lov na sadje: sadje pada v ritmu, izhod se odpre po rundi */
@@ -3784,6 +3826,10 @@ function pokaziZgodbo(idx){
   $('zgodba-ime').textContent = st.ime;
   $('zgodba-tekst').textContent = st.uvod;
   $('zgodba-glagol').textContent = st.glagol;
+  const dotik = !$('dotik').hidden;
+  $('zgodba-krmilje').innerHTML = dotik
+    ? 'Gumbi so na zaslonu: <b>◀ ▶</b> hoja · <b>SKOK</b> · <b>NAPAD</b> · <b>RJOVI</b> · <b>▼</b> poglej dol'
+    : '<b>← →</b> hoja · <b>preslednica</b> skok · <b>X</b> napad · <b>C</b> rjovenje · <b>↓</b> poglej dol · <b>Esc</b> premor';
   $('zgodba-naprej').dataset.nivo = idx;
   pokazi('zgodba');
 }
