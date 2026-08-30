@@ -3,7 +3,8 @@
 cd "$(dirname "$0")"
 export PW_POGON="${PW_POGON:-webkit}"
 slabo=0
-for t in test-zbirka.js test-logika.js test-igranje.js test-tap.js test-kviz.js test-kviz2.js; do
+for t in test-zbirka.js test-logika.js test-igranje.js test-tap.js test-kviz.js test-kviz2.js \
+         test-matko.js test-olly.js test-barvica.js test-kito.js; do
   echo; echo "############ $t ($PW_POGON) ############"
   node "$t" || slabo=$((slabo+1))
 done

@@ -33,13 +33,19 @@ strežnika ni treba zaganjati.
 
 | Datoteka | Kaj preverja |
 |---|---|
-| `test-zbirka.js` | pravila, ki veljajo za vse igre: vsaka je vpisana v `index.html`, `sw.js` in `README.md`, ima svoj `*.md`, se odpre z diska brez zahtevkov na omrežje, je v slovenščini; `sw.js` ne navaja neobstoječih datotek |
+| `test-zbirka.js` | pravila, ki veljajo za vse igre: vsaka je vpisana v `index.html`, `sw.js` in `README.md`, ima svoj `*.md` s poglavjem »Kako je preizkušeno«, se odpre z diska brez zahtevkov na omrežje, je v slovenščini; `sw.js` ne navaja neobstoječih datotek; pisava z Google Fonts ima rezervni sklad in je v `ASSETS` |
 | `test-logika.js` | Globko: vseh 25 iger na vseh petih stopnjah – veljavnost vprašanj, dovolj različnih možnosti, cilji na zemljevidu dovolj veliki za otroški prst, pike znotraj zemljevida in brez prekrivanja |
 | `test-igranje.js` | Globko: bot odigra cel krog vsake igre v vsakem področju (28 krogov), pravilno in narobe |
 | `test-tap.js` | Globko: pravi tapi in vlečenje – tap zadene državo in piko, vlečenje ne šteje kot odgovor, gumbi za približevanje |
 | `test-kviz.js` | Vseved: zbirka vseh vprašanj (podvojitve, možnosti, zahtevnost, pokritost stopenj) in vseh šest načinov od začetka do zaključnega zaslona |
 | `test-kviz2.js` | Vseved: pravila lestvice in pomoči, štoparica hitrega ognja, ponovljivost izziva dneva, prehod med načini |
+| `test-matko.js` | Matko: vsi načini na domačem zaslonu se odprejo, postavijo nalogo in sprejmejo odgovor; krog se odigra do zaključnega zaslona. Igra je zavita v IIFE, zato bot dela isto kot otrok – tapka po gumbih in bere zaslon |
+| `test-olly.js` | Olly: vse igre v vseh področjih in na vseh stopnjah – veljavnost vprašanj, možnosti, sestavljanke besed in stavkov; bot odigra krog vsake igre; brez govora se slušne igre ne ponudijo |
+| `test-barvica.js` | Barvica: vse slike na vseh stopnjah – gradnja, polja na platnu, rast števila polj s stopnjo; barvanje in razveljavitev; predlagane barve za način po številkah |
+| `test-kito.js` | Kito: vsi nivoji – sestava, prosto izhodišče, izhod ali duhovi, ponovljivost ob istem semenu; bot odigra 900 korakov fizike v vsakem nivoju |
 
 Nastavitve prek okolja: `PW_POGON` (`webkit` ali `chromium`),
-`NA_STOPNJO` (koliko vprašanj na igro in stopnjo v `test-logika.js`, privzeto 45),
-`PRAVILNO` (delež pravilnih odgovorov bota v `test-igranje.js`, privzeto 1).
+`NA_STOPNJO` (koliko vprašanj na igro in stopnjo v `test-logika.js` in `test-olly.js`),
+`PRAVILNO` (delež pravilnih odgovorov bota v `test-igranje.js`, privzeto 1),
+`NA_NACIN` (koliko nalog na način v `test-matko.js`, privzeto 2),
+`KORAKOV` (koliko korakov fizike na nivo v `test-kito.js`, privzeto 900).

@@ -9,6 +9,27 @@ async function sredina(stran, izbirnik){
   return b ? { x: b.x + b.width / 2, y: b.y + b.height / 2, w: b.width, h: b.height } : null;
 }
 
+/* Točka, ki res leži v državi. Sredina očrtne škatle ne zadošča: Španija ima
+   Kanarske otoke, Norveška Svalbard – sredina take škatle pade v morje. Zato
+   preiščemo mrežo točk in vzamemo prvo, ki jo brskalnik pripiše tej državi. */
+async function tockaVDrzavi(stran, id){
+  return stran.evaluate(drzava => {
+    const p = document.querySelector('#karta .dz[data-id="' + drzava + '"]');
+    if (!p) return null;
+    const b = p.getBoundingClientRect();
+    if (!b.width || !b.height) return null;
+    for (let n = 3; n <= 11; n += 2){
+      for (let j = 1; j < n; j++) for (let i = 1; i < n; i++){
+        const x = b.left + b.width * i / n, y = b.top + b.height * j / n;
+        const pod = document.elementFromPoint(x, y);
+        const c = pod && pod.closest ? pod.closest('[data-id]') : null;
+        if (c && c.dataset.id === drzava) return { x, y, w: b.width, h: b.height };
+      }
+    }
+    return null;
+  }, id);
+}
+
 /* poišče tako vprašanje »Kje leži?«, da je cilj na zaslonu dovolj velik za tap */
 async function pripraviZemljevid(stran, podId, gid, najmanj){
   for (let poskus = 0; poskus < 25; poskus++){
@@ -17,11 +38,11 @@ async function pripraviZemljevid(stran, podId, gid, najmanj){
     await stran.click('[data-igra="' + gid + '"]');
     await stran.waitForSelector('#karta .dz');
     const cilj = await stran.evaluate(() => tek.q.cilj);
-    const b = await sredina(stran, '#karta .dz[data-id="' + cilj + '"]');
+    const b = await tockaVDrzavi(stran, cilj);
     if (b && b.w >= najmanj && b.h >= najmanj) return { cilj, b };
     await stran.evaluate(() => naslednje());
     const c2 = await stran.evaluate(() => tek.q.cilj);
-    const b2 = await sredina(stran, '#karta .dz[data-id="' + c2 + '"]');
+    const b2 = await tockaVDrzavi(stran, c2);
     if (b2 && b2.w >= najmanj && b2.h >= najmanj) return { cilj: c2, b: b2 };
   }
   return null;
@@ -35,7 +56,7 @@ async function pripraviZemljevid(stran, podId, gid, najmanj){
   /* --- 1. tap po državi na zemljevidu Evrope --- */
   const t1 = preizkus('tap zadene pravo državo');
   const z = await pripraviZemljevid(stran, 'evropa', 'evrZemljevid', 14);
-  if (!t1.trdi(!!z, 'v 25 poskusih ni bilo cilja, večjega od 14 px – zemljevid je pretesen za prst')){
+  if (!t1.trdi(!!z, 'v 25 poskusih ni bilo cilja, večjega od 14 px in z dosegljivo notranjostjo')){
   } else {
     await stran.touchscreen.tap(z.b.x, z.b.y);
     const po = await stran.evaluate(() => ({ odg: tek.odgovorjeno, znak: tek.znaki[tek.i] }));
@@ -62,7 +83,7 @@ async function pripraviZemljevid(stran, podId, gid, najmanj){
       await stran.touchscreen.tap(karta.x, karta.y).catch(() => {});
       await stran.evaluate(() => { if (tek.odgovorjeno) naslednje(); });
       const c3 = await stran.evaluate(() => tek.q.cilj);
-      const b3 = await sredina(stran, '#karta .dz[data-id="' + c3 + '"]');
+      const b3 = await tockaVDrzavi(stran, c3);
       if (b3){
         /* Igra vlečenje bere iz pointer dogodkov (pointerdown/move/up), ki jih miška sproži
            enako kot prst – zato je to ista koda kot pri pravem prstu na iPadu. */

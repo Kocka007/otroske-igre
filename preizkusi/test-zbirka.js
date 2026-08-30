@@ -86,10 +86,19 @@ const beri = f => fs.readFileSync(path.join(REPO, f), 'utf8');
   }
   preizkusi.push(t3);
 
-  /* --- 3b. mehka odvisnost od Googlovih pisav (velja za vse igre, tudi starejše) --- */
-  const t3b = preizkus('igre se ne zanašajo na Googlove pisave');
-  t3b.trdi(pisave.length === 0,
-    'z interneta jemljejo pisavo: ' + pisave.join(', ') + ' – brez interneta se izrišejo z rezervno pisavo');
+  /* --- 3b. edina dovoljena zunanja stvar je pisava; brez nje mora igra delati naprej --- */
+  const t3b = preizkus('pisava z interneta ima rezervo in je predpomnjena');
+  for (const f of pisave){
+    const vs = beri(f);
+    const skladi = (vs.match(/font-family:\s*"?Nunito"?[^;}]*/g) || []);
+    t3b.trdi(skladi.length > 0, f + ': Nunito je naložen, a ni uporabljen');
+    for (const sk of skladi)
+      t3b.trdi(/sans-serif|system-ui|-apple-system/.test(sk),
+        f + ': sklad pisav nima rezerve – brez interneta bi ostal brez pisave: ' + sk);
+  }
+  /* v sw.js mora biti, sicer nameščena igra brez interneta pisave ne bi imela */
+  const pisavaVSw = /fonts\.googleapis\.com/.test(sw);
+  t3b.trdi(!pisave.length || pisavaVSw, 'pisave z Google Fonts ni v ASSETS v sw.js');
   preizkusi.push(t3b);
 
   /* --- 4. vsaka igra se odpre z diska in nič ne pade --- */

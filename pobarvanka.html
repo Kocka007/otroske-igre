@@ -577,11 +577,22 @@ function dodajPodrobnosti(sl, id, lv, koliko){
   vrini.sort(function(a, b){ return b.i - a.i; });
   vrini.forEach(function(v){ sl.R.splice(v.i + 1, 0, v.o); });
 }
+/* Polje, ki v celoti pade čez rob platna, je nevidno – otrok ga ne more tapniti,
+   preveriKonec() pa ga vseeno šteje, zato slika nikoli ne bi bila končana.
+   Oblik, ki jih ne znamo izmeriti, ne odstranjujemo. */
+function samoNaPlatnu(sl){
+  sl.R = sl.R.filter(function(o){
+    const b = pribBBox(o.s);
+    if (b[2] <= 0 && b[3] <= 0) return true;
+    return b[0] < sl.w && b[1] < sl.h && b[0] + b[2] > 0 && b[1] + b[3] > 0;
+  });
+  return sl;
+}
 function slika(id, nm, tema, stopnje, gradi){
   /* Primerjamo se s POLNO prejšnjo stopnjo (tudi če je bila sama obogatena),
      sicer bi višja stopnja lahko imela manj polj od nižje. */
   const polna = function(lv){
-    const sl = gradi(lv);
+    const sl = samoNaPlatnu(gradi(lv));
     const k = stopnje.indexOf(lv);
     if (k > 0){
       const prej = polna(stopnje[k-1]).R.length;

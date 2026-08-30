@@ -152,9 +152,9 @@ Navdih so stare ploščadne igre, ne pa njihove slabe navade:
   rjovenje); ob rjovenju se glasba za hip umakne.
 - Napredek se hrani v `localStorage` (tri shrambe), nič se ne pošilja na splet.
 
-### Samopreizkus
+### Kako je preizkušeno
 
-Ob zagonu se v razvijalski konzoli izpiše izid preizkusa. Ta preveri:
+Ob zagonu se v razvijalski konzoli izpiše izid **vgrajenega samopreizkusa**. Ta preveri:
 
 - da se vsi nivoji sestavijo in imajo začetek, izhod in kontrolne točke,
 - da mladič **res** preskoči tri ploščice (izmerjeno s pravo fiziko, ne z
@@ -169,3 +169,16 @@ Ob zagonu se v razvijalski konzoli izpiše izid preizkusa. Ta preveri:
 Za preizkušanje zunaj brskalnika je prvi del datoteke označen z
 `ČISTA LOGIKA – ZAČETEK/KONEC`: v tem delu ni dostopa do DOM-a, zato se ga da
 naložiti v Node.js in pognati robota, ki odigra nivoje sam.
+
+V repozitoriju je poleg tega `preizkusi/test-kito.js` (Playwright), ki igro odpre
+v brskalniku in preveri:
+
+* da se **vseh 14 nivojev** sestavi, ima ime, velikost in izhodišče,
+* da se Kito nikjer ne rodi v steni ali izven karte (preverjeno s pravo obliko
+  lika: mladič do Slanega krsta, odrasel po njem),
+* da ima vsak nivo izhod ali duhove – torej način, da se konča,
+* da isto seme dvakrat zapored sestavi **enak** nivo (karta, objekti, izhodišče),
+* da svet prenese **900 korakov fizike** na nivo, ko bot slepo teče desno in skače:
+  brez izjem, brez neveljavnih koordinat, padec v prepad pa svet ujame in Kita
+  oživi pri kontrolni točki,
+* da vgrajeni samopreizkus ob zagonu ne javi nobene napake.

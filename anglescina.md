@@ -155,13 +155,27 @@ Vsebina: **326 besed** v 24 kategorijah (96 + 84 + 59 + 48 + 39 po stopnjah), **
 **40 nepravilnih glagolov**, **26 parov nasprotij** in **26 primerov množine**.
 Naloge sestavljajo generatorji, zato se ne ponavljajo.
 
-Samodejno je preverjenih **85.200 nalog** iz vseh 18 generatorjev v vseh področjih in na vseh
-stopnjah: da ima vsaka naloga navodilo, da so možnosti različne, da je med njimi točno ena
-pravilna in da se iz ponujenih črk oziroma besed res da sestaviti pravilna rešitev
-(pri stavkih so sprejeti tudi enakovredni besedni redi). Posebej so preverjeni še podatki:
+### Kako je preizkušeno
+
+`preizkusi/test-olly.js` (Playwright) ob vsakem zagonu prehodi **vseh 18 iger v vseh
+petih področjih in na vseh stopnjah** – približno 7100 nalog na zagon. Preveri:
+
+* da noben generator ne vrže napake in da ima vsaka naloga navodilo in ključ,
+* da vsaka naloga otroku res kaj ponudi – besedo, sličico, stavek, besedilo,
+  črke, ploščice ali izgovorjeno besedo (pri igri »Poslušaj« je vsebina prav zvok,
+  zato mora imeti besedo za izgovor),
+* da so možnosti **različne, nobena prazna** in da je pravilna med njimi,
+  ter da jih je toliko, kolikor jih stopnja predpisuje (2 → 3 → 3 → 4 → 4),
+* da se pri »Sestavi besedo« iz ponujenih črk res da sestaviti rešitev, pri
+  »Sestavi stavek« pa se ploščice natanko ujemajo z besedami stavka,
+* da bot odigra **cel krog vsake igre v vsakem področju** (70 krogov po 10 nalog)
+  in doseže poln rezultat,
+* da se na napravi **brez govora** slušne igre sploh ne ponudijo,
+* da se zvezdice shranijo v `localStorage`.
+
+Med razvojem so bili preverjeni še podatki:
 nobena angleška beseda, prevod ali sličica se ne ponovi dvakrat (da slika ne more pomeniti dveh
 stvari), vsaka slovnična naloga ima razlago, števila do 999 in vse ure so primerjane
 z znanimi pravilnimi zapisi (*forty-five*, *three hundred and forty-two*, *It's quarter to one.*).
-Aplikacija je preizkušena tudi v brskalniku: odprtih je bilo vseh 70 igralnih kartic,
-odigrani so bili krogi in preverjeno je, da se stopnja po 4 pravilnih odgovorih dvigne,
-po 2 napakah zniža in da napredek preživi zaprtje strani.
+To zadnje je bilo preverjeno na roko med razvojem in ni del samodejnih preizkusov,
+prav tako ne pravilo, da se stopnja po 4 pravilnih odgovorih dvigne in po 2 napakah zniža.

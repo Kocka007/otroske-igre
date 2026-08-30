@@ -148,7 +148,9 @@ vidne tudi v sličicah in v izvoženem PNG.
 Napredek se shranjuje **samo v brskalniku** (`localStorage`): trenutna slika se ob vrnitvi
 nadaljuje tam, kjer si ostal.
 
-## Preverjeno
+## Kako je preizkušeno
+
+### Preverjeno med razvojem
 
 Preverjeno je tudi, da vseh **devet orodij** pusti vidno in med seboj različno sled, da
 izbirnik barv vrne pravo barvo z lestvice in iz drsnikov (R=18, G=200, B=140 → `#12C88C`) ter
@@ -170,7 +172,20 @@ Platno s potezami se namreč postavi natanko na risbo in ne na njen okvir – sl
 ohrani v razmerju, zato je okoli nje lahko prazen prostor, in če bi platno raztegnili čez ves
 okvir, bi barva pristala drugje, kot se pero dotakne zaslona.
 
-Vseh **95 slik na vseh 380 stopnjah** se samodejno preveri: da se zgradijo brez napake, da nimajo
-polj z ničelno površino ali pokvarjenih poti, da ima vsako polje veljavno barvo in da število
-polj z vsako stopnjo res raste. Izmerjen je tudi izris izbirnega zaslona z vsemi 95 sličicami
-(142 ms pri najvišji stopnji).
+Zgornje je bilo izmerjeno med razvojem, na roko in z enkratnimi preizkusi; v repozitoriju
+za to ni samodejnega preizkusa.
+
+### Samodejni preizkus
+
+`preizkusi/test-barvica.js` (Playwright) ob vsakem zagonu preveri **vseh 146 slik v vseh
+583 različicah** (skupaj 25.514 polj):
+
+* da se vsaka slika zgradi brez napake, ima ime in znano temo,
+* da nobeno polje ne pade **v celoti čez rob platna** – tako polje je nevidno,
+  otrok ga ne more pobarvati, slika pa nikoli ne bi bila končana,
+* da ima vsaka slika vsaj eno polje, ki ga otrok zadene brez približevanja
+  (drobnost je sicer pri mandalah in vzorcih namen, zato velikosti ne predpisujemo),
+* da ima **višja stopnja res več polj** kot nižja,
+* da ima vsaka tema vsaj eno sliko,
+* da tap res pobarva polje in da ga **razveljavitev vrne** v prejšnje stanje,
+* da ima vsaka slika predlagane barve, sicer način »po številkah« ne bi delal.

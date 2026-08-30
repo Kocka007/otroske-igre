@@ -120,12 +120,31 @@ Aplikacija ne pošilja ničesar na internet in ne zbira nobenih podatkov.
 
 Ena sama datoteka `matematika.html` – čist HTML, CSS in JavaScript, brez knjižnic in brez
 gradnje. Zvoki so ustvarjeni z Web Audio API, torej ni zvočnih datotek.
-Naloge sestavljajo generatorji, zato se ne ponavljajo. Samodejno je preverjenih **234.900 nalog iz vseh 29 generatorjev**: vsak odgovor je primerjan
-z neodvisno referenčno formulo v testu (pretvorbe enot, ploščine, Pitagora, ulomki, odstotki,
-enačbe, praštevila, mediana …), poleg tega se preverja še 87.420 izpisanih računov.
-Vse naloge so pravilne, odgovor je vedno med ponujenimi možnostmi in brez slovničnih
-spodrsljajev (pregledani so vsi stavčni vzorci).
+Naloge sestavljajo generatorji, zato se ne ponavljajo.
 
 Vzor za naloge Kenguručka so pretekla tekmovanja Mednarodni matematični kenguru
 za 1.–3. razred OŠ ([DMFA Slovenije](https://www.dmfa.si/tekmovanja/kenguru/SpletnoTekmovanje.aspx)).
 Naloge niso prepisane, ampak na novo sestavljene v istem slogu.
+
+### Kako je preizkušeno
+
+Vsa koda igre je zavita v `(function(){ … })()`, zato do generatorjev od zunaj ni
+dostopa. Bot v `preizkusi/test-matko.js` (Playwright) zato dela natanko to, kar dela
+otrok: tapka po gumbih in bere zaslon. Preveri:
+
+* da domači zaslon v vseh štirih starostnih sklopih ponudi **vseh 45 načinov**,
+  vsakega z imenom in brez podvojitev,
+* da se vsak način odpre, postavi nalogo z naslovom in besedilom, izriše krog
+  desetih pik in ponudi način za odgovor – bodisi možnosti bodisi številčnico
+  z vsemi tipkami,
+* da so pri nalogah z možnostmi te **različne in nobena prazna**,
+* da igra po vsakem odgovoru odgovori z odzivom in da je pravilen odgovor,
+  ki ga po zgrešenem poskusu pokaže, **res med ponujenimi možnostmi**,
+* da se v vsakem starostnem sklopu krog odigra do zaključnega zaslona, ta pove
+  rezultat »Pravilnih: X od 10«, našteje vseh deset nalog in ponudi »Še enkrat«,
+* da se napredek (zvezdice, odigrani krogi, števci odgovorov) shrani v `localStorage`
+  in da igra ne javi nobene napake v konzoli.
+
+> Pravilnosti računov ta preizkus **ne** preverja – za to bi bilo treba do generatorjev
+> priti mimo ovoja. Prej opisano preverjanje z neodvisnimi referenčnimi formulami je
+> teklo med razvojem in ni del repozitorija.

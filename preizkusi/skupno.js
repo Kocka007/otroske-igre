@@ -23,14 +23,18 @@ async function odpri(datoteka, opt){
   });
   const stran = await kontekst.newPage();
   const napake = [];
+  const dnevnik = [];                 /* vse, kar igra izpiše v konzolo */
   stran.on('pageerror', e => napake.push(String(e)));
-  stran.on('console', m => { if (m.type() === 'error') napake.push('console: ' + m.text()); });
+  stran.on('console', m => {
+    dnevnik.push({ vrsta: m.type(), besedilo: m.text() });
+    if (m.type() === 'error') napake.push('console: ' + m.text());
+  });
   /* zahtevke poslušamo že pred nalaganjem, sicer bi nam ušlo vse iz glave dokumenta */
   const zahtevki = [];
   stran.on('request', r => { if (!/^(file|data|blob):/.test(r.url())) zahtevki.push(r.url()); });
   await stran.goto(url(datoteka));
   await stran.waitForFunction(() => document.readyState === 'complete');
-  return { brskalnik, kontekst, stran, napake, zahtevki, pogon: p.ime };
+  return { brskalnik, kontekst, stran, napake, dnevnik, zahtevki, pogon: p.ime };
 }
 
 /* Preprost zbiralnik trditev. */
