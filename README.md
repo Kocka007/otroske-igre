@@ -68,6 +68,7 @@ globko-icon-*.png     slika na kartici za Globka (🌍)
 vseved-icon-*.png     slika na kartici za Vseveda (🧠)
 barvica-icon-192.png  slika na kartici za Barvico (🎨)
 kito-icon-*.png       slika na kartici za Kita (🦁)
+preizkusi/            samodejni preizkusi (Playwright); igre same jih ne potrebujejo
 ```
 
 Vsaka igra je samostojna: če vzameš samo `anglescina.html` in jo odpreš z diska,
@@ -79,6 +80,24 @@ deluje v celoti tudi brez ostalih datotek.
 2. V `index.html` jo vpiši v seznam `IGRE` (datoteka, ime, emodži, slika, barva, opis).
 3. Dodaj jo v seznam `ASSETS` v `sw.js` in povečaj `CACHE` (npr. `-v4`), da se
    nameščenim uporabnikom osveži predpomnilnik.
+4. Dopiši vrstico v tabelo zgoraj in ustvari `<ime>.md` z opisom in poglavjem
+   »Kako je preizkušeno«.
+5. Poženi preizkuse: `cd preizkusi && ./pozeni.sh` – `test-zbirka.js` preveri,
+   da je igra res vpisana povsod in da se odpre z diska brez interneta.
+
+## Preizkusi
+
+Igre same nimajo knjižnic in ne potrebujejo gradnje; preizkusi so ločeni in
+uporabljajo Playwright:
+
+```bash
+cd preizkusi
+npm install && npx playwright install webkit chromium
+./pozeni.sh                    # privzeto v WebKitu (pogon Safarija na iPadu)
+PW_POGON=chromium ./pozeni.sh
+```
+
+Kaj preverja katera datoteka, piše v [preizkusi/README.md](preizkusi/README.md).
 
 ## Zasebnost
 

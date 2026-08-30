@@ -1,0 +1,12 @@
+{
+  "name": "otroske-igre-preizkusi",
+  "private": true,
+  "description": "Preizkusi zbirke otroskih iger (Playwright).",
+  "scripts": {
+    "test": "./pozeni.sh",
+    "test:chromium": "PW_POGON=chromium ./pozeni.sh"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0"
+  }
+}
