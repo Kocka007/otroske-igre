@@ -72,4 +72,5 @@ od dvanajstih področij.
   vmes preizkusi tudi pomoči (50 : 50 mora skriti prav dva napačna odgovora).
 * **Preizkus pravil** – napačen odgovor v lestvici res konča vzpon in shrani zadnjo varno
   stopničko; štoparica hitrega ognja res konča krog; izziv dneva dvakrat zapored izbere
-  ista vprašanja.
+  ista vprašanja. Preveri tudi prehod med načini: samodejni skok hitrega ognja se ne sme
+  dotakniti kroga, ki se je začel za njim.

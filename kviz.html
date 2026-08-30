@@ -905,7 +905,10 @@ function odgovori(izbran){
   });
 
   if (n.hitro){                     /* pri hitrem ognju ne ustavljamo – takoj naprej */
-    setTimeout(() => { if (tek && !tek.konec){ tek.i++; naslednje(); } }, prav ? 350 : 800);
+    /* Skok velja samo za ta krog: če igralec vmes začne drugega, se zaostali časovnik
+       ne sme dotakniti novega – sicer bi mu preskočil prvo vprašanje. */
+    const mojKrog = tek;
+    setTimeout(() => { if (tek === mojKrog && !tek.konec){ tek.i++; naslednje(); } }, prav ? 350 : 800);
     if (!prav) $('odziv').innerHTML = '<span style="color:var(--no-d)">Pravilno: ' + esc(q.o) + '</span>';
     return;
   }

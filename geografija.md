@@ -80,7 +80,8 @@ Vlečenje ne šteje kot odgovor: šele tap brez premika izbere državo.
 
 * **Preizkus logike** – vseh 25 iger na vseh petih stopnjah, 5600 vprašanj: vsako mora imeti
   vprašanje, dovolj različnih možnosti, veljaven pravilen odgovor, cilj na zemljevidu pa mora biti
-  dovolj velik za otroški prst. Preveri tudi, da vse točke padejo znotraj obrisa Slovenije.
+  dovolj velik za otroški prst. Preveri tudi, da vse točke padejo znotraj obrisa Slovenije
+  in da se pike med seboj ne prekrivajo – sicer otrok prave ne bi mogel tapniti.
 * **Preizkus igranja** – bot odigra cel krog vsake igre v vsakem področju (28 krogov) in preveri
   odziv, razlago, gumb naprej in zaključni zaslon.
 * **Preizkus dotika** – pravi tapi in vlečenje v Safarijevem in Chromovem pogonu: tap zadene državo,

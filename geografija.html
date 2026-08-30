@@ -1172,6 +1172,19 @@ function okvirPoti(d){
 function okvirDrzave(kljuc, id){
   const z = ZEMLJEVIDI[kljuc]; return z.d[id] ? okvirPoti(z.d[id]) : null;
 }
+/* Polmer pike na zemljevidu – isti izračun kot v novZemljevid().tocke(), da lahko že pri
+   izbiri poskrbimo, da se pike ne prekrivajo. Zemljevid Slovenije igra pred risanjem pik
+   približa na državo (pokazi(okvir, 1.12)), zato je tam pogled ožji in pika manjša. */
+function polmerPike(kljuc){
+  const z = ZEMLJEVIDI[kljuc];
+  let sirina = z.w;
+  if (kljuc === 'slovenija'){
+    const o = okvirDrzave('slovenija', 'Slovenia');
+    if (o) sirina = Math.max(z.w * 0.12, Math.min(z.w, Math.max(o.w, o.h * z.w / z.h) * 1.12));
+  }
+  return Math.max(4, sirina / 42);
+}
+
 /* države, ki so na zemljevidu dovolj velike, da jih otrok lahko tapne */
 function tapljive(kljuc, najmanj){
   const z = ZEMLJEVIDI[kljuc], out = [];
@@ -1439,8 +1452,24 @@ function gTocke(karta, seznam, uvod){
     let zal = seznam().filter(x => x.t <= mt);
     if (zal.length < 4) zal = seznam();
     const c = ena(zal);
-    const drugi = premesaj(seznam().filter(x => x.n !== c.n)).slice(0, stMoznosti(st) - 1);
-    const vse = premesaj([c].concat(drugi));
+    /* Motilne pike morajo biti dovolj daleč od prave in druga od druge – sicer bi se
+       prekrile in otrok prave sploh ne bi mogel tapniti. Če jih toliko ni, razmik popuščamo. */
+    const z = ZEMLJEVIDI[karta], r = polmerPike(karta);
+    const lega = x => vZemljevid(z, x.p[0], x.p[1]);
+    const kandidati = premesaj(seznam().filter(x => x.n !== c.n));
+    const koliko = stMoznosti(st);
+    let izbrani = [c];
+    for (const razmik of [2 * r, 1.4 * r, r, 0]){
+      izbrani = [c];
+      const lege = [lega(c)];
+      for (const x of kandidati){
+        if (izbrani.length >= koliko) break;
+        const l = lega(x);
+        if (lege.every(m => Math.hypot(l[0] - m[0], l[1] - m[1]) >= razmik)){ izbrani.push(x); lege.push(l); }
+      }
+      if (izbrani.length >= koliko) break;
+    }
+    const vse = premesaj(izbrani);
     return { tip:'tocke', karta, tocke:vse, a:vse.indexOf(c),
              v:(uvod || 'Kje je') + ' ' + c.n + '?',
              pod:'Tapni pravo piko na zemljevidu.', zn:c.zn,
