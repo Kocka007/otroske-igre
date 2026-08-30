@@ -1,7 +1,7 @@
 /* Otroške igre – service worker.
    Poskrbi, da igre delujejo tudi brez interneta, ko so nameščene
    na začetni zaslon. Nova različica pride do otroka ob prvem odprtju s povezavo. */
-const CACHE = 'otroske-igre-v15';
+const CACHE = 'otroske-igre-v16';
 const ASSETS = [
   './',
   './index.html',
@@ -34,11 +34,17 @@ const ASSETS = [
   'https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap'
 ];
 
+/* Datoteke jemljemo naravnost z omrežja, mimo brskalnikovega predpomnilnika.
+   GitHub Pages jih namreč postreže s `Cache-Control: max-age=600`, zato bi
+   navadni add() lahko shranil do deset minut staro kopijo – in ta bi potem
+   ostala v igri do naslednje posodobitve. */
+const svezZahtevek = u => new Request(u, { cache: 'reload' });
+
 self.addEventListener('install', e => {
   e.waitUntil((async () => {
     const c = await caches.open(CACHE);
     // vsako datoteko shranimo posebej, da manjkajoča ne prepreči namestitve
-    await Promise.all(ASSETS.map(u => c.add(u).catch(() => {})));
+    await Promise.all(ASSETS.map(u => c.add(svezZahtevek(u)).catch(() => c.add(u).catch(() => {}))));
     self.skipWaiting();
   })());
 });
@@ -60,7 +66,11 @@ self.addEventListener('fetch', e => {
   if (req.mode === 'navigate' || req.destination === 'document'){
     e.respondWith((async () => {
       try {
-        const res = await fetch(req);
+        /* Tudi tu mimo predpomnilnika HTTP, sicer bi otrok ob zagonu lahko
+           dobil stran, ki jo je brskalnik shranil pred manj kot desetimi minutami.
+           Zahtevka za krmarjenje ni mogoče preoblikovati, zato ga sestavimo znova. */
+        const res = await fetch(req.url, { cache: 'reload', credentials: 'same-origin' })
+          .catch(() => fetch(req));
         if (res && res.ok){
           const c = await caches.open(CACHE);
           c.put(req, res.clone());

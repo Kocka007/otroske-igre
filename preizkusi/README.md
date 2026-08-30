@@ -33,6 +33,7 @@ strežnika ni treba zaganjati.
 
 | Datoteka | Kaj preverja |
 |---|---|
+| `test-posodobitev.js` | ali nameščena aplikacija ob zagonu res dobi novo različico. Zažene krajevni strežnik z istimi glavami kot GitHub Pages (`max-age=600` + `ETag`), namesti service worker, »objavi« novo različico in preveri, da jo prvi naslednji zagon res naloži – tudi v okvirju z igro – da se star predpomnilnik počisti in da brez omrežja postreže **novo**, ne stare kopije |
 | `test-zbirka.js` | pravila, ki veljajo za vse igre: vsaka je vpisana v `index.html`, `sw.js` in `README.md`, ima svoj `*.md` s poglavjem »Kako je preizkušeno«, se odpre z diska brez zahtevkov na omrežje, je v slovenščini; `sw.js` ne navaja neobstoječih datotek; pisava z Google Fonts ima rezervni sklad in je v `ASSETS` |
 | `test-logika.js` | Globko: vseh 25 iger na vseh petih stopnjah – veljavnost vprašanj, dovolj različnih možnosti, cilji na zemljevidu dovolj veliki za otroški prst, pike znotraj zemljevida in brez prekrivanja |
 | `test-igranje.js` | Globko: bot odigra cel krog vsake igre v vsakem področju (28 krogov), pravilno in narobe |

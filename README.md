@@ -43,7 +43,9 @@ Nameščena aplikacija:
 - se odpre **čez cel zaslon**, brez naslovne vrstice, ki bi jo otrok pomotoma spremenil,
 - na začetnem zaslonu ponudi izbiro med igrama; z gumbom **⬅️ Domov** se vrne na izbiro,
 - **deluje tudi brez interneta** (obe igri sta shranjeni na napravi),
-- se ob naslednjem odprtju s povezavo **sama posodobi**, če je bila igra popravljena,
+- se ob naslednjem odprtju s povezavo **sama posodobi**, če je bila igra popravljena
+  (service worker jemlje strani mimo brskalnikovega predpomnilnika, sicer bi otrok
+  lahko dobil do deset minut staro kopijo),
 - napredek hrani na napravi, ločeno za vsako igro.
 
 Vsaka igra teče v svojem okviru (`iframe`), zato se njuni slogi in koda ne mešajo –
