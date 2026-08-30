@@ -39,13 +39,15 @@ strežnika ni treba zaganjati.
 | `test-tap.js` | Globko: pravi tapi in vlečenje – tap zadene državo in piko, vlečenje ne šteje kot odgovor, gumbi za približevanje |
 | `test-kviz.js` | Vseved: zbirka vseh vprašanj (podvojitve, možnosti, zahtevnost, pokritost stopenj) in vseh šest načinov od začetka do zaključnega zaslona |
 | `test-kviz2.js` | Vseved: pravila lestvice in pomoči, štoparica hitrega ognja, ponovljivost izziva dneva, prehod med načini |
-| `test-matko.js` | Matko: vsi načini na domačem zaslonu se odprejo, postavijo nalogo in sprejmejo odgovor; krog se odigra do zaključnega zaslona. Igra je zavita v IIFE, zato bot dela isto kot otrok – tapka po gumbih in bere zaslon |
+| `test-matko.js` | Matko: vsi načini na domačem zaslonu se odprejo, postavijo nalogo in sprejmejo odgovor; krog se odigra do zaključnega zaslona. Bot dela isto kot otrok – tapka po gumbih in bere zaslon |
+| `test-matko-racuni.js` | Matko: **pravilnost računov**. Iz `matematika.html` izlušči čisti del kode z generatorji (mimo ovoja IIFE, igre ne spreminja), nato vsak izpisan račun razčleni in preveri z lastno, neodvisno formulo v Node.js. Podpisa, ki ga ne zna preveriti, ne preskoči – javi ga kot napako |
 | `test-olly.js` | Olly: vse igre v vseh področjih in na vseh stopnjah – veljavnost vprašanj, možnosti, sestavljanke besed in stavkov; bot odigra krog vsake igre; brez govora se slušne igre ne ponudijo |
 | `test-barvica.js` | Barvica: vse slike na vseh stopnjah – gradnja, polja na platnu, rast števila polj s stopnjo; barvanje in razveljavitev; predlagane barve za način po številkah |
 | `test-kito.js` | Kito: vsi nivoji – sestava, prosto izhodišče, izhod ali duhovi, ponovljivost ob istem semenu; bot odigra 900 korakov fizike v vsakem nivoju |
 
 Nastavitve prek okolja: `PW_POGON` (`webkit` ali `chromium`),
-`NA_STOPNJO` (koliko vprašanj na igro in stopnjo v `test-logika.js` in `test-olly.js`),
+`NA_STOPNJO` (koliko vprašanj na igro in stopnjo v `test-logika.js`, `test-olly.js` in
+`test-matko-racuni.js` – privzeto 120, za temeljit pregled 800),
 `PRAVILNO` (delež pravilnih odgovorov bota v `test-igranje.js`, privzeto 1),
 `NA_NACIN` (koliko nalog na način v `test-matko.js`, privzeto 2),
 `KORAKOV` (koliko korakov fizike na nivo v `test-kito.js`, privzeto 900).

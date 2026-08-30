@@ -145,6 +145,25 @@ otrok: tapka po gumbih in bere zaslon. Preveri:
 * da se napredek (zvezdice, odigrani krogi, števci odgovorov) shrani v `localStorage`
   in da igra ne javi nobene napake v konzoli.
 
-> Pravilnosti računov ta preizkus **ne** preverja – za to bi bilo treba do generatorjev
-> priti mimo ovoja. Prej opisano preverjanje z neodvisnimi referenčnimi formulami je
-> teklo med razvojem in ni del repozitorija.
+#### Pravilnost računov
+
+Ovoj IIFE preprečuje dostop do generatorjev iz strani, ne pa iz datoteke. `preizkusi/test-matko-racuni.js`
+zato iz `matematika.html` izlušči **samo čisti del kode** – od ovoja do konca seznama `GEN`,
+kjer ni ničesar, kar bi delalo po DOM-u – in ga požene v svojem obsegu. Igre ne spremeni.
+
+Vsak generator izpiše nalogo tudi v obliki podpisa (`q.line`), na primer `7 × 8 = 56` ali
+`kateti 8, 15 → hipotenuza 17`. Preizkus ta podpis razčleni in ga preveri z **lastno, neodvisno
+formulo**, napisano v preizkusu in ne vzeto iz igre: seštevanje in odštevanje, poštevanka,
+deljenje z ostankom, primerjave, zaporedja, pretvorbe enot iz lastne tabele, odstotki in
+spremembe za odstotek, deli celote, računanje z ulomki (vključno z okrajšanostjo izida),
+decimalna števila, potence in koreni, enačbe (leva in desna stran se izračunata z vstavljenim x),
+obseg, ploščina, prostornina, vsota kotov in Pitagorov izrek, mestne vrednosti, zaokroževanje,
+deljivost, praštevila, največji skupni delitelj in najmanjši skupni večkratnik, povprečje in
+mediana, sorazmerje in delitev v razmerju, imena števil in ura.
+
+Pri zadnjem temeljitem zagonu (`NA_STOPNJO=800`): **195.200 nalog iz vseh 29 generatorjev na
+vseh stopnjah, od tega 170.801 preverjenih z neodvisnim računom – brez ene same napake.**
+Preostalih 24.399 so naloge, pri katerih podpis ni račun (besedilne naloge, Kenguručkove uganke,
+prepoznavanje oblik in ulomek na sliki); teh preizkus ne preskoči tiho, ampak jih posebej prešteje.
+Če se pojavi podpis, ki ga razčlenjevalnik ne pozna, to javi kot napako – da nova naloga ne
+more mimo preverjanja.
