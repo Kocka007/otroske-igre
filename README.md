@@ -122,8 +122,11 @@ načini igre (lestvica, hitri ogenj, dvoboj, izziv dneva) so isti pogon z druga�
 pravili. Izziv dneva je pri vseh igralcih enak, ker vprašanja izbere ponovljivo
 naključje s semenom iz datuma.
 
-Kito je ploščadna igra s stalnim korakom 1/60 s in notranjo ločljivostjo
-320×180 pik; risbe in glasba nastanejo iz kode (Canvas 2D in Web Audio), brez
-zunanjih datotek. Zgodba, imena, liki in nivoji so izvirni – navdih so afriške
+Kito je ploščadna igra s stalnim korakom 1/60 s; svet meri 320×180 enot, riše
+pa se na trikrat gostejše platno, med koraki fizike z vmesnimi sličicami – zato
+je gib enako gladek na zaslonu s 60 in s 120 sličicami. Živali imajo dvočlenske
+noge s koleni, telo se ob doskoku splošči in ob odrivu raztegne, prizor pa ima
+šest slojev globine. Risbe in glasba nastanejo iz kode (Canvas 2D in Web Audio),
+brez zunanjih datotek. Zgodba, imena, liki in nivoji so izvirni – navdih so afriške
 živali in ploščadne igre iz devetdesetih, ne pa katera koli obstoječa igra ali
 risanka.

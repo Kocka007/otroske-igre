@@ -175,7 +175,30 @@ const KORAKOV = Number(process.env.KORAKOV || 900);   /* 900 korakov = 15 sekund
   if (izpisi_.length) console.log('Vgrajeni samopreizkus: ' + izpisi_[0].besedilo);
   preizkusi.push(t7);
 
+  /* --- izris mora ostati znotraj proračuna sličice --- */
+  const t8 = preizkus('izris je dovolj hiter');
+  const hitrost = await stran.evaluate(() => {
+    const out = [];
+    for (const i of [0, 2, 5, 7, 8]){
+      zacniNivo(i);
+      for (let n = 0; n < 120; n++){ V.desno = 1; sv.korak(V); }
+      const t0 = performance.now(), N = 150;
+      for (let n = 0; n < N; n++){ sv.korak(V); narisiPrizor(sv, nast, 0.5); }
+      out.push({ id: STOPNJE[i].id, ms: (performance.now() - t0) / N });
+    }
+    return { out, nad: NAD, platno: document.getElementById('platno').width + '×' +
+             document.getElementById('platno').height };
+  });
+  /* Pri 60 sličicah na sekundo je na voljo 16,7 ms; tu merimo v programskem
+     izrisu brez grafične kartice, zato je meja postavljena na 14 ms. */
+  for (const h of hitrost.out)
+    t8.trdi(h.ms < 14, 'nivo ' + h.id + ': izris traja ' + h.ms.toFixed(1) +
+      ' ms na sličico (meja 14 ms) pri platnu ' + hitrost.platno);
+  preizkusi.push(t8);
+
   await brskalnik.close();
+  console.log('Platno: ' + hitrost.platno + ' (nadvzorčenje ' + hitrost.nad + '×), izris ' +
+    hitrost.out.map(h => h.ms.toFixed(1)).join(' / ') + ' ms na sličico');
   const glavnih = nivoji.nivoji.filter(n => !n.bonus).length;
   console.log('Nivojev: ' + nivoji.nivoji.length + ' (' + glavnih + ' glavnih, ' +
     (nivoji.nivoji.length - glavnih) + ' dodatnih), po ' + KORAKOV + ' korakov igre na nivo; ' +

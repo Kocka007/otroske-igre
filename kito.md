@@ -141,13 +141,24 @@ Navdih so stare ploščadne igre, ne pa njihove slabe navade:
 ## Tehnično
 
 - Ena datoteka HTML, čist JavaScript, brez knjižnic in brez gradnje.
-- Notranja ločljivost **320×180 pik**, povečana na celo število – pike so ostre
-  in enako velike na vseh zaslonih.
-- Zanka teče s **stalnim korakom 1/60 s** (kar se izriše, je vedno isto, ne
-  glede na hitrost zaslona).
+- Svet meri **320×180 enot**, riše pa se na **trikrat gostejše platno (960×540)**.
+  Risba je vektorska (elipse, črte, pravokotniki), zato nadvzorčenje nič ne stane,
+  robovi pa niso kockasti. Če naprava ne dohaja, zanka gostoto sama zniža.
+- Zanka teče s **stalnim korakom 1/60 s**, riše pa se lahko hitreje. Med dvema
+  korakoma se liki narišejo **na vmesni legi**, zato je gib enako gladek na
+  zaslonu s 60 in s 120 sličicami. Tudi kamera se ne zaokrožuje več na celo piko.
 - Vse risbe nastanejo iz kode: živali so sestavljene iz istega ogrodja
   (`stirinozec`), obrobo dobijo iz sence lastne risbe, da se zlata dlaka ne
   zlije s peskom.
+- **Živali imajo sklepe.** Noga je dvočlenska; iz kolka in stopala se izračuna
+  koleno, stopalo pa hodi po ciklu – del na tleh potiska telo naprej, del v
+  zraku niha naprej. Telo se pri teku ziba, glava vodi gib, rep je veriga
+  štirih členov, ki zaostajajo drug za drugim.
+- **Stisk in razteg**: ob doskoku se lik splošči (bolj, hitreje ko je padel),
+  ob odrivu raztegne. Ob obratu sredi teka zadrsa in dvigne prah.
+- **Globina prizora**: šest slojev, ki drsijo z različnimi hitrostmi – oblaki,
+  daljne gore, hribi, akacije, bližnje grmovje in igralna ravnina – z meglo med
+  njimi, nizko meglo nad tlemi in mehkim robom prizora.
 - Glasba in učinki nastanejo z Web Audio: trije kanali (glasba, učinki,
   rjovenje); ob rjovenju se glasba za hip umakne.
 - Napredek se hrani v `localStorage` (tri shrambe), nič se ne pošilja na splet.
@@ -157,6 +168,7 @@ Navdih so stare ploščadne igre, ne pa njihove slabe navade:
 Ob zagonu se v razvijalski konzoli izpiše izid **vgrajenega samopreizkusa**. Ta preveri:
 
 - da se vsi nivoji sestavijo in imajo začetek, izhod in kontrolne točke,
+- da izris ostane pod **14 ms na sličico** – gladkost brez hitrosti ni gladkost,
 - da mladič **res** preskoči tri ploščice (izmerjeno s pravo fiziko, ne z
   oceno),
 - da noben prepad ni širši, kot se da preskočiti (razen tam, kjer čez vozi

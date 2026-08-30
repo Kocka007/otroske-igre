@@ -338,6 +338,12 @@ const VIS = 180;          /* notranja ločljivost – višina  */
 const P   = 16;           /* velikost ploščice v pikah     */
 const KORAK = 1000 / 60;  /* dolžina koraka pri 60 sličicah na sekundo */
 
+/* Nadvzorčenje: svet ostane v enotah 320×180, platno pa ima NAD-krat več pik.
+   Risba je vektorska (elipse, črte, pravokotniki), zato to nič ne stane, robovi
+   pa niso več kockasti. Vrednost nastavi postaviPlatno() po velikosti zaslona. */
+let NAD = 3;
+let NAJVEC_NAD = 3;       /* zgornja meja; zniža se sama, če naprava ne dohaja */
+
 /* ---------- vrste ploščic ---------- */
 const T = {
   PRAZNO:  0,
@@ -1291,6 +1297,8 @@ function Igralec(x, y, oblika){
   this.oprijem = 0;
   this.zamahnil = false;
   this.zadnjiSkok = 0;
+  this.stisk = 0;             /* >0 splošči (doskok), <0 raztegne (odriv) */
+  this.drsi = 0;              /* koliko sličic že drsi ob obratu */
 }
 const I = Igralec.prototype;
 
@@ -1452,6 +1460,7 @@ I.posodobi = function(v, sv){
     }
     this.stanje = 'skok'; this.t = 0;
     this.zadnjiSkok = 0;
+    this.stisk = -0.18;                /* odriv raztegne telo */
     sv.dogodek('skok');
     sv.prah(this.x, this.y, 4);
   }
@@ -1488,12 +1497,28 @@ I.posodobi = function(v, sv){
   const prejNatleh = this.natleh;
   premakni(this, sv.karta, true);
   if (this.natleh && !prejNatleh){
-    if (this.vyPrej > 4) sv.prah(this.x, this.y, 6);
+    /* Doskok: močnejši ko je padec, bolj se žival splošči in bolj se dvigne prah. */
+    const moc = Math.min(1, Math.max(0, (this.vyPrej - 1.2) / 5));
+    this.stisk = 0.10 + moc * 0.24;
+    if (this.vyPrej > 2.2) sv.prah(this.x, this.y, 3 + Math.round(moc * 7));
+    if (this.vyPrej > 4.4) sv.trese = Math.max(sv.trese, 1.6 + moc * 2);
     if (this.stanje === 'skok' || this.stanje === 'pad' || this.stanje === 'skok-napad'){
       this.stanje = 'stoji'; this.t = 0;
     }
   }
   this.vyPrej = this.vy;
+
+  /* Drsenje ob obratu: ko otrok sredi teka potisne v nasprotno smer. */
+  const obrat = this.natleh && smerVhoda !== 0 && this.vx * smerVhoda < -0.6;
+  if (obrat){
+    this.drsi++;
+    if (this.drsi % 4 === 0) sv.prah(this.x - this.smer * 3, this.y, 2);
+  } else this.drsi = 0;
+
+  /* Stisk se sprosti, razteg pri vzponu pa nastane sam. */
+  if (this.stisk > 0) this.stisk = Math.max(0, this.stisk - 0.030);
+  if (!this.natleh && this.vy < -1.5) this.stisk = Math.max(-0.20, -0.06 + this.vy * 0.028);
+  else if (!this.natleh && this.vy > 2.5) this.stisk = Math.min(-0.02, -this.vy * 0.012);
 
   /* --- stanja --- */
   if (this.stanje === 'ranjen' && this.t > 20) this.stanje = 'stoji';
@@ -2327,8 +2352,19 @@ S.koncajNivo = function(){
   this.dogodek('zmaga');
 };
 
+/* Pred vsakim korakom si zapomnimo lego. Risanje teče hitreje od fizike
+   (na iPadu 120 sličic proti 60 korakom), zato vmesne sličice ne ponavljamo,
+   ampak lik narišemo med prejšnjo in novo lego. */
+S.zapomniLego = function(){
+  const i = this.igralec;
+  i.px = i.x; i.py = i.y;
+  for (const o of this.objekti){ o.px = o.x; o.py = o.y; }
+  this.kam.px = this.kam.x; this.kam.py = this.kam.y;
+};
+
 /* ---------- glavni korak ---------- */
 S.korak = function(v){
+  this.zapomniLego();
   this.cas++;
   const i = this.igralec;
 
@@ -2421,7 +2457,9 @@ S.korak = function(v){
   /* kamera */
   const cx = i.x + i.smer * 22;
   const gledaDol = v.dol && i.natleh ? 1 : 0;
-  this.kam.dol = priblizaj(this.kam.dol, gledaDol * 34, 1.5);
+  /* Pri padanju kamera malo pogleda naprej, da otrok vidi, kam pada. */
+  const padec = !i.natleh && i.vy > 1.5 ? Math.min(26, (i.vy - 1.5) * 7) : 0;
+  this.kam.dol = priblizaj(this.kam.dol, gledaDol * 34 + padec, 1.5);
   const cy = i.y - i.h / 2 + this.kam.dol;
   this.kam.x = priblizaj(this.kam.x, cx - SIR / 2, Math.max(1.6, Math.abs(cx - SIR / 2 - this.kam.x) * 0.12));
   this.kam.y = priblizaj(this.kam.y, cy - VIS / 2, Math.max(1.2, Math.abs(cy - VIS / 2 - this.kam.y) * 0.10));
@@ -2491,7 +2529,10 @@ const SHEME = {
 
 let C = null, ctx = null, mer = 1;      /* platno, risalnik, povečava */
 
-function p2(v){ return Math.round(v); }
+/* Nekoč je vsaka koordinata pristala na celi piki; pri povečavi 4–6× je to
+   pomenilo skoke po več zaslonskih pik. Risba je vektorska, zato zaokroževanja
+   ne potrebujemo – gib je gladek, robovi pa mehki. */
+function p2(v){ return v; }
 function pr(x, y, w, h, b){ ctx.fillStyle = b; ctx.fillRect(p2(x), p2(y), Math.max(1, p2(w)), Math.max(1, p2(h))); }
 function el(x, y, rx, ry, b){
   ctx.fillStyle = b; ctx.beginPath();
@@ -2519,77 +2560,179 @@ function sum(a, b){
    Risbo najprej narišemo na pomožno platno, iz nje naredimo temno senco
    in jo odtisnemo štirikrat naokrog – šele nato pride barvna risba.
    --------------------------------------------------------------------- */
-const OB = 128;
-let sprC = null, sprX = null, silC = null, silX = null;
+const OB = 96;    /* pomožno platno za obrobo – meri toliko, kolikor je največje bitje */
+let sprC = null, sprX = null, silC = null, silX = null, sprNAD = 0;
 function zObrobo(cx, cy, risi, barva){
-  if (!sprC){
-    sprC = document.createElement('canvas'); sprC.width = OB; sprC.height = OB; sprX = sprC.getContext('2d');
-    silC = document.createElement('canvas'); silC.width = OB; silC.height = OB; silX = silC.getContext('2d');
+  /* Pomožni platni imata isto gostoto pik kot glavno, zato se obroba ne zrni. */
+  if (!sprC || sprNAD !== NAD){
+    sprNAD = NAD;
+    sprC = document.createElement('canvas'); sprC.width = OB * NAD; sprC.height = OB * NAD;
+    sprX = sprC.getContext('2d');
+    silC = document.createElement('canvas'); silC.width = OB * NAD; silC.height = OB * NAD;
+    silX = silC.getContext('2d');
   }
   const c0 = ctx, pol = OB / 2;
-  const dx = Math.round(cx) - pol, dy = Math.round(cy) - pol;
-  sprX.setTransform(1, 0, 0, 1, 0, 0);
-  sprX.clearRect(0, 0, OB, OB);
-  sprX.translate(-dx, -dy);
-  sprX.imageSmoothingEnabled = false;
+  const dx = cx - pol, dy = cy - pol;
+  sprX.setTransform(NAD, 0, 0, NAD, -dx * NAD, -dy * NAD);
+  sprX.clearRect(dx, dy, OB, OB);
+  sprX.imageSmoothingEnabled = true;
   ctx = sprX;
   risi();
   ctx = c0;
   silX.setTransform(1, 0, 0, 1, 0, 0);
-  silX.clearRect(0, 0, OB, OB);
+  silX.clearRect(0, 0, OB * NAD, OB * NAD);
   silX.globalCompositeOperation = 'source-over';
   silX.drawImage(sprC, 0, 0);
   silX.globalCompositeOperation = 'source-in';
   silX.fillStyle = barva || '#2b1d12';
-  silX.fillRect(0, 0, OB, OB);
+  silX.fillRect(0, 0, OB * NAD, OB * NAD);
   silX.globalCompositeOperation = 'source-over';
-  ctx.drawImage(silC, dx - 1, dy); ctx.drawImage(silC, dx + 1, dy);
-  ctx.drawImage(silC, dx, dy - 1); ctx.drawImage(silC, dx, dy + 1);
-  ctx.drawImage(sprC, dx, dy);
+  /* Štirje odtisi zadoščajo – pri gladkih robovih se obroba tako ali tako zlije. */
+  const d = 1.0;
+  ctx.drawImage(silC, dx - d, dy, OB, OB); ctx.drawImage(silC, dx + d, dy, OB, OB);
+  ctx.drawImage(silC, dx, dy - d, OB, OB); ctx.drawImage(silC, dx, dy + d, OB, OB);
+  ctx.drawImage(sprC, dx, dy, OB, OB);
 }
 
 /* ---------------------------------------------------------------------
    Štirinožec: iz istega ogrodja nastanejo lev, hijena, nosorog, žirafa …
    --------------------------------------------------------------------- */
+/* Dvočlenska noga s kolenom. Iz kolka in stopala izračunamo koleno – noga se
+   torej upogne tam, kjer se pri živali res, in ne ostane ravna palica. */
+function noga(hx, hy, fx, fy, dolz, deb, barva, naprej){
+  const dx = fx - hx, dy = fy - hy;
+  const d = Math.min(Math.hypot(dx, dy), dolz * 0.995);
+  const l = dolz / 2;
+  const osnovni = Math.atan2(dy, dx);
+  const kos = Math.max(-1, Math.min(1, d / (2 * l)));
+  const odmik = Math.acos(kos) * (naprej ? -1 : 1);
+  const kx = hx + Math.cos(osnovni + odmik) * l;
+  const ky = hy + Math.sin(osnovni + odmik) * l;
+  crta(hx, hy, kx, ky, deb, barva);
+  crta(kx, ky, fx, fy, Math.max(1.2, deb * 0.8), barva);
+  el(fx, fy - 0.4, deb * 0.55, deb * 0.42, barva);   /* šapa */
+}
+
+/* Hoja: stopalo je del cikla na tleh in del v zraku. Prav ta razlika loči
+   živ korak od nihanja naprej in nazaj. */
+function stopalo(faza, korakD, dvig, tlaY, sredX){
+  const p = ((faza / 6.2832) % 1 + 1) % 1;
+  if (p < 0.62){                       /* na tleh – potiska telo naprej */
+    const u = p / 0.62;
+    return [sredX + korakD * (0.5 - u), tlaY];
+  }
+  const u = (p - 0.62) / 0.38;         /* v zraku – hitro naprej in navzgor */
+  return [sredX + korakD * (-0.5 + u), tlaY - Math.sin(u * Math.PI) * dvig];
+}
+
 function stirinozec(o){
   const s = o.smer || 1, f = o.faza || 0;
   const dl = o.dolzina, vi = o.visina, ng = o.noge;
   const x = o.x, y = o.y;                     /* y = tla pod nogami */
-  const tel = y - ng - vi / 2;                /* sredina telesa */
-  const kor = Math.sin(f) * (o.tek || 0), kor2 = Math.sin(f + 2.1) * (o.tek || 0);
+  const tek = o.tek || 0;
   const t = o.temno, sv = o.svetlo, b = o.barva;
+  const deb = o.nogeDeb || 3;
 
-  /* zadnji nogi */
-  crta(x - s * dl * 0.28, tel + vi * 0.3, x - s * dl * 0.28 + kor * 3, y, o.nogeDeb || 3, t);
-  crta(x + s * dl * 0.22, tel + vi * 0.3, x + s * dl * 0.22 + kor2 * 3, y, o.nogeDeb || 3, t);
-  /* rep */
-  if (o.rep){
-    const rx = x - s * dl * 0.5, ry = tel - vi * 0.15;
-    const kot = o.repKot === undefined ? -0.5 : o.repKot;
-    const dolz = o.repDolz || dl * 0.5;
-    const ex = rx - s * Math.cos(kot) * dolz, ey = ry + Math.sin(kot + Math.sin(f * 0.7) * 0.3) * dolz;
-    crta(rx, ry, ex, ey, o.repDeb || 2, t);
-    if (o.rep === 'copek') el(ex, ey, 2.4, 2.4, o.copek || t);
+  /* Stisk in razteg: ob doskoku se žival malo splošči, ob odrivu raztegne. */
+  const st = Math.max(-0.35, Math.min(0.35, o.stisk || 0));
+  const vis = vi * (1 - st * 0.55);
+  const dolzT = dl * (1 + st * 0.30);
+  const nogeV = ng * (1 - st * 0.65);
+
+  /* Telo se pri teku dvigne in spusti dvakrat na korak. */
+  const poskok = Math.sin(f * 2) * tek * vi * 0.10;
+  const tel = y - nogeV - vis / 2 + poskok;
+  const nagib = Math.max(-0.16, Math.min(0.16, (o.nagib || 0)));
+
+  /* mehka senca na tleh – brez nje žival lebdi */
+  if (o.senca !== false){
+    ctx.globalAlpha = 0.20;
+    el(x, y + 0.5, dolzT * 0.42, Math.max(1.2, ng * 0.20), '#241a12');
+    ctx.globalAlpha = 1;
   }
+
+  const korakD = dl * 0.34 * tek;
+  const dvig = Math.max(1.5, nogeV * 0.5) * tek;
+  const kolkZ = x - s * dolzT * 0.26, kolkS = x + s * dolzT * 0.28;
+  const kolkY = tel + vis * 0.42;      /* spodnji rob telesa – noge se vidijo cele */
+  const dolzNoge = nogeV + vis * 0.45;
+
+  /* zadnji nogi (za telesom – narišemo prvi) */
+  let st1 = stopalo(f,        korakD * s, dvig, y, kolkZ);
+  let st2 = stopalo(f + 3.1,  korakD * s, dvig, y, kolkZ - s * 1.5);
+  noga(kolkZ - s * 1.5, kolkY, st2[0], st2[1], dolzNoge, deb, t, false);
+  noga(kolkZ,           kolkY, st1[0], st1[1], dolzNoge, deb, t, false);
+
+  /* Rep: veriga štirih členov. Vsak zaostane za prejšnjim (zamah) in se
+     povesi bolj kot prejšnji (teža), pri teku pa se rep dvigne. */
+  if (o.rep){
+    const rx = x - s * dolzT * 0.46, ry = tel - vis * 0.10;
+    const osn = (o.repKot === undefined ? -0.5 : o.repKot) - tek * 0.55;
+    const cleni = 4;
+    const dolz = (o.repDolz || dl * 0.5) / cleni;
+    let px = rx, py = ry, kot = osn;
+    for (let n = 0; n < cleni; n++){
+      /* povešanje pojenja, ko rep drži pokonci v teku */
+      kot += (0.34 - tek * 0.22) + Math.sin(f * 0.9 - n * 0.8) * (0.10 + tek * 0.16);
+      const nx = px - s * Math.cos(kot) * dolz;
+      const ny = py + Math.sin(kot) * dolz;
+      crta(px, py, nx, ny, Math.max(1.0, (o.repDeb || 2) * (1 - n * 0.16)), t);
+      px = nx; py = ny;
+    }
+    if (o.rep === 'copek'){
+      el(px, py, 2.0, 2.2, o.copek || t);
+      el(px - s * 0.6, py - 0.6, 1.1, 1.2, sv);      /* svetlejši vrh čopka */
+    }
+  }
+
   /* telo */
-  el(x, tel, dl / 2, vi / 2, b);
-  el(x, tel + vi * 0.18, dl / 2.3, vi / 2.6, sv);
+  ctx.save();
+  ctx.translate(p2(x), p2(tel));
+  ctx.rotate(nagib * s);
+  ctx.translate(-p2(x), -p2(tel));
+  el(x, tel, dolzT / 2, vis / 2, b);
+  el(x, tel + vis * 0.20, dolzT / 2.3, vis / 2.7, sv);          /* svetlejši trebuh */
+  ctx.globalAlpha = 0.45;
+  el(x - s * dolzT * 0.10, tel - vis * 0.24, dolzT / 2.6, vis / 4.2, t);  /* senca ob hrbtu */
+  ctx.globalAlpha = 1;
+  ctx.globalAlpha = 0.35;
+  el(x + s * dolzT * 0.06, tel - vis * 0.30, dolzT / 3.2, vis / 5, '#ffffff');  /* odsev */
+  ctx.globalAlpha = 1;
   if (o.pike) for (let i = 0; i < 7; i++){
     const a = sum(i, 3) * 6.28, r = sum(i, 7);
-    el(x + Math.cos(a) * dl * 0.32 * r, tel + Math.sin(a) * vi * 0.32 * r, 1.3, 1.1, o.pikeB || t);
+    el(x + Math.cos(a) * dolzT * 0.32 * r, tel + Math.sin(a) * vis * 0.32 * r, 1.3, 1.1, o.pikeB || t);
   }
   if (o.proge) for (let i = 0; i < 5; i++)
-    pr(x - dl / 2 + 3 + i * (dl - 6) / 5, tel - vi / 2 + 1, 1.4, vi - 2, o.progeB || t);
-  /* sprednji nogi */
-  crta(x + s * dl * 0.30, tel + vi * 0.28, x + s * dl * 0.30 - kor * 3, y, o.nogeDeb || 3, b);
-  crta(x - s * dl * 0.10, tel + vi * 0.28, x - s * dl * 0.10 - kor2 * 3, y, o.nogeDeb || 3, b);
-  /* vrat in glava */
-  const vx = x + s * (dl * 0.40), vy = tel - vi * 0.25;
-  const gx = vx + s * (o.vrat || 3), gy = vy - (o.vratV === undefined ? 3 : o.vratV);
+    pr(x - dolzT / 2 + 3 + i * (dolzT - 6) / 5, tel - vis / 2 + 1, 1.4, vis - 2, o.progeB || t);
+  ctx.restore();
+
+  /* sprednji nogi (pred telesom) */
+  let st3 = stopalo(f + 3.1 + 1.4, korakD * s, dvig, y, kolkS);
+  let st4 = stopalo(f + 1.4,       korakD * s, dvig, y, kolkS + s * 1.5);
+  noga(kolkS,           kolkY, st3[0], st3[1], dolzNoge, deb, t, true);
+  noga(kolkS + s * 1.5, kolkY, st4[0], st4[1], dolzNoge, deb, b, true);
+
+  /* vrat in glava – glava vodi gib, zato zaostaja za telesom */
+  const vodi = Math.sin(f - 0.8) * tek * 0.9;
+  const vx = x + s * (dolzT * 0.40), vy = tel - vis * 0.25;
+  const gx = vx + s * (o.vrat || 3) + s * vodi, gy = vy - (o.vratV === undefined ? 3 : o.vratV) - vodi * 0.4;
   if (o.vrat > 4) crta(vx, vy, gx, gy, o.vratDeb || 4, b);
   const gr = o.glava || 4;
-  if (o.griva){ el(gx - s * 1, gy, gr + 2.4, gr + 2.4, o.griva); }
+  if (o.griva){
+    /* Griva ni gladek krog: venec pramenov različnih dolžin, spodaj gostejši. */
+    const rg = gr + 2.2;
+    for (let n = 0; n < 14; n++){
+      const a = n / 14 * 6.2832;
+      const d = rg * (0.86 + sum(n, 3) * 0.34) + Math.sin(f * 0.5 + n) * 0.5;
+      el(gx - s * 1 + Math.cos(a) * d * 0.55, gy + Math.sin(a) * d * 0.55,
+         rg * 0.44, rg * 0.44, o.griva);
+    }
+    el(gx - s * 1, gy, rg * 0.92, rg * 0.92, o.griva);
+  }
   el(gx, gy, gr, gr * (o.glavaP || 0.92), b);
+  ctx.globalAlpha = 0.30;
+  el(gx - s * gr * 0.25, gy - gr * 0.35, gr * 0.6, gr * 0.4, '#ffffff');
+  ctx.globalAlpha = 1;
   if (o.gobec) el(gx + s * gr * 0.75, gy + gr * 0.35, gr * 0.5, gr * 0.38, sv);
   /* uho */
   if (o.uho === 'okroglo'){ el(gx - s * gr * 0.4, gy - gr * 0.85, gr * 0.42, gr * 0.42, b); el(gx + s * gr * 0.55, gy - gr * 0.8, gr * 0.36, gr * 0.36, b); }
@@ -2598,8 +2741,9 @@ function stirinozec(o){
   else if (o.uho === 'dolgo'){ el(gx - s * gr * .3, gy - gr * 1.3, gr * .3, gr * .9, b); el(gx + s * gr * .4, gy - gr * 1.2, gr * .28, gr * .8, b); }
   /* oko in nos */
   const ox = gx + s * gr * 0.45, oy = gy - gr * 0.12;
-  el(ox, oy, 1.5, 1.5, '#fdf6e6');
-  el(ox + s * 0.4, oy, 0.9, 1.0, '#20160f');
+  el(ox, oy, 1.6, 1.6, '#fdf6e6');
+  el(ox + s * 0.4, oy, 0.95, 1.05, '#20160f');
+  el(ox + s * 0.7, oy - 0.5, 0.35, 0.35, '#ffffff');       /* iskrica v očesu */
   if (o.obrv) pr(ox - s * 1.6, oy - 2.6, 3.2, 1, t);
   el(gx + s * gr * (o.gobec ? 1.15 : 0.95), gy + gr * 0.35, 1.1, 0.9, '#3a2418');
   return { gx: gx, gy: gy, tel: tel };
@@ -2642,34 +2786,51 @@ function narisiKita0(i, sv){
   }
 
   /* lev */
-  const dolz = odr ? 26 : 19, vis = odr ? 12 : 9, ng = odr ? 6 : 4;
+  const dolz = odr ? 26 : 19, vis = odr ? 9 : 7, ng = odr ? 7 : 6;
   const tek = i.stanje === 'tek' ? 1 : 0;
   const skace = !i.natleh;
   const napada = i.stanje === 'skok-napad' || i.stanje === 'zamah' || i.stanje === 'rame';
+  /* Med letom noge ostanejo v odrivni legi, telo pa se raztegne ali splošči. */
   const g = stirinozec({
-    x: x, y: y + (i.stanje === 'oprijem' ? 0 : 0), smer: s,
+    x: x, y: y, smer: s,
     faza: skace ? 1.6 : i.faza, tek: skace ? 0.6 : tek,
+    stisk: i.stisk || 0,
+    /* v teku se telo malo nagne naprej, ob drsenju nazaj */
+    nagib: i.drsi > 0 ? -0.13 : Math.min(0.11, Math.abs(i.vx) * 0.035),
     dolzina: dolz, visina: vis, noge: skace ? ng * 0.7 : ng,
     vrat: odr ? 6 : 4, vratV: odr ? 4 : 3, vratDeb: odr ? 6 : 4,
     glava: odr ? 6 : 5, glavaP: odr ? .95 : 1,
     barva: odr ? '#d9a05a' : '#e2b06a', svetlo: odr ? '#e7bd7e' : '#f0c98d',
     temno: odr ? '#a87840' : '#c08f4e',
-    rep: 'copek', repDolz: odr ? 13 : 9, repKot: napada ? 0.9 : -0.3 + Math.sin(i.faza * 0.6) * .25,
+    rep: 'copek', repDolz: odr ? 15 : 11, repDeb: odr ? 2.0 : 1.6,
+    repKot: napada ? 0.9 : -0.3 + Math.sin(i.faza * 0.6) * .25,
     copek: odr ? '#6b4a2a' : '#a8763f',
     uho: 'okroglo', gobec: true, nogeDeb: odr ? 4 : 3,
     griva: odr ? '#8a5c2e' : null, pike: !odr, pikeB: '#c68f52', obrv: odr
   });
   if (odr){
-    /* griva s slano belo progo */
-    for (let n = 0; n < 9; n++){
-      const a = n / 9 * 6.28;
-      el(g.gx - s * 1 + Math.cos(a) * 7.5, g.gy + Math.sin(a) * 7.5, 2.4, 2.4, n % 3 === 0 ? '#e6dcc6' : '#8a5c2e');
+    /* Griva: temnejša spodaj, svetlejši pramen na vrhu, nekaj slanih niti.
+       Nariše se čez venec iz stirinozca, zato je gosta in ne kot niz kroglic. */
+    for (let n = 0; n < 16; n++){
+      const a = n / 16 * 6.2832;
+      const d = 7.3 * (0.88 + sum(n, 11) * 0.30) + Math.sin(i.faza * 0.4 + n) * 0.45;
+      const spodaj = Math.sin(a) > 0.25;
+      el(g.gx - s * 1 + Math.cos(a) * d, g.gy + Math.sin(a) * d, 2.6, 2.6,
+         spodaj ? '#6b4520' : (sum(n, 5) > 0.82 ? '#e6dcc6' : '#8a5c2e'));
     }
-    el(g.gx, g.gy, 6, 5.6, '#e7bd7e');
-    el(g.gx + s * 4.4, g.gy + 2.2, 3, 2.3, '#f2d6a4');
-    el(g.gx + s * 2.6, g.gy - 0.8, 1.5, 1.5, '#fdf6e6');
-    el(g.gx + s * 3.0, g.gy - 0.8, 0.9, 1.0, '#20160f');
-    el(g.gx + s * 6.6, g.gy + 2.2, 1.2, 1, '#3a2418');
+    el(g.gx - s * 1, g.gy, 7.4, 7.0, '#8a5c2e');
+    ctx.globalAlpha = 0.35;
+    el(g.gx - s * 1.5, g.gy - 2.2, 5.4, 3.0, '#c08a4a');      /* svetloba na grivi */
+    ctx.globalAlpha = 1;
+    el(g.gx, g.gy, 6, 5.6, '#e7bd7e');                        /* obraz */
+    ctx.globalAlpha = 0.30;
+    el(g.gx - s * 1, g.gy - 1.8, 4.2, 2.4, '#ffffff');
+    ctx.globalAlpha = 1;
+    el(g.gx + s * 4.4, g.gy + 2.2, 3, 2.3, '#f2d6a4');        /* gobec */
+    el(g.gx + s * 2.6, g.gy - 0.8, 1.6, 1.6, '#fdf6e6');
+    el(g.gx + s * 3.0, g.gy - 0.8, 0.95, 1.05, '#20160f');
+    el(g.gx + s * 3.3, g.gy - 1.3, 0.36, 0.36, '#ffffff');
+    el(g.gx + s * 6.6, g.gy + 2.2, 1.2, 1, '#3a2418');        /* nos */
   }
   /* rjovenje: odprt gobec */
   if (i.rjovCas > 6){
@@ -3019,12 +3180,19 @@ function kulisa(sv){
   if (kulise[sv.st.id]) return kulise[sv.st.id];
   const r = nakljucje(sv.st.seme + 99);
   const sirina = sv.karta.w * P;
-  const k = { hribi: [], drevesa: [], travа: [], zvezde: [] };
+  const k = { gore: [], hribi: [], drevesa: [], bliznja: [], zvezde: [], oblaki: [] };
+  /* najbolj oddaljene gore – komaj vidne, dajo občutek daljave */
+  for (let x = -80; x < sirina * 0.22 + 240; x += 70 + r() * 90)
+    k.gore.push({ x: x, w: 130 + r() * 170, h: 40 + r() * 46 });
   for (let x = -60; x < sirina * 0.35 + 200; x += 40 + r() * 50)
     k.hribi.push({ x: x, w: 60 + r() * 90, h: 22 + r() * 34 });
   for (let x = -40; x < sirina * 0.6 + 200; x += 46 + r() * 60)
     k.drevesa.push({ x: x, h: 22 + r() * 20, w: 14 + r() * 12, vrsta: r() < 0.7 ? 'akacija' : 'grm' });
+  /* bližnji pas grmovja tik za igralno ravnino */
+  for (let x = -40; x < sirina * 0.85 + 200; x += 30 + r() * 44)
+    k.bliznja.push({ x: x, h: 10 + r() * 12, w: 9 + r() * 9, vrsta: r() < 0.5 ? 'akacija' : 'grm' });
   for (let i = 0; i < 120; i++) k.zvezde.push({ x: r() * SIR, y: r() * VIS * 0.7, j: 0.3 + r() * 0.7 });
+  for (let i = 0; i < 7; i++) k.oblaki.push({ x: r() * sirina, y: 12 + r() * 40, w: 16 + r() * 22, j: 0.07 + r() * 0.10 });
   kulise[sv.st.id] = k;
   return k;
 }
@@ -3045,12 +3213,46 @@ function ozadje(sv, b){
     el(SIR - 54, 34, 11, 11, '#f4f0d8'); el(SIR - 50, 31, 9, 9, b.nebo[0]);
   } else if (b.sonce){
     const sy = sv.st.biom === 'zora' ? 46 : 34;
-    ctx.globalAlpha = .5; el(SIR - 70, sy, 26, 26, b.sonce); ctx.globalAlpha = 1;
-    el(SIR - 70, sy, 14, 14, b.sonce);
+    /* mehak žarek okoli sonca – trije obroči, vsak šibkejši */
+    const sx = SIR - 70;
+    for (let n = 3; n >= 1; n--){
+      ctx.globalAlpha = 0.10 * n;
+      el(sx, sy, 14 + n * 11, 14 + n * 11, b.sonce);
+    }
+    ctx.globalAlpha = 1;
+    el(sx, sy, 14, 14, b.sonce);
+    ctx.globalAlpha = .6; el(sx, sy, 9, 9, '#ffffff'); ctx.globalAlpha = 1;
   }
 
+  const kx = sv.kx === undefined ? sv.kam.x : sv.kx;
+
+  /* Oblaki in daljne gore sodijo pod odprto nebo; v brlogu in termitnjaku
+     (kjer ni ne sonca ne zvezd) bi bili tujek. */
+  const podNebom = !!(b.sonce || b.zvezde);
+
+  /* oblaki – najpočasnejši sloj */
+  if (podNebom && !b.zvezde) for (const o of k.oblaki){
+    const x = ((o.x - kx * 0.06) % (SIR + 160) + SIR + 160) % (SIR + 160) - 80;
+    ctx.globalAlpha = o.j;
+    el(x, o.y, o.w, o.w * 0.34, '#ffffff');
+    el(x + o.w * 0.5, o.y + 1.5, o.w * 0.6, o.w * 0.26, '#ffffff');
+    ctx.globalAlpha = 1;
+  }
+
+  /* najdaljše gore */
+  ctx.globalAlpha = .45;
+  if (podNebom) for (const h of k.gore){
+    const x = h.x - kx * 0.08;
+    if (x < -h.w || x > SIR + h.w) continue;
+    ctx.fillStyle = b.dalec; ctx.beginPath();
+    ctx.moveTo(p2(x - h.w / 2), p2(VIS * 0.74));
+    ctx.lineTo(p2(x), p2(VIS * 0.74 - h.h));
+    ctx.lineTo(p2(x + h.w / 2), p2(VIS * 0.74));
+    ctx.closePath(); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
   /* daljni hribi */
-  const kx = sv.kam.x;
   ctx.globalAlpha = .85;
   for (const h of k.hribi){
     const x = h.x - kx * 0.18;
@@ -3060,6 +3262,10 @@ function ozadje(sv, b){
     ctx.fill();
   }
   ctx.globalAlpha = 1;
+  /* megla med daljavo in srednjim pasom – od nje nastane globina */
+  if (b.megla){
+    ctx.globalAlpha = .5; pr(0, VIS * 0.58, SIR, VIS * 0.20, b.megla); ctx.globalAlpha = 1;
+  }
   /* srednji pas z akacijami */
   pr(0, VIS * 0.72, SIR, VIS, b.srednje);
   for (const d of k.drevesa){
@@ -3073,37 +3279,112 @@ function ozadje(sv, b){
       el(x, y - 4, d.w * 0.6, 5, b.kroslja);
     }
   }
+
+  nizkaMegla(sv, b);
+  /* bližnji pas grmovja – temnejši in hitrejši od akacij */
+  ctx.globalAlpha = .9;
+  for (const d of k.bliznja){
+    const x = d.x - kx * 0.62, y = VIS * 0.72 + 10;
+    if (x < -30 || x > SIR + 30) continue;
+    if (d.vrsta === 'akacija'){
+      crta(x, y, x, y - d.h, 1.8, b.drevo);
+      el(x, y - d.h - 1, d.w * 0.9, 3.2, b.travaT);
+    } else el(x, y - 2, d.w * 0.7, 3.4, b.travaT);
+  }
+  ctx.globalAlpha = 1;
+}
+
+/* Mehak rob: prizor se proti robovom komaj vidno potemni, kot skozi objektiv.
+   Skupaj z nizko meglo nad tlemi da globino, ne da bi karkoli zakrivalo igro. */
+let robC = null, robNAD = 0;
+function mehakRob(){
+  if (!robC || robNAD !== NAD){
+    robNAD = NAD;
+    robC = document.createElement('canvas');
+    robC.width = SIR * NAD; robC.height = VIS * NAD;
+    const x = robC.getContext('2d');
+    x.setTransform(NAD, 0, 0, NAD, 0, 0);
+    const g = x.createRadialGradient(SIR / 2, VIS / 2, VIS * 0.35, SIR / 2, VIS / 2, VIS * 0.95);
+    g.addColorStop(0, 'rgba(0,0,0,0)');
+    g.addColorStop(1, 'rgba(20,12,6,0.28)');
+    x.fillStyle = g; x.fillRect(0, 0, SIR, VIS);
+  }
+  ctx.drawImage(robC, 0, 0, SIR, VIS);
+}
+
+/* Nizka megla nad tlemi – tanka svetla plast, ki se počasi premika. */
+function nizkaMegla(sv, b){
+  if (!b.megla) return;
+  ctx.globalAlpha = 0.35;
+  for (let n = 0; n < 4; n++){
+    const y = VIS * 0.66 + n * 5;
+    const x = -((sv.cas * (0.12 + n * 0.05) + n * 80) % (SIR + 120)) + 60;
+    el(x, y, 70, 3.5 - n * 0.4, b.megla);
+    el(x + SIR * 0.6, y + 1, 60, 3.2 - n * 0.4, b.megla);
+  }
+  ctx.globalAlpha = 1;
 }
 
 /* ---------------------------------------------------------------------
    Ploščice
    --------------------------------------------------------------------- */
+/* Ko zemljevid drsi po delih pike, se rob vsake ploščice zgladi in med dvema
+   ploščicama ostane tanek šiv. Podlago zato narišemo za las večjo, da se robova
+   prekrijeta. */
+function podlaga(x, y, barva){ pr(x - 0.3, y - 0.3, P + 0.6, P + 0.6, barva); }
+
 function ploscica(t, x, y, tx, ty, sv, b){
   switch (t){
   }
   const globlje = trdna(sv.karta.pri(tx, ty - 1)) ? (trdna(sv.karta.pri(tx, ty - 4)) ? 2 : 1) : 0;
   switch (t){
   case T.ZEMLJA: {
-    pr(x, y, P, P, b.tla);
-    ctx.globalAlpha = .55;
-    for (let i = 0; i < 2; i++){ const s1 = sum(tx * 4 + i, ty); pr(x + s1 * 12, y + 4 + sum(ty, i) * 9, 3, 2, b.tlaT); }
+    podlaga(x, y, b.tla);
+    /* Prst globlje potemni, kot da vanjo ne pride več svetlobe. */
+    if (globlje){
+      ctx.globalAlpha = globlje === 2 ? .30 : .14;
+      podlaga(x, y, b.tlaT);
+      ctx.globalAlpha = 1;
+    }
+    /* Kamenčki in grude – vsak svoje velikosti in tona, ne več isti odtis. */
+    ctx.globalAlpha = .45;
+    for (let i = 0; i < 3; i++){
+      const a = sum(tx * 7 + i, ty * 3), c = sum(ty * 5 + i, tx);
+      if (c < .32) continue;
+      el(x + a * (P - 4) + 2, y + c * (P - 4) + 2, 1 + a * 1.8, 0.8 + c * 1.2,
+         c > .72 ? b.trava : b.tlaT);
+    }
     ctx.globalAlpha = 1;
     if (!trdna(sv.karta.pri(tx, ty - 1))){
-      pr(x, y, P, 4, b.trava);
-      for (let i = 0; i < 5; i++){
-        const h = 2 + sum(tx, i) * 4;
-        pr(x + i * 3 + 1, y - h, 1.4, h, sum(tx, i + 5) < .5 ? b.trava : b.travaT);
+      pr(x - 0.3, y, P + 0.6, 4, b.trava);
+      ctx.globalAlpha = .5; pr(x, y, P, 1.2, '#ffffff'); ctx.globalAlpha = 1;   /* osvetljen rob */
+      /* Bilke: različno visoke, v dveh tonih in rahlo nagnjene v vetru. */
+      const veter = Math.sin(sv.cas * 0.035 + tx * 0.7) * 0.9;
+      for (let i = 0; i < 7; i++){
+        const a = sum(tx * 3, i), h = 2.2 + a * 5.2;
+        const bx = x + i * 2.2 + 1 + sum(i, tx) * 1.1;
+        crta(bx, y + 1, bx + veter * (h / 6), y - h, 1.1,
+             sum(tx, i + 5) < .45 ? b.trava : b.travaT);
       }
       pr(x, y + 4, P, 1.4, b.travaT);
     }
     break; }
   case T.SKALA: {
-    pr(x, y, P, P, b.skala);
+    podlaga(x, y, b.skala);
     pr(x, y, P, 2, b.skalaT);
-    ctx.globalAlpha = .5;
-    for (let i = 0; i < 2; i++) pr(x + 2 + sum(tx, ty + i) * 10, y + 5 + sum(ty + i, tx) * 8, 4, 2, b.skalaT);
+    if (globlje){ ctx.globalAlpha = globlje === 2 ? .26 : .12; podlaga(x, y, b.skalaT); ctx.globalAlpha = 1; }
+    /* Ploskve kamna: nepravilni madeži različnih velikosti. */
+    ctx.globalAlpha = .28;
+    for (let i = 0; i < 3; i++){
+      const a = sum(tx * 5 + i, ty * 9), c = sum(ty * 2 + i, tx * 3);
+      if (c < .38) continue;
+      el(x + 2 + a * (P - 4), y + 2 + c * (P - 4), 1.6 + a * 2.6, 1.2 + c * 1.8, b.skalaT);
+    }
     ctx.globalAlpha = 1;
-    if (!trdna(sv.karta.pri(tx, ty - 1))) pr(x, y, P, 2, '#ffffff22');
+    if (!trdna(sv.karta.pri(tx, ty - 1))){
+      pr(x, y, P, 2, '#ffffff22');
+      ctx.globalAlpha = .45; pr(x, y, P, 1, '#ffffff'); ctx.globalAlpha = 1;
+    }
     break; }
   case T.DESKA:
     pr(x, y, P, 4, '#7a5c3c'); pr(x, y, P, 1.4, '#96744c');
@@ -3197,10 +3478,16 @@ function ploscice(sv, b){
 /* ---------------------------------------------------------------------
    Vreme, tema in celotni prizor
    --------------------------------------------------------------------- */
-let temaC = null, temaX = null;
+let temaC = null, temaX = null, temaNAD = 0;
 function narisiTemo(sv){
-  if (!temaC){ temaC = document.createElement('canvas'); temaC.width = SIR; temaC.height = VIS; temaX = temaC.getContext('2d'); }
+  if (!temaC || temaNAD !== NAD){
+    temaNAD = NAD;
+    temaC = document.createElement('canvas');
+    temaC.width = SIR * NAD; temaC.height = VIS * NAD;
+    temaX = temaC.getContext('2d');
+  }
   const x = temaX;
+  x.setTransform(NAD, 0, 0, NAD, 0, 0);
   x.globalCompositeOperation = 'source-over';
   x.fillStyle = sv.st.temno ? 'rgba(12,8,6,.86)' : 'rgba(10,14,40,.52)';
   x.fillRect(0, 0, SIR, VIS);
@@ -3221,7 +3508,7 @@ function narisiTemo(sv){
   }
   if (sv.strela > 8) x.clearRect(0, 0, SIR, VIS);
   x.globalCompositeOperation = 'source-over';
-  ctx.drawImage(temaC, 0, 0);
+  ctx.drawImage(temaC, 0, 0, SIR, VIS);
 }
 
 function vreme(sv, b, nast){
@@ -3245,16 +3532,39 @@ function vreme(sv, b, nast){
     /* vročinsko migetanje: spodnje vrstice zamaknemo vsako svoje */
     for (let y = VIS - 60; y < VIS; y += 3){
       const d = Math.sin(sv.cas * 0.05 + y * 0.3) * ((y - (VIS - 60)) / 60) * 2.2;
-      ctx.drawImage(C, 0, y, SIR, 3, d, y, SIR, 3);
+      /* izvor beremo v pikah platna, cilj pa je v enotah sveta */
+      ctx.drawImage(C, 0, y * NAD, SIR * NAD, 3 * NAD, d, y, SIR, 3);
     }
   }
   if (b.megla){ ctx.fillStyle = b.megla; ctx.fillRect(0, VIS * 0.6, SIR, VIS * 0.4); }
 }
 
-function narisiPrizor(sv, nast){
+/* Med prejšnjo in novo lego postavi like na vmesno mesto; po risanju jih
+   vrne nazaj, da fizika naslednjega koraka dobi točne vrednosti. */
+function vmesnaLega(sv, a){
+  const seznam = [sv.igralec];
+  for (const o of sv.objekti) seznam.push(o);
+  for (const o of seznam){
+    if (o.px === undefined){ o.px = o.x; o.py = o.y; }
+    o.tx = o.x; o.ty = o.y;
+    o.x = o.px + (o.tx - o.px) * a;
+    o.y = o.py + (o.ty - o.py) * a;
+  }
+  return seznam;
+}
+function vrniLego(seznam){
+  for (const o of seznam){ o.x = o.tx; o.y = o.ty; }
+}
+
+function narisiPrizor(sv, nast, a){
   const b = BIOMI[sv.st.biom] || BIOMI.zora;
-  sv.kx = Math.round(sv.kam.x); sv.ky = Math.round(sv.kam.y);
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  a = (a === undefined || !(a >= 0)) ? 1 : Math.min(1, a);
+  const vmes = vmesnaLega(sv, a);
+  if (sv.kam.px === undefined){ sv.kam.px = sv.kam.x; sv.kam.py = sv.kam.y; }
+  /* Kamera se ne zaokrožuje več na celo piko – prav to jo je treslo. */
+  sv.kx = sv.kam.px + (sv.kam.x - sv.kam.px) * a;
+  sv.ky = sv.kam.py + (sv.kam.y - sv.kam.py) * a;
+  ctx.setTransform(NAD, 0, 0, NAD, 0, 0);
   ctx.clearRect(0, 0, SIR, VIS);
   ozadje(sv, b);
   if (sv.st.jama){ ctx.fillStyle = sv.st.temno ? '#1c1109' : '#2a1d12'; ctx.fillRect(0, 0, SIR, VIS); }
@@ -3262,8 +3572,8 @@ function narisiPrizor(sv, nast){
   /* Kamera in stresanje ob rjovenju gresta v preslikavo risalnika,
      zato vse od tu naprej rišemo v koordinatah sveta. */
   const tr = sv.trese;
-  const stx = tr > 0.4 ? Math.round((Math.random() - .5) * tr) : 0;
-  const sty = tr > 0.4 ? Math.round((Math.random() - .5) * tr) : 0;
+  const stx = tr > 0.4 ? (Math.random() - .5) * tr : 0;
+  const sty = tr > 0.4 ? (Math.random() - .5) * tr : 0;
   ctx.save();
   ctx.translate(-sv.kx + stx, -sv.ky + sty);
 
@@ -3306,6 +3616,7 @@ function narisiPrizor(sv, nast){
 
   if (sv.st.temno || sv.st.noc) narisiTemo(sv);
   vreme(sv, b, nast);
+  if (!sv.st.jama) mehakRob();
 
   /* preobrazba: zaslon pobeli in Kito zraste */
   if (sv.stanje === 'preobrazba'){
@@ -3313,6 +3624,7 @@ function narisiPrizor(sv, nast){
     ctx.globalAlpha = Math.min(.85, Math.abs(90 - t) < 40 ? (40 - Math.abs(90 - t)) / 40 : 0);
     ctx.fillStyle = '#fff6d2'; ctx.fillRect(0, 0, SIR, VIS); ctx.globalAlpha = 1;
   }
+  vrniLego(vmes);
 }
 
 /* =====================================================================
@@ -3600,13 +3912,20 @@ function postaviPlatno(){
   /* Cela povečava da najostrejše pike; če bi tako ostala več kot petina
      zaslona prazna, raje zapolnimo zaslon – na iPadu je večja slika več
      vredna od popolnoma enakih pik. */
-  const cela = Math.max(1, Math.floor(prosto));
-  const m = (cela / prosto > 0.9) ? cela : prosto;
-  p.width = SIR; p.height = VIS;
+  const m = prosto;                       /* zapolnimo, kar je na voljo */
+  /* Toliko pik na enoto sveta, kolikor jih zaslon res pokaže – navzgor omejeno,
+     da tudi na velikih zaslonih ostane hitro. */
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  /* Trojno nadvzorčenje da 960×540 – dovolj za mehke robove, hkrati pa hitro.
+     Če se pokaže, da naprava tega ne zmore, ga zanka sama zniža. */
+  NAD = Math.max(2, Math.min(NAJVEC_NAD, Math.ceil(m * dpr)));
+  p.width = SIR * NAD; p.height = VIS * NAD;
   p.style.width = Math.round(SIR * m) + 'px';
   p.style.height = Math.round(VIS * m) + 'px';
   ctx = p.getContext('2d');
-  ctx.imageSmoothingEnabled = false;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.setTransform(NAD, 0, 0, NAD, 0, 0);
   C = p; mer = 1;
 }
 addEventListener('resize', () => { if (C) postaviPlatno(); });
@@ -3648,18 +3967,32 @@ function zacniNivo(idx, nadaljuj){
   requestAnimationFrame(zanka);
 }
 
+/* Če sličice trajajo predolgo, raje znižamo gostoto pik kot da bi igra trgala.
+   Merimo šele po prvih 30 sličicah, da nas ne zavede zagon. */
+let merilnikN = 0, merilnikVsota = 0;
+function preveriHitrost(dt){
+  if (NAJVEC_NAD <= 2) return;
+  if (++merilnikN <= 30) return;
+  merilnikVsota += dt;
+  if (merilnikN < 120) return;
+  const povprecje = merilnikVsota / (merilnikN - 30);
+  merilnikN = 0; merilnikVsota = 0;
+  if (povprecje > 20){ NAJVEC_NAD = Math.max(2, NAJVEC_NAD - 1); postaviPlatno(); }
+}
+
 function zanka(t){
   if (!tece) return;
   requestAnimationFrame(zanka);
   let dt = t - zadnjiCas; zadnjiCas = t;
   if (dt > 200) dt = 200;
+  preveriHitrost(dt);
   akum += dt;
   let n = 0;
   while (akum >= KORAK && n < 5){
     if (zaslon === 'igra'){ osveziVhod(); sv.korak(V); obdelajDogodke(); }
     akum -= KORAK; n++;
   }
-  if (sv){ narisiPrizor(sv, nast); osveziHUD(); }
+  if (sv){ narisiPrizor(sv, nast, akum / KORAK); osveziHUD(); }
 }
 
 function obdelajDogodke(){
