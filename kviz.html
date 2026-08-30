@@ -1,0 +1,1089 @@
+<!doctype html>
+<html lang="sl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vseved – kviz za vso družino</title>
+<meta name="description" content="Kviz v slovenščini za otroke in odrasle: dvanajst področij, več kot 300 vprašanj z razlago, lestvica do vrha, hitri ogenj, dvoboj za dva in izziv dneva.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- pisava se naloži ob strani: če je omrežje počasno ali ga ni, se stran izriše
+     takoj s sistemsko pisavo in ne čaka -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap"
+      media="print" onload="this.media='all'">
+<meta name="theme-color" content="#c2255c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --ink:#2b1b2c; --ink-soft:#6d5a70;
+  --card:#ffffff;
+  --line:#f0e2ea;
+  --ok:#1eb872; --ok-d:#159a5e;
+  --no:#f2762e; --no-d:#d55f1c;
+  --acc:#c2255c; --acc-d:#9c1c49;
+  --acc2:#6d28d9; --acc2-d:#5620ac;
+  --gold:#ffb703;
+  --r:22px;
+}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:"Nunito","Trebuchet MS",system-ui,-apple-system,sans-serif;
+  color:var(--ink);
+  background:#fdf1f6;
+  background-image:
+    radial-gradient(1100px 700px at 8% -10%, #ffdfec 0%, transparent 60%),
+    radial-gradient(900px 620px at 100% 0%, #e6e0ff 0%, transparent 55%),
+    radial-gradient(900px 700px at 50% 115%, #fff0d8 0%, transparent 60%);
+  background-attachment:fixed;
+  min-height:100dvh;
+  overflow-x:hidden;
+}
+.wrap{max-width:800px;margin:0 auto;position:relative;z-index:2;
+  padding:calc(14px + env(safe-area-inset-top,0px)) calc(14px + env(safe-area-inset-right,0px))
+          calc(34px + env(safe-area-inset-bottom,0px)) calc(14px + env(safe-area-inset-left,0px))}
+button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--card);border-radius:18px;padding:14px 20px;font-weight:900;font-size:19px;line-height:1;
+  box-shadow:0 5px 0 var(--line);transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+.btn-acc{background:var(--acc);color:#fff;box-shadow:0 5px 0 var(--acc-d)}
+.btn-acc:active{box-shadow:0 1px 0 var(--acc-d)}
+.btn-ghost{background:rgba(255,255,255,.82)}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.spacer{flex:1}
+
+.top{display:flex;align-items:center;gap:10px;margin:6px 0 16px}
+.brand{display:flex;align-items:center;gap:10px;font-size:26px;font-weight:900}
+.brand .glava{font-size:34px;filter:drop-shadow(0 4px 6px rgba(0,0,0,.15))}
+.pill{display:inline-flex;align-items:center;gap:7px;background:#fff;border-radius:999px;
+  padding:9px 15px;font-weight:900;box-shadow:0 4px 0 var(--line);font-size:17px;white-space:nowrap}
+.pill.gold{color:#a86b00}
+.icon-btn{width:46px;height:46px;border-radius:999px;background:#fff;box-shadow:0 4px 0 var(--line);
+  display:grid;place-items:center;font-size:21px}
+.icon-btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+
+.card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:0 8px 24px rgba(43,27,44,.10)}
+h2.section{font-size:19px;margin:22px 4px 10px;font-weight:900;color:var(--ink-soft)}
+.lead{margin:0 0 12px;font-weight:700;color:var(--ink-soft);font-size:15.5px;line-height:1.5}
+.mini{font-size:13.5px;font-weight:700;color:var(--ink-soft);line-height:1.5;margin:0}
+
+/* načini igre */
+.nacini{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:12px}
+.nacin{position:relative;text-align:left;background:#fff;border-radius:20px;padding:15px 16px;
+  box-shadow:0 6px 0 var(--line);transition:transform .1s;overflow:hidden}
+.nacin:active{transform:translateY(4px);box-shadow:0 2px 0 var(--line)}
+.nacin .emo{font-size:32px;display:block;margin-bottom:4px}
+.nacin .nm{font-weight:900;font-size:18px;display:block}
+.nacin .sub{font-size:13px;color:var(--ink-soft);font-weight:700;display:block;margin-top:3px;line-height:1.35}
+.nacin .rek{font-size:12.5px;font-weight:900;color:var(--c,var(--acc));display:block;margin-top:6px}
+.nacin::after{content:"";position:absolute;inset:0 0 auto;height:6px;background:var(--c,var(--acc))}
+
+/* področja */
+.chips{display:flex;flex-wrap:wrap;gap:9px}
+.chip{display:inline-flex;align-items:center;gap:7px;background:#fff;border:2px solid var(--line);
+  border-radius:999px;padding:10px 15px;font-weight:900;font-size:15.5px;box-shadow:0 4px 0 var(--line)}
+.chip:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.chip .del{font-size:12.5px;font-weight:900;color:var(--ink-soft)}
+.chip.vse{background:var(--acc);color:#fff;border-color:var(--acc-d);box-shadow:0 4px 0 var(--acc-d)}
+
+/* igra */
+.hud{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dot{width:12px;height:12px;border-radius:999px;background:var(--line)}
+.dot.ok{background:var(--ok)}.dot.no{background:var(--no)}.dot.now{background:var(--acc);transform:scale(1.25)}
+.cas{height:10px;border-radius:999px;background:var(--line);overflow:hidden;margin:0 0 12px}
+.cas i{display:block;height:100%;background:linear-gradient(90deg,var(--ok),var(--gold));transition:width .25s linear}
+.cas.malo i{background:var(--no)}
+.q{font-size:clamp(19px,4.4vw,25px);font-weight:900;line-height:1.32;margin:2px 0 14px;text-wrap:balance}
+.q .kat{display:block;font-size:13.5px;font-weight:900;color:var(--c,var(--acc));margin-bottom:6px;letter-spacing:.3px;text-transform:uppercase}
+.opts{display:grid;grid-template-columns:1fr;gap:10px}
+.opts.dva{grid-template-columns:repeat(2,1fr)}
+.opt{background:#fdf7fa;border:2px solid var(--line);border-radius:18px;padding:15px 16px;font-weight:800;
+  font-size:17.5px;box-shadow:0 5px 0 var(--line);transition:transform .08s;text-align:left;line-height:1.3;
+  display:flex;align-items:center;gap:11px}
+.opt .crka{flex:none;width:30px;height:30px;border-radius:999px;background:var(--acc);color:#fff;
+  display:grid;place-items:center;font-weight:900;font-size:16px}
+.opt:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.opt.ok{background:var(--ok);border-color:var(--ok-d);color:#fff;box-shadow:0 5px 0 var(--ok-d)}
+.opt.no{background:var(--no);border-color:var(--no-d);color:#fff;box-shadow:0 5px 0 var(--no-d)}
+.opt.ok .crka,.opt.no .crka{background:rgba(255,255,255,.3)}
+.opt.skrit{opacity:.25;pointer-events:none}
+.opt[disabled]{pointer-events:none}
+.odziv{margin-top:14px;font-weight:900;font-size:17px;min-height:26px;line-height:1.45}
+.odziv .zakaj{display:block;font-weight:800;font-size:14.5px;color:var(--ink-soft);margin-top:5px}
+
+/* pomoč pri lestvici */
+.pomoci{display:flex;gap:8px;margin:0 0 12px;flex-wrap:wrap}
+.pomoc{background:#fff;border:2px solid var(--line);border-radius:14px;padding:9px 13px;font-weight:900;font-size:14.5px;
+  box-shadow:0 4px 0 var(--line)}
+.pomoc:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.pomoc[disabled]{opacity:.4;pointer-events:none;text-decoration:line-through}
+.lestev{display:flex;gap:4px;margin:0 0 6px}
+.lestev + .mini{margin:0 0 12px 2px}
+.stopnicka{flex:1;min-width:20px;text-align:center;font-weight:900;font-size:12.5px;color:var(--ink-soft);
+  background:#fff;border-radius:9px;padding:7px 2px;box-shadow:0 3px 0 var(--line)}
+.stopnicka.zdaj{background:var(--acc);color:#fff}
+.stopnicka.mimo{background:#eafaf1;color:var(--ok-d)}
+.stopnicka.varna{outline:2px dashed var(--gold)}
+
+/* dvoboj */
+.igralca{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.igralec{background:#fff;border-radius:16px;padding:10px 12px;text-align:center;font-weight:900;
+  box-shadow:0 4px 0 var(--line)}
+.igralec b{display:block;font-size:26px;color:var(--acc)}
+.igralec.naVrsti{background:var(--acc);color:#fff;box-shadow:0 4px 0 var(--acc-d)}
+.igralec.naVrsti b{color:#fff}
+
+.konec{text-align:center}
+.konec .big{font-size:56px;line-height:1;margin-bottom:8px}
+.konec h3{font-size:26px;margin:0 0 6px;font-weight:900}
+.seznam{margin:14px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px;text-align:left}
+.seznam li{background:#fdf3f7;border-radius:14px;padding:10px 12px;font-weight:800;font-size:14.5px;line-height:1.4}
+.seznam li b{color:var(--acc-d)}
+.znanje{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.vrstica{display:flex;align-items:center;gap:10px;font-weight:800;font-size:14.5px}
+.vrstica .im{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vrstica .bar{width:120px;height:9px;background:var(--line);border-radius:999px;overflow:hidden;flex:none}
+.vrstica .bar i{display:block;height:100%;background:var(--c,var(--acc))}
+.vrstica .st{width:52px;text-align:right;color:var(--ink-soft);font-size:13px;flex:none}
+
+.modal{position:fixed;inset:0;background:rgba(43,27,44,.45);display:grid;place-items:center;padding:18px;z-index:20}
+.modal[hidden]{display:none}
+.modal .box{background:#fff;border-radius:22px;padding:20px;max-width:520px;width:100%;
+  box-shadow:0 18px 50px rgba(43,27,44,.35);max-height:86dvh;overflow:auto}
+.levels{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.level{background:#fff;border-radius:18px;padding:12px 8px;text-align:center;font-weight:900;
+  box-shadow:0 5px 0 var(--line)}
+.level small{display:block;font-weight:700;font-size:13px;color:var(--ink-soft);margin-top:3px}
+.level[aria-pressed="true"]{background:var(--acc);color:#fff;box-shadow:0 5px 0 var(--acc-d)}
+.level[aria-pressed="true"] small{color:#ffe1ec}
+
+.pop{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);font-size:76px;pointer-events:none;
+  animation:pop .85s ease-out forwards;z-index:30}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}
+  25%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}
+  100%{opacity:0;transform:translate(-50%,-140%) scale(1)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:430px){ .opt{font-size:16px;padding:13px 13px} .opts.dva{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><span class="glava">🧠</span><span>Vseved</span></div>
+    <span class="spacer"></span>
+    <span class="pill gold" title="zbrane zvezdice">⭐ <b id="zvezde">0</b></span>
+    <button class="icon-btn" id="gumbNast" title="Nastavitve" aria-label="Nastavitve">⚙️</button>
+  </div>
+
+  <main id="scrDomov"></main>
+  <main id="scrPodrocja" hidden></main>
+  <main id="scrIgra" hidden></main>
+</div>
+
+<div class="modal" id="modal" hidden><div class="box" id="modalBox"></div></div>
+
+<script>
+
+/* ======================= ZBIRKA VPRAŠANJ ==================================
+   k  = področje, t = zahtevnost (1 lahko, 2 srednje, 3 težko)
+   v  = vprašanje, o = pravilen odgovor, n = trije napačni, zn = razlaga    */
+const VPRASANJA = [];
+function q(k, t, v, o, n, zn){ VPRASANJA.push({ k, t, v, o, n, zn: zn || '' }); }
+
+/* ---------------------- NARAVA IN ŽIVALI -------------------------------- */
+q('narava',1,'Koliko nog ima pajek?','osem',['šest','deset','štiri'],'Žuželke imajo šest nog, pajki pa osem – zato pajek ni žuželka.');
+q('narava',1,'Koliko nog ima žuželka?','šest',['osem','štiri','deset'],'Mravlja, čebela in hrošč imajo vsi po šest nog.');
+q('narava',1,'Katera je največja žival na svetu?','modri kit',['afriški slon','beli morski pes','žirafa'],'Modri kit zraste do 30 metrov – dlje kot dva avtobusa.');
+q('narava',1,'Katera je največja kopenska žival?','afriški slon',['nosorog','povodni konj','žirafa'],'Tehta lahko več kot šest ton.');
+q('narava',1,'Katera žival ima najdaljši vrat?','žirafa',['kamela','noj','lama'],'Kljub dolžini ima žirafa v vratu enako število vretenc kot človek – sedem.');
+q('narava',1,'Katera je najhitrejša kopenska žival?','gepard',['lev','konj','antilopa'],'Na kratke razdalje teče več kot 100 km na uro.');
+q('narava',1,'Katera ptica ne more leteti?','noj',['sokol','lastovka','galeb'],'Noj namesto tega zelo hitro teče.');
+q('narava',1,'Kaj jedo pande?','bambus',['ribe','meso','žita'],'Panda poje tudi po 12 ur na dan.');
+q('narava',1,'Katera žival nosi mladiča v vreči?','kenguru',['koala','opica','medved'],'Mladič ostane v vreči več mesecev.');
+q('narava',1,'Kateri sesalec zna leteti?','netopir',['veverica','podlasica','miš'],'Netopir se v temi znajde z odbojem zvoka.');
+q('narava',1,'Kaj naredijo čebele iz cvetnega nektarja?','med',['vosek','smolo','mleko'],'Za kilogram medu obletijo na milijone cvetov.');
+q('narava',1,'Kaj postane gosenica?','metulj',['čebela','kobilica','pajek'],'Vmes se zapre v bubo.');
+q('narava',1,'S čim dihajo ribe?','s škrgami',['s pljuči','s kožo','z usti'],'Škrge iz vode jemljejo raztopljen kisik.');
+q('narava',1,'Katera žival se seli in se spomladi vrne v Slovenijo?','lastovka',['vrabec','sinica','vrana'],'Prezimi v Afriki.');
+q('narava',2,'Koliko src ima hobotnica?','tri',['eno','dve','osem'],'Dve poganjata kri skozi škrge, eno po telesu.');
+q('narava',2,'Kaj je delfin?','sesalec',['riba','dvoživka','plazilec'],'Diha z pljuči in mladiče doji.');
+q('narava',2,'Katera žival gradi jezove na potokih?','bober',['vidra','pižmovka','jazbec'],'Z jezom si naredi globoko vodo pred vhodom v brlog.');
+q('narava',2,'Katera žival lahko spremeni barvo kože?','kameleon',['gekon','krokodil','želva'],'Barvo spremeni tudi zaradi razpoloženja in temperature, ne le zaradi okolice.');
+q('narava',2,'Kje živijo pingvini?','na južni polobli',['na Arktiki','v Sredozemlju','v Sibiriji'],'Severni medved in pingvin se v naravi nikoli ne srečata.');
+q('narava',2,'Kje živi severni medved?','na Arktiki',['na Antarktiki','v Alpah','v Avstraliji'],'Njegova koža pod belim kožuhom je črna.');
+q('narava',2,'Kateri medved živi v Sloveniji?','rjavi medved',['severni medved','panda','črni medved'],'Največ jih je v kočevskih gozdovih.');
+q('narava',2,'Katera žival v puščavi najdlje zdrži brez vode?','kamela',['konj','osel','antilopa'],'V grbi ima maščobo, ne vode.');
+q('narava',2,'Katero drevo je znano kot slovensko narodno drevo?','lipa',['hrast','smreka','bukev'],'Lipov list je pogost slovenski znak.');
+q('narava',2,'Katero drevo zraste najvišje na svetu?','sekvoja',['hrast','bor','evkaliptus'],'Zraste več kot 100 metrov.');
+q('narava',2,'Kaj je fotosinteza?','ko rastlina iz svetlobe, vode in zraka naredi hrano',['ko rastlina pije vodo iz tal','ko rastlina odvrže liste','ko rastlina zraste ponoči'],'Pri tem se sprošča kisik, ki ga dihamo.');
+q('narava',2,'Kaj rastline sproščajo pri fotosintezi?','kisik',['ogljikov dioksid','dušik','vodik'],'Zato pravimo, da so gozdovi pljuča planeta.');
+q('narava',2,'Katera ptica ponoči lovi miši?','sova',['golob','kos','škorec'],'Ima izjemno mehko perje, zato leti skoraj neslišno.');
+q('narava',2,'Katera ptica kljuva v deblo?','detel',['vrabec','lastovka','labod'],'Z močnim kljunom pod lubjem išče žuželke.');
+q('narava',2,'Katera žival je znana po črnobelih progah?','zebra',['tiger','panda','gepard'],'Vsaka zebra ima svoj vzorec prog, tako kot mi prstne odtise.');
+q('narava',3,'Katera je največja riba na svetu?','morski pes kitovec',['beli morski pes','tun','som'],'Zraste do 12 metrov, hrani pa se z drobnim planktonom.');
+q('narava',3,'Kaj je človeška ribica?','dvoživka, ki živi v jamah',['riba iz Jadrana','vrsta polža','jamski pajek'],'V Postojnski jami lahko brez hrane preživi več let.');
+q('narava',3,'Koliko let lahko živi želva?','več kot sto',['okoli deset','okoli dvajset','okoli petdeset'],'Nekatere kopenske želve so dočakale več kot 150 let.');
+q('narava',3,'Katera slovenska čebela je znana po vsem svetu?','kranjska sivka',['štajerska zlatica','primorska temnica','gorenjska rjavka'],'Je druga najbolj razširjena čebelja pasma na svetu.');
+q('narava',3,'Kaj je koralni greben?','skupnost drobnih živali, ki gradijo apnenčasto ogrodje',['podvodna gora iz kamna','vrsta morske trave','pas peska ob obali'],'Največji je Veliki koralni greben ob Avstraliji.');
+q('narava',3,'Katera žival ima najmočnejši ugriz?','krokodil',['lev','morski pes','medved'],'Čeljusti odpira zelo šibko – z eno roko jih je mogoče zadržati zaprte.');
+q('narava',3,'Zakaj imajo listi jeseni rumeno in rdečo barvo?','ker drevo razgradi zeleno barvilo',['ker liste pobarva mraz','ker se listi posušijo od sonca','ker jih pobarva dež'],'Zeleni klorofil razpade, ostanejo pa rumena in rdeča barvila.');
+q('narava',3,'Kaj je opraševanje?','prenos cvetnega prahu s cveta na cvet',['zalivanje rastlin','obrezovanje vej','sajenje semen'],'Brez čebel in drugih opraševalcev bi ostali brez večine sadja.');
+q('narava',3,'Kateri je največji ptičji jajček na svetu?','nojevo jajce',['labodje jajce','pingvinovo jajce','orlovo jajce'],'Tehta okoli 1,5 kilograma.');
+
+/* ---------------------- ČLOVEŠKO TELO ----------------------------------- */
+q('telo',1,'Kateri organ poganja kri po telesu?','srce',['pljuča','jetra','ledvice'],'Srce v enem dnevu udari približno 100 000-krat.');
+q('telo',1,'S čim dihamo?','s pljuči',['z jetri','s srcem','z želodcem'],'V pljučih kri prevzame kisik in odda ogljikov dioksid.');
+q('telo',1,'Koliko čutov ima človek?','pet',['tri','sedem','deset'],'Vid, sluh, voh, okus in tip.');
+q('telo',1,'Kateri organ nadzoruje vse telo?','možgani',['srce','želodec','koža'],'Do telesa pošiljajo ukaze po živcih.');
+q('telo',1,'Kateri je največji človeški organ?','koža',['jetra','pljuča','možgani'],'Odraslega človeka pokriva približno dva kvadratna metra kože.');
+q('telo',1,'Kaj varuje možgane?','lobanja',['rebra','hrbtenica','medenica'],'Rebra varujejo srce in pljuča.');
+q('telo',1,'Koliko prstov ima človek na obeh rokah skupaj?','deset',['osem','dvanajst','pet'],'');
+q('telo',2,'Koliko kosti ima odrasel človek?','206',['112','305','420'],'Dojenček jih ima okoli 300, nekatere se med rastjo zrastejo skupaj.');
+q('telo',2,'Koliko zob ima odrasel človek?','32',['20','28','36'],'Otrok ima 20 mlečnih zob.');
+q('telo',2,'Kateri organ čisti kri?','ledvici',['pljuča','srce','želodec'],'Kar nastane pri čiščenju, telo izloči z vodo.');
+q('telo',2,'Katera je najdaljša kost v telesu?','stegnenica',['nadlahtnica','golenica','ključnica'],'Meri približno četrtino telesne višine.');
+q('telo',2,'Zakaj se potimo?','da se telo ohladi',['da se znebimo hrane','da nas ne zebe','da hitreje rastemo'],'Znoj z izhlapevanjem odnaša toploto s kože.');
+q('telo',2,'Kaj daje krvi rdečo barvo?','rdeče krvničke',['bele krvničke','voda','maščoba'],'V njih je barvilo, ki prenaša kisik.');
+q('telo',2,'Katere celice branijo telo pred boleznimi?','bele krvničke',['rdeče krvničke','živčne celice','mišične celice'],'So del imunskega sistema.');
+q('telo',2,'Kje se hrana najprej prebavlja?','v ustih in želodcu',['v pljučih','v ledvicah','v srcu'],'Prebava se začne že s slino v ustih.');
+q('telo',2,'Koliko naj bi šolar spal na noč?','devet do enajst ur',['štiri ure','šest ur','trinajst ur'],'Med spanjem si možgani uredijo, kar so se čez dan naučili.');
+q('telo',3,'Približno koliko litrov krvi ima odrasel človek?','pet',['dva','deset','petnajst'],'Srce jo prečrpa vso v manj kot eni minuti.');
+q('telo',3,'Kolikšen del človeškega telesa je voda?','približno 60 odstotkov',['približno 20 odstotkov','približno 40 odstotkov','približno 90 odstotkov'],'Zato je pomembno, da pijemo dovolj.');
+q('telo',3,'Kaj naredi cepivo?','telo nauči prepoznati bolezen, preden zboli',['ubije vse bakterije v telesu','poviša telesno temperaturo','nadomesti kri'],'Telo si zapomni znak povzročitelja in se hitreje ubrani.');
+q('telo',3,'Kaj je pulz?','utripanje krvi ob srčnih udarcih',['dihanje skozi nos','delovanje želodca','gibanje mišic'],'Otipamo ga na zapestju ali na vratu.');
+q('telo',3,'Kateri organ ustvarja žolč?','jetra',['žolčnik','ledvice','trebušna slinavka'],'Žolčnik ga samo shranjuje.');
+q('telo',3,'Zakaj kihnemo?','da iz nosu odstranimo drobce, ki dražijo',['ker nam je vroče','ker smo utrujeni','ker smo lačni'],'Zrak pri kihu leti hitreje kot avto po avtocesti.');
+
+/* ---------------------- VESOLJE ----------------------------------------- */
+q('vesolje',1,'Kaj je Sonce?','zvezda',['planet','luna','komet'],'Je najbližja zvezda – zato se zdi tako velika.');
+q('vesolje',1,'Kateri planet je Zemlji najbližji sosed proti Soncu?','Venera',['Mars','Jupiter','Saturn'],'Venera je tudi najbolj vroč planet.');
+q('vesolje',1,'Kateri planet je največji v Osončju?','Jupiter',['Saturn','Zemlja','Neptun'],'Vanj bi šlo več kot tisoč Zemelj.');
+q('vesolje',1,'Kateri planet ima najlepše obroče?','Saturn',['Mars','Venera','Merkur'],'Obroči so iz ledu in kamenja.');
+q('vesolje',1,'Kateremu planetu pravimo rdeči planet?','Marsu',['Veneri','Jupitru','Merkurju'],'Rdeč je zaradi zarjavelega peska.');
+q('vesolje',1,'Koliko planetov ima naše Osončje?','osem',['sedem','devet','deset'],'Pluton od leta 2006 velja za pritlikavi planet.');
+q('vesolje',1,'Koliko lun ima Zemlja?','eno',['dve','nobene','tri'],'Naša Luna je peta največja luna v Osončju.');
+q('vesolje',1,'Kaj kroži okoli Zemlje?','Luna',['Sonce','Mars','Venera'],'Zemlja pa kroži okoli Sonca.');
+q('vesolje',2,'Kateri planet je najbližje Soncu?','Merkur',['Venera','Zemlja','Mars'],'Kljub temu ni najbolj vroč – to je Venera.');
+q('vesolje',2,'Kdo je prvi stopil na Luno?','Neil Armstrong',['Jurij Gagarin','Buzz Aldrin','John Glenn'],'To se je zgodilo 20. julija 1969.');
+q('vesolje',2,'Kdo je bil prvi človek v vesolju?','Jurij Gagarin',['Neil Armstrong','Valentina Tereškova','Alan Shepard'],'Leta 1961 je enkrat obkrožil Zemljo.');
+q('vesolje',2,'Kako se imenuje naša galaksija?','Rimska cesta',['Andromeda','Osončje','Veliki voz'],'Poleti jo vidimo kot svetel pas čez nebo.');
+q('vesolje',2,'Kaj je galaksija?','ogromna skupina zvezd, plina in prahu',['drug izraz za planet','skupina lun','oblak na nebu'],'V naši galaksiji je več sto milijard zvezd.');
+q('vesolje',2,'Kaj vidimo, ko rečemo, da je padla zvezda?','drobec kamna, ki zgori v ozračju',['pravo zvezdo, ki je ugasnila','satelit, ki je padel','oddaljen planet'],'Pravilno ime je meteor ali utrinek.');
+q('vesolje',2,'Zakaj se Luna spreminja od krajca do polne lune?','ker jo Sonce osvetljuje z različnih strani',['ker jo zakrijejo oblaki','ker se manjša in raste','ker se približuje in oddaljuje'],'Vedno vidimo le osvetljeni del.');
+q('vesolje',2,'Kaj je sončni mrk?','Luna se postavi med Zemljo in Sonce',['Sonce ugasne za nekaj minut','Zemlja gre pred Sonce','Sonce zaide sredi dneva'],'Takrat Lunina senca pade na Zemljo.');
+q('vesolje',3,'Koliko časa potuje svetloba od Sonca do Zemlje?','približno osem minut',['eno sekundo','eno uro','en dan'],'Sonce vidimo tako, kot je bilo pred osmimi minutami.');
+q('vesolje',3,'Kateri planet je najbolj oddaljen od Sonca?','Neptun',['Uran','Saturn','Pluton'],'Za en obhod okoli Sonca potrebuje 165 zemeljskih let.');
+q('vesolje',3,'Kateri planet je najbolj vroč?','Venera',['Merkur','Mars','Jupiter'],'Gost oblak ogljikovega dioksida zadrži toploto kot odeja.');
+q('vesolje',3,'Kaj je črna luknja?','področje s tako močno težnostjo, da iz njega ne uide niti svetloba',['luknja v vesoljski ladji','temen oblak prahu','zvezda brez svetlobe'],'Nastane, ko se zelo velika zvezda sesede vase.');
+q('vesolje',3,'Kaj je asteroid?','skalnato telo, ki kroži okoli Sonca',['zvezda v nastajanju','luna brez planeta','oblak plina'],'Največ jih je med Marsom in Jupitrom.');
+q('vesolje',3,'Kaj je svetlobno leto?','razdalja, ki jo svetloba prepotuje v enem letu',['čas, ko je Sonce najsvetlejše','leto na drugem planetu','doba med dvema mrkoma'],'Je enota za razdaljo, ne za čas.');
+q('vesolje',3,'Kateri Slovenec velja za pionirja vesoljskih poletov?','Herman Potočnik Noordung',['Jurij Vega','Anton Codelli','Fran Miklošič'],'Leta 1928 je opisal postajo v vesolju in geostacionarno tirnico.');
+
+/* ---------------------- ZNANOST IN TEHNIKA ------------------------------ */
+q('znanost',1,'Pri koliko stopinjah Celzija vre voda?','pri 100',['pri 50','pri 80','pri 120'],'Na visoki gori zavre že prej, ker je zrak redkejši.');
+q('znanost',1,'Pri koliko stopinjah Celzija voda zmrzne?','pri 0',['pri 10','pri –10','pri 32'],'');
+q('znanost',1,'Kaj pomeni oznaka H₂O?','voda',['sol','zrak','sladkor'],'Dva atoma vodika in en atom kisika.');
+q('znanost',1,'Kaj privlači magnet?','železo',['les','steklo','plastiko'],'Privlači tudi nikelj in kobalt.');
+q('znanost',1,'Kaj meri termometer?','temperaturo',['maso','dolžino','čas'],'');
+q('znanost',1,'Kaj je hitrejše?','svetloba',['zvok','veter','zvočni signal po telefonu'],'Zato blisk vidimo prej, kot slišimo grom.');
+q('znanost',1,'Kaj potrebuje ogenj, da gori?','kisik',['dušik','ogljikov dioksid','vodik'],'Zato ogenj ugasne, če ga pokrijemo z odejo.');
+q('znanost',1,'Kaj je led?','voda v trdnem stanju',['druga snov kot voda','zmrznjen zrak','sneg iz oblakov'],'Ko se stali, spet dobimo vodo.');
+q('znanost',2,'Katera je najmanjša gradbena enota snovi?','atom',['celica','kaplja','molekula'],'Molekule so sestavljene iz atomov.');
+q('znanost',2,'Kateri plin je v zraku najbolj pogost?','dušik',['kisik','ogljikov dioksid','vodik'],'Dušika je približno 78 odstotkov, kisika 21.');
+q('znanost',2,'Kaj je gravitacija?','sila, s katero Zemlja vleče predmete k sebi',['sila vetra','magnetna sila','sila trenja'],'Zaradi nje jabolko pade z drevesa.');
+q('znanost',2,'Kaj nastane, ko voda izhlapi?','vodna para',['dim','led','kisik'],'Para se v hladnem spet zgosti v kapljice – tako nastanejo oblaki.');
+q('znanost',2,'Kako nastane mavrica?','sončna svetloba se v kapljicah razdeli na barve',['oblaki se pobarvajo','sonce zaide za dež','veter razpiha barve'],'Kapljica deluje kot majhna prizma.');
+q('znanost',2,'Kateri material najbolje prevaja elektriko?','baker',['les','guma','steklo'],'Zato so žice iz bakra.');
+q('znanost',2,'Kaj je algoritem?','natančno navodilo po korakih',['vrsta računalnika','računalniški virus','ime programa'],'Tudi recept za palačinke je algoritem.');
+q('znanost',2,'Kaj so obnovljivi viri energije?','sonce, veter in voda',['premog in nafta','zemeljski plin','uran'],'Ne zmanjka jih in manj onesnažujejo.');
+q('znanost',2,'Kaj pomeni recikliranje?','iz odpadkov naredimo nove izdelke',['sežiganje odpadkov','zakopavanje odpadkov','shranjevanje odpadkov'],'Steklo lahko recikliramo neskončnokrat.');
+q('znanost',3,'Kateri kemijski simbol pomeni zlato?','Au',['Ag','Zn','Fe'],'Ag je srebro, Fe pa železo.');
+q('znanost',3,'Kako hitro potuje zvok po zraku?','približno 340 metrov na sekundo',['30 metrov na sekundo','3000 metrov na sekundo','enako hitro kot svetloba'],'Zato po blisku štejemo sekunde do groma.');
+q('znanost',3,'Kdo je postavil teorijo relativnosti?','Albert Einstein',['Isaac Newton','Nikola Tesla','Galileo Galilei'],'Med drugim pravi, da čas ne teče povsod enako.');
+q('znanost',3,'Kdo je iznašel telefon?','Alexander Graham Bell',['Thomas Edison','Nikola Tesla','Guglielmo Marconi'],'Prvi patent je dobil leta 1876.');
+q('znanost',3,'Kdo je v Evropi iznašel tisk s premičnimi črkami?','Johannes Gutenberg',['Leonardo da Vinci','Isaac Newton','Galileo Galilei'],'Sredi 15. stoletja; knjige so postale dostopne veliko ljudem.');
+q('znanost',3,'Kaj je izolator?','snov, ki elektrike ne prevaja',['snov, ki elektriko dobro prevaja','naprava za merjenje toka','vrsta baterije'],'Guma in plastika okoli žic sta izolatorja.');
+q('znanost',3,'Zakaj ladja iz jekla plava?','ker je skupaj z zrakom v njej lažja od enake prostornine vode',['ker je jeklo lažje od vode','ker jo poganja motor','ker jo drži val'],'To pravilo je odkril Arhimed.');
+
+/* ---------------------- ZGODOVINA --------------------------------------- */
+q('zgodovina',1,'Kdo je zgradil piramide?','stari Egipčani',['Rimljani','Grki','Vikingi'],'Največja je Keopsova piramida v Gizi.');
+q('zgodovina',1,'Kdo je zgradil Kolosej v Rimu?','Rimljani',['Grki','Egipčani','Kelti'],'V njem je bilo prostora za več deset tisoč gledalcev.');
+q('zgodovina',1,'Kaj so bili vitezi?','bojevniki v oklepu iz srednjega veka',['rimski vojaki','egipčanski svečeniki','grški učenjaki'],'Živeli so na gradovih.');
+q('zgodovina',1,'Zakaj so nekoč gradili gradove?','za obrambo',['za shranjevanje hrane','za trgovino','za šole'],'Zato stojijo na hribih in imajo debele zidove.');
+q('zgodovina',1,'Kdo je leta 1492 z ladjami priplul v Ameriko?','Krištof Kolumb',['Marco Polo','Vasco da Gama','Ferdinand Magellan'],'Mislil je, da je prišel v Indijo.');
+q('zgodovina',2,'Kdo so bili Vikingi?','severni pomorščaki in bojevniki',['puščavski trgovci','rimski vojaki','kitajski cesarji'],'Z dolgimi ladjami so pluli vse do Amerike.');
+q('zgodovina',2,'Kdaj je človek prvič stopil na Luno?','leta 1969',['leta 1949','leta 1959','leta 1979'],'');
+q('zgodovina',2,'Kdaj se je začela druga svetovna vojna?','leta 1939',['leta 1914','leta 1929','leta 1945'],'Končala se je leta 1945.');
+q('zgodovina',2,'Kdaj je bila prva svetovna vojna?','od 1914 do 1918',['od 1899 do 1905','od 1925 do 1930','od 1939 do 1945'],'V njej je bila tudi soška fronta na Slovenskem.');
+q('zgodovina',2,'Kdo je bil Leonardo da Vinci?','slikar in izumitelj',['rimski cesar','pomorščak','skladatelj'],'Naslikal je Mono Lizo in risal načrte letalnih naprav.');
+q('zgodovina',2,'Kdo je bil Napoleon Bonaparte?','francoski vojskovodja in cesar',['angleški kralj','ruski car','španski raziskovalec'],'Del slovenskega ozemlja je bil takrat v Ilirskih provincah.');
+q('zgodovina',2,'Kaj je bil Titanik?','ladja, ki je leta 1912 potonila',['prvo letalo čez ocean','egipčanska grobnica','ime prve rakete'],'Potonil je po trčenju z ledeno goro.');
+q('zgodovina',2,'Kdo je bil Tutankamon?','egipčanski faraon',['grški filozof','rimski cesar','babilonski kralj'],'Njegovo grobnico so našli leta 1922 skoraj nedotaknjeno.');
+q('zgodovina',3,'Kdo je bil Julij Cezar?','rimski vojskovodja in državnik',['grški kralj','egipčanski faraon','frankovski cesar'],'Po njem se imenuje mesec julij.');
+q('zgodovina',3,'Kaj je bila svilna pot?','trgovska pot med Kitajsko in Evropo',['pot okoli Afrike','morska pot v Ameriko','pot čez Alpe'],'Po njej so potovali svila, začimbe in ideje.');
+q('zgodovina',3,'Kdo je bil Marco Polo?','beneški trgovec in popotnik na Kitajsko',['španski raziskovalec Amerike','portugalski pomorščak','italijanski slikar'],'O svojih potovanjih je napisal znamenito knjigo.');
+q('zgodovina',3,'Kdo je bil Aleksander Veliki?','makedonski kralj, ki je osvojil ogromno ozemlje',['rimski cesar','egipčanski faraon','perzijski vladar'],'Njegova država je segala vse do Indije.');
+q('zgodovina',3,'Kaj se je zgodilo leta 1989 v Berlinu?','padel je berlinski zid',['zgradili so berlinski zid','začela se je vojna','mesto je pogorelo'],'Zid je 28 let delil mesto na dvoje.');
+q('zgodovina',3,'Kje je nastala prva pisava?','v Mezopotamiji',['v Egiptu','na Kitajskem','v Grčiji'],'Sumerci so pisali klinopis v glinaste ploščice.');
+q('zgodovina',3,'Kdo je bil Janez Vajkard Valvasor?','učenjak, ki je opisal Kranjsko v knjigi Slava vojvodine Kranjske',['prvi slovenski kralj','slikar s Ptuja','graditelj Ljubljanskega gradu'],'Med drugim je pojasnil, zakaj presiha Cerkniško jezero.');
+
+/* ---------------------- ŠPORT ------------------------------------------- */
+q('sport',1,'Koliko igralcev ima nogometna ekipa na igrišču?','enajst',['devet','deset','dvanajst'],'Skupaj z vratarjem.');
+q('sport',1,'Koliko igralcev ima košarkarska ekipa na igrišču?','pet',['šest','sedem','štiri'],'');
+q('sport',1,'Koliko obročev je na olimpijski zastavi?','pet',['štiri','šest','sedem'],'Pomenijo pet celin, povezanih v igrah.');
+q('sport',1,'Kako pogosto so poletne olimpijske igre?','vsaka štiri leta',['vsako leto','vsaki dve leti','vsakih deset let'],'');
+q('sport',1,'Koliko časa traja nogometna tekma brez podaljškov?','devetdeset minut',['šestdeset minut','sto dvajset minut','štirideset minut'],'Dva polčasa po 45 minut.');
+q('sport',1,'V katerem športu se uporablja pak?','v hokeju na ledu',['v rokometu','v tenisu','v odbojki'],'');
+q('sport',2,'Koliko točk je vreden košarkarski met izza črte za tri točke?','tri',['dve','štiri','ena'],'Prosti met je vreden eno točko.');
+q('sport',2,'Kako dolg je maraton?','42 kilometrov in 195 metrov',['21 kilometrov','30 kilometrov','50 kilometrov'],'Ime je dobil po grškem kraju Maraton.');
+q('sport',2,'V katerem športu igrajo s perjanico?','v badmintonu',['v tenisu','v squashu','v namiznem tenisu'],'');
+q('sport',2,'Kaj je hat-trick?','trije zadetki istega igralca na eni tekmi',['trije porazi zapored','tri rumene kartone','tri menjave'],'');
+q('sport',2,'Kaj je Tour de France?','najbolj znana kolesarska dirka',['tekaška dirka','avtomobilska dirka','jadralna regata'],'Traja tri tedne, vodilni nosi rumeno majico.');
+q('sport',2,'Kje so bile prve moderne olimpijske igre?','v Atenah',['v Parizu','v Rimu','v Londonu'],'Leta 1896, v domovini antičnih iger.');
+q('sport',2,'Kateri slovenski šport je smučarski skok?','zimski šport',['poletni šport','vodni šport','dvoranski šport'],'V Planici so doma poleti – najdaljši skoki na svetu.');
+q('sport',3,'Katera država je največkrat postala svetovni prvak v nogometu?','Brazilija',['Nemčija','Italija','Argentina'],'Naslov je osvojila petkrat.');
+q('sport',3,'Kaj pomeni izraz "prosti met" v košarki?','met brez obrambe po prekršku',['met s sredine igrišča','met čez celo igrišče','met z zaprtimi očmi'],'Vreden je eno točko.');
+q('sport',3,'Koliko igralcev ima odbojkarska ekipa na igrišču?','šest',['pet','sedem','osem'],'');
+q('sport',3,'Kateri je najbolj priljubljen šport na svetu?','nogomet',['košarka','tenis','hokej'],'Igrajo ga v skoraj vseh državah sveta.');
+q('sport',3,'Kaj je smuk?','najhitrejša disciplina alpskega smučanja',['disciplina v teku na smučeh','skok z letalnice','vrsta drsanja'],'Smučarji dosežejo tudi 130 kilometrov na uro.');
+
+/* ---------------------- GLASBA, FILM, KNJIGE ---------------------------- */
+q('kultura',1,'Koliko strun ima navadna kitara?','šest',['štiri','pet','osem'],'');
+q('kultura',1,'Kateri instrument ima 88 tipk?','klavir',['harmonika','orgle','kitara'],'Bele in črne tipke skupaj.');
+q('kultura',1,'Kdo je napisal knjigo o Piki Nogavički?','Astrid Lindgren',['Ela Peroci','Fran Levstik','Roald Dahl'],'Švedska pisateljica jo je ustvarila leta 1945.');
+q('kultura',1,'Kdo je napisal knjige o Harryju Potterju?','J. K. Rowling',['Roald Dahl','Astrid Lindgren','Tolkien'],'Prva knjiga je izšla leta 1997.');
+q('kultura',1,'Kdo je naslikal Mono Lizo?','Leonardo da Vinci',['Vincent van Gogh','Pablo Picasso','Michelangelo'],'Slika visi v pariškem Louvru.');
+q('kultura',1,'V katero skupino instrumentov spada violina?','med godala',['med pihala','med trobila','med tolkala'],'Igramo jo z lokom po strunah.');
+q('kultura',2,'Kdo je naslikal Zvezdno noč?','Vincent van Gogh',['Claude Monet','Pablo Picasso','Salvador Dalí'],'Naslikal jo je leta 1889.');
+q('kultura',2,'Kdo je bil Wolfgang Amadeus Mozart?','skladatelj',['slikar','pisatelj','kipar'],'Skladati je začel kot otrok.');
+q('kultura',2,'Kaj se je zgodilo skladatelju Beethovnu?','oglušel je',['oslepel je','izgubil je roko','nikoli ni videl klavirja'],'Kljub gluhosti je napisal svoja največja dela.');
+q('kultura',2,'Kdo je napisal Martina Krpana?','Fran Levstik',['Ivan Cankar','France Prešeren','Josip Jurčič'],'Krpan je tihotapil angleško sol.');
+q('kultura',2,'Kdo je napisal zgodbo o Kekcu?','Josip Vandot',['Fran Levstik','Ela Peroci','Tone Seliškar'],'Kekec je pogumen pastir iz gora.');
+q('kultura',2,'Kdo je napisal Muco Copatarico?','Ela Peroci',['Svetlana Makarovič','Astrid Lindgren','Kristina Brenkova'],'Muca otrokom sešije copate.');
+q('kultura',2,'Kdo je bil William Shakespeare?','angleški pisatelj in dramatik',['angleški kralj','italijanski slikar','nemški skladatelj'],'Napisal je Romea in Julijo ter Hamleta.');
+q('kultura',3,'Kdo je napisal Butalce?','Fran Milčinski',['Fran Levstik','Ivan Cankar','Josip Vandot'],'Butalci so smešna vas, kjer vsak nasvet gre narobe.');
+q('kultura',3,'Kdo je napisal Bratovščino Sinjega galeba?','Tone Seliškar',['Ivan Cankar','France Bevk','Josip Jurčič'],'Zgodba o mladih ribičih z Jadrana.');
+q('kultura',3,'Kdo je avtor pravljic o Kosovirjih?','Svetlana Makarovič',['Ela Peroci','Kristina Brenkova','Neža Maurer'],'Kosovirja sta Glili in Glala.');
+q('kultura',3,'Kdo je bil Pablo Picasso?','slikar, znan po kubizmu',['skladatelj','arhitekt','pisatelj'],'Predmete je slikal z več strani hkrati.');
+q('kultura',3,'Kaj je opera?','gledališka predstava, v kateri pevci pojejo zgodbo',['vrsta plesa','koncert brez pevcev','muzej glasbil'],'Spremlja jo orkester.');
+q('kultura',3,'Kaj je orkester?','velika skupina glasbenikov z različnimi instrumenti',['skupina pevcev','vrsta odra','glasbena šola'],'Vodi ga dirigent.');
+
+/* ---------------------- GEOGRAFIJA SVETA -------------------------------- */
+q('geo',1,'Koliko celin ima Zemlja?','sedem',['pet','šest','osem'],'Azija, Afrika, Severna in Južna Amerika, Antarktika, Evropa ter Avstralija z Oceanijo.');
+q('geo',1,'Katera je največja celina?','Azija',['Afrika','Evropa','Severna Amerika'],'V njej živi več kot polovica vseh ljudi.');
+q('geo',1,'Kateri je največji ocean?','Tihi ocean',['Atlantski ocean','Indijski ocean','Severni ledeni ocean'],'Sam pokriva približno tretjino Zemljinega površja.');
+q('geo',1,'Katera je največja država na svetu?','Rusija',['Kanada','Kitajska','Združene države Amerike'],'Leži v Evropi in Aziji.');
+q('geo',1,'Katera je najvišja gora na svetu?','Mount Everest',['Mont Blanc','Kilimandžaro','K2'],'Visok je 8849 metrov.');
+q('geo',1,'Katera je največja vroča puščava?','Sahara',['Gobi','Kalahari','Atacama'],'Skoraj tako velika kot vse Združene države Amerike.');
+q('geo',1,'Na kateri celini leži Egipt?','v Afriki',['v Aziji','v Evropi','v Južni Ameriki'],'Skozenj teče Nil.');
+q('geo',2,'Katera je najmanjša država na svetu?','Vatikan',['Monako','San Marino','Malta'],'Leži sredi Rima.');
+q('geo',2,'Kateri je največji otok na svetu?','Grenlandija',['Madagaskar','Nova Gvineja','Islandija'],'Avstralijo štejemo za celino, ne za otok.');
+q('geo',2,'Katera celina je najhladnejša?','Antarktika',['Evropa','Azija','Severna Amerika'],'Led je ponekod debel več kot štiri kilometre.');
+q('geo',2,'Katera reka nosi največ vode na svetu?','Amazonka',['Nil','Misisipi','Donava'],'Teče skozi Južno Ameriko.');
+q('geo',2,'Katera je najdaljša reka Evrope?','Volga',['Donava','Ren','Loara'],'Izliva se v Kaspijsko jezero.');
+q('geo',2,'Katero mesto leži na dveh celinah?','Istanbul',['Kairo','Atene','Moskva'],'Preliv Bospor ga deli na evropski in azijski del.');
+q('geo',2,'Kateri je najvišji vrh Alp?','Mont Blanc',['Matterhorn','Triglav','Grossglockner'],'Meri 4808 metrov.');
+q('geo',2,'Katera država je hkrati tudi celina?','Avstralija',['Kanada','Brazilija','Rusija'],'');
+q('geo',3,'Katero gorstvo loči Evropo od Azije?','Ural',['Alpe','Karpati','Himalaja'],'Poteka od severa proti jugu skozi Rusijo.');
+q('geo',3,'Katero jezero je najgloblje na svetu?','Bajkalsko jezero',['Viktorijino jezero','Kaspijsko jezero','Zgornje jezero'],'Globoko je več kot 1600 metrov.');
+q('geo',3,'Kaj povezuje Panamski prekop?','Tihi in Atlantski ocean',['Sredozemsko in Rdeče morje','Baltsko in Severno morje','Črno in Jadransko morje'],'Ladjam prihrani pot okoli Južne Amerike.');
+q('geo',3,'Skozi koliko glavnih mest teče Donava?','skozi štiri',['skozi dve','skozi tri','skozi šest'],'Dunaj, Bratislava, Budimpešta in Beograd.');
+q('geo',3,'Kje je najgloblje mesto v oceanu?','v Marianskem jarku',['v Sredozemskem morju','ob obali Norveške','pri Havajih'],'Globok je skoraj 11 kilometrov.');
+q('geo',3,'Katera država ima največ prebivalcev?','Indija',['Kitajska','Združene države Amerike','Indonezija'],'Indija je Kitajsko prehitela leta 2023.');
+q('geo',3,'Kaj je delta reke?','razvejano ustje, kjer se reka izliva',['izvir reke','soteska v gorah','jezero ob reki'],'Ime je dobila po grški črki delta.');
+
+/* ---------------------- SLOVENIJA --------------------------------------- */
+q('slo',1,'Katero je glavno mesto Slovenije?','Ljubljana',['Maribor','Celje','Kranj'],'');
+q('slo',1,'Katera je najvišja slovenska gora?','Triglav',['Grintovec','Stol','Snežnik'],'Visok je 2864 metrov in je tudi na grbu.');
+q('slo',1,'Koliko sosed ima Slovenija?','štiri',['tri','pet','šest'],'Italija, Avstrija, Madžarska in Hrvaška.');
+q('slo',1,'Katera je slovenska denarna enota?','evro',['tolar','kuna','dinar'],'Evro smo dobili leta 2007.');
+q('slo',1,'Katera reka teče skozi Ljubljano?','Ljubljanica',['Sava','Drava','Krka'],'Reka sedmerih imen – večkrat ponikne pod zemljo.');
+q('slo',1,'Katera je najdaljša reka v Sloveniji?','Sava',['Drava','Soča','Mura'],'V Sloveniji meri 221 kilometrov.');
+q('slo',1,'Kaj je Postojnska jama?','ena največjih kraških jam z jamskim vlakom',['grad na skali','jezero pod zemljo','ime gore'],'V njej živi človeška ribica.');
+q('slo',2,'Kdo je napisal Zdravljico?','France Prešeren',['Ivan Cankar','Fran Levstik','Simon Gregorčič'],'Sedma kitica je slovenska himna.');
+q('slo',2,'Kdaj praznujemo dan državnosti?','25. junija',['26. decembra','8. februarja','1. maja'],'Tega dne leta 1991 je Slovenija razglasila samostojnost.');
+q('slo',2,'Kaj praznujemo 8. februarja?','slovenski kulturni praznik',['dan državnosti','dan samostojnosti','praznik dela'],'Na dan Prešernove smrti.');
+q('slo',2,'Katero je največje naravno jezero v Sloveniji?','Bohinjsko jezero',['Blejsko jezero','Cerkniško jezero','Ptujsko jezero'],'');
+q('slo',2,'Kaj je posebnega pri Cerkniškem jezeru?','presiha – enkrat je tam, drugič ga ni',['je najgloblje pri nas','ima slano vodo','nikoli ne zamrzne'],'Voda odteče skozi kraško podzemlje.');
+q('slo',2,'Kdo je bil Ivan Cankar?','pisatelj',['slikar','skladatelj','general'],'Napisal je Hlapca Jerneja in Na klancu.');
+q('slo',2,'Kaj so lipicanci?','pasma konj iz kobilarne Lipica',['vrsta ovac s Krasa','čebele iz Bele krajine','ptice s Krasa'],'Kobilarna deluje že od leta 1580.');
+q('slo',2,'Katero je najstarejše mesto v Sloveniji?','Ptuj',['Ljubljana','Celje','Koper'],'Rimljani so mu rekli Poetovio.');
+q('slo',2,'Kaj je prekmurska gibanica?','sladica z več plastmi nadeva',['vrsta kruha','narodna noša','ljudski ples'],'Ima makov, skutin, orehov in jabolčni nadev.');
+q('slo',3,'Kdo je bil Primož Trubar?','pisec prve slovenske knjige',['prvi slovenski kralj','slikar','skladatelj'],'Katekizem in Abecednik, leta 1550.');
+q('slo',3,'Kdo je bil Jurij Vega?','matematik, znan po logaritemskih tablicah',['pisatelj','general','slikar'],'Po njem se imenuje krater na Luni.');
+q('slo',3,'Kdo je bil Rudolf Maister?','general, ki je leta 1918 obranil severno mejo',['pesnik iz 19. stoletja','prvi predsednik','skladatelj himne'],'Bil je tudi pesnik.');
+q('slo',3,'Kdo je Zlatorog?','bajeslovni kozorog iz zgodb o Triglavu',['slovenski kralj','ime jame','vrsta ptice'],'Legenda pravi, da mu iz krvi zrastejo rože.');
+q('slo',3,'Kaj je kurentovanje?','pustni obhod s kurenti na Ptuju',['žetev v Prekmurju','tekma v Planici','ljudski ples na Krasu'],'Kurenti s kravjimi zvonci preganjajo zimo.');
+q('slo',3,'Kolikšen del Slovenije pokriva gozd?','približno 58 odstotkov',['približno 20 odstotkov','približno 35 odstotkov','približno 80 odstotkov'],'Slovenija je med najbolj gozdnatimi državami Evrope.');
+q('slo',3,'Kdo je bil Giuseppe Tartini?','violinist in skladatelj iz Pirana',['slikar iz Kopra','pomorščak iz Izole','pisatelj iz Ljubljane'],'Po njem se imenuje glavni trg v Piranu.');
+q('slo',3,'Kaj je Solkanski most poseben?','ima najdaljši kamniti lok za železnico na svetu',['je najstarejši most v Evropi','je edini leseni most pri nas','je najdaljši viseči most'],'Lok meri 85 metrov.');
+
+/* ---------------------- JEZIK IN BESEDE --------------------------------- */
+q('jezik',1,'Koliko črk ima slovenska abeceda?','petindvajset',['šestindvajset','triindvajset','trideset'],'Med njimi so tudi č, š in ž.');
+q('jezik',1,'Katere so samoglasniki?','a, e, i, o, u',['b, c, d, f','č, š, ž','k, l, m, n'],'Vse druge črke so soglasniki.');
+q('jezik',1,'Kako pišemo imena mest?','z veliko začetnico',['z malo začetnico','vedno z velikimi črkami','s poševnimi črkami'],'Ljubljana, Maribor, Koper.');
+q('jezik',1,'Kaj postavimo na konec vprašalne povedi?','vprašaj',['piko','klicaj','vejico'],'');
+q('jezik',1,'Kaj je samostalnik?','beseda za bitje, stvar ali pojem',['beseda za dejanje','beseda za lastnost','beseda za število'],'Miza, pes, veselje.');
+q('jezik',1,'Kaj je glagol?','beseda, ki pove dejanje ali stanje',['beseda za lastnost','beseda za bitje','beseda za kraj'],'Teči, brati, spati.');
+q('jezik',2,'Koliko sklonov ima slovenščina?','šest',['štiri','pet','sedem'],'Imenovalnik, rodilnik, dajalnik, tožilnik, mestnik in orodnik.');
+q('jezik',2,'Katera števila pozna slovenščina?','ednino, dvojino in množino',['samo ednino in množino','samo množino','ednino, dvojino, trojino'],'Dvojina je posebnost, ki jo ima malo jezikov.');
+q('jezik',2,'Kako se imenuje beseda z nasprotnim pomenom?','protipomenka',['sopomenka','izpeljanka','okrajšava'],'Velik – majhen.');
+q('jezik',2,'Kako se imenuje beseda s podobnim pomenom?','sopomenka',['protipomenka','predpona','pripona'],'Hiša – dom.');
+q('jezik',2,'Kaj je pridevnik?','beseda, ki pove lastnost',['beseda za dejanje','beseda za bitje','beseda za čas'],'Rdeč, velik, prijazen.');
+q('jezik',2,'Kakšna je množina besede človek?','ljudje',['človeki','človekje','človeci'],'');
+q('jezik',2,'Kateri je prvi sklon?','imenovalnik',['rodilnik','tožilnik','mestnik'],'Odgovarja na vprašanje kdo ali kaj.');
+q('jezik',3,'Kaj pomeni pregovor "Kdor drugemu jamo koplje, sam vanjo pade"?','komur delaš slabo, se ti vrne',['kdor dela, ta uspe','kdor je previden, ne pade','vsak naj skrbi zase'],'');
+q('jezik',3,'Kaj pomeni "iz muhe narediti slona"?','pretiravati zaradi majhne stvari',['delati velike načrte','biti zelo močan','biti počasen'],'');
+q('jezik',3,'Kaj so šumniki?','črke č, š in ž',['črke a, e, i','črke k, p, t','vse velike črke'],'');
+q('jezik',3,'Kaj je dvojina?','oblika, ki jo uporabimo, kadar sta dva',['oblika za zelo veliko stvari','oblika za eno stvar','poseben sklon'],'Dva psa sta lajala.');
+q('jezik',3,'Kaj je pravljica?','izmišljena zgodba s čudežnimi liki',['resnična zgodba iz zgodovine','pesem z rimami','poročilo o dogodku'],'');
+q('jezik',3,'Kaj je rima?','ujemanje glasov na koncu verzov',['ponavljanje besed','naglas na zadnjem zlogu','znak za konec pesmi'],'Cesta – nevesta.');
+
+/* ---------------------- UGANKE IN ŠTEVILA ------------------------------- */
+q('logika',1,'Koliko je 7 × 8?','56',['54','48','63'],'');
+q('logika',1,'Koliko minut ima ena ura?','60',['30','90','100'],'');
+q('logika',1,'Koliko ur ima dan?','24',['12','20','30'],'');
+q('logika',1,'Koliko stranic ima šestkotnik?','šest',['pet','sedem','osem'],'');
+q('logika',1,'Koliko kotov ima trikotnik?','tri',['dva','štiri','šest'],'');
+q('logika',1,'Koliko je polovica od 90?','45',['35','40','50'],'');
+q('logika',1,'Koliko centimetrov je en meter?','100',['10','1000','50'],'');
+q('logika',1,'Koliko gramov je en kilogram?','1000',['100','10','10 000'],'');
+q('logika',1,'Koliko ploskev ima kocka?','šest',['štiri','osem','dvanajst'],'');
+q('logika',2,'Koliko je 100 − 37?','63',['53','67','73'],'');
+q('logika',2,'Koliko je 12 × 12?','144',['124','132','156'],'');
+q('logika',2,'Kateri je naslednji: 2, 4, 8, 16, …?','32',['20','24','64'],'Vsako število je dvakratnik prejšnjega.');
+q('logika',2,'Kateri je naslednji: 1, 1, 2, 3, 5, 8, …?','13',['11','12','16'],'Vsako število je vsota prejšnjih dveh – Fibonaccijevo zaporedje.');
+q('logika',2,'Koliko dni ima februar v prestopnem letu?','29',['28','30','31'],'Prestopno leto je vsako četrto.');
+q('logika',2,'Koliko je četrtina od 100?','25',['20','40','50'],'');
+q('logika',2,'Če je danes torek, kateri dan bo čez tri dni?','petek',['četrtek','sobota','nedelja'],'');
+q('logika',2,'Koliko nog ima skupaj pet pajkov?','40',['30','35','50'],'Vsak pajek ima osem nog.');
+q('logika',2,'Koliko je 15 % od 200?','30',['15','20','45'],'Deset odstotkov je 20, pet odstotkov pa 10.');
+q('logika',3,'Kolikšna je vsota kotov v trikotniku?','180 stopinj',['90 stopinj','270 stopinj','360 stopinj'],'');
+q('logika',3,'Koliko je 3 na tretjo potenco?','27',['9','12','81'],'3 × 3 × 3.');
+q('logika',3,'Kaj pomeni rimska številka L?','50',['5','100','500'],'X je 10, C je 100, M je 1000.');
+q('logika',3,'Koliko mesecev ima 31 dni?','sedem',['pet','šest','osem'],'Januar, marec, maj, julij, avgust, oktober in december.');
+q('logika',3,'Imaš tri jabolka in dve vzameš. Koliko jih imaš?','dve',['eno','tri','pet'],'Tisti dve, ki si ju vzel, sta zdaj tvoji.');
+q('logika',3,'Koliko je 0 × 999?','0',['999','1','9990'],'Karkoli pomnožimo z nič, je nič.');
+q('logika',3,'Kaj je obseg pravokotnika?','vsota dolžin vseh štirih stranic',['zmnožek stranic','polovica stranice','dolžina diagonale'],'Ploščina je zmnožek stranic, obseg pa vsota.');
+
+/* ---------------------- VSAKDANJE ŽIVLJENJE ----------------------------- */
+q('vsakdan',1,'Kateri je prvi dan v tednu?','ponedeljek',['nedelja','sobota','torek'],'');
+q('vsakdan',1,'Koliko mesecev ima leto?','dvanajst',['deset','enajst','trinajst'],'');
+q('vsakdan',1,'Kateri mesec je najkrajši?','februar',['januar','april','november'],'Ima 28 ali 29 dni.');
+q('vsakdan',1,'Koliko dni ima navadno leto?','365',['360','355','370'],'V prestopnem letu 366.');
+q('vsakdan',1,'Kaj pomeni rdeča luč na semaforju?','ustavi se',['pelji naprej','pripravi se','zavij desno'],'');
+q('vsakdan',1,'Kaj mora imeti kolesar na glavi?','čelado',['kapo','naglavno svetilko','ruto'],'Do 18. leta je čelada obvezna.');
+q('vsakdan',1,'Iz česa je kruh?','iz moke',['iz riža','iz krompirja','iz mleka'],'Moko dobimo iz žita.');
+q('vsakdan',1,'Iz česa delajo sir?','iz mleka',['iz jajc','iz moke','iz olja'],'');
+q('vsakdan',1,'Kdo zdravi zobe?','zobozdravnik',['veterinar','lekarnar','kirurg'],'');
+q('vsakdan',1,'Kdo zdravi živali?','veterinar',['zobozdravnik','gozdar','lovec'],'');
+q('vsakdan',2,'Katero telefonsko številko pokličemo za reševalce in gasilce?','112',['113','911','+386'],'113 je številka policije.');
+q('vsakdan',2,'Kam vržemo star papir?','v zabojnik za papir',['med mešane odpadke','v zabojnik za steklo','v kompost'],'Iz recikliranega papirja nastane nov papir.');
+q('vsakdan',2,'Kaj sodi v rjavi zabojnik?','biološki odpadki',['plastenke','papir','steklo'],'Iz njih nastane kompost.');
+q('vsakdan',2,'Kaj pomeni kratica EU?','Evropska unija',['Evropska ustava','Enotna uprava','Evropsko usmerjanje'],'Ima 27 članic.');
+q('vsakdan',2,'Kaj je knjižnica?','kraj, kjer si izposodimo knjige',['trgovina s knjigami','tiskarna','muzej pisav'],'');
+q('vsakdan',2,'Kje pošljemo pismo?','na pošti',['v banki','v lekarni','na upravni enoti'],'');
+q('vsakdan',2,'Zakaj se pri prehodu za pešce najprej ozremo?','da vidimo, ali se približuje vozilo',['ker tako veleva navada','da preverimo semafor za kolesarje','da nas vidijo prijatelji'],'Levo, desno in še enkrat levo.');
+q('vsakdan',3,'Zakaj naj bi jedli veliko sadja in zelenjave?','ker vsebujeta vitamine in vlaknine',['ker sta sladka','ker sta poceni','ker se dolgo držita'],'');
+q('vsakdan',3,'Kaj je varčevanje z energijo doma?','ugašanje luči in naprav, ko jih ne rabimo',['nižanje glasnosti televizorja','uporaba več naprav hkrati','kurjenje na ves plin'],'');
+q('vsakdan',3,'Zakaj je pomembno umivanje rok?','ker odstranimo bakterije in viruse',['ker roke postanejo mehkejše','ker tako hitreje rastemo','ker to zahteva bonton'],'Umivamo si jih vsaj 20 sekund.');
+q('vsakdan',3,'Kaj naredimo, če se izgubimo v mestu?','poiščemo pomoč pri odrasli osebi ali policiji',['tečemo domov po bližnjici','počakamo do večera','gremo v najbližjo trgovino po sladkarije'],'Dobro je znati na pamet telefonsko številko staršev.');
+
+/* ---------------------- ŠE VEČ ------------------------------------------ */
+q('narava',1,'Katera žival ima rilec?','slon',['nosorog','povodni konj','bizon'],'Z rilcem pije, voha in prijema hrano.');
+q('narava',1,'Katera roža se obrača za soncem?','sončnica',['tulipan','vrtnica','marjetica'],'Mlade sončnice čez dan sledijo soncu.');
+q('narava',2,'Kateri je največji sesalec, ki živi v Sloveniji?','rjavi medved',['jelen','divji prašič','volk'],'Odrasel medved lahko tehta več kot 200 kilogramov.');
+q('narava',2,'Kaj je plankton?','drobna bitja, ki plavajo v vodi',['vrsta morske trave','pesek na dnu morja','sol v morju'],'Je hrana številnih morskih živali, tudi največjih kitov.');
+q('narava',3,'Zakaj so čebele pomembne za ljudi?','ker oprašujejo rastline, iz katerih dobimo hrano',['ker delajo vosek za sveče','ker so lepe','ker preganjajo druge žuželke'],'Brez opraševalcev bi ostali brez večine sadja in zelenjave.');
+q('narava',3,'Kaj je gozdna podrast?','rastline, ki rastejo pod krošnjami dreves',['vrsta gliv na deblu','korenine dreves','plast listja v jeseni'],'');
+
+q('telo',1,'Koliko oči ima človek?','dve',['ena','tri','štiri'],'Zaradi dveh očes vidimo globino.');
+q('telo',2,'Kaj se zgodi, kadar smo prehlajeni?','virus napade sluznico nosu in žrela',['telo se preveč ohladi','pojemo preveč sladkega','mišice se utrudijo'],'Prehlad povzročajo virusi, ne mraz sam po sebi.');
+q('telo',3,'Kateri organ shranjuje sladkor za zalogo?','jetra',['ledvice','pljuča','vranica'],'Iz zaloge telo črpa energijo med obroki.');
+
+q('vesolje',1,'Na katerem planetu živimo?','na Zemlji',['na Marsu','na Veneri','na Luni'],'');
+q('vesolje',2,'Kaj je satelit?','telo, ki kroži okoli drugega telesa',['zvezda z repom','vrsta rakete','skupina planetov'],'Luna je naravni satelit, sateliti za telefonijo pa so umetni.');
+q('vesolje',3,'Zakaj je v vesolju breztežnost?','ker vse skupaj neprestano pada okoli Zemlje',['ker tam ni gravitacije','ker so astronavti lažji','ker ni zraka'],'Postaja in astronavti padajo z enako hitrostjo, zato lebdijo.');
+
+q('znanost',1,'Kaj uporabimo za merjenje dolžine?','meter',['tehtnico','termometer','uro'],'');
+q('znanost',2,'Kaj je senca?','prostor, kamor svetloba ne pride, ker jo predmet zakriva',['temna barva predmeta','odsev v vodi','oblak nad tlemi'],'Opoldne so sence najkrajše.');
+q('znanost',3,'Kaj pomeni kratica LED pri lučkah?','svetleča dioda',['lahka električna dioda','ledena dioda','linearni električni delilnik'],'Porabi veliko manj elektrike kot navadna žarnica.');
+q('znanost',3,'Kaj je trenje?','sila, ki nasprotuje drsenju po podlagi',['sila, ki predmete potiska naprej','sila teže','sila magneta'],'Zaradi trenja se avto lahko ustavi.');
+
+q('zgodovina',1,'S čim so v starem Egiptu pisali?','s hieroglifi',['z latinico','s cirilico','s klinopisom'],'Hieroglifi so pisava iz sličic.');
+q('zgodovina',2,'Kdo je bil Kolumbov cilj potovanja leta 1492?','Indija',['Amerika','Avstralija','Afrika'],'Zato je domačine napačno poimenoval Indijanci.');
+q('zgodovina',2,'Kaj so bile olimpijske igre v stari Grčiji?','tekmovanja v čast bogovom v Olimpiji',['vojaške vaje','gledališke predstave','sejmi'],'Prve naj bi bile leta 776 pred našim štetjem.');
+q('zgodovina',3,'Kaj je bil rimski limes?','utrjena meja rimskega cesarstva',['rimski koledar','rimska cesta v Alpah','vrsta rimske ladje'],'Deli so tekli tudi čez današnjo Slovenijo.');
+q('zgodovina',3,'Katero mesto je bilo v rimskih časih Emona?','Ljubljana',['Ptuj','Celje','Koper'],'Ostanke rimskega zidu vidimo še danes.');
+
+q('sport',1,'Kaj je gol?','zadetek v nasprotnikova vrata',['prekršek','menjava igralca','konec tekme'],'');
+q('sport',1,'S čim igramo tenis?','z loparjem',['s palico','z roko','z mrežo'],'');
+q('sport',2,'Kaj pomeni rdeči karton v nogometu?','igralec mora zapustiti igrišče',['igralec dobi opozorilo','ekipa dobi enajstmetrovko','tekma je končana'],'Rumeni karton je opozorilo.');
+q('sport',2,'V katerem športu tekmujejo v Planici?','v smučarskih poletih',['v alpskem smučanju','v biatlonu','v hokeju'],'Letalnica bratov Gorišek je ena največjih na svetu.');
+q('sport',2,'Kaj je štafeta?','tekma, kjer si člani ekipe predajajo palico ali mesto',['tek na dolge proge','skok v daljino','tekma posameznika'],'');
+q('sport',3,'Koliko igralcev je v rokometni ekipi na igrišču?','sedem',['šest','osem','pet'],'Šest igralcev in vratar.');
+q('sport',3,'Kaj je pentatlon?','tekmovanje v petih disciplinah',['tek na pet kilometrov','ekipa petih tekmovalcev','pet tekem zapored'],'Grška beseda penta pomeni pet.');
+
+q('kultura',1,'Kaj je risanka?','film iz zaporedja narisanih sličic',['knjiga s slikami','gledališka igra','vrsta glasbe'],'Za eno sekundo je potrebnih več deset sličic.');
+q('kultura',2,'Kdo vodi orkester?','dirigent',['solist','skladatelj','režiser'],'S palico kaže ritem in glasnost.');
+q('kultura',2,'Kaj je muzej?','kraj, kjer hranijo in razstavljajo predmete',['prostor za koncerte','delavnica za slikarje','stavba za pouk'],'');
+q('kultura',3,'Kdo je napisal opero Čarobna piščal?','Wolfgang Amadeus Mozart',['Ludwig van Beethoven','Johann Sebastian Bach','Giuseppe Verdi'],'Napisal jo je v zadnjem letu življenja.');
+q('kultura',3,'Kaj je haiku?','zelo kratka japonska pesem',['japonska risanka','vrsta plesa','glasbeni instrument'],'Ima tri verze in navadno 17 zlogov.');
+
+q('jezik',1,'Kaj postavimo na konec povedi, ki nekaj sporoča?','piko',['vprašaj','klicaj','vejico'],'');
+q('jezik',2,'Kaj je predpona?','del besede pred korenom',['del besede na koncu','beseda pred povedjo','znak za novo poved'],'Pri besedi »prebrati« je pre- predpona.');
+q('jezik',3,'Kaj pomeni "imeti mačka"?','biti slabe volje ali utrujen',['imeti domačo žival','biti zelo hiter','biti zelo tiho'],'Pri frazah beseda ne pomeni tega, kar pravi.');
+q('jezik',3,'Kaj je narečje?','govor določenega kraja ali pokrajine',['tuji jezik','stara pisava','vrsta pesmi'],'Slovenščina ima okoli 50 narečij – zelo veliko za tako majhno državo.');
+
+q('logika',1,'Koliko je 9 + 6?','15',['14','16','13'],'');
+q('logika',2,'Koliko sekund ima pol minute?','30',['15','45','60'],'');
+q('logika',3,'Če se ura pokvari in kaže 13:45, koliko je ura popoldne?','ena in tri četrt',['tri četrt na eno','ena in četrt','pol dveh'],'13:45 je 15 minut pred dvema.');
+q('logika',3,'Kolikšna je ploščina kvadrata s stranico 6?','36',['12','24','18'],'Ploščina je stranica krat stranica.');
+
+q('vsakdan',1,'Kje kupimo zdravila?','v lekarni',['v trgovini z živili','na pošti','v knjižnici'],'');
+q('vsakdan',2,'Kaj pomeni oznaka na embalaži, da je izdelek iz recikliranega papirja?','narejen je iz že uporabljenega papirja',['papir je nov in bel','papir se ne sme reciklirati','papir je iz plastike'],'');
+q('vsakdan',3,'Zakaj pri kuhanju najprej operemo roke?','da hrane ne okužimo z bakterijami',['da so roke tople','ker je tako hitreje','da diši po milu'],'');
+
+q('geo',1,'Katera celina je najmanjša?','Avstralija',['Evropa','Antarktika','Južna Amerika'],'');
+q('geo',2,'Ob katerem morju leži Slovenija?','ob Jadranskem morju',['ob Črnem morju','ob Baltskem morju','ob Egejskem morju'],'Jadransko morje je del Sredozemskega.');
+q('geo',3,'Kaj je polotok?','kopno, ki z ene strani sega v morje',['kopno, obdano z vodo z vseh strani','ozek pas morja','otok ob obali'],'Italija leži na Apeninskem polotoku.');
+
+q('slo',1,'Katera žival je na slovenskem grbu pod Triglavom?','nobena – tam sta valoviti črti',['lev','orel','kozorog'],'Valoviti črti pomenita morje in reke.');
+q('slo',2,'Koliko zvezd je na slovenskem grbu?','tri',['dve','štiri','pet'],'Zlate zvezde so iz grba grofov Celjskih.');
+q('slo',3,'Katera slovenska jama je na Unescovem seznamu svetovne dediščine?','Škocjanske jame',['Postojnska jama','Križna jama','Planinska jama'],'V njej je eden največjih podzemnih kanjonov na svetu.');
+
+/* ======================= PODROČJA IN NAČINI =============================== */
+const PODROCJA = [
+  { id:'narava',    nm:'Narava in živali',   emo:'🦊', c:'#2f7d32' },
+  { id:'telo',      nm:'Človeško telo',      emo:'🫀', c:'#e11d48' },
+  { id:'vesolje',   nm:'Vesolje',            emo:'🚀', c:'#4338ca' },
+  { id:'znanost',   nm:'Znanost in tehnika', emo:'🔬', c:'#0891b2' },
+  { id:'zgodovina', nm:'Zgodovina',          emo:'🏛️', c:'#a16207' },
+  { id:'geo',       nm:'Geografija',         emo:'🗺️', c:'#0e9488' },
+  { id:'sport',     nm:'Šport',              emo:'⚽', c:'#ea580c' },
+  { id:'kultura',   nm:'Glasba, film, knjige', emo:'🎬', c:'#9333ea' },
+  { id:'jezik',     nm:'Jezik in besede',    emo:'🔤', c:'#be185d' },
+  { id:'logika',    nm:'Števila in uganke',  emo:'🔢', c:'#1d4ed8' },
+  { id:'vsakdan',   nm:'Vsakdanje življenje', emo:'🍎', c:'#65a30d' },
+  { id:'slo',       nm:'Slovenija',          emo:'🇸🇮', c:'#b91c1c' }
+];
+const PO_PODROCJU = {}; PODROCJA.forEach(p => PO_PODROCJU[p.id] = p);
+
+const NACINI = {
+  kviz:     { nm:'Klasični kviz', emo:'❓', c:'#c2255c', st:10,
+              sub:'deset vprašanj z razlago, težavnost se prilagaja' },
+  lestvica: { nm:'Lestvica do vrha', emo:'🪜', c:'#6d28d9', st:12, pomoc:true, konec:'takoj', varne:[4, 8],
+              sub:'dvanajst vprašanj, vedno težje; tri pomoči, napaka konča vzpon' },
+  hitri:    { nm:'Hitri ogenj', emo:'⚡', c:'#ea580c', cas:60, hitro:true,
+              sub:'ena minuta – koliko jih zmoreš?' },
+  drzi:     { nm:'Drži ali ne drži', emo:'🤔', c:'#0891b2', st:12, tip:'drzi',
+              sub:'je ponujeni odgovor pravi?' },
+  dvoboj:   { nm:'Dvoboj za dva', emo:'⚔️', c:'#2f7d32', st:12, dvoboj:true,
+              sub:'dva igralca na eni napravi, izmenično' },
+  izziv:    { nm:'Izziv dneva', emo:'📅', c:'#a16207', st:10, dnevni:true,
+              sub:'vsak dan drugih deset vprašanj, za vse enakih' }
+};
+
+/* ======================= POMOŽNO ========================================= */
+const R = n => Math.floor(Math.random() * n);
+const ena = a => a[R(a.length)];
+function premesaj(a, rnd){ a = a.slice(); const r = rnd || Math.random;
+  for (let i = a.length-1; i > 0; i--){ const j = Math.floor(r() * (i+1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+/* ponovljivo naključje – za izziv dneva, ki mora biti za vse enak */
+function seme(niz){ let h = 2166136261; for (let i = 0; i < niz.length; i++){ h ^= niz.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function nakljucnik(s){ return function(){ s |= 0; s = s + 0x6D2B79F5 | 0;
+  let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+  return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function danes(){ const d = new Date(); return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate(); }
+
+/* ======================= STANJE ========================================== */
+const LS = 'vseved_kviz_v1';
+const SVEZE = { zvezde:0, zvok:true, tezavnost:'auto', st:{}, gor:{}, dol:{}, stat:{}, slabo:{}, rek:{}, iger:0, izziv:{} };
+let STANJE = nalozi();
+function nalozi(){
+  try{
+    const raw = localStorage.getItem(LS);
+    if (!raw) return Object.assign({}, SVEZE);
+    const s = Object.assign({}, SVEZE, JSON.parse(raw));
+    for (const k of ['st','gor','dol','stat','slabo','rek','izziv']) if (!s[k] || typeof s[k] !== 'object') s[k] = {};
+    return s;
+  } catch(e){ return Object.assign({}, SVEZE); }
+}
+function shrani(){ try{ localStorage.setItem(LS, JSON.stringify(STANJE)); } catch(e){} }
+
+function stopnjaPodrocja(kat){
+  if (STANJE.tezavnost !== 'auto') return { lahko:1, srednje:2, tezko:3 }[STANJE.tezavnost] || 2;
+  return Math.min(3, Math.max(1, STANJE.st[kat] || 1));
+}
+function prilagodi(kat, prav){
+  if (STANJE.tezavnost !== 'auto') return 0;
+  const zdaj = stopnjaPodrocja(kat);
+  if (prav){
+    STANJE.gor[kat] = (STANJE.gor[kat] || 0) + 1; STANJE.dol[kat] = 0;
+    if (STANJE.gor[kat] >= 4 && zdaj < 3){ STANJE.st[kat] = zdaj + 1; STANJE.gor[kat] = 0; return 1; }
+  } else {
+    STANJE.dol[kat] = (STANJE.dol[kat] || 0) + 1; STANJE.gor[kat] = 0;
+    if (STANJE.dol[kat] >= 2 && zdaj > 1){ STANJE.st[kat] = zdaj - 1; STANJE.dol[kat] = 0; return -1; }
+  }
+  return 0;
+}
+function zabelezi(q, prav){
+  const s = STANJE.stat[q.k] || (STANJE.stat[q.k] = { p:0, v:0 });
+  s.v++; if (prav) s.p++;
+  if (prav){ if (STANJE.slabo[q.v]){ STANJE.slabo[q.v]--; if (STANJE.slabo[q.v] <= 0) delete STANJE.slabo[q.v]; } }
+  else STANJE.slabo[q.v] = Math.min(3, (STANJE.slabo[q.v] || 0) + 2);
+}
+
+/* ======================= IZBIRA VPRAŠANJ ================================= */
+/* kat = id področja ali null za pomešano; stopnja določa, katere zahtevnosti pridejo v poštev */
+function zaloga(kat, stopnja){
+  let z = VPRASANJA.filter(q => (!kat || q.k === kat));
+  const dovoljene = stopnja >= 3 ? [2, 3] : stopnja === 2 ? [1, 2, 3] : [1, 2];
+  let ozji = z.filter(q => dovoljene.indexOf(q.t) >= 0);
+  return ozji.length >= 4 ? ozji : z;
+}
+function izberiVprasanje(kat, stopnja, videni, rnd){
+  const z = zaloga(kat, stopnja);
+  const r = rnd || Math.random;
+  const svezi = z.filter(q => !videni[q.v]);
+  const izbira = svezi.length ? svezi : z;
+  /* Tisto, kar je otroku že delalo težave, pride nekoliko pogosteje nazaj – razen pri
+     izzivu dneva (rnd je podan), ki mora biti za vse igralce enak. */
+  const slabi = rnd ? [] : izbira.filter(q => STANJE.slabo[q.v]);
+  const vir = (slabi.length && r() < 0.3) ? slabi : izbira;
+  return vir[Math.floor(r() * vir.length)];
+}
+function sestavi(q, stMoznosti, rnd){
+  const napacni = premesaj(q.n, rnd).slice(0, Math.max(1, stMoznosti - 1));
+  const opts = premesaj([q.o].concat(napacni), rnd);
+  return { q, opts, a: opts.indexOf(q.o) };
+}
+
+/* ======================= ZVOK ============================================ */
+let AC = null;
+function ac(){ if (!AC && (window.AudioContext || window.webkitAudioContext)) AC = new (window.AudioContext || window.webkitAudioContext)(); return AC; }
+function pisk(fs, dolzina, vrsta){
+  if (!STANJE.zvok) return;
+  let c; try{ c = ac(); } catch(e){ return; }
+  if (!c) return;
+  try{
+    if (c.state === 'suspended'){ const r = c.resume(); if (r && r.catch) r.catch(() => {}); }
+    fs.forEach((f, i) => {
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = vrsta || 'sine'; o.frequency.value = f;
+      o.connect(g); g.connect(c.destination);
+      const t = c.currentTime + i * (dolzina * 0.8);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.22, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dolzina);
+      o.start(t); o.stop(t + dolzina + 0.02);
+    });
+  } catch(e){}
+}
+const zvOk = () => pisk([660, 880], 0.16);
+const zvNe = () => pisk([300, 220], 0.2, 'triangle');
+const zvVrh = () => pisk([523, 659, 784, 1047], 0.16);
+const zvKonec = () => pisk([784, 587, 392], 0.22, 'triangle');
+
+/* ======================= IZRIS =========================================== */
+const $ = id => document.getElementById(id);
+const scrDomov = $('scrDomov'), scrPodrocja = $('scrPodrocja'), scrIgra = $('scrIgra');
+function pokaziZaslon(el){ [scrDomov, scrPodrocja, scrIgra].forEach(s => s.hidden = (s !== el)); window.scrollTo(0, 0); }
+function narisiZvezde(){ $('zvezde').textContent = STANJE.zvezde; }
+function poskoci(emo){
+  const d = document.createElement('div');
+  d.className = 'pop'; d.textContent = emo; document.body.appendChild(d);
+  setTimeout(() => d.remove(), 850);
+}
+function naziv(n){
+  const t = [[0,'Radovednež 🐣'],[40,'Poznavalec 🔎'],[120,'Vseznalec 📚'],[250,'Mojster kviza 🏅'],[450,'Vseved 👑']];
+  let out = t[0][1];
+  for (const [n2, nm] of t) if (n >= n2) out = nm;
+  return out;
+}
+function rekord(nacin){
+  const r = STANJE.rek[nacin];
+  if (r === undefined) return '';
+  if (nacin === 'lestvica') return 'najvišja stopnička: ' + r;
+  if (nacin === 'hitri') return 'rekord: ' + r + ' v minuti';
+  if (nacin === 'izziv') return 'zadnji izziv: ' + r + '/10';
+  if (nacin === 'dvoboj') return 'odigranih dvobojev: ' + r;
+  return 'najboljše: ' + r + '/' + (NACINI[nacin].st || 10);
+}
+
+function narisiDomov(){
+  const skupaj = Object.keys(STANJE.stat).reduce((a, k) => a + STANJE.stat[k].v, 0);
+  const znanje = PODROCJA.map(p => {
+    const s = STANJE.stat[p.id] || { p:0, v:0 };
+    const del = s.v ? Math.round(s.p / s.v * 100) : 0;
+    return '<div class="vrstica" style="--c:' + p.c + '"><span class="im">' + p.emo + ' ' + esc(p.nm) + '</span>' +
+      '<span class="bar"><i style="width:' + del + '%"></i></span>' +
+      '<span class="st">' + (s.v ? del + ' %' : '–') + '</span></div>';
+  }).join('');
+  scrDomov.innerHTML =
+    '<div class="card">' +
+      '<p class="lead">Jaz sem <b>Vseved</b> 🧠. V zbirki imam <b>' + VPRASANJA.length + ' vprašanj</b> ' +
+      'iz dvanajstih področij – od živali in vesolja do športa, jezika in Slovenije. Izberi način igre.</p>' +
+      '<div class="nacini">' +
+      Object.keys(NACINI).map(id => {
+        const n = NACINI[id];
+        return '<button class="nacin" data-nacin="' + id + '" style="--c:' + n.c + '">' +
+          '<span class="emo">' + n.emo + '</span><span class="nm">' + esc(n.nm) + '</span>' +
+          '<span class="sub">' + esc(n.sub) + '</span>' +
+          (rekord(id) ? '<span class="rek">' + esc(rekord(id)) + '</span>' : '') +
+        '</button>';
+      }).join('') +
+      '</div>' +
+    '</div>' +
+    '<h2 class="section">Kako ti gre po področjih</h2>' +
+    '<div class="card"><div class="znanje">' + znanje + '</div>' +
+      '<p class="mini" style="margin-top:14px">Naziv: <b>' + naziv(STANJE.zvezde) + '</b> · odgovorjenih vprašanj: <b>' +
+      skupaj + '</b> · odigranih iger: <b>' + STANJE.iger + '</b></p></div>';
+  pokaziZaslon(scrDomov);
+}
+
+function narisiPodrocja(nacinId){
+  const n = NACINI[nacinId];
+  const chips = PODROCJA.map(p => {
+    const s = STANJE.stat[p.id] || { p:0, v:0 };
+    return '<button class="chip" data-kat="' + p.id + '" style="border-color:' + p.c + '">' +
+      p.emo + ' ' + esc(p.nm) + (s.v ? '<span class="del">' + Math.round(s.p / s.v * 100) + ' %</span>' : '') + '</button>';
+  }).join('');
+  scrPodrocja.innerHTML =
+    '<div class="row" style="margin:0 0 12px"><button class="btn btn-ghost" id="nazajDomov">⬅️ Nazaj</button>' +
+      '<div class="pill">' + n.emo + ' ' + esc(n.nm) + '</div></div>' +
+    '<div class="card"><p class="lead">' + esc(n.sub) + '</p>' +
+      '<h2 class="section" style="margin-top:0">Izberi področje</h2>' +
+      '<div class="chips"><button class="chip vse" data-kat="">🎲 Vse pomešano</button>' + chips + '</div>' +
+      (nacinId === 'dvoboj' ? '<p class="mini" style="margin-top:14px">Igralca se izmenjujeta: naprava potuje od enega do drugega. Vprašanja so za oba enako težka.</p>' : '') +
+    '</div>';
+  pokaziZaslon(scrPodrocja);
+}
+
+/* ======================= KROG ============================================ */
+let tek = null, ura = null;
+
+function zacni(nacinId, kat){
+  const n = NACINI[nacinId];
+  let rnd = null;
+  if (n.dnevni) rnd = nakljucnik(seme(danes()));
+  tek = {
+    nacin: nacinId, n, kat: kat || null, i:0, ok:0, znaki:[], videni:{}, sest:null,
+    odgovorjeno:false, rnd, konec:false, igralec:0, rezultat:[0, 0],
+    pomoc:{ pol:true, namig:true, zamenjaj:true }, namigVid:false, skriti:[],
+    doKonca: n.cas || 0, zacetek: Date.now(), napake:[]
+  };
+  if (ura){ clearInterval(ura); ura = null; }
+  if (n.cas){
+    ura = setInterval(() => {
+      if (!tek || tek.konec){ clearInterval(ura); ura = null; return; }
+      const ostalo = Math.max(0, n.cas - Math.floor((Date.now() - tek.zacetek) / 1000));
+      tek.doKonca = ostalo;
+      const el = document.getElementById('casBar');
+      if (el){
+        el.style.width = (ostalo / n.cas * 100) + '%';
+        el.parentNode.classList.toggle('malo', ostalo <= 10);
+      }
+      if (ostalo <= 0) konecKroga();
+    }, 250);
+  }
+  naslednje();
+}
+
+function stopnjaZaVprasanje(){
+  const n = tek.n;
+  if (n.dnevni) return 2;                    /* izziv dneva je za vse enak, ne glede na napredek */
+  if (n.varne){                              /* lestvica: iz stopničke sledi zahtevnost */
+    return tek.i < 4 ? 1 : tek.i < 8 ? 2 : 3;
+  }
+  if (n.hitro) return Math.min(2, stopnjaPodrocja(tek.kat || 'mešano'));
+  if (tek.kat) return stopnjaPodrocja(tek.kat);
+  return stopnjaPodrocja('mesano');
+}
+
+function naslednje(){
+  const n = tek.n;
+  if (!n.cas && tek.i >= n.st) return konecKroga();
+  const q = izberiVprasanje(tek.kat, stopnjaZaVprasanje(), tek.videni, tek.rnd);
+  tek.videni[q.v] = 1;
+  const stMoz = (n.tip === 'drzi') ? 2 : (STANJE.tezavnost === 'lahko' ? 3 : 4);
+  if (n.tip === 'drzi'){
+    const r = tek.rnd || Math.random;
+    const drzi = r() < 0.5;
+    const ponujen = drzi ? q.o : ena(q.n);
+    tek.sest = { q, drzi, ponujen, opts:[{ txt:'Drži ✅' }, { txt:'Ne drži ❌' }], a: drzi ? 0 : 1 };
+  } else {
+    const s = sestavi(q, stMoz, tek.rnd);
+    tek.sest = { q, opts: s.opts.map(x => ({ txt:x })), a: s.a };
+  }
+  tek.odgovorjeno = false; tek.namigVid = false; tek.skriti = [];
+  narisiVprasanje();
+}
+
+function pikice(){
+  const n = tek.n;
+  if (n.cas) return '<div class="pill">✅ <b>' + tek.ok + '</b></div>';
+  let s = '';
+  for (let i = 0; i < n.st; i++){
+    const z = tek.znaki[i];
+    s += '<span class="dot ' + (z === 1 ? 'ok' : z === 0 ? 'no' : (i === tek.i ? 'now' : '')) + '"></span>';
+  }
+  return '<div class="dots">' + s + '</div>';
+}
+
+function lestev(){
+  let s = '<div class="lestev">';
+  for (let i = 0; i < tek.n.st; i++){
+    const varna = tek.n.varne.indexOf(i + 1) >= 0;
+    s += '<div class="stopnicka' + (i === tek.i ? ' zdaj' : (i < tek.i ? ' mimo' : '')) + (varna ? ' varna' : '') + '">' +
+      (varna ? '🔒' : (i + 1)) + '</div>';
+  }
+  const teza = tek.i < 4 ? 'lahko' : tek.i < 8 ? 'srednje' : 'težko';
+  return s + '</div><p class="mini">' + (tek.i + 1) + '. stopnička · ' + teza +
+    ' · pri 🔒 se rezultat shrani, tudi če pozneje zgrešiš</p>';
+}
+
+function narisiVprasanje(){
+  const n = tek.n, s = tek.sest, q = s.q, pod = PO_PODROCJU[q.k];
+  const crke = ['A', 'B', 'C', 'D'];
+  const vprasanje = (n.tip === 'drzi')
+    ? esc(q.v) + '<br><span style="color:var(--acc)">' + esc(s.ponujen) + '</span>'
+    : esc(q.v);
+  scrIgra.innerHTML =
+    '<div class="hud"><button class="btn btn-ghost" id="nazajIgre">⬅️</button>' + pikice() +
+      '<span class="spacer"></span><span class="pill">' + n.emo + ' ' + esc(n.nm) + '</span></div>' +
+    (n.cas ? '<div class="cas"><i id="casBar" style="width:' + (tek.doKonca / n.cas * 100) + '%"></i></div>' : '') +
+    (n.dvoboj ? '<div class="igralca">' +
+        '<div class="igralec' + (tek.igralec === 0 ? ' naVrsti' : '') + '">1. igralec<b>' + tek.rezultat[0] + '</b></div>' +
+        '<div class="igralec' + (tek.igralec === 1 ? ' naVrsti' : '') + '">2. igralec<b>' + tek.rezultat[1] + '</b></div>' +
+      '</div>' : '') +
+    (n.varne ? lestev() : '') +
+    '<div class="card">' +
+      (n.pomoc ? '<div class="pomoci">' +
+        '<button class="pomoc" data-pomoc="pol"' + (tek.pomoc.pol ? '' : ' disabled') + '>50 : 50</button>' +
+        '<button class="pomoc" data-pomoc="namig"' + (tek.pomoc.namig ? '' : ' disabled') + '>💡 namig</button>' +
+        '<button class="pomoc" data-pomoc="zamenjaj"' + (tek.pomoc.zamenjaj ? '' : ' disabled') + '>🔄 zamenjaj</button>' +
+      '</div>' : '') +
+      '<p class="q" style="--c:' + pod.c + '"><span class="kat">' + pod.emo + ' ' + esc(pod.nm) +
+        (n.tip === 'drzi' ? ' · drži ali ne drži?' : '') + '</span>' + vprasanje + '</p>' +
+      '<div class="opts' + (s.opts.length === 2 ? ' dva' : '') + '" id="opts">' +
+        s.opts.map((o, i) => '<button class="opt" data-i="' + i + '">' +
+          (s.opts.length > 2 ? '<span class="crka">' + crke[i] + '</span>' : '') +
+          '<span>' + esc(o.txt) + '</span></button>').join('') +
+      '</div>' +
+      '<div class="odziv" id="odziv"></div>' +
+    '</div>';
+  pokaziZaslon(scrIgra);
+}
+
+function odgovori(izbran){
+  if (tek.odgovorjeno || tek.konec) return;
+  const n = tek.n, s = tek.sest, q = s.q;
+  const prav = (izbran === s.a);
+  tek.odgovorjeno = true;
+  tek.znaki[tek.i] = prav ? 1 : 0;
+  if (prav){ tek.ok++; STANJE.zvezde++; zvOk(); } else { tek.napake.push(s); zvNe(); }
+  if (n.dvoboj && prav) tek.rezultat[tek.igralec]++;
+  zabelezi(q, prav);
+  if (!n.dnevni && !n.dvoboj) prilagodi(tek.kat || 'mesano', prav);
+  shrani(); narisiZvezde();
+
+  const gumbi = $('opts').querySelectorAll('.opt');
+  gumbi.forEach((b, i) => {
+    b.disabled = true;
+    if (i === s.a) b.classList.add('ok');
+    else if (i === izbran) b.classList.add('no');
+  });
+
+  if (n.hitro){                     /* pri hitrem ognju ne ustavljamo – takoj naprej */
+    /* Skok velja samo za ta krog: če igralec vmes začne drugega, se zaostali časovnik
+       ne sme dotakniti novega – sicer bi mu preskočil prvo vprašanje. */
+    const mojKrog = tek;
+    setTimeout(() => { if (tek === mojKrog && !tek.konec){ tek.i++; naslednje(); } }, prav ? 350 : 800);
+    if (!prav) $('odziv').innerHTML = '<span style="color:var(--no-d)">Pravilno: ' + esc(q.o) + '</span>';
+    return;
+  }
+
+  const razlaga = (n.tip === 'drzi')
+    ? 'Pravilen odgovor je: <b>' + esc(q.o) + '</b>.' + (q.zn ? ' ' + esc(q.zn) : '')
+    : (q.zn ? esc(q.zn) : '');
+  const zadnje = !n.cas && (tek.i + 1 >= n.st);
+  const konecZaradiNapake = (n.konec === 'takoj' && !prav);
+  $('odziv').innerHTML =
+    (prav ? '<span style="color:var(--ok-d)">Točno! 🎉</span>' : '<span style="color:var(--no-d)">Ni pravilno.</span>') +
+    (razlaga ? '<span class="zakaj">' + razlaga + '</span>' : '') +
+    '<div style="margin-top:12px"><button class="btn btn-acc" id="naprej">' +
+      (konecZaradiNapake || zadnje ? 'Zaključi ✅' : 'Naprej ➡️') + '</button></div>';
+  if (prav && STANJE.zvezde % 10 === 0){ poskoci('⭐'); }
+  if (n.varne && prav && n.varne.indexOf(tek.i + 1) >= 0){ poskoci('🔒'); zvVrh(); }
+}
+
+function naprej(){
+  const n = tek.n;
+  if (n.konec === 'takoj' && tek.znaki[tek.i] === 0) return konecKroga();
+  tek.i++;
+  if (n.dvoboj) tek.igralec = tek.i % 2;
+  if (!n.cas && tek.i >= n.st) return konecKroga();
+  naslednje();
+}
+
+function uporabiPomoc(kaj){
+  if (!tek || tek.odgovorjeno || !tek.pomoc[kaj]) return;
+  const s = tek.sest;
+  if (kaj === 'pol'){
+    const napacni = s.opts.map((o, i) => i).filter(i => i !== s.a);
+    const skrij = premesaj(napacni).slice(0, Math.max(1, s.opts.length - 2));
+    skrij.forEach(i => $('opts').querySelector('.opt[data-i="' + i + '"]').classList.add('skrit'));
+  } else if (kaj === 'namig'){
+    const q = s.q;
+    const besedilo = q.zn ? q.zn : 'Pravilni odgovor se začne na črko »' + q.o.charAt(0).toUpperCase() + '«.';
+    $('odziv').innerHTML = '<span class="zakaj">💡 ' + esc(besedilo) + '</span>';
+  } else if (kaj === 'zamenjaj'){
+    tek.pomoc.zamenjaj = false;
+    naslednje();
+    return;
+  }
+  tek.pomoc[kaj] = false;
+  const g = document.querySelector('[data-pomoc="' + kaj + '"]');
+  if (g) g.disabled = true;
+}
+
+function konecKroga(){
+  if (tek.konec) return;
+  tek.konec = true;
+  if (ura){ clearInterval(ura); ura = null; }
+  const n = tek.n;
+  STANJE.iger++;
+  zvKonec();
+
+  let naslov = '', emo = '🎉', podnaslov = '';
+  if (n.dvoboj){
+    const [a, b] = tek.rezultat;
+    naslov = a + ' : ' + b;
+    emo = a === b ? '🤝' : '🏆';
+    podnaslov = a === b ? 'Neodločeno!' : (a > b ? 'Zmagal je 1. igralec!' : 'Zmagal je 2. igralec!');
+    STANJE.rek.dvoboj = (STANJE.rek.dvoboj || 0) + 1;
+  } else if (n.varne){
+    const dosezena = tek.znaki[tek.i] === 0 ? tek.i : tek.i;
+    let varna = 0;
+    for (const v of n.varne) if (dosezena >= v) varna = v;
+    naslov = dosezena + '. stopnička';
+    emo = dosezena >= n.st ? '👑' : dosezena >= 8 ? '🏆' : dosezena >= 4 ? '🎉' : '💪';
+    podnaslov = dosezena >= n.st ? 'Prišel si čisto na vrh!' :
+      (varna ? 'Zadnja varna stopnička: ' + varna + '.' : 'Naslednjič dlje!');
+    if ((STANJE.rek.lestvica || 0) < dosezena) STANJE.rek.lestvica = dosezena;
+  } else if (n.cas){
+    naslov = tek.ok + ' pravilnih';
+    emo = tek.ok >= 15 ? '🔥' : tek.ok >= 8 ? '🎉' : '💪';
+    podnaslov = 'v eni minuti';
+    if ((STANJE.rek.hitri || 0) < tek.ok){ STANJE.rek.hitri = tek.ok; podnaslov += ' – nov rekord! 🏅'; }
+  } else {
+    naslov = tek.ok + ' od ' + n.st;
+    const del = tek.ok / n.st;
+    emo = del === 1 ? '🏆' : del >= 0.8 ? '🎉' : del >= 0.5 ? '👍' : '💪';
+    if (n.dnevni){
+      STANJE.rek.izziv = tek.ok;
+      const prej = STANJE.izziv[danes()] || 0;
+      if (tek.ok > prej) STANJE.izziv[danes()] = tek.ok;
+      podnaslov = 'Današnji izziv · najboljši rezultat danes: ' + STANJE.izziv[danes()] + '/10';
+    } else if ((STANJE.rek[tek.nacin] || 0) < tek.ok) STANJE.rek[tek.nacin] = tek.ok;
+  }
+  shrani();
+
+  const napake = tek.napake.length
+    ? '<h2 class="section">Kar si se naučil</h2><ul class="seznam">' +
+      tek.napake.slice(0, 6).map(s => '<li>' + esc(s.q.v) + ' <b>' + esc(s.q.o) + '</b></li>').join('') + '</ul>'
+    : '<p class="mini" style="margin-top:12px">Brez napake – odlično! 🌟</p>';
+
+  scrIgra.innerHTML =
+    '<div class="card konec">' +
+      '<div class="big">' + emo + '</div><h3>' + esc(naslov) + '</h3>' +
+      (podnaslov ? '<p class="mini">' + esc(podnaslov) + '</p>' : '') +
+      napake +
+      '<div class="row" style="justify-content:center;margin-top:16px">' +
+        '<button class="btn btn-acc" id="spet">Še enkrat 🔁</button>' +
+        '<button class="btn btn-ghost" id="domov">Domov</button>' +
+      '</div>' +
+    '</div>';
+  pokaziZaslon(scrIgra);
+}
+
+/* ======================= NASTAVITVE ====================================== */
+function odpriNastavitve(){
+  $('modalBox').innerHTML =
+    '<h3 style="margin:0 0 6px;font-size:22px">Kotiček za starše ⚙️</h3>' +
+    '<p class="mini" style="margin-bottom:14px">Vse ostane na tej napravi. Nič se ne pošilja na internet.</p>' +
+    '<h2 class="section" style="margin-top:0">Težavnost</h2>' +
+    '<div class="levels">' +
+      [['auto','Samodejno','prilagaja se odgovorom'],
+       ['lahko','Lahko','lažja vprašanja, tri možnosti'],
+       ['srednje','Srednje','mešano'],
+       ['tezko','Težko','samo najtežja vprašanja']].map(([id, nm, op]) =>
+        '<button class="level" data-tez="' + id + '" aria-pressed="' + (STANJE.tezavnost === id) + '">' +
+        nm + '<small>' + op + '</small></button>').join('') +
+    '</div>' +
+    '<h2 class="section">Drugo</h2>' +
+    '<div class="levels"><button class="level" data-stikalo="zvok" aria-pressed="' + (STANJE.zvok ? 'true' : 'false') +
+      '" style="grid-column:1/-1;text-align:left">Zvok<small>piski ob pravilnem in napačnem odgovoru</small></button></div>' +
+    '<div class="row" style="margin-top:16px;justify-content:space-between">' +
+      '<button class="btn btn-ghost" id="pobrisi">Ponastavi napredek</button>' +
+      '<button class="btn btn-acc" id="zapri">Zapri</button>' +
+    '</div>';
+  $('modal').hidden = false;
+}
+
+/* ======================= DOGODKI ========================================= */
+let izbraniNacin = null;
+document.addEventListener('click', e => {
+  const n = e.target.closest('[data-nacin]');
+  if (n){ izbraniNacin = n.dataset.nacin;
+    if (NACINI[izbraniNacin].dnevni) zacni(izbraniNacin, null); else narisiPodrocja(izbraniNacin);
+    return; }
+  const k = e.target.closest('[data-kat]');
+  if (k){ zacni(izbraniNacin, k.dataset.kat || null); return; }
+  if (e.target.closest('#nazajDomov') || e.target.closest('#domov')){ if (ura){ clearInterval(ura); ura = null; } if (tek) tek.konec = true; narisiDomov(); return; }
+  if (e.target.closest('#nazajIgre')){ if (ura){ clearInterval(ura); ura = null; } tek.konec = true;
+    if (izbraniNacin && !NACINI[izbraniNacin].dnevni) narisiPodrocja(izbraniNacin); else narisiDomov(); return; }
+  if (e.target.closest('#spet')){ zacni(tek.nacin, tek.kat); return; }
+  if (e.target.closest('#naprej')){ naprej(); return; }
+  const p = e.target.closest('[data-pomoc]');
+  if (p){ uporabiPomoc(p.dataset.pomoc); return; }
+  const o = e.target.closest('#opts .opt');
+  if (o && tek && !tek.odgovorjeno){ odgovori(+o.dataset.i); return; }
+  if (e.target.closest('#gumbNast')){ odpriNastavitve(); return; }
+  const t = e.target.closest('[data-tez]');
+  if (t){ STANJE.tezavnost = t.dataset.tez; shrani(); odpriNastavitve(); return; }
+  const s = e.target.closest('[data-stikalo]');
+  if (s){ STANJE[s.dataset.stikalo] = !STANJE[s.dataset.stikalo]; shrani(); odpriNastavitve(); return; }
+  if (e.target.closest('#pobrisi')){
+    if (confirm('Res izbrišem ves napredek in zvezdice?')){
+      STANJE = Object.assign({}, SVEZE, { st:{}, gor:{}, dol:{}, stat:{}, slabo:{}, rek:{}, izziv:{} });
+      shrani(); narisiZvezde(); $('modal').hidden = true; narisiDomov();
+    }
+    return;
+  }
+  if (e.target.closest('#zapri') || e.target === $('modal')){ $('modal').hidden = true; return; }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !$('modal').hidden){ $('modal').hidden = true; return; }
+  if (!tek || tek.konec || scrIgra.hidden) return;
+  if (tek.odgovorjeno && (e.key === 'Enter' || e.key === ' ')){ const g = $('naprej'); if (g){ e.preventDefault(); naprej(); } return; }
+  const i = ['1','2','3','4'].indexOf(e.key);
+  if (i >= 0 && !tek.odgovorjeno && tek.sest && i < tek.sest.opts.length) odgovori(i);
+});
+
+narisiZvezde();
+narisiDomov();
+
+</script>
+</body>
+</html>
