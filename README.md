@@ -1,6 +1,6 @@
 # 🎒 Otroške igre za učenje
 
-Pet interaktivnih iger za otroke, vse v slovenščini, brez oglasov, brez računa in
+Šest interaktivnih iger za otroke, vse v slovenščini, brez oglasov, brez računa in
 brez pošiljanja podatkov na internet:
 
 | | Igra | Kaj vadi | Starost | Datoteka |
@@ -8,15 +8,16 @@ brez pošiljanja podatkov na internet:
 | 🦊 | **Matko** | matematika in branje – od štetja do enačb, geometrije in Kenguručka | 5–15 let | [`matematika.html`](matematika.html) |
 | 🦉 | **Olly** | angleščina – od prvih besed do trpnika in pogojnikov | 5–15 let | [`anglescina.html`](anglescina.html) |
 | 🌍 | **Globko** | geografija – Slovenija, Evropa in svet na pravem zemljevidu, zastave, glavna mesta, gore in reke | 6–15 let | [`geografija.html`](geografija.html) |
+| 🧠 | **Vseved** | kviz z 325 vprašanji iz dvanajstih področij: lestvica, hitri ogenj, dvoboj za dva, izziv dneva | 7 let in več | [`kviz.html`](kviz.html) |
 | 🎨 | **Barvica** | pobarvanka: 146 slik v 17 temah (22 za odrasle), 9 orodij, risanje z Apple Pencil | za vse | [`pobarvanka.html`](pobarvanka.html) |
 | 🦁 | **Kito** | ploščadna igra: 10 nivojev savane in 4 dodatne sobe, izvirna zgodba, dva načina težavnosti | 7 let in več | [`kito.html`](kito.html) |
 
-Podroben opis: [matematika.md](matematika.md) · [anglescina.md](anglescina.md) · [geografija.md](geografija.md) · [pobarvanka.md](pobarvanka.md) · [kito.md](kito.md)
+Podroben opis: [matematika.md](matematika.md) · [anglescina.md](anglescina.md) · [geografija.md](geografija.md) · [kviz.md](kviz.md) · [pobarvanka.md](pobarvanka.md) · [kito.md](kito.md)
 
 ## Kako zaženeš
 
 **Najpreprosteje:** dvoklikni `matematika.html`, `anglescina.html`, `geografija.html`,
-`pobarvanka.html` ali `kito.html` – odpre se v brskalniku. Ni namestitve, ni interneta, ni računa.
+`kviz.html`, `pobarvanka.html` ali `kito.html` – odpre se v brskalniku. Ni namestitve, ni interneta, ni računa.
 
 **Na iPadu ali telefonu** se igri dasta namestiti kot pravi aplikaciji – glej spodaj.
 
@@ -55,6 +56,7 @@ index.html            aplikacija: izbira igre + okvir, v katerem teče izbrana i
 matematika.html       🦊 Matko   – cela igra v eni datoteki
 anglescina.html       🦉 Olly    – cela igra v eni datoteki
 geografija.html       🌍 Globko  – cela igra v eni datoteki
+kviz.html             🧠 Vseved  – cela igra v eni datoteki
 pobarvanka.html       🎨 Barvica – cela igra v eni datoteki
 kito.html             🦁 Kito    – cela igra v eni datoteki
 igre.webmanifest      podatki za namestitev (ime, ikona, cel zaslon)
@@ -63,6 +65,7 @@ igre-icon-*.png       ikona nameščene aplikacije (🎒)
 matko-icon-*.png      slika na kartici za Matka (🦊)
 olly-icon-*.png       slika na kartici za Ollyja (🦉)
 globko-icon-*.png     slika na kartici za Globka (🌍)
+vseved-icon-*.png     slika na kartici za Vseveda (🧠)
 barvica-icon-192.png  slika na kartici za Barvico (🎨)
 kito-icon-*.png       slika na kartici za Kita (🦁)
 ```
@@ -94,6 +97,11 @@ generatorji, zato se ne ponavljajo; pravilnost je preverjena s samodejnimi testi
 Globkovi zemljevidi so obrisi Natural Earth (javna last), poenostavljeni in
 vgrajeni kot poti SVG, zastave pa so sestavljene iz osnovnih likov – zato tudi
 zemljevid deluje brez interneta in ostane oster pri vsakem povečanju.
+
+Vseved ima vprašanja shranjena kot zbirko z razlago in tremi napačnimi odgovori;
+načini igre (lestvica, hitri ogenj, dvoboj, izziv dneva) so isti pogon z drugačnimi
+pravili. Izziv dneva je pri vseh igralcih enak, ker vprašanja izbere ponovljivo
+naključje s semenom iz datuma.
 
 Kito je ploščadna igra s stalnim korakom 1/60 s in notranjo ločljivostjo
 320×180 pik; risbe in glasba nastanejo iz kode (Canvas 2D in Web Audio), brez

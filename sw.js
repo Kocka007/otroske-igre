@@ -1,7 +1,7 @@
 /* Otroške igre – service worker.
    Poskrbi, da igre delujejo tudi brez interneta, ko so nameščene
    na začetni zaslon. Nova različica pride do otroka ob prvem odprtju s povezavo. */
-const CACHE = 'otroske-igre-v11';
+const CACHE = 'otroske-igre-v12';
 const ASSETS = [
   './',
   './index.html',
@@ -10,6 +10,7 @@ const ASSETS = [
   './matematika.html',
   './kito.html',
   './geografija.html',
+  './kviz.html',
   './igre.webmanifest',
   './olly-icon-180.png',
   './olly-icon-192.png',
@@ -28,6 +29,8 @@ const ASSETS = [
   './kito-icon-180.png',
   './globko-icon-192.png',
   './globko-icon-180.png',
+  './vseved-icon-192.png',
+  './vseved-icon-180.png',
   'https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap'
 ];
 

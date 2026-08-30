@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Otroške igre za učenje</title>
-<meta name="description" content="Interaktivne igre v slovenščini: matematika in branje (Matko), angleščina (Olly), geografija (Globko), pobarvanka (Barvica) in ploščadna igra Kito. Delujejo v brskalniku in tudi brez interneta.">
+<meta name="description" content="Interaktivne igre v slovenščini: matematika in branje (Matko), angleščina (Olly), geografija (Globko), kviz (Vseved), pobarvanka (Barvica) in ploščadna igra Kito. Delujejo v brskalniku in tudi brez interneta.">
 <meta name="theme-color" content="#6a63ff">
 <link rel="manifest" href="igre.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -24,7 +24,7 @@
 :root{
   --ink:#282443; --ink-soft:#635d8c;
   --card:#ffffff; --line:#e7e4f6;
-  --matko:#5b6cff; --olly:#7c5cff; --barvica:#ff7a45; --kito:#c8823a; --globko:#0e9488;
+  --matko:#5b6cff; --olly:#7c5cff; --barvica:#ff7a45; --kito:#c8823a; --globko:#0e9488; --vseved:#c2255c;
   --acc:#6a63ff;
   --top:env(safe-area-inset-top,0px);
   --bot:env(safe-area-inset-bottom,0px);
@@ -155,6 +155,9 @@ const IGRE = {
   globko:{ f:'geografija.html', nm:'Globko', emo:'🌍', ikona:'globko-icon-192.png', c:'var(--globko)',
            starost:'6–15 let',
            opis:'Geografija na pravem zemljevidu: Slovenija, Evropa in svet, zastave, glavna mesta, gore in reke – 25 iger, ki se prilagajajo otroku.' },
+  vseved:{ f:'kviz.html', nm:'Vseved', emo:'🧠', ikona:'vseved-icon-192.png', c:'var(--vseved)',
+           starost:'7 let in več',
+           opis:'Kviz za vso družino: 325 vprašanj z razlago iz dvanajstih področij, lestvica do vrha, hitri ogenj, dvoboj za dva in izziv dneva.' },
   barvica:{ f:'pobarvanka.html', nm:'Barvica', emo:'🎨', ikona:'barvica-icon-192.png', c:'var(--barvica)',
            starost:'za vse',
            opis:'Pobarvanka: 146 slik v sedemnajstih temah – živali, pravljice, junaki, pokrajine in 22 zahtevnih risb za odrasle. Devet orodij za risanje z Apple Pencil in lastne barve.' },
