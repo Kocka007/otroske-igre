@@ -1,7 +1,7 @@
 /* Otroške igre – service worker.
    Poskrbi, da igre delujejo tudi brez interneta, ko so nameščene
    na začetni zaslon. Nova različica pride do otroka ob prvem odprtju s povezavo. */
-const CACHE = 'otroske-igre-v12';
+const CACHE = 'otroske-igre-v13';
 const ASSETS = [
   './',
   './index.html',

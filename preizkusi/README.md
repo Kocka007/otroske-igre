@@ -37,7 +37,7 @@ strežnika ni treba zaganjati.
 | `test-logika.js` | Globko: vseh 25 iger na vseh petih stopnjah – veljavnost vprašanj, dovolj različnih možnosti, cilji na zemljevidu dovolj veliki za otroški prst, pike znotraj zemljevida in brez prekrivanja |
 | `test-igranje.js` | Globko: bot odigra cel krog vsake igre v vsakem področju (28 krogov), pravilno in narobe |
 | `test-tap.js` | Globko: pravi tapi in vlečenje – tap zadene državo in piko, vlečenje ne šteje kot odgovor, gumbi za približevanje |
-| `test-kviz.js` | Vseved: zbirka 325 vprašanj (podvojitve, možnosti, zahtevnost, pokritost stopenj) in vseh šest načinov od začetka do zaključnega zaslona |
+| `test-kviz.js` | Vseved: zbirka vseh vprašanj (podvojitve, možnosti, zahtevnost, pokritost stopenj) in vseh šest načinov od začetka do zaključnega zaslona |
 | `test-kviz2.js` | Vseved: pravila lestvice in pomoči, štoparica hitrega ognja, ponovljivost izziva dneva, prehod med načini |
 
 Nastavitve prek okolja: `PW_POGON` (`webkit` ali `chromium`),

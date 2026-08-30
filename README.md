@@ -8,7 +8,7 @@ brez pošiljanja podatkov na internet:
 | 🦊 | **Matko** | matematika in branje – od štetja do enačb, geometrije in Kenguručka | 5–15 let | [`matematika.html`](matematika.html) |
 | 🦉 | **Olly** | angleščina – od prvih besed do trpnika in pogojnikov | 5–15 let | [`anglescina.html`](anglescina.html) |
 | 🌍 | **Globko** | geografija – Slovenija, Evropa in svet na pravem zemljevidu, zastave, glavna mesta, gore in reke | 6–15 let | [`geografija.html`](geografija.html) |
-| 🧠 | **Vseved** | kviz z 325 vprašanji iz dvanajstih področij: lestvica, hitri ogenj, dvoboj za dva, izziv dneva | 7 let in več | [`kviz.html`](kviz.html) |
+| 🧠 | **Vseved** | kviz s 336 vprašanji iz dvanajstih področij: lestvica, hitri ogenj, dvoboj za dva, izziv dneva | 7 let in več | [`kviz.html`](kviz.html) |
 | 🎨 | **Barvica** | pobarvanka: 146 slik v 17 temah (22 za odrasle), 9 orodij, risanje z Apple Pencil | za vse | [`pobarvanka.html`](pobarvanka.html) |
 | 🦁 | **Kito** | ploščadna igra: 10 nivojev savane in 4 dodatne sobe, izvirna zgodba, dva načina težavnosti | 7 let in več | [`kito.html`](kito.html) |
 

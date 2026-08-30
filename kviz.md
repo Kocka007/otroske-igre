@@ -1,7 +1,7 @@
 # Vseved 🧠 – kviz za vso družino
 
 Ena sama datoteka `kviz.html` (brez knjižnic, brez namestitve, deluje brez interneta).
-**325 vprašanj** iz dvanajstih področij, vsako s tremi napačnimi odgovori in z razlago,
+**336 vprašanj** iz dvanajstih področij, vsako s tremi napačnimi odgovori in z razlago,
 ki se pokaže po odgovoru – tudi kadar otrok ugane pravilno.
 
 ## Področja
@@ -66,8 +66,8 @@ od dvanajstih področij.
 ### Kako je preizkušeno
 
 * **Preizkus zbirke** – vsako vprašanje mora imeti področje, veljavno zahtevnost, tri različne
-  napačne odgovore, se končati z vprašajem in ne sme biti podvojeno; vsako področje mora imeti
-  dovolj vprašanj za vse tri stopnje.
+  napačne odgovore in razlago, se končati z vprašajem in ne sme biti podvojeno; vsako področje
+  mora imeti dovolj vprašanj za vse tri stopnje.
 * **Preizkus igranja** – bot odigra vseh šest načinov od začetka do zaključnega zaslona,
   vmes preizkusi tudi pomoči (50 : 50 mora skriti prav dva napačna odgovora).
 * **Preizkus pravil** – napačen odgovor v lestvici res konča vzpon in shrani zadnjo varno
