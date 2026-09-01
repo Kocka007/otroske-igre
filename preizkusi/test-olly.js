@@ -51,13 +51,21 @@ const NA_STOPNJO = Number(process.env.NA_STOPNJO || 25);
     const kje = i.area + '/' + i.gid + ' st' + i.st + ': ';
     t2.trdi(i.vzorci.length > 0, kje + 'brez vprašanj');
     for (const q of i.vzorci){
-      t2.trdi(['choice', 'spell', 'order'].indexOf(q.kind) >= 0, kje + 'neznana vrsta ' + q.kind);
+      t2.trdi(['choice', 'spell', 'order', 'typed'].indexOf(q.kind) >= 0, kje + 'neznana vrsta ' + q.kind);
       t2.trdi(typeof q.task === 'string' && q.task.trim().length > 4, kje + 'prazno navodilo');
       t2.trdi(typeof q.key === 'string' && q.key.length > 0, kje + 'brez ključa pri: ' + q.task);
       /* otrok mora imeti kaj brati, gledati ali slišati – pri igri »Poslušaj«
          je vsebina prav izgovorjena beseda, zato tam šteje q.say */
       t2.trdi(!!(q.en || q.emo || q.sl || q.sent || q.read || q.letters || q.tiles || q.say),
         kje + 'vprašanje ne ponudi ničesar: ' + q.task);
+      /* prost vnos: rešitev mora biti ena sama beseda, sicer je ni mogoče natipkati */
+      if (q.kind === 'typed'){
+        t2.trdi(typeof q.answer === 'string' && q.answer.trim().length > 0,
+          kje + 'naloga s prostim vnosom nima rešitve');
+        t2.trdi(!!q.answer && /^[A-Za-z'-]+$/.test(q.answer),
+          kje + 'rešitev za prost vnos ni ena sama beseda: ' + q.answer);
+        t2.trdi(!q.opts, kje + 'naloga s prostim vnosom ne sme ponujati možnosti');
+      }
       if (q.listen) t2.trdi(!!q.say && String(q.say).trim().length > 0,
         kje + 'slušno vprašanje nima besede za izgovor: ' + q.task);
     }
@@ -123,6 +131,12 @@ const NA_STOPNJO = Number(process.env.NA_STOPNJO || 25);
             const q = cur.q;
             if (!q){ out.push({ area: area.id, gid, napaka: 'brez vprašanja v ' + i + '. koraku' }); break; }
             if (q.kind === 'choice') answerChoice(q.a);
+            else if (q.kind === 'typed'){
+              const v = document.getElementById('vnos');
+              if (!v){ out.push({ area: area.id, gid, napaka: 'ni vnosnega polja za prost vnos' }); break; }
+              v.value = q.answer.toUpperCase() + ' ';   /* velike črke in presledek ne smejo šteti */
+              checkTyped();
+            }
             else grade(true, q.answer);
             cur.i++; cur.answered = false;
             if (cur.i < ROUND) nextQuestion();
@@ -155,14 +169,22 @@ const NA_STOPNJO = Number(process.env.NA_STOPNJO || 25);
     return out;
   });
   t5b.trdi(brezGovora.glasovne.length > 0, 'nobena igra ni označena kot glasovna');
-  for (const id in brezGovora.ponujene){
-    const ponujene = brezGovora.ponujene[id];
-    for (const gid of brezGovora.glasovne){
-      const jeZraven = ponujene.indexOf(gid) >= 0;
-      t5b.enako(jeZraven, brezGovora.naVoljo,
-        'področje ' + id + ': igra ' + gid + ' je ponujena, čeprav govor ' +
-        (brezGovora.naVoljo ? 'je' : 'ni') + ' na voljo');
+  /* Bistvo: brez govora glasovna igra ne sme biti ponujena nikjer. Katera področja
+     jo ponudijo, kadar govor je na voljo, pa je odločitev vsebine (slušno črkovanje
+     je na primer smiselno šele od 3. področja naprej), zato zahtevamo le, da je
+     vsaka glasovna igra dosegljiva vsaj v enem področju. */
+  for (const gid of brezGovora.glasovne){
+    let kjeVse = 0;
+    for (const id in brezGovora.ponujene){
+      const jeZraven = brezGovora.ponujene[id].indexOf(gid) >= 0;
+      if (jeZraven) kjeVse++;
+      if (!brezGovora.naVoljo)
+        t5b.trdi(!jeZraven, 'področje ' + id + ': igra ' + gid + ' je ponujena, čeprav govora ni');
     }
+    if (brezGovora.naVoljo)
+      t5b.trdi(kjeVse > 0, 'glasovna igra ' + gid + ' ni ponujena v nobenem področju');
+    else
+      t5b.enako(kjeVse, 0, 'glasovna igra ' + gid + ' je ponujena brez govora');
   }
   preizkusi.push(t5b);
 

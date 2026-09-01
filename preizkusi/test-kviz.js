@@ -141,6 +141,102 @@ async function odigrajNacin(stran, t, nacin, kje, kat){
   }
   preizkusi.push(t5);
 
+  /* --- 6. področja so pravilno opisana in imajo barvo v vmesniku --- */
+  const t6 = preizkus('vsako področje ima ime, emoji in barvo');
+  const podatki = await stran.evaluate(() => PODROCJA);
+  t6.trdi(podatki.length >= 14, 'manj kot štirinajst področij (' + podatki.length + ')');
+  const vidId = {};
+  for (const p of podatki){
+    t6.trdi(!!p.nm && p.nm.length > 2, 'področje ' + p.id + ' nima imena');
+    t6.trdi(!!p.emo, 'področje ' + p.id + ' nima emojija');
+    t6.trdi(/^#[0-9a-f]{6}$/i.test(p.c || ''), 'področje ' + p.id + ' nima veljavne barve: ' + p.c);
+    t6.trdi(!vidId[p.id], 'podvojen id področja: ' + p.id);
+    vidId[p.id] = 1;
+  }
+  await stran.evaluate(() => { narisiDomov(); narisiPodrocja('kviz'); });
+  await stran.waitForSelector('#scrPodrocja:not([hidden]) [data-kat]');
+  const cipi = await stran.evaluate(() => Array.from(document.querySelectorAll('.chip[data-kat]'))
+    .filter(c => c.dataset.kat)
+    .map(c => ({ kat: c.dataset.kat, c: c.style.getPropertyValue('--c').trim() })));
+  t6.enako(cipi.length, podatki.length, 'število izrisanih čipov področij');
+  for (const c of cipi) t6.trdi(!!c.c, 'čip področja ' + c.kat + ' nima barve v spremenljivki --c');
+  preizkusi.push(t6);
+
+  /* --- 7. maskota in prehod med zasloni --- */
+  const t7 = preizkus('maskota in prehod med zasloni');
+  const masko = await stran.evaluate(() => {
+    narisiDomov();
+    const m = document.querySelector('.masko');
+    if (!m) return null;
+    const nastr = ['pozdrav', 'veselo', 'zamisljeno', 'zalostno'].map(n => {
+      m.dataset.nastr = n;
+      const u = m.querySelector('.u-' + n);
+      return u ? getComputedStyle(u).display : 'brez';
+    });
+    /* velika maskota v uvodni kartici mora imeti oblaček z repkom tik ob sebi */
+    const uvod = document.querySelector('#scrDomov .uvod');
+    const velika = uvod && uvod.querySelector('.masko');
+    const oblacek = uvod && uvod.querySelector('.oblacek');
+    return {
+      nastr,
+      stMasko: document.querySelectorAll('.masko').length,
+      sirinaVelike: velika ? velika.getBoundingClientRect().width : 0,
+      oblacekVUvodu: !!oblacek,
+      besedilo: oblacek ? oblacek.textContent.trim() : '',
+      repek: oblacek ? getComputedStyle(oblacek, '::after').borderRightColor : '',
+      krogIkone: (() => {
+        const e = document.querySelector('.nacin .emo');
+        if (!e) return null;
+        const st = getComputedStyle(e);
+        return { r: st.borderTopLeftRadius, w: parseFloat(st.width) };
+      })()
+    };
+  });
+  t7.trdi(!!masko, 'maskote (SVG .masko) ni na strani');
+  if (masko){
+    t7.trdi(masko.nastr.every(d => d === 'block'),
+      'vsa štiri razpoloženja maskote se ne izrišejo: ' + masko.nastr.join(', '));
+    t7.trdi(masko.stMasko >= 2, 'na domačem zaslonu morata biti maskota v glavi in velika v uvodni kartici');
+    t7.trdi(masko.sirinaVelike >= 72,
+      'velika maskota mora meriti vsaj 72 px, meri ' + Math.round(masko.sirinaVelike));
+    t7.trdi(masko.oblacekVUvodu, 'oblaček ni ob maskoti v uvodni kartici');
+    t7.trdi(masko.besedilo.length > 5, 'oblaček je prazen: »' + masko.besedilo + '«');
+    t7.trdi(!!masko.repek && masko.repek !== 'rgba(0, 0, 0, 0)',
+      'oblaček nima repka proti maskoti');
+    t7.trdi(masko.krogIkone && parseFloat(masko.krogIkone.r) >= masko.krogIkone.w / 2 - 1,
+      'ikona načina igre ni v krogu: ' + JSON.stringify(masko.krogIkone));
+  }
+  /* na zaslonu z vprašanjem se maskota odzove na odgovor */
+  await stran.evaluate(() => { narisiDomov(); });
+  await stran.click('[data-nacin="kviz"]');
+  await stran.waitForSelector('#scrPodrocja:not([hidden]) [data-kat]');
+  await stran.click('[data-kat=""]');
+  await stran.waitForSelector('#scrIgra:not([hidden]) #opts');
+  const vIgri = await stran.evaluate(() => ({
+    masko: !!document.querySelector('#scrIgra .uvod .masko'),
+    oblacek: (document.querySelector('#scrIgra .uvod .oblacek') || {}).textContent || ''
+  }));
+  t7.trdi(vIgri.masko, 'na zaslonu z vprašanjem ni maskote');
+  t7.trdi(vIgri.oblacek.trim().length > 3, 'maskota med vprašanjem nima stavka v oblačku');
+  await stran.evaluate(() => document.querySelector('#opts .opt[data-i="' + tek.sest.a + '"]').click());
+  await stran.waitForSelector('#naprej');
+  const poPravilnem = await stran.evaluate(() => ({
+    nastr: document.querySelector('#scrIgra .uvod .masko').dataset.nastr,
+    oblacek: document.querySelector('#scrIgra .uvod .oblacek').textContent
+  }));
+  t7.enako(poPravilnem.nastr, 'veselo', 'maskota se ob pravilnem odgovoru ne razveseli');
+  t7.trdi(poPravilnem.oblacek.trim().length > 3, 'maskota ob odgovoru nič ne reče');
+  /* prehod sme biti samo vizualen: hidden mora veljati takoj ob preklopu */
+  const takoj = await stran.evaluate(() => {
+    narisiDomov();
+    const prej = { igra: scrIgra.hidden, domov: scrDomov.hidden };
+    pokaziZaslon(scrIgra);
+    return { prej, po: { igra: scrIgra.hidden, domov: scrDomov.hidden } };
+  });
+  t7.trdi(takoj.prej.igra && !takoj.prej.domov, 'domači zaslon se ni prikazal');
+  t7.trdi(!takoj.po.igra && takoj.po.domov, 'hidden se ob prehodu ne preklopi takoj');
+  preizkusi.push(t7);
+
   const tN = preizkus('brez napak v konzoli');
   tN.trdi(napake.length === 0, 'napake strani: ' + napake.slice(0, 5).join(' | '));
   preizkusi.push(tN);

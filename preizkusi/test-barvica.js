@@ -143,6 +143,164 @@ const { odpri, preizkus, izpisi } = require('./skupno');
   if (shranjeno) t7.trdi(!!shranjeno.trenutna, 'trenutna slika se ni shranila');
   preizkusi.push(t7);
 
+  /* --- uveljavi (redo) vrne razveljavljeno potezo --- */
+  const t8 = preizkus('razveljavi in uveljavi delujeta v paru');
+  const redo = await stran.evaluate(() => {
+    S.nacin = 'tap'; S.kapalka = false; S.barva = '#e63946';
+    odpri('macka');
+    pobarvaj(0);      const poBarvanju = P.barve[0] || null;
+    razveljavi();     const poRazveljavitvi = P.barve[0] || null;
+    uveljavi();       const poUveljavitvi = P.barve[0] || null;
+    uveljavi();       /* prazen sklad ne sme ničesar pokvariti */
+    return { poBarvanju, poRazveljavitvi, poUveljavitvi, naprej: P.naprej.length,
+             sklad: P.sklad.length };
+  });
+  t8.enako(redo.poBarvanju, '#e63946', 'tap ni pobarval polja');
+  t8.enako(redo.poRazveljavitvi, null, 'razveljavitev ni izpraznila polja');
+  t8.enako(redo.poUveljavitvi, '#e63946', 'uveljavitev ni vrnila barve');
+  t8.enako(redo.naprej, 0, 'sklad uveljavitev se ni izpraznil');
+  t8.enako(redo.sklad, 1, 'sklad razveljavitev ni v pričakovanem stanju');
+  preizkusi.push(t8);
+
+  /* --- barvanje po vsoti: račun v polju se res sešteje v pravo številko --- */
+  const t9 = preizkus('barvanje po vsoti kaže pravilne račune');
+  const vsota = await stran.evaluate(() => {
+    const slabi = [];
+    for (let n = 1; n <= 14; n++)
+      for (const seme of ['a','b','c','dolgo:ime:7']){
+        const zapis = racunZa(n, seme);
+        const vsota = zapis.split('+').reduce((s, v) => s + Number(v), 0);
+        if (vsota !== n) slabi.push(n + ' -> ' + zapis);
+      }
+    S.nacin = 'vsota'; S.barva = '#000000';
+    odpri('macka');
+    const vPaleti = P.predlog.indexOf(S.barva) >= 0;
+    /* z napačno barvo se polje ne sme pobarvati */
+    const cilj = P.sl.R.map((o, i) => ({ o, i })).filter(x => x.o.c && x.o.c !== P.predlog[0])[0];
+    let napacnaObstane = true;
+    if (cilj){ S.barva = P.predlog[0]; pobarvaj(cilj.i); napacnaObstane = !P.barve[cilj.i]; }
+    return { slabi, vPaleti, napacnaObstane, jeNacin: NACINI.some(n => n.id === 'vsota') };
+  });
+  t9.trdi(vsota.jeNacin, 'načina po vsoti ni v NACINI');
+  t9.trdi(vsota.slabi.length === 0, 'napačni računi: ' + vsota.slabi.slice(0, 5).join(', '));
+  t9.trdi(vsota.vPaleti, 'po preklopu na vsoto izbrana barva ni med predlaganimi');
+  t9.trdi(vsota.napacnaObstane, 'polje se je pobarvalo z napačno številko');
+  preizkusi.push(t9);
+
+  /* --- kapalka vzame barvo iz slike --- */
+  const t10 = preizkus('kapalka vzame barvo polja');
+  const kap = await stran.evaluate(() => {
+    S.nacin = 'tap'; S.barva = '#e63946'; S.kapalka = false; S.trenutna = null;
+    odpri('macka');
+    /* vzemi polje, ki še ni pobarvano – kapalka sicer vrne trenutno barvo polja */
+    const i = P.sl.R.map((o, j) => ({ o, j }))
+      .filter(x => /^#[0-9a-f]{6}$/i.test(x.o.c || '') && !P.barve[x.j])[0].j;
+    const zeljena = P.sl.R[i].c;
+    S.kapalka = true;
+    pobarvaj(i);
+    return { zeljena, dobljena: S.barva, seJeUgasnila: !S.kapalka, poljeOstalo: !P.barve[i] };
+  });
+  t10.enako(kap.dobljena, kap.zeljena, 'kapalka ni prevzela barve polja');
+  t10.trdi(kap.seJeUgasnila, 'kapalka se po uporabi ni izklopila');
+  t10.trdi(kap.poljeOstalo, 'kapalka je polje tudi pobarvala, čeprav ne bi smela');
+  preizkusi.push(t10);
+
+  /* --- prosto risanje: prazen list se odpre s svinčnikom --- */
+  const t11 = preizkus('prazen list se odpre za prosto risanje');
+  const prosto = await stran.evaluate(() => {
+    const listi = SLIKE.filter(s => s.tema === 'prosto').map(s => s.id);
+    S.nacin = 'tap';
+    odpri(listi[0]);
+    return { listi, nacin: S.nacin, polj: P.sl.R.length };
+  });
+  t11.trdi(prosto.listi.length >= 1, 'ni nobenega praznega lista');
+  t11.enako(prosto.nacin, 'svincnik', 'prazen list se ni odprl s svinčnikom');
+  t11.trdi(prosto.polj >= 2, 'prazen list nima dovolj polj');
+  preizkusi.push(t11);
+
+  /* --- abeceda in števke: vsak znak ima svojo sliko --- */
+  const t12 = preizkus('vsaka črka in števka ima svojo sliko');
+  const znaki = await stran.evaluate(() => {
+    const imena = SLIKE.filter(s => s.tema === 'crke').map(s => s.nm);
+    const manjka = [];
+    ABECEDA.forEach(z => { if (imena.indexOf('Črka ' + z) < 0) manjka.push(z); });
+    STEVKE.forEach(z => { if (imena.indexOf('Številka ' + z) < 0) manjka.push(z); });
+    /* vsak znak mora imeti narisane poteze, sicer bi bila slika prazna */
+    const brezPotez = ABECEDA.concat(STEVKE).filter(z => !CRKE[z] || !CRKE[z].length);
+    return { koliko: imena.length, manjka, brezPotez, abeceda: ABECEDA.length };
+  });
+  t12.enako(znaki.abeceda, 25, 'slovenska abeceda nima 25 črk');
+  t12.trdi(znaki.manjka.length === 0, 'manjkajo znaki: ' + znaki.manjka.join(', '));
+  t12.trdi(znaki.brezPotez.length === 0, 'znaki brez potez: ' + znaki.brezPotez.join(', '));
+  preizkusi.push(t12);
+
+  /* --- tabla z abecedo mora res pokazati črke --- */
+  const t13 = preizkus('tabla z abecedo pokaže črke');
+  const tabla = await stran.evaluate(() => {
+    const s = najdi('tabla');
+    const nizka = s.gradi(1).R.length, visoka = s.gradi(4).R.length;
+    /* črke so narisane s potezami crkaPolja – na višji stopnji jih je več */
+    return { nizka, visoka, potez: crkaPolja('A', 0, 0, 1, 20, ['#000']).length };
+  });
+  t13.trdi(tabla.potez >= 3, 'črka A nima vsaj treh potez');
+  t13.trdi(tabla.visoka > tabla.nizka + 4, 'tabla na višji stopnji ne pokaže več črk');
+  preizkusi.push(t13);
+
+  /* --- stopnja 5 je na voljo za veliko otroških slik --- */
+  const t14 = preizkus('mojstrska stopnja je široko na voljo');
+  const pet = await stran.evaluate(() => {
+    const otroske = SLIKE.filter(s => s.tema !== 'odrasli' && s.tema !== 'vzorci');
+    return { skupaj: SLIKE.filter(s => s.stopnje.indexOf(5) >= 0).length,
+             otroske: otroske.filter(s => s.stopnje.indexOf(5) >= 0).length };
+  });
+  t14.trdi(pet.otroske >= 100, 'stopnjo 5 pozna le ' + pet.otroske + ' otroških slik');
+  preizkusi.push(t14);
+
+  /* --- okras se ne useda na nebo in v ogromna polja --- */
+  const t15 = preizkus('okrasje se ne useda na ozadje');
+  const okras = await stran.evaluate(() => {
+    /* preizkusni prizor: nebo čez vse platno, tla čez vso širino in dve telesi */
+    const nebo = re(0, 0, 300, 200, 0);
+    const tla  = bl([[0,170],[150,164],[300,170],[300,200],[0,200]], .8);
+    const telo = ci(110, 110, 46);
+    const glava = ci(200, 100, 38);
+    const sl = { w:300, h:200, L:[], R:[
+      obm(nebo, '#cfe8fb'), obm(tla, '#8fbf6a'), obm(telo, '#e07a3f'), obm(glava, '#c98a44') ] };
+    dodajPodrobnosti(sl, 'preizkus', 4, 6);
+    const okrasna = sl.R.filter(function(o){ return !!o.rez; });
+    const naOzadju = okrasna.filter(function(o){ return o.rez === nebo || o.rez === tla; });
+    /* enako mora veljati za polje, ki pokriva več kot tretjino platna */
+    const veliko = re(10, 10, 280, 150, 0);
+    const sl2 = { w:300, h:200, L:[], R:[
+      obm(veliko, '#e0e0e0'), obm(telo, '#e07a3f'), obm(glava, '#c98a44') ] };
+    dodajPodrobnosti(sl2, 'preizkus2', 4, 6);
+    const naVelikem = sl2.R.filter(function(o){ return o.rez === veliko; }).length;
+    return { okrasnih: okrasna.length, naOzadju: naOzadju.length, naVelikem: naVelikem,
+             ozadjeZaznano: jeOzadje({ c:'#cfe8fb' }, [0,0,300,200], sl) };
+  });
+  t15.enako(okras.okrasnih, 6, 'dodajPodrobnosti ni dodal pričakovanega okrasja');
+  t15.enako(okras.naOzadju, 0, 'okras je pristal na nebu ali na tleh');
+  t15.enako(okras.naVelikem, 0, 'okras je pristal v polju, večjem od tretjine platna');
+  t15.trdi(okras.ozadjeZaznano, 'barva neba ni prepoznana kot ozadje');
+  preizkusi.push(t15);
+
+  /* --- napredek v odstotkih se šteje in shrani --- */
+  const t16 = preizkus('napredek v odstotkih se šteje');
+  const odst = await stran.evaluate(() => {
+    S.nacin = 'tap'; S.kapalka = false; S.barva = '#e63946';
+    S.napredek = {}; S.trenutna = null;
+    odpri('macka');
+    const prazno = odstotek();
+    pobarvaj(0); pobarvaj(1);
+    const po = odstotek();
+    const kljuc = P.s.id + ':' + P.lv;
+    return { prazno, po, polj: P.sl.R.length, shranjeno: S.napredek[kljuc] };
+  });
+  t16.enako(odst.prazno, 0, 'prazna slika ne kaže 0 %');
+  t16.trdi(odst.po > 0 && odst.po <= 100, 'odstotek po barvanju ni smiseln: ' + odst.po);
+  t16.enako(odst.shranjeno, odst.po, 'napredek se ni shranil v stanje');
+  preizkusi.push(t16);
+
   await brskalnik.close();
   const stStopenj = podatki.slike.reduce((a, s) => a + s.stopnje.length, 0);
   const stPolj = podatki.slike.reduce((a, s) => a + s.stopnje.reduce((b, x) => b + x.polja.length, 0), 0);

@@ -85,7 +85,7 @@ async function odpriNacin(stran, band, id){
   }
 
   const t0 = preizkus('domači zaslon ponudi vse načine');
-  t0.trdi(nacini.length >= 40, 'na domačem zaslonu je le ' + nacini.length + ' načinov');
+  t0.trdi(nacini.length >= 59, 'na domačem zaslonu je le ' + nacini.length + ' načinov');
   t0.trdi(new Set(nacini.map(n => n.id)).size === nacini.length, 'podvojen način na domačem zaslonu');
   t0.trdi(nacini.every(n => n.nm.length > 0), 'način brez imena');
   preizkusi.push(t0);

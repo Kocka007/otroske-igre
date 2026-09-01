@@ -34,9 +34,13 @@ Ko reka izgine, hijenska zveza **Smejoči dvor** zajezi izvire in začne prodaja
 vodo. Kita obtožijo, da je zastrupil napajališče. Ne prežene ga krivda –
 **prodajo** ga potujoči karavani.
 
-Pobegne v slano ravnico. Tam sreča medojeda **N'punkta**, ki koplje bližnjice,
-in bradavičarja **Goboja**, ki gradi pasti. Nista šaljivca; sta edina, ki znata
-kaj uporabnega.
+Prvič sreča medojeda **N'punkta** že v hijenskem brlogu, kjer si vsak koplje
+svojo pot; ta mu obljubi, da se vidita na soli. Na slani ravnici res čaka –
+z bradavičarjem **Gobojem**, ki gradi pasti. Nista šaljivca; sta edina, ki znata
+kaj uporabnega. V Termitni katedrali Gobo prvič reče na glas, da so družina.
+
+Oba nastopita v glavni zgodbi, ne le v dodatnih sobah: **v 3., 5. in 8. nivoju**
+(štirje prijatelji, vsak s tremi vrsticami dialoga, ki se sprožijo ob dotiku).
 
 Odrasel Kito ne pride po prestol. Podre jez, vrne reko – in krono vzame samo,
 če mu jo **črede same izglasujejo**. V finalu se lahko odloči, da duha suše
@@ -65,6 +69,15 @@ sploh ne ubije, ampak drevo zbudi z darom nabranih skarabejev.
 | Prijem in met | hodi v omamljenega | ga dvigneš; z `X` ga vržeš v druge |
 | Dolgo rjovenje | `C` | zruši razpokano skalo, obrne čredo gnujev, prežene straže |
 
+### Novi nasprotniki
+- **Pavijan metalec** – ne pride blizu, meče kamenje v loku in se umika. Rjovenje
+  mu ga izbije iz rok, skok na glavo ga konča.
+- **Mravljinčna kolona** – pohoditi se je ne da, preskočiti pa. Rjovenje jo obrne.
+- **Zoban, čuvaj jezu** (šef sredi 7. nivoja) – povodni konj s tremi življenji in
+  tremi fazami: najprej se zaleti (rjovenje ga med zaletom ustavi), potem skače in
+  z udarcem ob tla podre vse, kar stoji, na koncu pljuva. Nad glavo pokaže, koliko
+  udarcev še prenese.
+
 ### Prijatelji (dodatne sobe)
 - **N'punkt (medojed)** – koplje skozi blato in krhko zemljo, prenese pike in strupe.
 - **Gobo (bradavičar)** – zalet z glavo, lovi padajoče sadje.
@@ -75,6 +88,16 @@ sploh ne ubije, ampak drevo zbudi z darom nabranih skarabejev.
 - **Oklep** je iz hroščevih luskin, ne src. Sončni hrošči ga trajno povečajo.
 - **Rjovenje** ima svoj merilnik in se polni sproti; sončni hrošči ga podaljšajo.
 - **Skarabeji** so denar in hkrati ključ do miroljubnega konca (120 jih odpre dar).
+  Zaslon ob koncu nivoja ju loči: *Skarabeji v nivoju* pove, koliko jih je pobranih
+  od vseh postavljenih (navadnih in zlatih, tudi tistih v skritih sobah), *Nabranih
+  skupaj* pa denarnico, v katero gredo tudi ribe, obroči, kletke, nosilci in šefi.
+  Zato je prvi števec vedno manjši ali enak imenovalcu; skarabeji, ki jih spustijo
+  premagani sovražniki, gredo le v denarnico.
+- **Zlati skarabeji** – trije na vsak glavni nivo (33 v celi igri), vedno stran od
+  najkrajše poti: v skriti sobi, na visoki polici, pod prividnimi ploščadmi.
+  Vsak šteje za pet navadnih in je pogoj za medaljo.
+- **Sončni cvet** – deset jih je po nivojih. Za sedem sekund je Kito hitrejši za
+  tretjino in neranljiv; namesto utripanja ga obda zlat sij.
 
 ---
 
@@ -90,14 +113,47 @@ Vsak nivo ima svoj **glagol** – nekaj, česar ni v nobenem drugem.
 | 4 | Pogreb reke | suha struga se udira pod nogami; ribe v mlakah lahko rešiš |
 | 5 | Slani krst | privid ploščadi izgine, ko stopiš nanj; na koncu preobrazba |
 | 6 | Razbita karavana | straže te vidijo v stožcu; rjovenje iz teme jih razkropi, ramena odprejo kletke |
-| 7 | Jez iz zob | jahanje nosoroga skozi kotaleče hlode, podiranje nosilcev jezu |
+| 7 | Jez iz zob | jahanje nosoroga skozi kotaleče hlode, podiranje nosilcev jezu, **šef Zoban** na sredini |
 | 8 | Termitna katedrala | navpičen labirint; stropni hrošči te nesejo z glavo navzdol |
 | 9 | Nevihtni baobab | veter obrača skoke, strela za hip pokaže pot |
 | 10 | Glasovanje na Visokem kopju | tri dejanja: matriarhinja, beg pred vodo, nato **izbira** – boj ali dar |
 | ★ | Jazbečev rov | N'punkt koplje bližnjice tam, kjer drugi obidejo |
-| ★ | Gobov lov na sadje | ritem: ujemi 30 kosov, preden jih pet pade |
+| ★ | Gobov lov na sadje | ritem: ujemi 30 kosov, preden jih pet pade – sadje pada tam, kjer si ti |
 | ★ | Nad savano | let skozi obroče iz vetra |
-| ★ | Skarabejeva dirka | kepa se kotali sama, ti skačeš čez ovire |
+
+Dodatni sobi **Gobov lov** (40×14 → 120×18, štiri dvorišča s klanci, blatno kotanjo
+in stolpom) in **Skarabejeva dirka** (ena zanka → devet ročnih odsekov) sta bili
+najplitvejši in sta zdaj postavljeni ročno, kot glavni nivoji.
+| ★ | Skarabejeva dirka | kepa se kotali sama, ti skačeš čez ovire – devet ročno postavljenih odsekov |
+
+### Skrite sobe
+V štirih nivojih (1., 6., 7. in 9.) tla nekje zvenijo votlo. Rjovenje jih podre,
+spodaj čaka polica s **sončnim hroščem in zlatim skarabejem**, ob robu pa
+stopnička, po kateri se pride nazaj ven. Namig v besedilu pove, kje poslušati.
+
+### Kontrolne točke
+Termitnjaki niso več po trije na nivo ne glede na dolžino, ampak **približno eden
+na 40 enot** – od treh v ozki Tkalčevi cesti do sedmih v Skarabejevi dirki
+(69 skupaj).
+
+### Medalje in način na čas
+Vsak nivo ima **tri medalje**: ⏱ za čas pod ciljem (od 80 s v dirki do 260 s v
+finalu), 🪲 za vse tri zlate skarabeje in 🦁 za tek brez izgubljenega življenja.
+Enkrat prislužena medalja ostane. Vidijo se na kartici nivoja in priletijo ena za
+drugo na zaslonu ob koncu nivoja.
+
+Ko je nivo enkrat prehojen, se na zaslonu pred njim odpre **način na čas**: ura v
+HUD-u in najboljši čas, shranjen na kartici.
+
+### Epilog
+Po finalu ne pride tabela s številkami, ampak **zadnja stran knjige**: dve
+različni besedili glede na to, ali si duha suše premagal ali si drevo zbudil z
+darom. Šele od tam se igra vrne na zemljevid nivojev.
+
+### Zemljevid savane
+Izbor nivojev ni več seznam sivih škatel. Postaje se izmenjujejo levo in desno ob
+pikčasti poti, vsaka nosi **barvo in znak svojega bioma**, številko v biomsko
+obarvanem krogu, napredek, najboljši čas in tri medalje.
 
 ---
 
@@ -121,6 +177,9 @@ Navdih so stare ploščadne igre, ne pa njihove slabe navade:
    krono sprejme šele, če jo dobi z glasovanjem.
 7. **Dostopnost je v igri, ne v priročniku:** barvne sheme, manj bliskov,
    »drži za skok na plen«, nesmrtnost za najmlajše, gumbi na zaslonu.
+   Animacije v vmesniku upoštevajo `prefers-reduced-motion`.
+8. **Namig ima vsak nivo.** 66 namigov, najmanj dva na nivo; v navpičnih nivojih
+   čakajo na višino, ne na razdaljo, sicer bi se sprožili vsi v prvi sekundi.
 
 ---
 
@@ -193,4 +252,20 @@ v brskalniku in preveri:
 * da svet prenese **900 korakov fizike** na nivo, ko bot slepo teče desno in skače:
   brez izjem, brez neveljavnih koordinat, padec v prepad pa svet ujame in Kita
   oživi pri kontrolni točki,
-* da vgrajeni samopreizkus ob zagonu ne javi nobene napake.
+* da vgrajeni samopreizkus ob zagonu ne javi nobene napake,
+* da **izris nivojev 1, 3, 6, 8 in 9 ostane pod 14 ms na sličico** pri 150 izrisih
+  (izmerjeno: 2–4 ms; bitja zunaj vidnega polja se ne rišejo),
+* da ima **vsak nivo vsaj dva namiga**, ciljni čas za medaljo in dovolj kontrolnih
+  točk glede na svojo dolžino,
+* da ima **vsak glavni nivo tri zlate skarabeje**, da so skrite sobe vsaj v treh
+  nivojih in da je vsaj en šef zunaj zadnjega nivoja,
+* da so prijatelji z dialogom v 3., 5. in 8. nivoju,
+* da **stara shramba brez polj za medalje** ne podre izbora nivojev in ne podeli
+  medalj, nova pa jih pravilno prešteje,
+* da se po finalu res pokaže **epilog** z besedilom, ki se razlikuje glede na izid,
+  in da se medalje in najboljši čas v načinu na čas zapišejo v shrambo.
+
+Poleg tega je ročno preverjeno v brskalniku (Playwright): rjovenje res podre lažna
+tla skrite sobe, Kito pade vanjo, pobere nagrado in skoči nazaj ven; sončni cvet
+prižge moč; prijatelj pove vse tri vrstice; Zoban se najavi, zamenja vse tri faze
+in ga je mogoče premagati.

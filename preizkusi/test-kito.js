@@ -196,6 +196,195 @@ const KORAKOV = Number(process.env.KORAKOV || 900);   /* 900 korakov = 15 sekund
       ' ms na sličico (meja 14 ms) pri platnu ' + hitrost.platno);
   preizkusi.push(t8);
 
+  /* --- nova vsebina: namigi, medalje, zlati skarabeji, skrite sobe, epilog --- */
+  const t9 = preizkus('vsebina prenove je na mestu');
+  const vsebina = await stran.evaluate(() => {
+    const out = { nivoji: [], epilog: {}, sefi: [], prijatelji: {}, skrite: 0, medalj: MEDALJE.length };
+    for (const st of STOPNJE){
+      const s = sestaviNivo(st);
+      const tipi = {};
+      for (const o of s.objekti) tipi[o.tip] = (tipi[o.tip] || 0) + 1;
+      let laz = 0;
+      for (let i = 0; i < s.karta.t.length; i++) if (s.karta.t[i] === T.LAZ) laz++;
+      const skrito = s.objekti.filter(o => o.skrito).length;
+      out.skrite += skrito > 0 ? 1 : 0;
+      out.nivoji.push({
+        id: st.id, ime: st.ime, bonus: !!st.bonus, w: st.w, h: st.h,
+        namigov: (st.namigi || []).length, ciljCas: st.ciljCas || 0,
+        tocke: tipi.mravljisce || 0, zlatih: tipi.zlatiskarabej || 0,
+        cvetov: tipi.soncnicvet || 0, prijateljev: tipi.prijatelj || 0,
+        skrito, laz, objektov: s.objekti.length
+      });
+      for (const o of s.objekti) if (BITJA[o.tip] && BITJA[o.tip].sef) out.sefi.push({ nivo: st.st, tip: o.tip });
+      if (tipi.prijatelj) out.prijatelji[st.st] = s.objekti.filter(o => o.tip === 'prijatelj')
+        .map(o => ({ kdo: o.kdo, vrstic: (o.besede || []).length }));
+    }
+    for (const kl of ['dar', 'boj'])
+      out.epilog[kl] = EPILOG[kl] ? { naslov: EPILOG[kl].naslov,
+        znakov: EPILOG[kl].odstavki.join(' ').length, odstavkov: EPILOG[kl].odstavki.length } : null;
+    out.imaZaslon = !!document.getElementById('z-epilog');
+    out.imaOceno = !!document.getElementById('konec-ocena');
+    out.imaUro = !!document.getElementById('hud-cas');
+    out.novaBitja = ['pavijan', 'mravljinci', 'soncnicvet', 'zlatiskarabej', 'prijatelj', 'povodnik']
+      .filter(t => !BITJA[t]);
+    return out;
+  });
+
+  t9.enako(vsebina.novaBitja.length, 0, 'manjkajo bitja: ' + vsebina.novaBitja.join(', '));
+  t9.enako(vsebina.medalj, 3, 'medalje niso tri');
+  t9.trdi(vsebina.imaZaslon, 'ni zaslona za epilog');
+  t9.trdi(vsebina.imaOceno, 'ni ocene ob koncu nivoja');
+  t9.trdi(vsebina.imaUro, 'ni ure za način na čas');
+  for (const kl of ['dar', 'boj']){
+    const e = vsebina.epilog[kl];
+    t9.trdi(!!e, 'ni epiloga za izid ' + kl);
+    if (!e) continue;
+    t9.trdi(e.naslov.length > 4, 'epilog ' + kl + ' nima naslova');
+    t9.trdi(e.odstavkov >= 4 && e.znakov > 400, 'epilog ' + kl + ' je prekratek');
+  }
+  t9.trdi(vsebina.epilog.dar.naslov !== vsebina.epilog.boj.naslov, 'oba konca imata isti epilog');
+
+  for (const n of vsebina.nivoji){
+    const kje = n.id + ': ';
+    t9.trdi(n.namigov >= 2, kje + 'nivo ima samo ' + n.namigov + ' namigov');
+    t9.trdi(n.ciljCas > 0, kje + 'nivo nima ciljnega časa za medaljo');
+    /* kontrolna točka približno na 40 enot dolžine nivoja */
+    const dolzina = Math.max(n.w, n.h);
+    const najmanj = Math.max(2, Math.floor(dolzina / 40));
+    t9.trdi(n.tocke >= najmanj, kje + 'kontrolnih točk je ' + n.tocke + ', pri dolžini ' +
+      dolzina + ' jih mora biti vsaj ' + najmanj);
+    if (!n.bonus) t9.trdi(n.zlatih >= 3, kje + 'zlatih skarabejev je ' + n.zlatih + ', ne trije');
+  }
+  t9.trdi(vsebina.skrite >= 3, 'skritih sob je le na ' + vsebina.skrite + ' nivojih');
+  t9.trdi(vsebina.sefi.length >= 3, 'šefov je premalo: ' + vsebina.sefi.length);
+  t9.trdi(vsebina.sefi.some(s => s.nivo > 1 && s.nivo < 10),
+    'ni sredinskega šefa – vsi so v zadnjem nivoju');
+  for (const st of ['3', '5', '8']){
+    const p = vsebina.prijatelji[st];
+    t9.trdi(!!p && p.length > 0, 'v ' + st + '. nivoju ni prijatelja');
+    if (p) t9.trdi(p.every(x => (x.kdo === 'npunkt' || x.kdo === 'gobo') && x.vrstic >= 2),
+      'prijatelj v ' + st + '. nivoju nima dialoga');
+  }
+  const sadje = vsebina.nivoji.find(n => n.id === 'sadje');
+  const dirka = vsebina.nivoji.find(n => n.id === 'dirka');
+  t9.trdi(sadje.w >= 120, 'Gobov lov je še vedno ozek (' + sadje.w + ')');
+  t9.trdi(sadje.objektov >= 20, 'Gobov lov nima ročne postavitve (' + sadje.objektov + ' objektov)');
+  t9.trdi(dirka.objektov >= 40, 'dirka nima ročnih odsekov (' + dirka.objektov + ' objektov)');
+  preizkusi.push(t9);
+
+  /* --- medalje se shranijo in preživijo staro shrambo --- */
+  const t10 = preizkus('medalje in način na čas se shranijo');
+  const shramba = await stran.evaluate(() => {
+    /* stara shramba brez polja medalje ne sme podreti izbora nivojev */
+    const staro = { odklenjeno: 3, hrosci: 12, oblika: 'mladic', oklepMax: 4, rjovMax: 100,
+                    zivljenja: 3, koncani: { kopje: { cas: 88, hrosci: 5, ribe: 0, skupaj: 40 } },
+                    izidFinala: null, cas: 0 };
+    shramba.mesta[nast.mesto] = staro;
+    let napaka = null;
+    try { sestaviIzbor(); } catch (e){ napaka = e.message; }
+    const brezMedalj = stMedalj(staro.koncani.kopje);
+    /* nova shramba z medaljami */
+    staro.koncani.kopje.medalje = { cas: true, zlati: false, brez: true };
+    staro.koncani.kopje.casNaCas = 71;
+    const zMedaljami = stMedalj(staro.koncani.kopje);
+    let html = '';
+    try { sestaviIzbor(); html = document.getElementById('izbor-glavni').innerHTML; }
+    catch (e){ napaka = napaka || e.message; }
+    return { napaka, brezMedalj, zMedaljami, postaj: (html.match(/class="postaja/g) || []).length,
+             imaMedaljo: /class="imam"/.test(html), imaUro: html.indexOf('71 s') >= 0 };
+  });
+  t10.trdi(!shramba.napaka, 'izbor nivojev se je sesul: ' + shramba.napaka);
+  t10.enako(shramba.brezMedalj, 0, 'stara shramba brez medalj ne sme dobiti medalj');
+  t10.enako(shramba.zMedaljami, 2, 'medalje iz shrambe se ne preštejejo');
+  t10.enako(shramba.postaj, 10, 'zemljevid nima desetih postaj');
+  t10.trdi(shramba.imaMedaljo, 'na kartici nivoja ni prižgane medalje');
+  t10.trdi(shramba.imaUro, 'na kartici nivoja ni najboljšega časa');
+  preizkusi.push(t10);
+
+  /* --- epilog se res sproži po finalu, medalje se res zapišejo --- */
+  const t11 = preizkus('finale se konča z epilogom');
+  const izidFinala = await stran.evaluate(() => {
+    const out = {};
+    try {
+      shramba.mesta[nast.mesto] = novoMesto();
+      const idx = STOPNJE.findIndex(s => s.finale);
+      zacniNivo(idx);
+      sv.izidFinala = 'dar';
+      sv.hroscev = 130; sv.zlati = sv.zlatiSkupaj; sv.izgubljena = 0;
+      zacetekNivoja = performance.now() - 1000;
+      sv.stanje = 'zmaga';
+      koncajNivo(true);
+      out.zaslon = zaslon;
+      out.naslov = document.getElementById('epilog-naslov').textContent;
+      out.znakov = document.getElementById('epilog-tekst').textContent.length;
+      const k = mesto().koncani[STOPNJE[idx].id];
+      out.medalj = stMedalj(k);
+      out.izid = mesto().izidFinala;
+
+      /* način na čas zapiše svoj najboljši čas */
+      shramba.mesta[nast.mesto] = novoMesto();
+      zacniNivo(0, false, true);
+      out.uraVidna = !document.getElementById('hud-cas').hidden;
+      zacetekNivoja = performance.now() - 60000;
+      sv.stanje = 'zmaga'; koncajNivo(true);
+      out.casNaCas = mesto().koncani.kopje.casNaCas;
+      out.medaljaZaCas = medaljeNivoja(mesto().koncani.kopje).cas;
+    } catch (e){ out.napaka = e.message; }
+    return out;
+  });
+  t11.trdi(!izidFinala.napaka, 'finale se je sesulo: ' + izidFinala.napaka);
+  t11.enako(izidFinala.zaslon, 'epilog', 'po finalu se ne pokaže epilog');
+  t11.trdi(izidFinala.znakov > 400, 'epilog na zaslonu je prazen ali prekratek');
+  t11.enako(izidFinala.izid, 'dar', 'izid finala se ni shranil');
+  t11.enako(izidFinala.medalj, 3, 'medalje se po finalu niso zapisale');
+  t11.trdi(izidFinala.uraVidna, 'v načinu na čas ura ni vidna');
+  t11.enako(izidFinala.casNaCas, 60, 'najboljši čas v načinu na čas se ni zapisal');
+  t11.trdi(izidFinala.medaljaZaCas, 'medalja za čas se ni podelila pri 60 s');
+  preizkusi.push(t11);
+
+  /* --- števec skarabejev ne sme preseči imenovalca --- */
+  const t12 = preizkus('skarabeji se ne štejejo dvakrat');
+  const skarabeji = await stran.evaluate((korakov) => {
+    const out = [];
+    for (const st of STOPNJE){
+      const s = sestaviNivo(st);
+      /* imenovalec = vsi skarabeji v postavitvi, navadni in zlati, tudi skriti */
+      const postavljenih = s.objekti.filter(o => o.tip === 'hrosc' || o.tip === 'zlatiskarabej').length;
+      const sv = new Svet(st, { oblika: st.lik || (st.st >= 6 ? 'odrasel' : 'mladic'),
+                                nesmrtnost: true, zivljenja: 5 });
+      const r = { id: st.id, postavljenih, imenovalec: sv.hroscevSkupaj, cez: 0, najvec: 0 };
+      /* bot teče in pobira; sproti preverimo, da števec ne uide imenovalcu */
+      const v = { levo: 0, desno: 1, gor: 0, dol: 0, skok: 0, napad: 1, rjov: 0,
+                  napadPritisnjen: 0, rjovPritisnjen: 0 };
+      for (let i = 0; i < korakov; i++){
+        v.skok = (i % 24 < 3) ? 1 : 0;
+        v.rjovPritisnjen = (i % 90 === 0) ? 1 : 0;
+        sv.korak(v);
+        if (sv.najdeni > r.najvec) r.najvec = sv.najdeni;
+        if (sv.najdeni > sv.hroscevSkupaj) r.cez++;
+        if (sv.stanje === 'zmaga' || sv.stanje === 'konec') break;
+      }
+      /* pobrati vse postavljene skarabeje naenkrat ne sme prebiti imenovalca */
+      for (const b of sv.objekti)
+        if (b.tip === 'hrosc' || b.tip === 'zlatiskarabej') sv.najdenSkarabej(b);
+      r.poVsem = sv.najdeni;
+      out.push(r);
+    }
+    return out;
+  }, KORAKOV);
+  for (const r of skarabeji){
+    const kje = r.id + ': ';
+    t12.enako(r.imenovalec, r.postavljenih,
+      kje + 'imenovalec ne šteje vseh skarabejev v postavitvi');
+    t12.trdi(r.postavljenih > 0, kje + 'nivo nima nobenega skarabeja');
+    t12.enako(r.cez, 0, kje + 'števec je presegel imenovalec');
+    t12.trdi(r.najvec <= r.imenovalec,
+      kje + 'pobranih ' + r.najvec + ' od ' + r.imenovalec);
+    t12.trdi(r.poVsem <= r.imenovalec,
+      kje + 'po pobiranju vsega je števec ' + r.poVsem + ' od ' + r.imenovalec);
+  }
+  preizkusi.push(t12);
+
   await brskalnik.close();
   console.log('Platno: ' + hitrost.platno + ' (nadvzorčenje ' + hitrost.nad + '×), izris ' +
     hitrost.out.map(h => h.ms.toFixed(1)).join(' / ') + ' ms na sličico');

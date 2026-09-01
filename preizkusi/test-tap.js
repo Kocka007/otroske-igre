@@ -1,6 +1,19 @@
 /* Globko – preizkus dotika: pravi tapi in vlečenje po zemljevidu. */
 const { odpri, preizkus, izpisi } = require('./skupno');
 
+/* Zemljevid do cilja poleti z animacijo (requestAnimationFrame), zato po
+   približevanju počakamo, da se viewBox umiri – šele takrat ga smemo brati. */
+async function pockajNaMir(stran){
+  await stran.waitForFunction(() => {
+    const s = document.querySelector('#karta svg');
+    if (!s) return true;
+    const zdaj = s.getAttribute('viewBox');
+    if (window.__vbPrej === zdaj){ delete window.__vbPrej; return true; }
+    window.__vbPrej = zdaj;
+    return false;
+  }, null, { timeout: 4000, polling: 120 }).catch(() => {});
+}
+
 /* sredina lika v zaslonskih koordinatah */
 async function sredina(stran, izbirnik){
   const el = await stran.$(izbirnik);
@@ -125,12 +138,15 @@ async function pripraviZemljevid(stran, podId, gid, najmanj){
   await stran.click('[data-pod="svet"]');
   await stran.click('[data-igra="svetZemljevid"]');
   await stran.waitForSelector('#karta .zem');
+  await pockajNaMir(stran);
   const vbA = await stran.evaluate(() => document.querySelector('#karta svg').getAttribute('viewBox'));
   await stran.click('#karta [data-zoom="1"]');
+  await pockajNaMir(stran);
   const vbB = await stran.evaluate(() => document.querySelector('#karta svg').getAttribute('viewBox'));
   t4.trdi(vbA !== vbB, 'gumb + ni približal zemljevida');
   t4.trdi(!(await stran.evaluate(() => tek.odgovorjeno)), 'gumb + je bil prešteti kot odgovor');
   await stran.click('#karta [data-zoom="0"]');
+  await pockajNaMir(stran);
   const vbC = await stran.evaluate(() => document.querySelector('#karta svg').getAttribute('viewBox'));
   t4.enako(vbC, vbA, 'gumb ⤢ ni vrnil celega zemljevida');
   preizkusi.push(t4);

@@ -23,60 +23,116 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
   --ink:#282443; --ink-soft:#635d8c;
-  --card:#ffffff; --line:#e7e4f6;
+  --card:#ffffff; --line:#e7e4f6; --bg:#f4f2fb;
   --matko:#5b6cff; --olly:#7c5cff; --barvica:#ff7a45; --kito:#c8823a; --globko:#0e9488; --vseved:#c2255c;
   --acc:#6a63ff;
+  --senca:rgba(40,36,67,.10); --senca2:rgba(40,36,67,.16);
   --top:env(safe-area-inset-top,0px);
   --bot:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --ink:#f1eefc; --ink-soft:#b3acd6; --card:#2a2745; --line:#3b3760; --bg:#1b1930;
+    --senca:rgba(0,0,0,.35); --senca2:rgba(0,0,0,.5);
+  }
 }
 html,body{height:100%;margin:0;overscroll-behavior:none}
 body{
   font-family:"Nunito","Trebuchet MS",system-ui,-apple-system,sans-serif;
   color:var(--ink);
-  background:#f4f2fb;
+  background:var(--bg);
   background-image:
-    radial-gradient(900px 620px at 10% -10%, #e3e6ff 0%, transparent 60%),
-    radial-gradient(800px 560px at 100% 0%, #f2e4ff 0%, transparent 55%),
-    radial-gradient(900px 700px at 50% 118%, #dff4ff 0%, transparent 60%);
+    radial-gradient(900px 620px at 10% -10%, rgba(99,110,255,.16) 0%, transparent 60%),
+    radial-gradient(800px 560px at 100% 0%, rgba(200,120,255,.14) 0%, transparent 55%),
+    radial-gradient(900px 700px at 50% 118%, rgba(14,148,136,.14) 0%, transparent 60%);
   background-attachment:fixed;
 }
 
+/* ---------- ozadje z bledimi motivi ---------- */
+#ozadje{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55}
+#ozadje svg{width:100%;height:100%}
+@media (prefers-color-scheme:dark){ #ozadje{opacity:.25} }
+
 /* ---------- začetni zaslon z izbiro igre ---------- */
 #home{
-  max-width:720px;margin:0 auto;
-  padding:calc(26px + var(--top)) calc(16px + env(safe-area-inset-right,0px))
+  position:relative;z-index:1;
+  max-width:860px;margin:0 auto;
+  padding:calc(22px + var(--top)) calc(16px + env(safe-area-inset-right,0px))
           calc(40px + var(--bot)) calc(16px + env(safe-area-inset-left,0px));
   display:flex;flex-direction:column;gap:22px;
 }
-header{text-align:center;display:flex;flex-direction:column;gap:8px}
-h1{font-size:clamp(28px,7vw,40px);font-weight:900;margin:0;letter-spacing:-.5px;text-wrap:balance}
-header p{margin:0;font-weight:700;color:var(--ink-soft);font-size:16.5px;line-height:1.55;text-wrap:balance}
+header{text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
+h1{font-size:clamp(28px,7vw,42px);font-weight:900;margin:0;letter-spacing:-.5px;text-wrap:balance;
+   display:flex;align-items:center;gap:12px;justify-content:center;flex-wrap:wrap}
+h1 .torba{width:1.35em;height:1.35em;flex:none;animation:ziba 3.2s ease-in-out infinite;transform-origin:50% 10%}
+@keyframes ziba{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+header p{margin:0;font-weight:700;color:var(--ink-soft);font-size:16.5px;line-height:1.55;text-wrap:balance;max-width:560px}
 
-.apps{display:flex;flex-direction:column;gap:14px}
-.app{
-  display:flex;align-items:center;gap:16px;width:100%;text-align:left;
-  background:var(--card);border:0;border-radius:22px;padding:18px;color:inherit;
-  font-family:inherit;cursor:pointer;
-  box-shadow:0 8px 22px rgba(40,36,67,.10);position:relative;overflow:hidden;
-  transition:transform .12s ease, box-shadow .12s ease;
+/* ---------- nadaljuj ---------- */
+#nadaljuj{
+  display:none;align-items:center;gap:12px;
+  background:var(--card);border-radius:18px;padding:12px 16px;
+  box-shadow:0 6px 18px var(--senca);border:0;color:inherit;font-family:inherit;cursor:pointer;
+  text-align:left;width:100%;
 }
-.app::after{content:"";position:absolute;inset:0 0 auto;height:6px;background:var(--c)}
-.app:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(40,36,67,.16)}
-.app:active{transform:translateY(1px)}
-.app:focus-visible{outline:4px solid var(--c);outline-offset:3px}
-.app img{width:78px;height:78px;border-radius:20px;flex:none;box-shadow:0 4px 10px rgba(40,36,67,.18)}
-.app .txt{display:flex;flex-direction:column;gap:3px;min-width:0}
-.app .nm{font-weight:900;font-size:22px;color:var(--c)}
-.app .sub{font-weight:800;font-size:14.5px;color:var(--ink-soft);line-height:1.45}
-.app .ages{font-weight:900;font-size:13px;color:var(--c);letter-spacing:.3px;text-transform:uppercase}
+#nadaljuj.vidno{display:flex}
+#nadaljuj img{width:46px;height:46px;border-radius:13px;flex:none}
+#nadaljuj .t{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+#nadaljuj .t small{font-weight:900;font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--ink-soft)}
+#nadaljuj .t b{font-size:17px;font-weight:900;color:var(--c)}
+#nadaljuj .pusc{font-size:22px;font-weight:900;color:var(--c)}
 
-.note{background:var(--card);border-radius:22px;padding:18px 20px;box-shadow:0 8px 22px rgba(40,36,67,.08)}
+/* ---------- kartice iger ---------- */
+.apps{display:grid;grid-template-columns:1fr;gap:14px}
+@media (min-width:700px){ .apps{grid-template-columns:1fr 1fr;gap:16px} }
+.app{
+  display:flex;align-items:flex-start;gap:16px;width:100%;text-align:left;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--c) 14%, var(--card)) 0%, var(--card) 62%);
+  border:0;border-radius:24px;padding:18px;color:inherit;
+  font-family:inherit;cursor:pointer;
+  box-shadow:0 8px 22px var(--senca);position:relative;overflow:hidden;
+  transition:transform .14s ease, box-shadow .14s ease;
+  animation:vstop .5s cubic-bezier(.2,.8,.2,1) both;
+  animation-delay:calc(var(--i) * 70ms);
+}
+@supports not (background: color-mix(in srgb, red 10%, white)){
+  .app{background:var(--card)}
+}
+@keyframes vstop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+.app::before{
+  content:"";position:absolute;right:-40px;top:-40px;width:140px;height:140px;border-radius:50%;
+  background:var(--c);opacity:.10;pointer-events:none;
+}
+.app:hover{transform:translateY(-3px);box-shadow:0 14px 28px var(--senca2)}
+.app:active{transform:scale(.985)}
+.app:focus-visible{outline:4px solid var(--c);outline-offset:3px}
+.app img{width:84px;height:84px;border-radius:22px;flex:none;box-shadow:0 6px 14px var(--senca2);
+  transition:transform .2s ease}
+.app:hover img{transform:rotate(-4deg) scale(1.04)}
+.app .txt{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
+.app .vrh{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.app .nm{font-weight:900;font-size:23px;color:var(--c);line-height:1.1}
+.app .sub{font-weight:700;font-size:14.5px;color:var(--ink-soft);line-height:1.45}
+.app .ages{font-weight:900;font-size:12.5px;color:var(--c);letter-spacing:.4px;text-transform:uppercase}
+.app .znacka{
+  flex:none;display:inline-flex;align-items:center;gap:4px;
+  font-weight:900;font-size:13px;color:var(--c);
+  background:color-mix(in srgb, var(--c) 14%, var(--card));
+  border-radius:999px;padding:4px 10px;
+}
+.app .znacka.novo{background:var(--c);color:#fff}
+.app .napredek{height:6px;border-radius:999px;background:var(--line);margin-top:8px;overflow:hidden}
+.app .napredek i{display:block;height:100%;width:var(--w,0%);background:var(--c);border-radius:999px;
+  transition:width .6s ease}
+
+.note{position:relative;z-index:1;background:var(--card);border-radius:22px;padding:18px 20px;box-shadow:0 8px 22px var(--senca)}
 .note h2{margin:0 0 10px;font-size:18px;font-weight:900}
 .note ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:7px;
   font-weight:700;font-size:15.5px;line-height:1.5;color:var(--ink-soft)}
 .note ol b{color:var(--ink)}
 .note p{margin:12px 0 0;font-weight:700;font-size:14.5px;line-height:1.55;color:var(--ink-soft)}
-footer{text-align:center;font-weight:700;font-size:13.5px;color:var(--ink-soft);line-height:1.6}
+footer{text-align:center;font-weight:700;font-size:13.5px;color:var(--ink-soft);line-height:1.6;position:relative;z-index:1}
 /* ko je aplikacija nameščena, navodil za namestitev ne rabimo */
 @media (display-mode:standalone){ #install{display:none} }
 
@@ -84,7 +140,7 @@ footer{text-align:center;font-weight:700;font-size:13.5px;color:var(--ink-soft);
 #player{position:fixed;inset:0;display:none;flex-direction:column;background:var(--card);z-index:10}
 body.playing #player{display:flex}
 body.playing{overflow:hidden}
-body.playing #home{display:none}
+body.playing #home,body.playing #ozadje{display:none}
 #bar{
   display:flex;align-items:center;gap:12px;flex:none;
   padding:calc(8px + var(--top)) 14px 8px;
@@ -100,22 +156,55 @@ body.playing #home{display:none}
 #back:focus-visible{outline:3px solid #fff;outline-offset:2px}
 #ptitle{font-weight:900;font-size:17px;letter-spacing:.2px}
 #frame{flex:1;width:100%;border:0;display:block;background:#fff;padding-bottom:var(--bot)}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media (max-width:430px){
   .app{padding:15px;gap:13px}
-  .app img{width:62px;height:62px;border-radius:16px}
-  .app .nm{font-size:19px}
+  .app img{width:66px;height:66px;border-radius:17px}
+  .app .nm{font-size:20px}
 }
 </style>
 </head>
 <body>
 
+<div id="ozadje" aria-hidden="true">
+  <svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <g fill="none" stroke="currentColor" stroke-width="3" opacity=".18" stroke-linecap="round">
+      <circle cx="90" cy="110" r="34"/><path d="M640 70l40 70h-80z"/>
+      <rect x="700" y="420" width="60" height="60" rx="12" transform="rotate(12 730 450)"/>
+      <path d="M120 480q30-40 60 0t60 0"/><path d="M30 300h50M55 275v50"/>
+      <circle cx="560" cy="530" r="22"/><path d="M420 40q40 30 0 60"/>
+      <path d="M300 560l18-40 18 40M309 546h18"/>
+    </g>
+    <g fill="currentColor" opacity=".10">
+      <text x="480" y="220" font-size="64" font-weight="900" font-family="Nunito,sans-serif">7</text>
+      <text x="200" y="180" font-size="52" font-weight="900" font-family="Nunito,sans-serif">Aa</text>
+      <text x="60" y="560" font-size="46" font-weight="900" font-family="Nunito,sans-serif">?</text>
+    </g>
+  </svg>
+</div>
+
 <main id="home">
   <header>
-    <h1>Otroške igre za učenje 🎒</h1>
+    <h1>Otroške igre za učenje
+      <svg class="torba" viewBox="0 0 64 64" aria-hidden="true">
+        <path d="M24 16a8 8 0 0 1 16 0" fill="none" stroke="#5b3b1e" stroke-width="4" stroke-linecap="round"/>
+        <rect x="8" y="22" width="12" height="26" rx="6" fill="#d94848"/>
+        <rect x="44" y="22" width="12" height="26" rx="6" fill="#d94848"/>
+        <rect x="12" y="14" width="40" height="44" rx="14" fill="#ff5f5f"/>
+        <rect x="18" y="36" width="28" height="16" rx="6" fill="#ffb703"/>
+        <rect x="28" y="42" width="8" height="4" rx="2" fill="#e09a00"/>
+        <path d="M18 30h28" stroke="#ffe0a3" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+    </h1>
     <p>Vse je v slovenščini, brez oglasov in brez računa.
        Napredek ostane na napravi, na internet se ne pošilja nič.</p>
   </header>
+
+  <button id="nadaljuj" type="button" hidden>
+    <img id="nadaljuj-ikona" src="" alt="" width="46" height="46">
+    <span class="t"><small>Nadaljuj, kjer si ostal</small><b id="nadaljuj-ime"></b></span>
+    <span class="pusc">➜</span>
+  </button>
 
   <div class="apps" id="apps"></div>
 
@@ -126,7 +215,7 @@ body.playing #home{display:none}
       <li>Tapni gumb za <b>deljenje</b> – kvadratek s puščico navzgor.</li>
       <li>Izberi <b>Dodaj na začetni zaslon</b>.</li>
     </ol>
-    <p>Dobiš <b>eno ikono</b> 🎒 z obema igrama. Odpre se čez cel zaslon, brez naslovne vrstice,
+    <p>Dobiš <b>eno ikono</b> 🎒 z vsemi igrami. Odpre se čez cel zaslon, brez naslovne vrstice,
        in <b>deluje tudi brez interneta</b> – primerno za avto ali počitnice.
        Ko je igra popravljena, se ob naslednjem odprtju s povezavo sama posodobi.</p>
   </div>
@@ -148,35 +237,77 @@ body.playing #home{display:none}
 const IGRE = {
   matko: { f:'matematika.html', nm:'Matko', emo:'🦊', ikona:'matko-icon-192.png', c:'var(--matko)',
            starost:'5–15 let',
-           opis:'Matematika in branje – od štetja do enačb, Pitagorovega izreka in nalog v slogu Kenguručka.' },
+           opis:'Matematika in branje – 59 iger od štetja in prvih besed do enačb, verjetnosti, koordinatnega sistema, grafov in nalog v slogu Kenguručka.' },
   olly:  { f:'anglescina.html', nm:'Olly', emo:'🦉', ikona:'olly-icon-192.png', c:'var(--olly)',
            starost:'5–15 let',
-           opis:'Angleščina – od prvih besed do trpnika in pogojnikov, z izgovorjavo in branjem.' },
+           opis:'Angleščina od prvih besed do konca osnovne šole – 540 besed, 21 iger in pet stopenj od A0 do B2, z govorom, branjem in pogovori.' },
   globko:{ f:'geografija.html', nm:'Globko', emo:'🌍', ikona:'globko-icon-192.png', c:'var(--globko)',
            starost:'6–15 let',
-           opis:'Geografija na pravem zemljevidu: Slovenija, Evropa in svet, zastave, glavna mesta, gore in reke – 25 iger, ki se prilagajajo otroku.' },
+           opis:'Geografija na pravem zemljevidu: 130 držav z zastavami in glavnimi mesti, karte Slovenije, Evrope, sveta in štirih celin, reke, merilo in legenda – 32 iger, ki se prilagajajo otroku.' },
   vseved:{ f:'kviz.html', nm:'Vseved', emo:'🧠', ikona:'vseved-icon-192.png', c:'var(--vseved)',
            starost:'7 let in več',
-           opis:'Kviz za vso družino: 336 vprašanj z razlago iz dvanajstih področij, lestvica do vrha, hitri ogenj, dvoboj za dva in izziv dneva.' },
+           opis:'Kviz za vso družino: 555 vprašanj z razlago iz štirinajstih področij – od narave in vesolja do računalništva, vremena in Slovenije – v šestih načinih igre.' },
   barvica:{ f:'pobarvanka.html', nm:'Barvica', emo:'🎨', ikona:'barvica-icon-192.png', c:'var(--barvica)',
            starost:'za vse',
-           opis:'Pobarvanka: 146 slik v sedemnajstih temah – živali, pravljice, junaki, pokrajine in 22 zahtevnih risb za odrasle. Devet orodij za risanje z Apple Pencil in lastne barve.' },
+           opis:'Pobarvanka z 219 izvirnimi slikami v 21 temah – živali, letni časi, črke in številke, Slovenija, mandale za odrasle – s sedmimi načini barvanja, od tapkanja in barvanja po vsoti do risanja z Apple Pencil.' },
   kito:  { f:'kito.html', nm:'Kito', emo:'🦁', ikona:'kito-icon-192.png', c:'var(--kito)',
            starost:'7 let in več',
-           opis:'Ploščadna igra o levjem mladiču, ki mu vzamejo reko: deset nivojev savane, štiri dodatne sobe, rjovenje kot orodje in dva načina težavnosti.' }
+           opis:'Ploščadnica o levjem mladiču Kitu: deset nivojev savane s šefi, skritimi sobami in medaljami, štiri sobe za prijatelje in konec, ki ga izbereš sam.' }
 };
 
 const $ = id => document.getElementById(id);
-$('apps').innerHTML = Object.keys(IGRE).map(function(k){
-  const g = IGRE[k];
-  return '<button class="app" data-igra="' + k + '" style="--c:' + g.c + '">' +
-    '<img src="' + g.ikona + '" alt="" width="192" height="192">' +
-    '<span class="txt">' +
-      '<span class="ages">' + g.starost + '</span>' +
-      '<span class="nm">' + g.emo + ' ' + g.nm + '</span>' +
-      '<span class="sub">' + g.opis + '</span>' +
-    '</span></button>';
-}).join('');
+
+/* Napredek beremo iz shramb posameznih iger (isti izvor kot okvir), samo za prikaz.
+   Če shrambe ni ali je drugačne oblike, kartica pokaže »Novo«. */
+function beri(kljuc){
+  try { return JSON.parse(localStorage.getItem(kljuc)); } catch (e) { return null; }
+}
+const NAPREDEK = {
+  matko:  function(){ const p = beri('matko-v1');            return p && { zvezde:p.stars,  cilj:450 }; },
+  olly:   function(){ const p = beri('olly_anglescina_v1');  return p && { zvezde:p.stars,  cilj:450 }; },
+  globko: function(){ const p = beri('globko_geografija_v1');return p && { zvezde:p.zvezde, cilj:450 }; },
+  vseved: function(){ const p = beri('vseved_kviz_v1');      return p && { zvezde:p.zvezde, cilj:450 }; },
+  barvica:function(){ const p = beri('barvica_v1'); if (!p || !p.koncane) return null;
+                      const n = Object.keys(p.koncane).length; return { besedilo:n + (n === 1 ? ' slika' : n < 5 ? ' slike' : ' slik'), delez:Math.min(1, n / 40) }; },
+  kito:   function(){ const p = beri('kito-shramba-v1'); if (!p || !p.mesta) return null;
+                      let naj = null; p.mesta.forEach(function(m){ if (m && (!naj || m.odklenjeno > naj.odklenjeno)) naj = m; });
+                      if (!naj) return null;
+                      const n = Object.keys(naj.koncani || {}).length;
+                      return { besedilo:n + (n === 1 ? ' nivo' : n === 2 ? ' nivoja' : n < 5 ? ' nivoji' : ' nivojev'), delez:Math.min(1, n / 14) }; }
+};
+function znacka(k){
+  let n = null;
+  try { n = NAPREDEK[k] && NAPREDEK[k](); } catch (e) { n = null; }
+  if (!n || (n.zvezde === undefined && !n.besedilo)) return { html:'<span class="znacka novo">Novo</span>', delez:0 };
+  if (n.zvezde !== undefined){
+    if (!n.zvezde) return { html:'<span class="znacka novo">Novo</span>', delez:0 };
+    return { html:'<span class="znacka">⭐ ' + n.zvezde + '</span>', delez:Math.min(1, n.zvezde / n.cilj) };
+  }
+  if (!n.delez) return { html:'<span class="znacka novo">Novo</span>', delez:0 };
+  return { html:'<span class="znacka">✅ ' + n.besedilo + '</span>', delez:n.delez };
+}
+
+function narisiKartice(){
+  $('apps').innerHTML = Object.keys(IGRE).map(function(k, i){
+    const g = IGRE[k], z = znacka(k);
+    return '<button class="app" data-igra="' + k + '" style="--c:' + g.c + ';--i:' + i + '">' +
+      '<img src="' + g.ikona + '" alt="" width="192" height="192">' +
+      '<span class="txt">' +
+        '<span class="vrh"><span class="ages">' + g.starost + '</span>' + z.html + '</span>' +
+        '<span class="nm">' + g.nm + '</span>' +
+        '<span class="sub">' + g.opis + '</span>' +
+        (z.delez ? '<span class="napredek"><i style="--w:' + Math.round(z.delez * 100) + '%"></i></span>' : '') +
+      '</span></button>';
+  }).join('');
+  const zadnja = beri('igre_zadnja');
+  if (IGRE[zadnja]){
+    const g = IGRE[zadnja];
+    $('nadaljuj').hidden = false; $('nadaljuj').classList.add('vidno');
+    $('nadaljuj').style.setProperty('--c', g.c); $('nadaljuj').dataset.igra = zadnja;
+    $('nadaljuj-ikona').src = g.ikona; $('nadaljuj-ime').textContent = g.nm;
+  }
+}
+narisiKartice();
 
 let odprta = null;   /* katera igra je naložena v okviru */
 
@@ -191,6 +322,7 @@ function odpri(k, zabelezi){
     odprta = k;
   }
   $('ptitle').textContent = g.emo + ' ' + g.nm;
+  try { localStorage.setItem('igre_zadnja', JSON.stringify(k)); } catch (err) {}
   $('bar').style.setProperty('--c', g.c);
   document.documentElement.style.setProperty('--theme', g.c);
   $('player').setAttribute('aria-hidden', 'false');
@@ -200,6 +332,7 @@ function odpri(k, zabelezi){
 
 function domov(zabelezi){
   document.body.classList.remove('playing');
+  narisiKartice();   /* zvezdice so se med igro morda spremenile */
   $('player').setAttribute('aria-hidden', 'true');
   if (zabelezi !== false && location.hash) history.pushState({}, '', location.pathname + location.search);
 }

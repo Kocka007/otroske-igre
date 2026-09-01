@@ -16,30 +16,78 @@ na računalniku, tablici ali telefonu.
 
 Na začetnem zaslonu se izbere področje; vsako ima svoj nabor iger.
 
-### 🐣 Prvi koraki (5–7 let)
+### 🐣 Prvi koraki (5–7 let) – 9 iger
 Preštej (do 10) · Seštej slike (🍎🍎 + 🍎) · **Beri števila** (*pet* = 5) ·
 **Prve besede** (preberi besedo in izberi sliko) · Oblike (krog, kvadrat, trikotnik) ·
-Primerjaj (več/manj) · Zaporedja · Kenguruček
+Primerjaj (več/manj) · Zaporedja · **Zrcalna slika** · Kenguruček
 
-### 🌱 1.–3. razred (6–9 let)
+### 🌱 1.–3. razred (6–9 let) – 19 iger
 Seštevanje · Odštevanje · Mešano · Manjka število · Primerjaj (< = >) · Preštej ·
-Zaporedja · Poštevanka · **Deljenje** · **Ura** · **Denar** · **Merske enote** ·
-Beri in računaj · Kenguruček
+Zaporedja · Poštevanka · Deljenje · Ura · Denar · Merske enote ·
+**Preglednica** (branje stolpčnega prikaza) · **Simetrija** (zrcaljenje likov) ·
+**Rimske številke** (I, V, X do 20) · **Orientacija** (levo, desno, nad, pod) ·
+**Ocenjevanje** (približen rezultat) · Beri in računaj · Kenguruček
 
-### 🌳 4.–5. razred (9–11 let)
-**Pisno računanje** (345 + 278, 47 × 6) · Deljenje z ostankom · **Ulomki** ·
-**Decimalna števila** · Merske enote · **Geometrija** (obseg, ploščina) ·
-Števila (mestne vrednosti, zaokroževanje) · Denar z evri in centi · Ura ·
-**Povprečje** · Besedilne naloge · Kenguruček
+### 🌳 4.–5. razred (9–11 let) – 16 iger
+Pisno računanje (345 + 278, 47 × 6, **pisno deljenje z ostankom**) · Deljenje z ostankom ·
+Ulomki · Decimalna števila · Merske enote ·
+Geometrija (obseg, ploščina, **krog: polmer, premer, obseg in ploščina s π**) ·
+Števila (mestne vrednosti, zaokroževanje) · Denar z evri in centi · Ura · Povprečje ·
+**Vrstni red operacij in oklepaji** · **Koordinatna mreža** · **Podatki in grafi** ·
+**Temperatura (tudi pod ničlo)** · Besedilne naloge · Kenguruček
 
-### 🚀 6.–9. razred (11–15 let)
+### 🚀 6.–9. razred (11–15 let) – 15 iger
 Ulomki (različni imenovalci, množenje) · Decimalna števila (množenje, deljenje) ·
-**Odstotki** · **Cela števila** (−5 + 8) · **Potence in koreni** · **Enačbe** (3x + 4 = 19) ·
-Geometrija (prostornina, koti, **Pitagorov izrek**) · **Razmerja in sorazmerje** ·
-Deljivost (praštevila, D in v) · Podatki (povprečje, mediana) · Kenguruček
+Odstotki (**pretvorbe ulomek ↔ decimalno ↔ odstotek, obrestni račun**) · Cela števila (−5 + 8) ·
+Potence in koreni · Enačbe (3x + 4 = 19) ·
+Geometrija (prostornina in **površina kvadra in kocke**, **prostornina valja**, koti,
+**merilo**, Pitagorov izrek) · Razmerja in sorazmerje · Deljivost (praštevila, D in v) ·
+Statistika (povprečje, mediana, **stolpčni in tortni prikaz**) ·
+**Verjetnost** · **Koordinatni sistem in linearna funkcija** ·
+**Vrstni red operacij** · Kenguruček
 
-Skupaj **43 iger**, sestavljenih iz 29 generatorjev nalog – naloge se sproti sestavljajo
+Skupaj **59 iger**, sestavljenih iz 38 generatorjev nalog – naloge se sproti sestavljajo
 z novimi števili, imeni in slikami, zato se ne ponavljajo.
+
+## Kaj je novega v tej različici 🆕
+
+**Nove teme učnega načrta**, ki jih prej ni bilo:
+
+* **Verjetnost** – gotov, mogoč in nemogoč dogodek, verjetnost kot okrajšan ulomek
+  (kocka, kroglice v vreči), verjetnost v odstotkih in nasprotni dogodek.
+* **Koordinatni sistem** – narisana mreža v SVG: branje koordinat točke, iskanje točke
+  z danima koordinatama, nato linearna funkcija (vrednost pri danem x, presečišče z osjo y, ničla).
+* **Obdelava podatkov** – narisan stolpčni prikaz: branje posamezne vrednosti, največ,
+  najmanj, vsota, razlika in povprečje; v 6.–9. razredu še tortni prikaz z odstotki.
+* **Vrstni red računskih operacij** in oklepaji – od `3 + 4 · 5` do `(24 : 6 + 5) · 3`.
+* **Simetrija in zrcaljenje** – lik v mreži in izbira pravilne zrcalne slike čez navpično os.
+* **Rimske številke** do 20 (na najvišjih stopnjah do 50), v obe smeri.
+* **Orientacija v prostoru** – levo, desno, nad, pod, na narisani mreži.
+* **Ocenjevanje rezultata** z zaokroženim računom (38 + 21 ≈ 40 + 20).
+* **Temperature pod ničlo** – razlika dveh temperatur in sprememba (zvišanje, znižanje).
+* **Krog** – polmer, premer, obseg in ploščina s π ≈ 3,14; **površina kocke in kvadra**,
+  **prostornina kocke in valja**, **merilo** (1 : 100).
+* **Pretvorbe** ulomek ↔ decimalno število ↔ odstotek in **obrestni račun**
+  (obresti za eno leto in obrestna mera).
+* **Pisno deljenje** z enomestnim (z ostankom) in dvomestnim deliteljem.
+* **Besedilne naloge**: 12 novih predlog, med njimi **dvokoračne** naloge
+  (najprej pomnoži, nato odštej) in naloge **z odvečnim podatkom**, pri katerih se je treba
+  odločiti, kateri podatki so za vprašanje sploh pomembni.
+
+**Prenovljen videz:**
+
+* **Maskota Matko** je vgrajen SVG, ne emoji: štiri razpoloženja (pozdrav, veselo,
+  zamišljeno, žalostno), mežikanje in rahlo zibanje. Odzove se na pravilen in napačen
+  odgovor ter na konec kroga; ob njem je govorni oblaček s kratkim stavkom.
+* **Ilustrirano ozadje** z bledimi števili, računskimi znaki in liki.
+* **Kartice iger** imajo nežen preliv v barvi igre, vgrajeno SVG ikono v barvnem krogu
+  in **obroč napredka** namesto črtice.
+* **Prehodi**: kratek preliv ob preklopu zaslona, možnosti odgovorov se pojavijo
+  zaporedno, gumbi se ob pritisku rahlo pomanjšajo.
+* **Slavje ob koncu kroga**: krožni prikaz odstotka pravilnih, zvezdice, ki priletijo
+  ena za drugo, in konfeti pri dobrem rezultatu.
+* **Temni način** (`prefers-color-scheme: dark`) – tudi risbe (ura, mreže, grafi)
+  uporabljajo barve iz `:root`, zato se prilagodijo skupaj s stranjo.
 
 ## Kako raste težavnost 📈
 
@@ -92,7 +140,8 @@ V kotičku za starše se šteje, koliko besedilnih nalog je otrok že prebral.
 
 ## Kako je narejeno za otroke
 
-- **Velike tipke** in lastna številčnica – ni potrebe po tipkovnici.
+- **Maskota Matko** se odziva na odgovore in v govornem oblačku spodbuja.
+- **Velike tipke** (vsaj 44 px) in lastna številčnica – ni potrebe po tipkovnici.
 - **Takojšnja pohvala** ob pravilnem odgovoru, ob napačnem pa prijazno pokaže pravilen rezultat
   (brez kaznovanja, brez odštevanja točk).
 - **💡 Namig** pri vsaki nalogi, prilagojen starosti: kroglice za štetje pri najmlajših,
@@ -102,6 +151,7 @@ V kotičku za starše se šteje, koliko besedilnih nalog je otrok že prebral.
 - 10 nalog na krog, brez ponavljanja iste naloge znotraj kroga.
 - Vsa besedila so v pravilni slovenščini, vključno z dvojino (»2 žogi«, »3 žoge«, »5 žog«).
 - Zvok se da izklopiti (🔊/🔇), animacije upoštevajo `prefers-reduced-motion`.
+- **Temni način** se vklopi sam glede na nastavitev naprave.
 - Tipkovnica se prilagodi nalogi: pri decimalnih številih dobi tipko **,** pri celih številih pa **±**.
 
 ## Kotiček za starše 👨‍👩‍👦
@@ -132,7 +182,7 @@ Vsa koda igre je zavita v `(function(){ … })()`, zato do generatorjev od zunaj
 dostopa. Bot v `preizkusi/test-matko.js` (Playwright) zato dela natanko to, kar dela
 otrok: tapka po gumbih in bere zaslon. Preveri:
 
-* da domači zaslon v vseh štirih starostnih sklopih ponudi **vseh 45 načinov**,
+* da domači zaslon v vseh štirih starostnih sklopih ponudi **vseh 59 načinov**,
   vsakega z imenom in brez podvojitev,
 * da se vsak način odpre, postavi nalogo z naslovom in besedilom, izriše krog
   desetih pik in ponudi način za odgovor – bodisi možnosti bodisi številčnico
@@ -161,9 +211,21 @@ obseg, ploščina, prostornina, vsota kotov in Pitagorov izrek, mestne vrednosti
 deljivost, praštevila, največji skupni delitelj in najmanjši skupni večkratnik, povprečje in
 mediana, sorazmerje in delitev v razmerju, imena števil in ura.
 
-Pri zadnjem temeljitem zagonu (`NA_STOPNJO=800`): **195.200 nalog iz vseh 29 generatorjev na
-vseh stopnjah, od tega 170.801 preverjenih z neodvisnim računom – brez ene same napake.**
-Preostalih 24.399 so naloge, pri katerih podpis ni račun (besedilne naloge, Kenguručkove uganke,
+Za nove sklope so v preizkusu tudi nove, prav tako neodvisne formule: verjetnost (ugodni izidi
+proti vsem, z zahtevo po okrajšanem ulomku), nasprotni dogodek, vrsta dogodka (gotov, mogoč,
+nemogoč), koordinate točke in oznaka iskane točke, linearna funkcija (vrednost, presečišče z
+osjo y in ničla), branje stolpčnega prikaza (največ, najmanj, vsota, razlika, povprečje,
+posamezna vrednost), tortni prikaz, številski izrazi z vrstnim redom operacij in oklepaji,
+zrcaljenje vzorca (z zavrnitvijo lika, ki je sam sebi zrcalen, ker bi bila naloga dvoumna),
+rimske številke, orientacija v mreži, ocenjevanje z zaokroženim računom, razlika in sprememba
+temperature, obseg in ploščina kroga s π, prostornina valja, površina kocke in kvadra, merilo,
+pretvorbe ulomek ↔ decimalno število ↔ odstotek ter obrestni račun.
+
+Pri zadnjem temeljitem zagonu (`NA_STOPNJO=800`): **245.600 nalog iz vseh 38 generatorjev na
+vseh stopnjah, od tega 221.130 preverjenih z neodvisnim računom – brez ene same napake.**
+Preostalih 24.470 so naloge, pri katerih podpis ni račun (besedilne naloge, Kenguručkove uganke,
 prepoznavanje oblik in ulomek na sliki); teh preizkus ne preskoči tiho, ampak jih posebej prešteje.
+Poleg tega preveri, da je pri **133.622** nalogah z možnostmi pravilen odgovor res med ponujenimi
+in da se nobena možnost ne ponovi.
 Če se pojavi podpis, ki ga razčlenjevalnik ne pozna, to javi kot napako – da nova naloga ne
 more mimo preverjanja.

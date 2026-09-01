@@ -5,12 +5,12 @@ brez pošiljanja podatkov na internet:
 
 | | Igra | Kaj vadi | Starost | Datoteka |
 |---|---|---|---|---|
-| 🦊 | **Matko** | matematika in branje – od štetja do enačb, geometrije in Kenguručka | 5–15 let | [`matematika.html`](matematika.html) |
-| 🦉 | **Olly** | angleščina – od prvih besed do trpnika in pogojnikov | 5–15 let | [`anglescina.html`](anglescina.html) |
-| 🌍 | **Globko** | geografija – Slovenija, Evropa in svet na pravem zemljevidu, zastave, glavna mesta, gore in reke | 6–15 let | [`geografija.html`](geografija.html) |
-| 🧠 | **Vseved** | kviz s 336 vprašanji iz dvanajstih področij: lestvica, hitri ogenj, dvoboj za dva, izziv dneva | 7 let in več | [`kviz.html`](kviz.html) |
-| 🎨 | **Barvica** | pobarvanka: 146 slik v 17 temah (22 za odrasle), 9 orodij, risanje z Apple Pencil | za vse | [`pobarvanka.html`](pobarvanka.html) |
-| 🦁 | **Kito** | ploščadna igra: 10 nivojev savane in 4 dodatne sobe, izvirna zgodba, dva načina težavnosti | 7 let in več | [`kito.html`](kito.html) |
+| 🦊 | **Matko** | matematika in branje – 59 iger: od štetja do enačb, verjetnosti, koordinatnega sistema, grafov in Kenguručka | 5–15 let | [`matematika.html`](matematika.html) |
+| 🦉 | **Olly** | angleščina – 540 besed, 21 iger, pet stopenj od A0 do B2, govor, branje in pogovori | 5–15 let | [`anglescina.html`](anglescina.html) |
+| 🌍 | **Globko** | geografija – 130 držav na pravem zemljevidu, karte Slovenije, Evrope, sveta in štirih celin, reke, merilo in legenda; 32 iger | 6–15 let | [`geografija.html`](geografija.html) |
+| 🧠 | **Vseved** | kviz s 555 vprašanji z razlago iz štirinajstih področij: lestvica, hitri ogenj, dvoboj za dva, izziv dneva | 7 let in več | [`kviz.html`](kviz.html) |
+| 🎨 | **Barvica** | pobarvanka: 219 slik v 21 temah (letni časi, črke in številke, Slovenija, mandale za odrasle), 7 načinov barvanja, risanje z Apple Pencil | za vse | [`pobarvanka.html`](pobarvanka.html) |
+| 🦁 | **Kito** | ploščadna igra: 10 nivojev savane s šefi, skritimi sobami in medaljami, 4 dodatne sobe, izvirna zgodba z epilogom | 7 let in več | [`kito.html`](kito.html) |
 
 Podroben opis: [matematika.md](matematika.md) · [anglescina.md](anglescina.md) · [geografija.md](geografija.md) · [kviz.md](kviz.md) · [pobarvanka.md](pobarvanka.md) · [kito.md](kito.md)
 
@@ -19,7 +19,7 @@ Podroben opis: [matematika.md](matematika.md) · [anglescina.md](anglescina.md) 
 **Najpreprosteje:** dvoklikni `matematika.html`, `anglescina.html`, `geografija.html`,
 `kviz.html`, `pobarvanka.html` ali `kito.html` – odpre se v brskalniku. Ni namestitve, ni interneta, ni računa.
 
-**Na iPadu ali telefonu** se igri dasta namestiti kot pravi aplikaciji – glej spodaj.
+**Na iPadu ali telefonu** se igre dajo namestiti kot ena aplikacija – glej spodaj.
 
 ## Objava na spletu (GitHub Pages)
 
@@ -33,7 +33,7 @@ GitHub Pages na brezplačnem računu deluje samo za **javne** repozitorije.
 
 ## Namestitev na začetni zaslon 📱
 
-Namestitev je **ena sama** – obe igri prideta skupaj, pod eno ikono 🎒.
+Namestitev je **ena sama** – vse igre pridejo skupaj, pod eno ikono 🎒.
 
 1. Naslov odpri v **Safariju** (iPad, iPhone) ali v **Chromu** (Android).
 2. Tapni gumb za **deljenje** (kvadratek s puščico navzgor) → **Dodaj na začetni zaslon**.
@@ -41,14 +41,14 @@ Namestitev je **ena sama** – obe igri prideta skupaj, pod eno ikono 🎒.
 Nameščena aplikacija:
 
 - se odpre **čez cel zaslon**, brez naslovne vrstice, ki bi jo otrok pomotoma spremenil,
-- na začetnem zaslonu ponudi izbiro med igrama; z gumbom **⬅️ Domov** se vrne na izbiro,
-- **deluje tudi brez interneta** (obe igri sta shranjeni na napravi),
+- na začetnem zaslonu ponudi izbiro med igrami, pokaže zvezdice vsake igre in gumb »Nadaljuj, kjer si ostal«; z gumbom **⬅️ Domov** se vrne na izbiro,
+- **deluje tudi brez interneta** (vse igre so shranjene na napravi),
 - se ob naslednjem odprtju s povezavo **sama posodobi**, če je bila igra popravljena
   (service worker jemlje strani mimo brskalnikovega predpomnilnika, sicer bi otrok
   lahko dobil do deset minut staro kopijo),
 - napredek hrani na napravi, ločeno za vsako igro.
 
-Vsaka igra teče v svojem okviru (`iframe`), zato se njuni slogi in koda ne mešajo –
+Vsaka igra teče v svojem okviru (`iframe`), zato se njihovi slogi in koda ne mešajo –
 tako se novo igro doda brez tveganja, da bi pokvarila obstoječi.
 
 ## Kaj je v mapi
@@ -104,7 +104,7 @@ Kaj preverja katera datoteka, piše v [preizkusi/README.md](preizkusi/README.md)
 ## Zasebnost
 
 Napredek se shranjuje **samo v brskalniku** (`localStorage`), na napravi.
-Igri ne pošiljata ničesar na internet in ne zbirata nobenih podatkov.
+Igre ne pošiljajo ničesar na internet in ne zbirajo nobenih podatkov.
 Edina zunanja stvar je pisava Nunito z Google Fonts; če je ni, se uporabi
 sistemska pisava in vse deluje naprej.
 

@@ -131,8 +131,8 @@ async function odgovori(stran, prav, naprej){
   t5.enako(drugi.join('|'), prvi.join('|'), 'izziv dneva je drugič izbral druga vprašanja');
   t5.enako(new Set(prvi).size, 10, 'izziv dneva ponovi isto vprašanje znotraj kroga');
   /* napredek ne sme vplivati */
-  await stran.evaluate(() => { STANJE.st = { narava:3, telo:3, vesolje:3, znanost:3, zgodovina:3, geo:3,
-    sport:3, kultura:3, jezik:3, logika:3, vsakdan:3, slo:3 }; STANJE.slabo = { }; shrani(); });
+  await stran.evaluate(() => { STANJE.st = {}; PODROCJA.forEach(p => STANJE.st[p.id] = 3);
+    STANJE.slabo = { }; shrani(); });
   const tretji = await izzivVprasanja();
   t5.enako(tretji.join('|'), prvi.join('|'), 'izziv dneva se je spremenil, ko se je spremenil napredek');
   /* drug datum mora dati drugačen izbor */
@@ -159,6 +159,34 @@ async function odgovori(stran, prav, naprej){
     '(iz ' + zacetek.i + ' v ' + po.i + ')');
   t6.trdi(po.v === zacetek.v, 'novemu krogu se je vprašanje zamenjalo samo od sebe');
   preizkusi.push(t6);
+
+  /* --- 7. pomešani hitri ogenj se prilagaja igralcu --- */
+  /* Napredek pomešanih vprašanj se piše pod ključ 'mesano'. Če ga bralec zahtevnosti
+     išče pod drugačnim ključem (npr. 'mešano' s strešico), prilagajanja sploh ni. */
+  const t7 = preizkus('hitri ogenj bere napredek pomešanih vprašanj');
+  await stran.evaluate(() => {
+    localStorage.clear();
+    STANJE = Object.assign({}, SVEZE, { st:{ mesano:3 }, gor:{}, dol:{}, stat:{}, slabo:{}, rek:{}, izziv:{} });
+    STANJE.tezavnost = 'auto'; shrani();
+  });
+  await zacniNacin(stran, 'hitri');
+  const stopnja = await stran.evaluate(() => stopnjaZaVprasanje());
+  t7.enako(stopnja, 2,
+    'pri pomešanem hitrem ognju mora dosežena stopnja 3 pod ključem »mesano« dati zahtevnost 2');
+
+  await stran.evaluate(() => { STANJE.st = {}; STANJE.gor = {}; STANJE.dol = {}; shrani(); });
+  for (let i = 0; i < 4; i++){
+    const st = await stanjeKroga(stran);
+    if (!st || st.konec) break;
+    await stran.evaluate(a => document.querySelector('#opts .opt[data-i="' + a + '"]').click(), st.a);
+    await stran.waitForFunction(i2 => !tek || tek.konec || tek.i > i2, st.i, { timeout: 3000 }).catch(() => {});
+  }
+  const kljuci = await stran.evaluate(() => Object.keys(STANJE.gor).concat(Object.keys(STANJE.st)));
+  t7.trdi(kljuci.indexOf('mesano') >= 0,
+    'po pravilnih odgovorih v pomešanem krogu ni zapisa pod ključem »mesano«: ' + JSON.stringify(kljuci));
+  t7.trdi(!kljuci.some(k => /[šč]/.test(k)),
+    'napredek se je zapisal pod ključ s šumnikom: ' + JSON.stringify(kljuci));
+  preizkusi.push(t7);
 
   const tN = preizkus('brez napak v konzoli');
   tN.trdi(napake.length === 0, 'napake strani: ' + napake.slice(0, 5).join(' | '));

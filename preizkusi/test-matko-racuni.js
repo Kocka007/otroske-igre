@@ -467,6 +467,319 @@ function preveriPodpis(gen, vrstica, odgovor){
     return { ok:true };
   }
 
+  /* --- verjetnost: gotov / mogoč / nemogoč --------------------------- */
+  m = l.match(/^dogodek:\s*(\d+) ugodnih od (\d+)\s*(?:→|->)\s*(gotov|mogoč|nemogoč)$/);
+  if (m){
+    const u = +m[1], v = +m[2];
+    if (v === 0) return { ok:false, zakaj: 'vseh izidov ne more biti nič: ' + l };
+    if (u > v) return { ok:false, zakaj: 'ugodnih izidov je več kot vseh: ' + l };
+    const prav = u === 0 ? 'nemogoč' : (u === v ? 'gotov' : 'mogoč');
+    if (prav !== m[3]) return { ok:false, zakaj: 'vrsta dogodka ne drži: ' + l + ', pravilno ' + prav };
+    if (String(odgovor) !== m[3]) return { ok:false, zakaj: 'odgovor ni vrsta dogodka: ' + l };
+    return { ok:true };
+  }
+
+  /* --- verjetnost kot ulomek ali odstotek ---------------------------- */
+  m = l.match(/^verjetnost:\s*(\d+) ugodnih od (\d+)\s*=\s*(\d+)\/(\d+)$/);
+  if (m){
+    const u = +m[1], v = +m[2], a = +m[3], b = +m[4];
+    if (v === 0 || b === 0) return { ok:false, zakaj: 'deljenje z nič: ' + l };
+    if (u > v) return { ok:false, zakaj: 'ugodnih je več kot vseh: ' + l };
+    if (!priblizno(zaokr(u / v), zaokr(a / b)))
+      return { ok:false, zakaj: 'verjetnost ne drži: ' + l + ', pravilno ' + (u / v) };
+    if (nsd(a, b) !== 1) return { ok:false, zakaj: 'ulomek ni okrajšan do konca: ' + l };
+    if (String(odgovor).replace(/\s/g, '') !== (a + '/' + b))
+      return { ok:false, zakaj: 'odgovor ni izid: ' + l + ' (odgovor ' + odgovor + ')' };
+    return { ok:true };
+  }
+  m = l.match(new RegExp('^verjetnost:\\s*(\\d+) ugodnih od (\\d+)\\s*=\\s*' + num + '\\s*%$'));
+  if (m){
+    const u = +m[1], v = +m[2], p = st(m[3]);
+    if (v === 0) return { ok:false, zakaj: 'vseh izidov ne more biti nič: ' + l };
+    if (!priblizno(zaokr(u / v * 100), zaokr(p)))
+      return { ok:false, zakaj: 'verjetnost v odstotkih ne drži: ' + l + ', pravilno ' + (u / v * 100) };
+    if (!priblizno(st(odgovor), p)) return { ok:false, zakaj: 'odgovor ni izid: ' + l };
+    return { ok:true };
+  }
+  m = l.match(/^nasprotni dogodek:\s*1\s*−\s*(\d+)\/(\d+)\s*=\s*(\d+)\/(\d+)$/);
+  if (m){
+    const a = +m[1], b = +m[2], c = +m[3], d = +m[4];
+    if (b === 0 || d === 0) return { ok:false, zakaj: 'imenovalec je nič: ' + l };
+    if (!priblizno(zaokr(1 - a / b), zaokr(c / d)))
+      return { ok:false, zakaj: 'nasprotni dogodek ne drži: ' + l + ', pravilno ' + (1 - a / b) };
+    if (nsd(c, d) !== 1) return { ok:false, zakaj: 'ulomek ni okrajšan do konca: ' + l };
+    if (String(odgovor).replace(/\s/g, '') !== (c + '/' + d))
+      return { ok:false, zakaj: 'odgovor ni izid: ' + l };
+    return { ok:true };
+  }
+
+  /* --- koordinatni sistem -------------------------------------------- */
+  m = l.match(/^koordinate:\s*točka T\((\d+),\s*(\d+)\)\s*(?:→|->)\s*\((\d+),\s*(\d+)\)$/);
+  if (m){
+    if (m[1] !== m[3] || m[2] !== m[4])
+      return { ok:false, zakaj: 'zapis koordinat se ne ujema z narisano točko: ' + l };
+    if (String(odgovor).replace(/\s/g, '') !== ('(' + m[3] + ',' + m[4] + ')'))
+      return { ok:false, zakaj: 'odgovor ni par koordinat: ' + l + ' (odgovor ' + odgovor + ')' };
+    return { ok:true };
+  }
+  m = l.match(/^koordinate:\s*(.+),\s*iskana \((\d+),(\d+)\)\s*(?:→|->)\s*([A-D])$/);
+  if (m){
+    const tocke = {};
+    const vsi = m[1].match(/([A-D])\((\d+),(\d+)\)/g) || [];
+    if (vsi.length !== 4) return { ok:false, zakaj: 'ni štirih točk: ' + l };
+    vsi.forEach(t => {
+      const d = t.match(/([A-D])\((\d+),(\d+)\)/);
+      tocke[d[1]] = d[2] + ',' + d[3];
+    });
+    const iskana = m[2] + ',' + m[3];
+    const ujemanja = Object.keys(tocke).filter(k => tocke[k] === iskana);
+    if (ujemanja.length !== 1)
+      return { ok:false, zakaj: 'iskane koordinate ne pripadajo natanko eni točki: ' + l };
+    if (ujemanja[0] !== m[4])
+      return { ok:false, zakaj: 'oznaka točke ne drži: ' + l + ', pravilno ' + ujemanja[0] };
+    if (String(odgovor) !== m[4]) return { ok:false, zakaj: 'odgovor ni oznaka točke: ' + l };
+    return { ok:true };
+  }
+
+  /* --- linearna funkcija --------------------------------------------- */
+  /* Predpis y = kx + n, kjer je k lahko izpuščen (y = x) in n lahko manjka. */
+  const predpis = '^funkcija:\\s*y = (\\d*)x(?:\\s*([+−])\\s*(\\d+))?';
+  m = l.match(new RegExp(predpis + ',\\s*x = ' + num + '\\s*(?:→|->)\\s*y = ' + num + '$'));
+  if (m){
+    const k = m[1] === '' ? 1 : +m[1];
+    const n = m[3] === undefined ? 0 : (m[2] === '−' ? -(+m[3]) : +m[3]);
+    const x = st(m[4]), y = st(m[5]);
+    if (!priblizno(zaokr(k * x + n), zaokr(y)))
+      return { ok:false, zakaj: 'vrednost funkcije ne drži: ' + l + ', pravilno ' + (k * x + n) };
+    if (!priblizno(st(odgovor), y)) return { ok:false, zakaj: 'odgovor ni vrednost y: ' + l };
+    return { ok:true };
+  }
+  m = l.match(new RegExp(predpis + '\\s*(?:→|->)\\s*presečišče \\(0, ' + num + '\\)$'));
+  if (m){
+    const n = m[3] === undefined ? 0 : (m[2] === '−' ? -(+m[3]) : +m[3]);
+    if (!priblizno(st(m[4]), n))
+      return { ok:false, zakaj: 'presečišče z osjo y ne drži: ' + l + ', pravilno (0, ' + n + ')' };
+    const pricakovan = '(0,' + String(n).replace('-', '−') + ')';
+    if (String(odgovor).replace(/\s/g, '') !== pricakovan)
+      return { ok:false, zakaj: 'odgovor ni presečišče: ' + l + ' (odgovor ' + odgovor + ')' };
+    return { ok:true };
+  }
+  m = l.match(new RegExp(predpis + '\\s*(?:→|->)\\s*ničla x = ' + num + '$'));
+  if (m){
+    const k = m[1] === '' ? 1 : +m[1];
+    const n = m[3] === undefined ? 0 : (m[2] === '−' ? -(+m[3]) : +m[3]);
+    const x = st(m[4]);
+    if (k === 0) return { ok:false, zakaj: 'strmina je nič: ' + l };
+    if (!priblizno(zaokr(k * x + n), 0))
+      return { ok:false, zakaj: 'ničla ne drži: ' + l + ', pravilno ' + (-n / k) };
+    if (!priblizno(st(odgovor), x)) return { ok:false, zakaj: 'odgovor ni ničla: ' + l };
+    return { ok:true };
+  }
+
+  /* --- obdelava podatkov --------------------------------------------- */
+  m = l.match(new RegExp('^podatki \\[([^\\]]+)\\]:\\s*(največ|najmanj|vsota|razlika|povprečje|mesto \\d+)\\s*=\\s*' + num + '$'));
+  if (m){
+    const v = m[1].split(',').map(x => st(x));
+    if (v.some(x => !isFinite(x))) return { ok:false, zakaj: 'podatkov ne znam prebrati: ' + l };
+    const c = st(m[3]);
+    let prav;
+    if (m[2] === 'največ') prav = Math.max.apply(null, v);
+    else if (m[2] === 'najmanj') prav = Math.min.apply(null, v);
+    else if (m[2] === 'vsota') prav = v.reduce((a, b) => a + b, 0);
+    else if (m[2] === 'razlika') prav = Math.max.apply(null, v) - Math.min.apply(null, v);
+    else if (m[2] === 'povprečje') prav = v.reduce((a, b) => a + b, 0) / v.length;
+    else {
+      const i = +m[2].split(' ')[1];
+      if (i < 1 || i > v.length) return { ok:false, zakaj: 'mesto je izven prikaza: ' + l };
+      prav = v[i-1];
+    }
+    if (!priblizno(zaokr(prav), zaokr(c)))
+      return { ok:false, zakaj: m[2] + ' ne drži: ' + l + ', pravilno ' + prav };
+    if (!priblizno(st(odgovor), c)) return { ok:false, zakaj: 'odgovor ni izid: ' + l };
+    return { ok:true };
+  }
+  m = l.match(new RegExp('^tortni prikaz:\\s*(\\d+) od (\\d+)\\s*=\\s*' + num + '\\s*%$'));
+  if (m){
+    const del = +m[1], celota = +m[2], c = st(m[3]);
+    if (celota === 0) return { ok:false, zakaj: 'celota je nič: ' + l };
+    if (del > celota) return { ok:false, zakaj: 'del je večji od celote: ' + l };
+    if (!priblizno(zaokr(del / celota * 100), zaokr(c)))
+      return { ok:false, zakaj: 'delež ne drži: ' + l + ', pravilno ' + (del / celota * 100) };
+    if (!priblizno(st(odgovor), c)) return { ok:false, zakaj: 'odgovor ni izid: ' + l };
+    return { ok:true };
+  }
+
+  /* --- številski izraz z vrstnim redom operacij ----------------------- */
+  m = l.match(new RegExp('^izraz:\\s*(.+?)\\s*=\\s*' + num + '$'));
+  if (m){
+    const t = m[1].replace(/·|×/g, '*').replace(/:/g, '/').replace(/−/g, '-').replace(/\s+/g, '');
+    if (!/^[-+*/().\d]+$/.test(t)) return { ok:false, zakaj: 'izraza ne znam prebrati: ' + l };
+    let prav;
+    try { prav = Function('"use strict";return (' + t + ')')(); } catch (e){ prav = null; }
+    if (prav === null) return { ok:false, zakaj: 'izraza ne znam izračunati: ' + l };
+    if (!priblizno(zaokr(prav), zaokr(st(m[2]))))
+      return { ok:false, zakaj: 'izraz ne drži: ' + l + ', pravilno ' + prav };
+    if (!priblizno(st(odgovor), st(m[2]))) return { ok:false, zakaj: 'odgovor ni izid: ' + l };
+    return { ok:true };
+  }
+
+  /* --- zrcaljenje vzorca --------------------------------------------- */
+  m = l.match(/^zrcaljenje:\s*([01,]+)\s*(?:→|->)\s*([01,]+)$/);
+  if (m){
+    const izvor = m[1].split(','), cilj = m[2].split(',');
+    if (izvor.length !== cilj.length) return { ok:false, zakaj: 'vzorca nista enako visoka: ' + l };
+    const prav = izvor.map(v => v.split('').reverse().join(''));
+    if (prav.join(',') !== cilj.join(','))
+      return { ok:false, zakaj: 'zrcalna slika ne drži: ' + l + ', pravilno ' + prav.join(',') };
+    if (prav.join(',') === izvor.join(','))
+      return { ok:false, zakaj: 'lik je sam sebi zrcalen, naloga je dvoumna: ' + l };
+    if (String(odgovor) !== cilj.join(','))
+      return { ok:false, zakaj: 'odgovor ni zrcalna slika: ' + l };
+    return { ok:true };
+  }
+
+  /* --- rimske številke ------------------------------------------------ */
+  m = l.match(/^rimsko ([IVXLCDM]+) = (\d+)$/);
+  if (m){
+    const Z = { I:1, V:5, X:10, L:50, C:100, D:500, M:1000 };
+    const r = m[1];
+    let v = 0;
+    for (let i = 0; i < r.length; i++){
+      const a = Z[r[i]], b = Z[r[i+1]] || 0;
+      v += a < b ? -a : a;
+    }
+    if (v !== +m[2])
+      return { ok:false, zakaj: 'rimski zapis ne drži: ' + l + ', ' + r + ' je ' + v };
+    if (String(odgovor) !== r && String(odgovor) !== m[2])
+      return { ok:false, zakaj: 'odgovor ni nobena od strani zapisa: ' + l };
+    return { ok:true };
+  }
+
+  /* --- orientacija v mreži -------------------------------------------- */
+  m = l.match(/^orientacija:\s*\((\d+),(\d+)\) proti \((\d+),(\d+)\)\s*(?:→|->)\s*(levo|desno|nad|pod)$/);
+  if (m){
+    const x1 = +m[1], y1 = +m[2], x2 = +m[3], y2 = +m[4];
+    let prav = null;
+    if (y1 === y2 && x1 !== x2) prav = x1 < x2 ? 'levo' : 'desno';
+    else if (x1 === x2 && y1 !== y2) prav = y1 < y2 ? 'nad' : 'pod';
+    if (prav === null) return { ok:false, zakaj: 'lega ni enolična (predmeta nista v isti vrstici ali stolpcu): ' + l };
+    if (prav !== m[5]) return { ok:false, zakaj: 'lega ne drži: ' + l + ', pravilno ' + prav };
+    if (String(odgovor) !== m[5]) return { ok:false, zakaj: 'odgovor ni lega: ' + l };
+    return { ok:true };
+  }
+
+  /* --- ocenjevanje z zaokroženim računom ------------------------------ */
+  m = l.match(new RegExp('^ocena:\\s*' + num + '\\s*([+' + MINUS + '])\\s*' + num + '\\s*≈\\s*' +
+                         num + '\\s*([+' + MINUS + '])\\s*' + num + '\\s*=\\s*' + num + '$'));
+  if (m){
+    const a = st(m[1]), z = m[2], b = st(m[3]), za = st(m[4]), z2 = m[5], zb = st(m[6]), c = st(m[7]);
+    if (z !== z2) return { ok:false, zakaj: 'računski znak se med zaokroževanjem spremeni: ' + l };
+    const ustreza = osnova => Math.round(a / osnova) * osnova === za && Math.round(b / osnova) * osnova === zb;
+    if (!ustreza(10) && !ustreza(100))
+      return { ok:false, zakaj: 'zaokroževanje ne drži: ' + l +
+        ' (na desetice bi bilo ' + (Math.round(a/10)*10) + ' in ' + (Math.round(b/10)*10) + ')' };
+    const prav = z === '+' ? za + zb : za - zb;
+    if (prav !== c) return { ok:false, zakaj: 'ocenjeni račun ne drži: ' + l + ', pravilno ' + prav };
+    if (prav <= 0 && z !== '+') return { ok:false, zakaj: 'ocenjeni izid ni pozitiven: ' + l };
+    if (!priblizno(st(odgovor), c)) return { ok:false, zakaj: 'odgovor ni ocenjeni izid: ' + l };
+    return { ok:true };
+  }
+
+  /* --- temperature ---------------------------------------------------- */
+  m = l.match(new RegExp('^temperatura: od ' + num + ' °C do ' + num + ' °C\\s*(?:→|->)\\s*razlika ' + num + ' °C$'));
+  if (m){
+    const a = st(m[1]), b = st(m[2]), c = st(m[3]);
+    if (b - a !== c) return { ok:false, zakaj: 'razlika temperatur ne drži: ' + l + ', pravilno ' + (b - a) };
+    if (c <= 0) return { ok:false, zakaj: 'razlika ni pozitivna: ' + l };
+    if (!priblizno(st(odgovor), c)) return { ok:false, zakaj: 'odgovor ni razlika: ' + l };
+    return { ok:true };
+  }
+  m = l.match(new RegExp('^temperatura: ' + num + ' °C se (zviša|zniža) za ' + num + ' °C\\s*(?:→|->)\\s*' + num + ' °C$'));
+  if (m){
+    const a = st(m[1]), d = st(m[3]), c = st(m[4]);
+    const prav = m[2] === 'zviša' ? a + d : a - d;
+    if (prav !== c) return { ok:false, zakaj: 'sprememba temperature ne drži: ' + l + ', pravilno ' + prav };
+    if (!priblizno(st(odgovor), c)) return { ok:false, zakaj: 'odgovor ni nova temperatura: ' + l };
+    return { ok:true };
+  }
+
+  /* --- krog, valj, merilo (π ≈ 3,14) ---------------------------------- */
+  const PI = 3.14;
+  const naDve = x => Math.round(x * 100) / 100;
+  m = l.match(new RegExp('^krog r=(\\d+)\\s*(?:→|->)\\s*(obseg|ploščina|premer) ' + num + '(?: cm.?)?$'));
+  if (m){
+    const r = +m[1], c = st(m[3]);
+    const prav = m[2] === 'obseg' ? naDve(2 * PI * r) : m[2] === 'ploščina' ? naDve(PI * r * r) : 2 * r;
+    if (!priblizno(prav, c))
+      return { ok:false, zakaj: m[2] + ' kroga ne drži: ' + l + ', pravilno ' + prav };
+    if (!priblizno(st(odgovor), c)) return { ok:false, zakaj: 'odgovor ni izid: ' + l };
+    return { ok:true };
+  }
+  m = l.match(new RegExp('^krog d=(\\d+)\\s*(?:→|->)\\s*polmer ' + num + '(?: cm)?$'));
+  if (m){
+    const d = +m[1], c = st(m[2]);
+    if (!priblizno(d / 2, c)) return { ok:false, zakaj: 'polmer ne drži: ' + l + ', pravilno ' + (d/2) };
+    if (!priblizno(st(odgovor), c)) return { ok:false, zakaj: 'odgovor ni polmer: ' + l };
+    return { ok:true };
+  }
+  m = l.match(new RegExp('^valj r=(\\d+), v=(\\d+)\\s*(?:→|->)\\s*prostornina ' + num + '(?: cm³)?$'));
+  if (m){
+    const r = +m[1], v = +m[2], c = st(m[3]);
+    const prav = naDve(PI * r * r * v);
+    if (!priblizno(prav, c)) return { ok:false, zakaj: 'prostornina valja ne drži: ' + l + ', pravilno ' + prav };
+    if (!priblizno(st(odgovor), c)) return { ok:false, zakaj: 'odgovor ni izid: ' + l };
+    return { ok:true };
+  }
+  m = l.match(new RegExp('^merilo 1 : (\\d+), na načrtu ' + num + ' cm\\s*(?:→|->)\\s*v naravi ' + num + ' cm$'));
+  if (m){
+    const mer = +m[1], d = st(m[2]), c = st(m[3]);
+    if (!priblizno(d * mer, c)) return { ok:false, zakaj: 'merilo ne drži: ' + l + ', pravilno ' + (d * mer) };
+    if (!priblizno(st(odgovor), c)) return { ok:false, zakaj: 'odgovor ni izid: ' + l };
+    return { ok:true };
+  }
+
+  /* --- pretvorbe ulomek / decimalno število / odstotek ----------------- */
+  m = l.match(/^pretvorba:\s*(.+?)\s*=\s*(.+)$/);
+  if (m){
+    const beri = t => {
+      t = String(t).trim();
+      let d = t.match(/^(\d+)\/(\d+)$/);
+      if (d) return { v: +d[1] / +d[2], okrajsan: nsd(+d[1], +d[2]) === 1, ulomek:true };
+      d = t.match(/^(-?\d+(?:[,.]\d+)?)\s*%$/);
+      if (d) return { v: st(d[1]) / 100 };
+      d = t.match(/^(-?\d+(?:[,.]\d+)?)$/);
+      if (d) return { v: st(d[1]) };
+      return null;
+    };
+    const a = beri(m[1]), b = beri(m[2]);
+    if (!a || !b) return { ok:false, zakaj: 'zapisa ne znam prebrati: ' + l };
+    if (!priblizno(zaokr(a.v), zaokr(b.v)))
+      return { ok:false, zakaj: 'pretvorba ne drži: ' + l + ' (' + a.v + ' proti ' + b.v + ')' };
+    if (b.ulomek && !b.okrajsan) return { ok:false, zakaj: 'izid ni okrajšan do konca: ' + l };
+    if (String(odgovor).replace(/\s/g, '') !== String(m[2]).replace(/\s/g, ''))
+      return { ok:false, zakaj: 'odgovor ni desna stran pretvorbe: ' + l + ' (odgovor ' + odgovor + ')' };
+    return { ok:true };
+  }
+
+  /* --- obrestni račun -------------------------------------------------- */
+  m = l.match(new RegExp('^obresti: glavnica ' + num + ' €, ' + num + ' % letno\\s*(?:→|->)\\s*' + num + ' €$'));
+  if (m){
+    const g = st(m[1]), mera = st(m[2]), c = st(m[3]);
+    if (!priblizno(zaokr(g * mera / 100), zaokr(c)))
+      return { ok:false, zakaj: 'obresti ne držijo: ' + l + ', pravilno ' + (g * mera / 100) };
+    if (!priblizno(st(odgovor), c)) return { ok:false, zakaj: 'odgovor ni znesek obresti: ' + l };
+    return { ok:true };
+  }
+  m = l.match(new RegExp('^obrestna mera: glavnica ' + num + ' €, obresti ' + num + ' €\\s*(?:→|->)\\s*' + num + ' %$'));
+  if (m){
+    const g = st(m[1]), o = st(m[2]), c = st(m[3]);
+    if (g === 0) return { ok:false, zakaj: 'glavnica je nič: ' + l };
+    if (!priblizno(zaokr(o / g * 100), zaokr(c)))
+      return { ok:false, zakaj: 'obrestna mera ne drži: ' + l + ', pravilno ' + (o / g * 100) };
+    if (!priblizno(st(odgovor), c)) return { ok:false, zakaj: 'odgovor ni obrestna mera: ' + l };
+    return { ok:true };
+  }
+
   return null;                                 /* vzorca ne poznamo */
 }
 
@@ -510,7 +823,7 @@ const BREZ_RACUNA = [
 
   const t0 = preizkus('kodo generatorjev je mogoče izluščiti in pognati');
   t0.trdi(podatki.napakeGen.length === 0, 'napake generatorjev: ' + podatki.napakeGen.slice(0, 5).join(' | '));
-  t0.trdi(podatki.generatorjev >= 29, 'izluščenih le ' + podatki.generatorjev + ' generatorjev');
+  t0.trdi(podatki.generatorjev >= 38, 'izluščenih le ' + podatki.generatorjev + ' generatorjev');
   t0.trdi(podatki.naloge.length > 1000, 'premalo generiranih nalog: ' + podatki.naloge.length);
   t0.trdi(napake.length === 0, 'napake strani: ' + napake.slice(0, 3).join(' | '));
   preizkusi.push(t0);

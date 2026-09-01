@@ -15,7 +15,8 @@ async function odigrajKrog(stran, t, podId, gid, kje){
       i: tek.i, tip: tek.q.tip, a: tek.q.a, cilj: tek.q.cilj,
       v: tek.q.v, stOpts: tek.q.opts ? tek.q.opts.length : 0,
       stTock: tek.q.tocke ? tek.q.tocke.length : 0,
-      stZivih: tek.q.zive ? tek.q.zive.length : null
+      stZivih: tek.q.zive ? tek.q.zive.length : null,
+      zap: tek.q.zap ? tek.q.zap.slice() : null
     }));
     t.enako(st.i, korak, kje + 'števec vprašanj');
     t.trdi(st.v && st.v.length > 4, kje + 'prazno vprašanje v ' + korak + '. koraku');
@@ -42,6 +43,28 @@ async function odigrajKrog(stran, t, podId, gid, kje){
         document.querySelector('#karta .dz[data-id="' + id + '"]').dispatchEvent(
           new MouseEvent('click', { bubbles: true }));
       }, { zadene, cilj: st.cilj });
+    } else if (st.tip === 'sosede') {
+      const zivih = await stran.evaluate(() => document.querySelectorAll('#karta .dz.igra').length);
+      t.enako(zivih, st.stZivih, kje + 'število osvetljenih držav pri zaporedju sosed');
+      t.trdi(st.zap && st.zap.length >= 2, kje + 'zaporedje sosed je prekratko');
+      const tapni = id => stran.evaluate(i => document.querySelector('#karta .dz[data-id="' + i + '"]')
+        .dispatchEvent(new MouseEvent('click', { bubbles: true })), id);
+      if (zadene) {
+        for (let s = 0; s < st.zap.length; s++) {
+          await tapni(st.zap[s]);
+          if (s + 1 < st.zap.length) {
+            const korak = await stran.evaluate(() => tek.korak);
+            t.enako(korak, s + 1, kje + 'števec najdenih sosed po ' + (s + 1) + '. tapu');
+            t.trdi(!(await stran.evaluate(() => tek.odgovorjeno)),
+              kje + 'krog se je zaključil, preden so bile najdene vse sosede');
+          }
+        }
+      } else {
+        const napacna = await stran.evaluate(z => Array.from(document.querySelectorAll('#karta .dz.igra'))
+          .map(p => p.dataset.id).filter(x => z.indexOf(x) < 0)[0], st.zap);
+        t.trdi(!!napacna, kje + 'na zemljevidu ni osvetljene države, ki ne bi bila soseda');
+        await tapni(napacna);
+      }
     } else {
       const pike = await stran.$$('#karta .tocka');
       t.enako(pike.length, st.stTock, kje + 'število izrisanih pik');

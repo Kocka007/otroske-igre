@@ -176,19 +176,234 @@ h2.section{font-size:19px;margin:22px 4px 10px;font-weight:900;color:var(--ink-s
 @keyframes pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}
   25%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}
   100%{opacity:0;transform:translate(-50%,-140%) scale(1)}}
+
+/* ======================================================================
+   PRENOVA: maskota Globko, ilustrirano ozadje, kartice, prehodi, slavje
+   in temni način. Vse spodnje pravilo pride za starimi, zato jih po
+   potrebi povozi.
+   ====================================================================== */
+
+:root{
+  --kopno2:#dcd0b0;              /* spodnja barva reliefnega preliva kopnega */
+  --morje2:#a9d8ef;
+  --reka:#4aa3d6; --jezero:#7cc3e8;
+  --obroba-napisa:#ffffff;       /* obroba imen na zemljevidu */
+  --sence:rgba(18,51,58,.10);
+  --papir:#ffffff; --papir2:#f4fbfa;
+  --ozadje:#eef7f5;
+  --oblacek:#ffffff;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --ink:#e7f2f2; --ink-soft:#a9c2c6;
+    --card:#173038; --papir:#173038; --papir2:#12272e;
+    --line:#2b4a52;
+    --ozadje:#0d1f25;
+    --acc:#22b3a4; --acc-d:#0d7d72;
+    --acc2:#f0793f; --acc2-d:#c85a26;
+    --ok:#28c47f; --ok-d:#15915b;
+    --no:#f2762e; --no-d:#c05619;
+    --morje:#123c50; --morje2:#0d2f3f;
+    --kopno:#54533c; --kopno2:#3e4030; --meja:#94a795;
+    --reka:#5cb8ea; --jezero:#3f88b0;
+    --obroba-napisa:#0d1f25;
+    --sence:rgba(0,0,0,.45);
+    --oblacek:#1d3b44;
+    --gold:#ffc233;
+  }
+  body{background:var(--ozadje);
+    background-image:
+      radial-gradient(1100px 700px at 8% -10%, #14343d 0%, transparent 60%),
+      radial-gradient(900px 620px at 100% 0%, #2a2029 0%, transparent 55%),
+      radial-gradient(900px 700px at 50% 115%, #0f2b38 0%, transparent 60%)}
+  .btn-ghost{background:rgba(255,255,255,.07)}
+  .opt{background:var(--papir2)}
+  .seznam li{background:var(--papir2)}
+  .zoom button{background:rgba(23,48,56,.92);color:var(--ink)}
+  .modal .box{background:var(--card)}
+  .zem path.dz.igra{fill:#6b6446}
+  .zem path.dz.igra:hover{fill:#867c55}
+  .zem path.dz.zad{fill:#3a3f34}
+  .zem path.dz.tuja{fill:#39413a}
+  .zem path.dz.nas{fill:#2f5a3c;stroke:#7fc08d}
+  .zem .tocka circle{fill:#f4fbfa;stroke:#0d7d72}
+  .pill,.icon-btn,.step,.mode{background:var(--card)}
+}
+
+/* ---------- ilustrirano ozadje ---------- */
+.ozadje{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.ozadje svg{position:absolute;opacity:.16}
+.ozadje .val1{left:-6%;bottom:-2%;width:120%;opacity:.22}
+.ozadje .kompas{right:-40px;top:8%;width:230px;opacity:.13}
+.ozadje .celine{left:-30px;top:26%;width:280px;opacity:.12}
+.ozadje .celine2{right:6%;bottom:18%;width:210px;opacity:.10}
+@media (prefers-color-scheme: dark){ .ozadje svg{opacity:.10} .ozadje .val1{opacity:.13} }
+
+/* ---------- maskota Globko ---------- */
+.globko{display:block;overflow:visible}
+.globko .telo{transform-origin:50% 60%;animation:globkoZiba 4.5s ease-in-out infinite}
+.globko .veka{transform-origin:50% 50%;animation:globkoMezik 5.2s infinite}
+@keyframes globkoZiba{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2.5deg)}}
+@keyframes globkoMezik{0%,92%,100%{transform:scaleY(0)}94%,98%{transform:scaleY(1)}}
+.globko.skoci .telo{animation:globkoSkok .6s ease-out}
+@keyframes globkoSkok{0%{transform:translateY(0) scale(1)}
+  35%{transform:translateY(-10%) scale(1.06)}70%{transform:translateY(2%) scale(.97)}
+  100%{transform:translateY(0) scale(1)}}
+.globko.trese .telo{animation:globkoTres .45s}
+@keyframes globkoTres{0%,100%{transform:translateX(0)}20%{transform:translateX(-5%)}
+  45%{transform:translateX(5%)}70%{transform:translateX(-3%)}}
+
+.maskota{display:flex;align-items:flex-end;gap:12px;margin:0 0 14px}
+.maskota .globko{flex:0 0 auto}
+.oblacek{position:relative;background:var(--oblacek);border-radius:18px;padding:12px 15px;
+  font-weight:800;font-size:15.5px;line-height:1.45;box-shadow:0 6px 18px var(--sence);
+  flex:1;min-width:0}
+.oblacek::before{content:"";position:absolute;left:-9px;bottom:16px;width:0;height:0;
+  border:9px solid transparent;border-right-color:var(--oblacek);border-left:0}
+.oblacek b{color:var(--acc-d)}
+@media (prefers-color-scheme: dark){ .oblacek b{color:var(--acc)} }
+
+/* ---------- glava ---------- */
+.top .globko{width:46px;height:46px}
+.brand{gap:8px}
+
+/* ---------- kartice področij in iger ---------- */
+.step,.mode{background:
+  linear-gradient(180deg, color-mix(in srgb, var(--c,var(--acc)) 14%, var(--card)) 0%,
+                          var(--card) 62%)}
+.step{display:flex;gap:13px;align-items:flex-start;padding:16px}
+.step .ikona,.mode .ikona{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;
+  font-size:28px;background:color-mix(in srgb, var(--c,var(--acc)) 26%, var(--card));
+  box-shadow:0 3px 0 color-mix(in srgb, var(--c,var(--acc)) 45%, var(--card));flex:0 0 auto}
+.step .besedilo{min-width:0}
+.mode{display:flex;flex-direction:column;align-items:center;gap:2px}
+.mode .ikona{width:56px;height:56px;border-radius:999px;font-size:30px;margin-bottom:6px}
+.step::after,.mode::after{height:7px;opacity:.95}
+.mode .zvezdice{display:flex;gap:3px;justify-content:center;margin-top:7px;font-size:14px;line-height:1}
+.mode .zvezdice i{font-style:normal;filter:grayscale(1);opacity:.35}
+.mode .zvezdice i.on{filter:none;opacity:1}
+.mode .obroc{position:absolute;top:12px;right:12px;width:34px;height:34px}
+.mode .obroc circle{fill:none;stroke-width:5}
+.mode .obroc .pod{stroke:var(--line)}
+.mode .obroc .nad{stroke:var(--c,var(--acc));stroke-linecap:round;
+  transform:rotate(-90deg);transform-origin:50% 50%}
+.mode .obroc text{font-size:12px;font-weight:900;fill:var(--ink-soft)}
+.znacka{position:absolute;top:10px;left:10px;background:var(--acc2);color:#fff;font-size:11px;
+  font-weight:900;padding:3px 8px;border-radius:999px;box-shadow:0 2px 0 var(--acc2-d);letter-spacing:.3px}
+
+/* ---------- prehodi ---------- */
+main{animation:vstop .18s ease-out}
+@keyframes vstop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.opts .opt{animation:vstopOpt .22s ease-out backwards}
+@keyframes vstopOpt{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.opt:active{transform:translateY(3px) scale(.985)}
+.zem{animation:vstop .22s ease-out}
+
+/* ---------- odziv ---------- */
+.card.blisk{animation:blisk .5s ease-out}
+@keyframes blisk{0%{box-shadow:0 8px 24px var(--sence)}
+  30%{box-shadow:0 0 0 4px var(--ok),0 8px 24px var(--sence)}
+  100%{box-shadow:0 8px 24px var(--sence)}}
+.card.zmota{animation:zmota .42s}
+@keyframes zmota{0%,100%{transform:translateX(0)}18%{transform:translateX(-8px)}
+  42%{transform:translateX(8px)}68%{transform:translateX(-4px)}}
+
+/* ---------- konec kroga ---------- */
+.konec .krog{width:132px;height:132px;margin:2px auto 6px;display:block}
+.konec .krog circle{fill:none;stroke-width:12}
+.konec .krog .pod{stroke:var(--line)}
+.konec .krog .nad{stroke:var(--acc);stroke-linecap:round;transform:rotate(-90deg);
+  transform-origin:50% 50%;transition:stroke-dashoffset 1s ease-out}
+.konec .krog text{font-weight:900;fill:var(--ink)}
+.konec .zvezde3{display:flex;justify-content:center;gap:10px;font-size:38px;margin:2px 0 6px;line-height:1}
+.konec .zvezde3 i{font-style:normal;filter:grayscale(1);opacity:.3;transform:scale(.7)}
+.konec .zvezde3 i.on{filter:none;opacity:1;animation:zvezdaPrileti .5s ease-out backwards;transform:none}
+@keyframes zvezdaPrileti{from{opacity:0;transform:translateY(-26px) scale(.3) rotate(-40deg)}
+  to{opacity:1;transform:none}}
+#konfeti{position:fixed;inset:0;pointer-events:none;z-index:25}
+.znam{margin-top:14px}
+.znam .legenda{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:13px;
+  font-weight:800;color:var(--ink-soft);margin-top:8px}
+.znam .legenda span{display:inline-flex;align-items:center;gap:6px}
+.znam .legenda b{width:14px;height:14px;border-radius:4px;display:inline-block}
+
+/* ---------- zemljevid: relief, vode, imena ---------- */
+.zem{background-color:var(--morje);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26'%3E%3Cpath d='M0 8q6.5-5 13 0t13 0M0 21q6.5-5 13 0t13 0' fill='none' stroke='%23a9d8ef' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E")}
+@media (prefers-color-scheme: dark){
+  .zem{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26'%3E%3Cpath d='M0 8q6.5-5 13 0t13 0M0 21q6.5-5 13 0t13 0' fill='none' stroke='%230a2634' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E")}
+}
+.zem path.dz{fill:url(#prelivKopnega);stroke:var(--meja);stroke-width:1.1;stroke-linejoin:round;
+  vector-effect:non-scaling-stroke}
+.zem .karta{filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.22))}
+.zem .vode{pointer-events:none}
+.zem .reka{fill:none;stroke:var(--reka);stroke-width:2.6px;stroke-linecap:round;stroke-linejoin:round;
+  opacity:.9;vector-effect:non-scaling-stroke}
+.zem .jezero{fill:var(--jezero);stroke:var(--reka);stroke-width:1px;opacity:.92;
+  vector-effect:non-scaling-stroke}
+.zem path.dz.znam{fill:var(--ok)}
+.zem path.dz.vadi{fill:var(--no)}
+.zem .napisi,.zem .imena{pointer-events:none}
+.zem .oznaka{stroke:var(--obroba-napisa);fill:var(--ink)}
+.zem .ime{font-weight:800;fill:var(--ink);paint-order:stroke;stroke:var(--obroba-napisa);
+  stroke-width:2.6;stroke-linejoin:round;opacity:.9}
+.zem .merilo text,.zem .legenda text{font-weight:900;fill:var(--ink);paint-order:stroke;
+  stroke:var(--obroba-napisa);stroke-width:3;stroke-linejoin:round}
+.zem svg{max-height:66vh}
+.zem-slika svg{max-height:44vh}
+
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media (max-width:430px){
   .opt{font-size:16.5px;padding:13px 10px}
   .modes{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+  .maskota .globko{width:64px;height:64px}
+  .oblacek{font-size:14.5px;padding:10px 13px}
 }
 </style>
 </head>
 <body>
+
+<!-- Ilustrirano ozadje: valovi, kompas in obrisi celin. Samo okras, brez dotika. -->
+<div class="ozadje" aria-hidden="true">
+  <svg class="val1" viewBox="0 0 1200 220" fill="none">
+    <path d="M0 120q75-40 150 0t150 0t150 0t150 0t150 0t150 0t150 0t150 0" stroke="#0e9488" stroke-width="7" stroke-linecap="round"/>
+    <path d="M0 160q75-40 150 0t150 0t150 0t150 0t150 0t150 0t150 0t150 0" stroke="#0e9488" stroke-width="5" stroke-linecap="round"/>
+    <path d="M0 196q75-38 150 0t150 0t150 0t150 0t150 0t150 0t150 0t150 0" stroke="#0e9488" stroke-width="4" stroke-linecap="round"/>
+  </svg>
+  <svg class="kompas" viewBox="0 0 200 200" fill="none">
+    <circle cx="100" cy="100" r="88" stroke="#0e9488" stroke-width="6"/>
+    <circle cx="100" cy="100" r="70" stroke="#0e9488" stroke-width="2" stroke-dasharray="6 10"/>
+    <path d="M100 22L118 100L100 178L82 100Z" fill="#ef6c3b"/>
+    <path d="M22 100L100 82L178 100L100 118Z" fill="#0e9488"/>
+    <circle cx="100" cy="100" r="9" fill="#0e9488"/>
+  </svg>
+  <svg class="celine" viewBox="0 0 300 220" fill="#0e9488">
+    <path d="M40 40q40-22 78-6t54 44-8 52-58 20-58-26-26-46 18-38z"/>
+    <path d="M150 130q34-18 56 4t10 52-46 26-40-32 20-50z"/>
+    <path d="M18 150q22-12 38 4t2 40-38 8-16-30 14-22z"/>
+  </svg>
+  <svg class="celine2" viewBox="0 0 240 200" fill="#ef6c3b">
+    <path d="M30 30q50-18 88 10t20 74-70 40-66-40 8-70z"/>
+    <path d="M150 120q28-14 44 8t2 44-44 12-18-42 16-22z"/>
+  </svg>
+</div>
+
+<!-- Skupne risarske definicije za zemljevide (relief kopnega, vzorec morja). -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="prelivKopnega" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="var(--kopno)"/>
+    <stop offset="1" stop-color="var(--kopno2)"/>
+  </linearGradient>
+</defs></svg>
+
+<canvas id="konfeti" hidden></canvas>
+
 <div class="wrap">
   <div class="top">
-    <div class="brand"><span class="glob">🌍</span><span>Globko</span></div>
+    <div class="brand"><span id="globkoGlava"></span><span>Globko</span></div>
     <span class="spacer"></span>
     <span class="pill gold" title="zbrane zvezdice">⭐ <b id="zvezde">0</b></span>
+    <button class="icon-btn" id="gumbZvok" title="Zvok" aria-label="Vklop in izklop zvoka">🔊</button>
     <button class="icon-btn" id="gumbNast" title="Nastavitve" aria-label="Nastavitve">⚙️</button>
   </div>
 
@@ -720,7 +935,99 @@ const ZASTAVE = {
   ['pt', 'M0 0L45 30M45 0L0 30', 'none', BEL, 6], ['pt', 'M0 0L45 30M45 0L0 30', 'none', '#cc142b', 2.5],
   ['pr', 0, 11, 45, 8, BEL], ['pr', 18, 0, 9, 30, BEL],
   ['pr', 0, 13, 45, 4, '#cc142b'], ['pr', 20, 0, 5, 30, '#cc142b'],
-  ['zv', 68, 12, 3.4, '#cc142b'], ['zv', 76, 30, 3.4, '#cc142b'], ['zv', 64, 34, 3.4, '#cc142b'], ['zv', 70, 48, 3.4, '#cc142b']]
+  ['zv', 68, 12, 3.4, '#cc142b'], ['zv', 76, 30, 3.4, '#cc142b'], ['zv', 64, 34, 3.4, '#cc142b'], ['zv', 70, 48, 3.4, '#cc142b']],
+
+/* ---------- Afrika ---------- */
+'Algeria': [['v', '#006233', BEL], ['pm', 47, 30, 12, '#d21034', BEL], ['zv', 60, 30, 6, '#d21034']],
+'Tunisia': [['bg', '#e70013'], ['kr', 45, 30, 16, BEL], ['pm', 45, 30, 11, '#e70013', BEL], ['zv', 50, 30, 5.5, '#e70013']],
+'Libya': [['hw', [1, '#e70013'], [2, CRN], [1, '#239e46']], ['pm', 41, 30, 8, BEL, CRN], ['zv', 52, 30, 4, BEL]],
+'Sudan': [['h', '#d21034', BEL, CRN], ['pt', 'M0 0L32 30L0 60Z', '#007229']],
+'Senegal': [['v', '#00853f', '#fdef42', '#e31b23'], ['zv', 45, 30, 8, '#00853f']],
+'Mali': [['v', '#14b53a', '#fcd116', '#ce1126']],
+'Cameroon': [['v', '#007a5e', '#ce1126', '#fcd116'], ['zv', 45, 30, 8, '#fcd116']],
+"Côte d'Ivoire": [['v', '#f77f00', BEL, '#009e60']],
+'Dem. Rep. Congo': [['bg', '#007fff'], ['pt', 'M-6 64L96 -4', 'none', '#ce1021', 17],
+  ['pt', 'M-6 64L96 -4', 'none', '#f7d618', 9], ['zv', 17, 15, 8, '#f7d618']],
+'Angola': [['h', '#cc092f', CRN], ['ko', 45, 30, 10, '#ffcb00', 3], ['zv', 45, 30, 5, '#ffcb00'],
+  ['pr', 43, 18, 4, 24, '#ffcb00']],
+'Zambia': [['bg', '#198a00'], ['pr', 54, 26, 10, 34, '#de2010'], ['pr', 64, 26, 10, 34, CRN],
+  ['pr', 74, 26, 10, 34, '#ef7d00'],
+  ['pt', 'M62 20q9-8 18-3q-7 1-9 5q7 0 10 4q-10 2-19-6z', '#ef7d00']],
+'Zimbabwe': [['h', '#319208', '#ffd200', '#de2010', CRN, '#de2010', '#ffd200', '#319208'],
+  ['pt', 'M0 0L34 30L0 60Z', BEL], ['zv', 12, 30, 8, '#de2010']],
+'Mozambique': [['hw', [6, '#009a00'], [1, BEL], [6, CRN], [1, BEL], [6, '#ffd100']],
+  ['pt', 'M0 0L34 30L0 60Z', '#d21034'], ['zv', 11, 30, 7, BEL]],
+'Namibia': [['bg', '#003580'], ['pt', 'M92 -2L92 62L0 62Z', '#009543'],
+  ['pt', 'M-4 64L94 -4', 'none', BEL, 22], ['pt', 'M-4 64L94 -4', 'none', '#d21034', 14],
+  ['son', 23, 16, 4, '#ffce00', 12]],
+'Botswana': [['bg', '#75aadb'], ['pr', 0, 21, 90, 18, BEL], ['pr', 0, 24, 90, 12, CRN]],
+'Madagascar': [['h', '#fc3d32', '#007e3a'], ['pr', 0, 0, 30, 60, BEL]],
+
+/* ---------- Azija ---------- */
+'Syria': [['h', '#ce1126', BEL, CRN], ['zv', 33, 30, 6.5, '#007a3d'], ['zv', 57, 30, 6.5, '#007a3d']],
+'Jordan': [['h', CRN, BEL, '#007a3d'], ['pt', 'M0 0L34 30L0 60Z', '#ce1126'], ['zv', 11, 30, 5, BEL, 7]],
+'Lebanon': [['hw', [1, '#ed1c24'], [2, BEL], [1, '#ed1c24']],
+  ['pt', 'M45 15L53 27H49L57 38H33L41 27H37Z', '#00a850'], ['pr', 43, 37, 4, 8, '#7a4a1e']],
+'Afghanistan': [['v', CRN, '#be0000', '#007a36'], ['ko', 45, 30, 10, BEL, 2],
+  ['pr', 40, 25, 10, 11, BEL], ['pr', 41, 21, 8, 3, BEL]],
+'Uzbekistan': [['hw', [8, '#0099b5'], [1, '#ce1126'], [8, BEL], [1, '#ce1126'], [8, '#1eb53a']],
+  ['pm', 17, 12, 7, BEL, '#0099b5'], ['zv', 31, 9, 2.2, BEL], ['zv', 39, 9, 2.2, BEL],
+  ['zv', 47, 9, 2.2, BEL], ['zv', 35, 15, 2.2, BEL], ['zv', 43, 15, 2.2, BEL]],
+'Myanmar': [['h', '#fecb00', '#34b233', '#ea2839'], ['zv', 45, 30, 16, BEL]],
+'Cambodia': [['hw', [1, '#032ea1'], [2, '#e00025'], [1, '#032ea1']],
+  ['pr', 34, 37, 22, 3, BEL], ['pr', 37, 32, 16, 5, BEL],
+  ['pt', 'M45 20L50 32H40Z', BEL], ['pt', 'M38 24L41 32H35ZM52 24L55 32H49Z', BEL]],
+'Laos': [['hw', [1, '#ce1126'], [2, '#002868'], [1, '#ce1126']], ['kr', 45, 30, 11, BEL]],
+'Georgia': [['bg', BEL], ['kri', '#ff0000', 13],
+  ['pt', 'M18 12h3v-4h3v4h4v3h-4v4h-3v-4h-3zM66 12h3v-4h3v4h4v3h-4v4h-3v-4h-3z' +
+        'M18 43h3v-4h3v4h4v3h-4v4h-3v-4h-3zM66 43h3v-4h3v4h4v3h-4v4h-3v-4h-3z', '#ff0000']],
+
+/* ---------- Amerika ---------- */
+'Venezuela': [['h', '#ffcc00', '#00247d', '#cf0821'],
+  ...(function(){ const s = []; for (let i = 0; i < 8; i++){ const a = (-160 + i * 20) * Math.PI / 180;
+      s.push(['zv', 45 + Math.cos(a) * 20, 34 + Math.sin(a) * 20, 2.4, BEL]); } return s; })()],
+'Ecuador': [['hw', [2, '#ffdd00'], [1, '#034ea2'], [1, '#ed1c24']],
+  ['pt', 'M45 20L56 34L45 42L34 34Z', '#0f47af'], ['kr', 45, 27, 4, '#ffdd00']],
+'Bolivia': [['h', '#d52b1e', '#f9e300', '#007934'], ['pr', 36, 24, 18, 12, '#c8a415']],
+'Paraguay': [['h', '#d52b1e', BEL, '#0038a8'], ['kr', 45, 30, 8, BEL], ['ko', 45, 30, 8, '#0038a8', 1.4],
+  ['zv', 45, 30, 4.5, '#009b3a']],
+'Uruguay': [['bg', BEL], ['pr', 36, 6.7, 54, 6.7, '#0038a8'], ['pr', 36, 20, 54, 6.7, '#0038a8'],
+  ['pr', 0, 33.3, 90, 6.7, '#0038a8'], ['pr', 0, 46.7, 90, 6.7, '#0038a8'],
+  ['son', 18, 15, 5, '#fcd116', 16]],
+'Guyana': [['bg', '#009e49'], ['pt', 'M0 0L90 30L0 60Z', BEL], ['pt', 'M0 5L80 30L0 55Z', '#fcd116'],
+  ['pt', 'M0 0L44 30L0 60Z', CRN], ['pt', 'M0 6L36 30L0 54Z', '#ce1126']],
+'Suriname': [['hw', [2, '#377e3f'], [1, BEL], [4, '#b40a2d'], [1, BEL], [2, '#377e3f']],
+  ['zv', 45, 30, 10, '#ecc81d']],
+'Guatemala': [['v', '#4997d0', BEL, '#4997d0'], ['pt', 'M40 22h10v14h-10z', '#4e9f3d'],
+  ['pt', 'M36 36h18v3h-18z', '#8a6d3b'], ['zv', 45, 19, 3.4, '#c8a415']],
+'Honduras': [['h', '#0073cf', BEL, '#0073cf'], ['zv', 45, 30, 3.4, '#0073cf'],
+  ['zv', 36, 25, 3.4, '#0073cf'], ['zv', 54, 25, 3.4, '#0073cf'],
+  ['zv', 36, 35, 3.4, '#0073cf'], ['zv', 54, 35, 3.4, '#0073cf']],
+'El Salvador': [['h', '#0f47af', BEL, '#0f47af'], ['pt', 'M45 22L57 38H33Z', 'none', '#0f47af', 2],
+  ['pt', 'M45 26L52 36H38Z', '#f4c430']],
+'Nicaragua': [['h', '#0067c6', BEL, '#0067c6'], ['pt', 'M45 23L57 37H33Z', 'none', '#0067c6', 2],
+  ['pt', 'M45 27L53 36H37Z', '#f4c430']],
+'Costa Rica': [['hw', [1, '#002b7f'], [1, BEL], [2, '#ce1126'], [1, BEL], [1, '#002b7f']]],
+'Panama': [['bg', BEL], ['pr', 45, 0, 45, 30, '#da121a'], ['pr', 0, 30, 45, 30, '#072357'],
+  ['zv', 22, 15, 8, '#072357'], ['zv', 68, 45, 8, '#da121a']],
+'Dominican Rep.': [['pr', 0, 0, 45, 30, '#002d62'], ['pr', 45, 0, 45, 30, '#ce1126'],
+  ['pr', 0, 30, 45, 30, '#ce1126'], ['pr', 45, 30, 45, 30, '#002d62'],
+  ['pr', 39, 0, 12, 60, BEL], ['pr', 0, 24, 90, 12, BEL]],
+
+/* ---------- Oceanija ---------- */
+'Papua New Guinea': [['bg', '#ce1126'], ['pt', 'M0 0L90 60L0 60Z', CRN],
+  ['zv', 20, 34, 3, BEL], ['zv', 14, 47, 3, BEL], ['zv', 27, 47, 3, BEL], ['zv', 20, 55, 3, BEL],
+  ['pt', 'M56 16q10-8 20-3q-8 1-10 6q8 0 12 5q-12 3-22-8z', '#fcd116'],
+  ['pt', 'M62 24l-3 10l4-2l3 4l2-10z', '#fcd116']],
+'Fiji': [['bg', '#68bfe5'], ['pr', 0, 0, 45, 30, '#00247d'],
+  ['pt', 'M0 0L45 30M45 0L0 30', 'none', BEL, 6], ['pt', 'M0 0L45 30M45 0L0 30', 'none', '#cf142b', 2.5],
+  ['pr', 0, 11, 45, 8, BEL], ['pr', 18, 0, 9, 30, BEL],
+  ['pr', 0, 13, 45, 4, '#cf142b'], ['pr', 20, 0, 5, 30, '#cf142b'],
+  ['pt', 'M60 22h16v14q0 8-8 12q-8-4-8-12z', BEL, '#cf142b', 1.4], ['pr', 60, 22, 16, 5, '#cf142b']],
+'Solomon Is.': [['bg', '#0051ba'], ['pt', 'M90 6L90 60L4 60Z', '#215b33'],
+  ['pt', 'M-4 62L94 -4', 'none', '#fcd116', 9],
+  ['zv', 12, 8, 3, BEL], ['zv', 24, 8, 3, BEL], ['zv', 12, 20, 3, BEL], ['zv', 24, 20, 3, BEL],
+  ['zv', 18, 14, 3, BEL]]
 };
 
 /* ======================= DRŽAVE ==========================================
@@ -857,6 +1164,96 @@ dr('Tanzania','Tanzanija','Dodoma',-6.16,35.75,'Afrika',3,['Kenija','Uganda','Ru
 /* ---- Avstralija in Oceanija ---- */
 dr('Australia','Avstralija','Canberra',-35.28,149.13,'Avstralija in Oceanija',1,[],'Hkrati država in celina; ob obali je Veliki koralni greben.');
 dr('New Zealand','Nova Zelandija','Wellington',-41.29,174.78,'Avstralija in Oceanija',2,[],'Sestavljata jo Severni in Južni otok.');
+dr('Papua New Guinea','Papua Nova Gvineja','Port Moresby',-9.44,147.18,'Avstralija in Oceanija',3,
+   ['Indonezija'],'Govorijo več kot 800 jezikov – največ na svetu.');
+dr('Fiji','Fidži','Suva',-18.14,178.44,'Avstralija in Oceanija',3,[],'Otoška država sredi Tihega oceana.');
+dr('Solomon Is.','Salomonovi otoki','Honiara',-9.43,159.96,'Avstralija in Oceanija',3,[],'Skoraj tisoč otokov vzhodno od Nove Gvineje.');
+
+/* ---- Afrika (nadaljevanje) ---- */
+dr('Algeria','Alžirija','Alžir',36.75,3.06,'Afrika',2,
+   ['Maroko','Tunizija','Libija','Niger','Mali','Mavretanija','Zahodna Sahara'],'Največja država Afrike; večino pokriva Sahara.');
+dr('Tunisia','Tunizija','Tunis',36.80,10.18,'Afrika',3,
+   ['Alžirija','Libija'],'Najsevernejša točka Afrike je prav v njej.');
+dr('Libya','Libija','Tripoli',32.89,13.19,'Afrika',3,
+   ['Egipt','Sudan','Čad','Niger','Alžirija','Tunizija'],'Skoraj vso državo pokriva puščava, ljudje živijo ob obali.');
+dr('Sudan','Sudan','Kartum',15.50,32.56,'Afrika',3,
+   ['Egipt','Libija','Čad','Južni Sudan','Etiopija','Eritreja'],'V Kartumu se Beli in Modri Nil združita v Nil.');
+dr('Senegal','Senegal','Dakar',14.72,-17.47,'Afrika',3,
+   ['Mavretanija','Mali','Gvineja','Gambija'],'Dakar je najbolj zahodno mesto celinske Afrike.');
+dr('Mali','Mali','Bamako',12.64,-8.00,'Afrika',3,
+   ['Alžirija','Niger','Senegal','Mavretanija','Burkina Faso','Slonokoščena obala','Gvineja'],'Skozenj teče reka Niger; v puščavi leži staro mesto Timbuktu.');
+dr('Cameroon','Kamerun','Jaunde',3.85,11.50,'Afrika',3,
+   ['Nigerija','Čad','Srednjeafriška republika','Kongo','Gabon','Ekvatorialna Gvineja'],'Zaradi pestre narave mu pravijo »Afrika v malem«.');
+dr("Côte d'Ivoire",'Slonokoščena obala','Jamusukro',6.82,-5.28,'Afrika',3,
+   ['Gana','Burkina Faso','Mali','Gvineja','Liberija'],'Največji pridelovalec kakava na svetu; največje mesto je Abidžan.');
+dr('Dem. Rep. Congo','Demokratična republika Kongo','Kinšasa',-4.32,15.31,'Afrika',3,
+   ['Angola','Zambija','Tanzanija','Uganda','Ruanda','Burundi','Srednjeafriška republika','Južni Sudan','Kongo'],'V njej je drugi največji deževni gozd na svetu, ob reki Kongo.');
+dr('Angola','Angola','Luanda',-8.84,13.23,'Afrika',3,
+   ['Demokratična republika Kongo','Zambija','Namibija','Kongo'],'Ob Atlantiku; njena obala je suha in peščena.');
+dr('Zambia','Zambija','Lusaka',-15.42,28.28,'Afrika',3,
+   ['Demokratična republika Kongo','Tanzanija','Malavi','Mozambik','Zimbabve','Bocvana','Namibija','Angola'],'Z Zimbabvejem si deli Viktorijine slapove na reki Zambezi.');
+dr('Zimbabwe','Zimbabve','Harare',-17.83,31.05,'Afrika',3,
+   ['Zambija','Mozambik','Južnoafriška republika','Bocvana'],'Ime je dobil po kamnitih razvalinah Velikega Zimbabveja.');
+dr('Mozambique','Mozambik','Maputo',-25.97,32.58,'Afrika',3,
+   ['Tanzanija','Malavi','Zambija','Zimbabve','Južnoafriška republika','Esvatini'],'Ima dolgo obalo ob Indijskem oceanu.');
+dr('Namibia','Namibija','Windhoek',-22.57,17.08,'Afrika',3,
+   ['Angola','Zambija','Bocvana','Južnoafriška republika'],'Ob obali leži puščava Namib z najvišjimi sipinami na svetu.');
+dr('Botswana','Bocvana','Gaborone',-24.65,25.91,'Afrika',3,
+   ['Namibija','Južnoafriška republika','Zimbabve','Zambija'],'Večino pokriva puščava Kalahari; v delti Okavanga živi veliko slonov.');
+dr('Madagascar','Madagaskar','Antananarivo',-18.88,47.51,'Afrika',2,
+   [],'Velik otok, kjer živijo lemurji – nikjer drugje na svetu jih ni.');
+
+/* ---- Azija (nadaljevanje) ---- */
+dr('Syria','Sirija','Damask',33.51,36.29,'Azija',3,
+   ['Turčija','Irak','Jordanija','Izrael','Libanon'],'Damask je eno najstarejših mest, kjer ljudje živijo neprekinjeno.');
+dr('Jordan','Jordanija','Aman',31.95,35.93,'Azija',3,
+   ['Sirija','Irak','Savdska Arabija','Izrael'],'V njej je v skalo vklesano mesto Petra.');
+dr('Lebanon','Libanon','Bejrut',33.89,35.50,'Azija',3,
+   ['Sirija','Izrael'],'Na zastavi ima cedro, drevo, ki raste v njegovih gorah.');
+dr('Afghanistan','Afganistan','Kabul',34.53,69.17,'Azija',3,
+   ['Pakistan','Iran','Turkmenistan','Uzbekistan','Kitajska'],'Gorata država brez morja; čeznjo je vodila svilna pot.');
+dr('Uzbekistan','Uzbekistan','Taškent',41.31,69.24,'Azija',3,
+   ['Kazahstan','Turkmenistan','Afganistan','Kirgizistan'],'Ob svilni poti stojita mesti Samarkand in Buhara.');
+dr('Myanmar','Mjanmar','Nejpjidav',19.75,96.10,'Azija',3,
+   ['Kitajska','Indija','Bangladeš','Tajska','Laos'],'Nekoč se je imenoval Burma; znan je po zlatih templjih.');
+dr('Cambodia','Kambodža','Pnom Penh',11.56,104.92,'Azija',3,
+   ['Tajska','Laos','Vietnam'],'V njej stoji Angkor Wat, največji verski spomenik na svetu.');
+dr('Laos','Laos','Vientiane',17.97,102.63,'Azija',3,
+   ['Kitajska','Vietnam','Kambodža','Tajska','Mjanmar'],'Edina država jugovzhodne Azije brez morja; skoznjo teče Mekong.');
+dr('Georgia','Gruzija','Tbilisi',41.72,44.79,'Azija',3,
+   ['Rusija','Turčija','Armenija','Azerbajdžan'],'Leži pod Kavkazom ob Črnem morju; ima svojo pisavo.');
+
+/* ---- Južna Amerika (nadaljevanje) ---- */
+dr('Venezuela','Venezuela','Caracas',10.49,-66.88,'Južna Amerika',3,
+   ['Kolumbija','Brazilija','Gvajana'],'V njej pada Angelski slap, najvišji slap na svetu.');
+dr('Ecuador','Ekvador','Quito',-0.18,-78.47,'Južna Amerika',3,
+   ['Kolumbija','Peru'],'Ime pomeni »ekvator«; njegovi so Galapaški otoki.');
+dr('Bolivia','Bolivija','Sucre',-19.03,-65.26,'Južna Amerika',3,
+   ['Brazilija','Peru','Čile','Argentina','Paragvaj'],'Sedež vlade je v La Pazu, najvišje ležečem velemestu na svetu.');
+dr('Paraguay','Paragvaj','Asunción',-25.28,-57.64,'Južna Amerika',3,
+   ['Brazilija','Argentina','Bolivija'],'Nima morja; večina ljudi govori tudi jezik gvarani.');
+dr('Uruguay','Urugvaj','Montevideo',-34.90,-56.16,'Južna Amerika',3,
+   ['Brazilija','Argentina'],'Najmanjša celinska država Južne Amerike.');
+dr('Guyana','Gvajana','Georgetown',6.80,-58.16,'Južna Amerika',3,
+   ['Venezuela','Brazilija','Surinam'],'Edina južnoameriška država, kjer je uradni jezik angleščina.');
+dr('Suriname','Surinam','Paramaribo',5.85,-55.20,'Južna Amerika',3,
+   ['Gvajana','Brazilija'],'Najmanjša država Južne Amerike; skoraj vso pokriva deževni gozd.');
+
+/* ---- Srednja Amerika in Karibi ---- */
+dr('Guatemala','Gvatemala','Ciudad de Guatemala',14.63,-90.51,'Severna Amerika',3,
+   ['Mehika','Belize','Honduras','Salvador'],'Ima kar 37 ognjenikov; tam je bilo središče Majev.');
+dr('Honduras','Honduras','Tegucigalpa',14.07,-87.19,'Severna Amerika',3,
+   ['Gvatemala','Salvador','Nikaragva'],'Ob obali leži drugi največji koralni greben na svetu.');
+dr('El Salvador','Salvador','San Salvador',13.69,-89.19,'Severna Amerika',3,
+   ['Gvatemala','Honduras'],'Najmanjša celinska država Srednje Amerike; pravijo ji dežela ognjenikov.');
+dr('Nicaragua','Nikaragva','Managua',12.11,-86.24,'Severna Amerika',3,
+   ['Honduras','Kostarika'],'V njej je Nikaragvsko jezero, največje jezero Srednje Amerike.');
+dr('Costa Rica','Kostarika','San José',9.93,-84.09,'Severna Amerika',3,
+   ['Nikaragva','Panama'],'Nima vojske; četrtino države varujejo narodni parki.');
+dr('Panama','Panama','Panama',8.98,-79.52,'Severna Amerika',2,
+   ['Kostarika','Kolumbija'],'Skozi njo je prekopan kanal med Tihim in Atlantskim oceanom.');
+dr('Dominican Rep.','Dominikanska republika','Santo Domingo',18.47,-69.90,'Severna Amerika',3,
+   ['Haiti'],'Z otokom Hispaniola si jo deli s Haitijem.');
 
 const PO_ID = {}; DRZAVE.forEach(d => PO_ID[d.id] = d);
 const PO_IMENU = {}; DRZAVE.forEach(d => PO_IMENU[d.sl] = d);
@@ -987,11 +1384,114 @@ const SLO_DEJSTVA = [
   { v:'Kako je velika Slovenija?', o:'približno 20 000 kvadratnih kilometrov', n:['približno 5000 kvadratnih kilometrov','približno 90 000 kvadratnih kilometrov','približno 300 000 kvadratnih kilometrov'], t:3 },
   { v:'Katero mesto je največje slovensko pristanišče?', o:'Koper', n:['Piran','Izola','Portorož'], t:2 },
   { v:'Kaj so lipicanci?', o:'konji iz kobilarne Lipica', n:['ovce s Krasa','čebele iz Bele krajine','psi iz Prekmurja'], t:2 },
-  { v:'Katera slovenska čebela je znana po vsem svetu?', o:'kranjska sivka', n:['štajerska zlatica','primorska temnica','gorenjska rjavka'], t:3, zn:'Kranjska čebela je druga najbolj razširjena pasma na svetu.' }
+  { v:'Katera slovenska čebela je znana po vsem svetu?', o:'kranjska sivka', n:['štajerska zlatica','primorska temnica','gorenjska rjavka'], t:3, zn:'Kranjska čebela je druga najbolj razširjena pasma na svetu.' },
+
+  /* --- podnebni tipi --- */
+  { v:'Kakšno podnebje je v Ljubljani in na vzhodu Slovenije?', o:'celinsko podnebje', n:['sredozemsko podnebje','gorsko podnebje','puščavsko podnebje'], t:2, zn:'Celinsko podnebje ima mrzle zime in vroča poletja.' },
+  { v:'Kakšno podnebje je v Kopru in Piranu?', o:'sredozemsko podnebje', n:['celinsko podnebje','gorsko podnebje','tundrsko podnebje'], t:2, zn:'Zime so blage, poletja vroča in suha; raste oljka.' },
+  { v:'Kakšno podnebje je na Pokljuki in v Bohinju?', o:'gorsko podnebje', n:['sredozemsko podnebje','celinsko podnebje','stepsko podnebje'], t:3, zn:'Višje ko gremo, hladneje je in dlje leži sneg.' },
+  { v:'Koliko podnebnih tipov ima Slovenija?', o:'tri – celinskega, sredozemskega in gorskega', n:['enega samega','pet','sedem'], t:3, zn:'Prav zato je narava pri nas tako pestra.' },
+  { v:'Kje v Sloveniji pade največ padavin?', o:'v Julijskih Alpah, okoli Soče', n:['v Prekmurju','v Beli krajini','na Ptuju'], t:3, zn:'Ob Soči pade več kot 3000 mm dežja na leto, v Prekmurju pa okoli 800 mm.' },
+  { v:'Kje v Sloveniji pade najmanj padavin?', o:'v Prekmurju', n:['na Bledu','v Bovcu','v Idriji'], t:3 },
+
+  /* --- kotline in reliefne enote --- */
+  { v:'V kateri kotlini leži Ljubljana?', o:'v Ljubljanski kotlini', n:['v Celjski kotlini','v Panonski nižini','v Vipavski dolini'], t:2, zn:'Kotlino so zasule reke Sava, Kamniška Bistrica in Ljubljanica.' },
+  { v:'Kako se imenuje ravnina na skrajnem vzhodu Slovenije?', o:'Panonska nižina', n:['Ljubljansko barje','Kras','Dinarsko gorstvo'], t:2, zn:'Sem spadata Prekmurje in Ptujsko polje.' },
+  { v:'Kaj je Ljubljansko barje?', o:'močvirnata ravnina južno od Ljubljane', n:['gorska planota nad Bohinjem','kraško polje pri Cerknici','peščena obala pri Piranu'], t:3, zn:'Tam so našli najstarejše leseno kolo na svetu.' },
+  { v:'Katera dolina se razteza od Ajdovščine proti morju in v njej piha burja?', o:'Vipavska dolina', n:['Logarska dolina','Soška dolina','Savinjska dolina'], t:3 },
+  { v:'Katera slovenska planota je znana po jamah, vrtačah in ponikalnicah?', o:'Kras', n:['Pohorje','Bloke','Krvavec'], t:2 },
+  { v:'Katero gorovje leži na meji z Avstrijo severno od Kranja?', o:'Karavanke', n:['Julijske Alpe','Pohorje','Kamniško-Savinjske Alpe'], t:2, zn:'Skoznje pelje predor proti Avstriji.' },
+
+  /* --- sosede, meje in mesta --- */
+  { v:'S katero sosedo ima Slovenija najdaljšo mejo?', o:'s Hrvaško', n:['z Avstrijo','z Italijo','z Madžarsko'], t:3, zn:'Meja s Hrvaško je dolga okoli 670 km, z Avstrijo pa okoli 330 km.' },
+  { v:'S katero sosedo ima Slovenija najkrajšo mejo?', o:'z Madžarsko', n:['z Italijo','s Hrvaško','z Avstrijo'], t:3, zn:'Meja z Madžarsko meri le okoli 100 km.' },
+  { v:'Katera slovenska soseda leži na zahodu?', o:'Italija', n:['Avstrija','Madžarska','Hrvaška'], t:1 },
+  { v:'Katera slovenska soseda leži na severu?', o:'Avstrija', n:['Italija','Madžarska','Hrvaška'], t:1 },
+  { v:'Kje je mejni prehod Karavanke?', o:'na avstrijski meji nad Jesenicami', n:['na italijanski meji pri Novi Gorici','na hrvaški meji pri Obrežju','na madžarski meji pri Lendavi'], t:3 },
+  { v:'Kje je mejni prehod Obrežje?', o:'na hrvaški meji ob Savi pri Brežicah', n:['na avstrijski meji pri Šentilju','na italijanski meji pri Vrtojbi','na madžarski meji pri Pincah'], t:3 },
+  { v:'Kje je mejni prehod Šentilj?', o:'na avstrijski meji severno od Maribora', n:['na hrvaški meji pri Metliki','na italijanski meji pri Kopru','na madžarski meji pri Lendavi'], t:3 },
+  { v:'Katero je drugo največje mesto v Sloveniji?', o:'Maribor', n:['Celje','Kranj','Koper'], t:1, zn:'V Mariboru živi približno 96 000 ljudi, v Ljubljani pa okoli 285 000.' },
+  { v:'Koliko ljudi približno živi v Ljubljani?', o:'približno 285 000', n:['približno 40 000','približno 700 000','približno 1 milijon'], t:2 },
+  { v:'Katero mesto je večje: Celje ali Ptuj?', o:'Celje', n:['Ptuj','obe sta enako veliki','Ptuj je dvakrat večji'], t:3, zn:'V Celju živi okoli 38 000, na Ptuju pa okoli 18 000 ljudi.' },
+  { v:'Katera slovenska pokrajina je najbolj gozdnata?', o:'Notranjska in Kočevska', n:['Prekmurje','Obala','Vipavska dolina'], t:3, zn:'V kočevskih gozdovih živijo medvedi, volkovi in risi.' },
+  { v:'Na koliko statističnih regij je razdeljena Slovenija?', o:'na dvanajst', n:['na tri','na sedem','na dvajset'], t:3, zn:'Med njimi so Osrednjeslovenska, Podravska, Savinjska in Gorenjska.' }
 ];
 
 /* pokrajine za igro »v kateri pokrajini« */
 const SLO_POKRAJINE = ['Gorenjska','Štajerska','Primorska','Dolenjska','Notranjska','Koroška','Prekmurje','Bela krajina','Zasavje','Posavje','osrednja Slovenija'];
+
+/* Statistične regije so uradna delitev Slovenije na dvanajst enot (druga raven
+   igre Pokrajine). Prebivalstvo mest je zaokroženo na najbližjih 500. */
+const SLO_STAT_REGIJE = ['Osrednjeslovenska','Podravska','Savinjska','Gorenjska','Obalno-kraška',
+  'Jugovzhodna Slovenija','Pomurska','Goriška','Primorsko-notranjska','Koroška','Zasavska','Posavska'];
+const SLO_MESTO_PODATKI = {
+  'Ljubljana':['Osrednjeslovenska', 285000], 'Maribor':['Podravska', 96000],
+  'Celje':['Savinjska', 38000], 'Kranj':['Gorenjska', 38000],
+  'Koper':['Obalno-kraška', 25500], 'Novo mesto':['Jugovzhodna Slovenija', 24000],
+  'Ptuj':['Podravska', 18000], 'Murska Sobota':['Pomurska', 11000],
+  'Nova Gorica':['Goriška', 13000], 'Velenje':['Savinjska', 25000],
+  'Postojna':['Primorsko-notranjska', 9500], 'Bled':['Gorenjska', 5000],
+  'Piran':['Obalno-kraška', 4000], 'Jesenice':['Gorenjska', 13000],
+  'Slovenj Gradec':['Koroška', 7500], 'Krško':['Posavska', 7000],
+  'Trbovlje':['Zasavska', 14000], 'Črnomelj':['Jugovzhodna Slovenija', 5500],
+  'Kočevje':['Jugovzhodna Slovenija', 8000], 'Idrija':['Goriška', 5800],
+  'Škofja Loka':['Gorenjska', 12000], 'Kamnik':['Osrednjeslovenska', 14000],
+  'Lendava':['Pomurska', 3000], 'Sežana':['Obalno-kraška', 6000],
+  'Kranjska Gora':['Gorenjska', 1500]
+};
+SLO_MESTA.forEach(m => {
+  const p = SLO_MESTO_PODATKI[m.n];
+  if (p){ m.sr = p[0]; m.pr = p[1]; }
+});
+const stevilkaSLO = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+/* ---- celine in oceani kot pike na svetovnem zemljevidu ---- */
+const CELINE_TOCKE = [
+  { n:'Evropa', p:[50.0,15.0], t:1, zn:'Naša celina; z Azijo je povezana v Evrazijo.' },
+  { n:'Afrika', p:[5.0,20.0], t:1, zn:'Skoznjo teče ekvator; na severu leži Sahara.' },
+  { n:'Azija', p:[48.0,90.0], t:1, zn:'Največja celina; v njej živi več kot polovica ljudi.' },
+  { n:'Severna Amerika', p:[45.0,-100.0], t:1, zn:'Sega od Grenlandije do Paname.' },
+  { n:'Južna Amerika', p:[-12.0,-58.0], t:1, zn:'V njej sta Amazonka in gorstvo Andi.' },
+  { n:'Avstralija in Oceanija', p:[-25.0,134.0], t:2, zn:'Najmanjša celina, obdana z dvema oceanoma.' }
+];
+const OCEANI_TOCKE = [
+  { n:'Tihi ocean', p:[0.0,-150.0], t:1, zn:'Največji in najgloblji ocean; v njem je Marianski jarek.' },
+  { n:'Atlantski ocean', p:[12.0,-32.0], t:1, zn:'Loči Evropo in Afriko od Amerike.' },
+  { n:'Indijski ocean', p:[-18.0,75.0], t:1, zn:'Med Afriko, Azijo in Avstralijo; nad njim pihajo monsuni.' },
+  { n:'Južni ocean', p:[-54.0,60.0], t:2, zn:'Obdaja Antarktiko; edini teče okoli vsega sveta.' },
+  { n:'Severni ledeni ocean', p:[82.0,0.0], t:2, zn:'Najmanjši in najhladnejši, večino leta pod ledom.' },
+  { n:'Sredozemsko morje', p:[35.0,17.0], t:2, zn:'Morje med Evropo, Afriko in Azijo.' },
+  { n:'Karibsko morje', p:[15.0,-75.0], t:3, zn:'Toplo morje med Srednjo in Južno Ameriko.' }
+];
+
+/* ---- svetovne reke in jezera za tapkanje po zemljevidu ---- */
+const VODNE_TOCKE = [
+  { n:'Nil', p:[24.0,32.9], t:1, zn:'Ena najdaljših rek na svetu; teče proti severu in se izliva v Sredozemsko morje.' },
+  { n:'Amazonka', p:[-3.2,-62.0], t:1, zn:'Reka z največ vode na svetu; teče skozi največji deževni gozd.' },
+  { n:'Kongo', p:[-2.0,20.0], t:2, zn:'Najgloblja reka na svetu; dvakrat prečka ekvator.' },
+  { n:'Niger', p:[16.0,-3.5], t:3, zn:'Zahodnoafriška reka; sredi puščave naredi velik lok.' },
+  { n:'Zambezi', p:[-17.9,25.9], t:2, zn:'Na njej so Viktorijini slapovi med Zambijo in Zimbabvejem.' },
+  { n:'Mississippi', p:[35.1,-90.0], t:2, zn:'Največja reka Severne Amerike; izliva se v Mehiški zaliv.' },
+  { n:'Kolorado', p:[36.1,-112.1], t:3, zn:'Izdolbla je Veliki kanjon.' },
+  { n:'Jangce', p:[30.6,111.3], t:2, zn:'Najdaljša reka Azije; teče skozi Kitajsko.' },
+  { n:'Rumena reka', p:[37.5,110.5], t:3, zn:'Ime je dobila po rumeni prsti, ki jo nosi s seboj.' },
+  { n:'Ganges', p:[25.4,81.9], t:2, zn:'Sveta reka Indije; izliva se v veliko delto.' },
+  { n:'Ind', p:[27.0,69.0], t:3, zn:'Ob njej je pred tisočletji nastala ena prvih visokih kultur.' },
+  { n:'Mekong', p:[15.0,105.8], t:3, zn:'Teče skozi šest držav jugovzhodne Azije.' },
+  { n:'Ob', p:[62.0,72.0], t:3, zn:'Velika sibirska reka; teče proti Severnemu ledenemu oceanu.' },
+  { n:'Lena', p:[66.7,123.4], t:3, zn:'Sibirska reka, ki je večino leta zamrznjena.' },
+  { n:'Volga', p:[53.2,50.1], t:2, zn:'Najdaljša reka Evrope; izliva se v Kaspijsko jezero.' },
+  { n:'Donava', p:[44.8,20.5], t:1, zn:'Druga najdaljša reka Evrope; teče skozi štiri glavna mesta.' },
+  { n:'Ren', p:[50.0,7.6], t:2, zn:'Pomembna prometna reka zahodne Evrope.' },
+  { n:'Bajkalsko jezero', p:[53.5,108.0], t:2, zn:'Najgloblje jezero na svetu, v Sibiriji.' },
+  { n:'Viktorijino jezero', p:[-1.0,33.0], t:2, zn:'Največje jezero Afrike; iz njega priteče Beli Nil.' },
+  { n:'Kaspijsko jezero', p:[41.8,50.6], t:2, zn:'Največje jezero na svetu; voda v njem je slana.' },
+  { n:'Zgornje jezero', p:[47.7,-87.5], t:3, zn:'Največje sladkovodno jezero po površini, med ZDA in Kanado.' },
+  { n:'Titikaka', p:[-15.8,-69.3], t:3, zn:'Najvišje ležeče veliko jezero na svetu, v Andih.' },
+  { n:'Tanganjiško jezero', p:[-6.0,29.6], t:3, zn:'Dolgo in ozko jezero v Vzhodnoafriškem tektonskem jarku.' },
+  { n:'Čadsko jezero', p:[13.2,14.3], t:3, zn:'Plitvo jezero na robu Sahare, ki se hitro krči.' },
+  { n:'Aralsko jezero', p:[45.0,59.5], t:3, zn:'Nekoč veliko jezero, ki je skoraj presahnilo, ker so vodo speljali na polja.' }
+];
 
 /* ======================= SVET IN ZEMLJA =================================== */
 
@@ -1115,7 +1615,74 @@ const ZEMLJA_DEJSTVA = [
   { v:'Koliko časovnih pasov ima svet?', o:'štiriindvajset', n:['dvanajst','sedem','sto'], t:3, zn:'Za vsako uro dneva enega.' },
   { v:'Kaj kaže zemljepisna širina?', o:'kako daleč severno ali južno od ekvatorja je kraj', n:['kako daleč vzhodno ali zahodno je kraj','kako visoko je kraj','kako velik je kraj'], t:3 },
   { v:'Skozi katero mesto poteka začetni poldnevnik?', o:'skozi London (Greenwich)', n:['skozi Pariz','skozi Rim','skozi New York'], t:3 },
-  { v:'Kaj je atol?', o:'koralni otok v obliki obroča', n:['ognjeniški otok','ledena gora','peščena sipina'], t:3 }
+  { v:'Kaj je atol?', o:'koralni otok v obliki obroča', n:['ognjeniški otok','ledena gora','peščena sipina'], t:3 },
+
+  /* --- podnebni pasovi --- */
+  { v:'Koliko glavnih podnebnih pasov ima Zemlja?', o:'tri – tropskega, zmernega in polarnega', n:['enega','pet','deset'], t:2, zn:'Vsakega od njih delimo še na manjše pasove.' },
+  { v:'Kakšno je vreme v tropskem pasu?', o:'vroče vse leto, veliko dežja', n:['mrzlo vse leto','štirje letni časi','sneg pol leta'], t:2 },
+  { v:'Kje je polarni pas?', o:'okoli severnega in južnega tečaja', n:['ob ekvatorju','ob povratnikih','sredi oceanov'], t:2 },
+  { v:'Zakaj je ob ekvatorju bolj vroče kot pri nas?', o:'ker sončni žarki padajo bolj navpično', n:['ker je ekvator bližje Soncu','ker tam ni oblakov','ker se Zemlja tam vrti hitreje'], t:3 },
+  { v:'Kateri veter piha v Aziji in prinaša deževno dobo?', o:'monsun', n:['pasat','burja','fen'], t:3, zn:'Poleti piha z morja na kopno in prinese ogromno dežja.' },
+  { v:'Kaj je puščavsko podnebje?', o:'zelo suho podnebje z zelo malo padavinami', n:['podnebje z veliko snega','podnebje s štirimi letnimi časi','podnebje z vsakodnevnim dežjem'], t:2 },
+  { v:'Kateri podnebni pas ima štiri letne čase?', o:'zmerni pas', n:['tropski pas','polarni pas','ekvatorialni pas'], t:2 },
+  { v:'Kako se imenuje pas gostih vročih gozdov ob ekvatorju?', o:'tropski deževni gozd', n:['tajga','savana','tundra'], t:2, zn:'Največji je ob Amazonki.' },
+  { v:'Kaj je stepa?', o:'suha travnata pokrajina brez dreves', n:['gost gozd','ledena planjava','močvirje ob morju'], t:3 },
+
+  /* --- časovni pasovi in orientacija --- */
+  { v:'Koliko stopinj zemljepisne dolžine obsega en časovni pas?', o:'petnajst stopinj', n:['ena stopinja','trideset stopinj','devetdeset stopinj'], t:3, zn:'360 stopinj delimo s 24 urami.' },
+  { v:'Ko je pri nas poldne, je v New Yorku …', o:'jutro', n:['večer','sredina noči','prav tako poldne'], t:3, zn:'New York je šest ur za nami.' },
+  { v:'Kje poteka datumska meja?', o:'sredi Tihega oceana', n:['sredi Atlantskega oceana','skozi London','skozi Moskvo'], t:3, zn:'Ko jo prečkaš, se dan spremeni.' },
+  { v:'Koliko glavnih strani neba poznamo?', o:'štiri', n:['dve','šest','deset'], t:1, zn:'Sever, jug, vzhod in zahod.' },
+  { v:'Katera stran neba je nasproti severu?', o:'jug', n:['vzhod','zahod','severovzhod'], t:1 },
+  { v:'Kje zaide Sonce?', o:'na zahodu', n:['na vzhodu','na severu','na jugu'], t:1 },
+  { v:'Kako se v naravi znajdeš brez kompasa opoldne?', o:'Sonce je takrat na jugu, senca kaže proti severu', n:['Sonce je takrat na severu','senca kaže proti vzhodu','Sonca opoldne ni videti'], t:3 },
+  { v:'Katero zvezdo na severnem nebu uporabimo za orientacijo?', o:'Severnico', n:['Sirij','Venero','Mars'], t:3, zn:'Severnica vedno stoji nad severom.' },
+  { v:'Na kateri strani drevesa v naši naravi navadno raste več mahu?', o:'na severni', n:['na južni','na vzhodni','na zahodni'], t:3, zn:'Tam je bolj vlažno in senčno – a to je le groba pomoč.' },
+  { v:'Kaj kaže zemljepisna dolžina?', o:'kako daleč vzhodno ali zahodno od začetnega poldnevnika je kraj', n:['kako daleč severno ali južno je kraj','kako visok je kraj','koliko ljudi tam živi'], t:3 },
+  { v:'Koliko stopinj meri zemljepisna širina na tečaju?', o:'devetdeset stopinj', n:['nič stopinj','sto osemdeset stopinj','tristo šestdeset stopinj'], t:3, zn:'Na ekvatorju je nič stopinj.' },
+
+  /* --- prebivalstvo --- */
+  { v:'Koliko ljudi približno živi na Zemlji?', o:'približno 8 milijard', n:['približno 1 milijarda','približno 100 milijonov','približno 50 milijard'], t:2 },
+  { v:'Na kateri celini živi največ ljudi?', o:'v Aziji', n:['v Afriki','v Evropi','v Severni Ameriki'], t:1, zn:'V Aziji živi več kot polovica vseh ljudi.' },
+  { v:'Katera celina ima najhitrejšo rast prebivalstva?', o:'Afrika', n:['Evropa','Avstralija','Antarktika'], t:3 },
+  { v:'Kaj je gostota prebivalstva?', o:'koliko ljudi živi na enem kvadratnem kilometru', n:['koliko ljudi ima država skupaj','kako visoke so hiše','koliko mest ima država'], t:3 },
+  { v:'Katera celina nima stalnih prebivalcev?', o:'Antarktika', n:['Avstralija','Južna Amerika','Afrika'], t:1, zn:'Tam so le raziskovalne postaje.' },
+  { v:'Kako pravimo zelo velikemu mestu z več milijoni prebivalcev?', o:'velemesto', n:['vas','trg','zaselek'], t:2 },
+  { v:'Zakaj se ljudje selijo v mesta?', o:'zaradi dela, šol in bolnišnic', n:['ker je v mestih hladneje','ker je v mestih več polj','ker je v mestih manj hrupa'], t:3 },
+
+  /* --- vulkani, potresi, notranjost Zemlje --- */
+  { v:'Kako se imenuje odprtina, skozi katero ognjenik bruha?', o:'krater', n:['vrtača','delta','jarek'], t:2 },
+  { v:'Kako se imenuje staljena kamnina, ko priteče na površje?', o:'lava', n:['magma','pepel','prod'], t:2, zn:'Dokler je pod zemljo, ji pravimo magma.' },
+  { v:'S čim merimo moč potresa?', o:'s potresno lestvico (magnitudo)', n:['s termometrom','z ravnilom','z vetrokazom'], t:3 },
+  { v:'Kako se imenuje val, ki ga potres sproži v morju?', o:'cunami', n:['monsun','plima','tok'], t:2 },
+  { v:'Kaj je žarišče potresa?', o:'kraj globoko v Zemlji, kjer se potres začne', n:['kraj na površju nad potresom','kraj, kjer nastane vulkan','sredina Zemlje'], t:3, zn:'Točki na površju nad žariščem pravimo nadžarišče.' },
+  { v:'Iz katerih plasti je zgrajena Zemlja?', o:'iz skorje, plašča in jedra', n:['iz zraka, vode in kamna','iz gora, morij in celin','iz treh oceanov'], t:3 },
+  { v:'Kje je največ ognjenikov?', o:'ob robovih tektonskih plošč', n:['sredi celin','sredi puščav','na severnem tečaju'], t:3 },
+  { v:'Kateri znameniti ognjenik stoji na Siciliji?', o:'Etna', n:['Vezuv','Fudži','Krakatau'], t:3 },
+  { v:'Kateri ognjenik je zasul rimsko mesto Pompeji?', o:'Vezuv', n:['Etna','Stromboli','Kilimandžaro'], t:3 },
+  { v:'Kaj je gejzir?', o:'vroč vodni izvir, ki brizga v zrak', n:['ledena gora','globoka jama','peščena sipina'], t:2, zn:'Največ jih je na Islandiji in v Jelovstonu.' },
+
+  /* --- Luna, Sonce, plimovanje --- */
+  { v:'Kaj kroži okoli Zemlje?', o:'Luna', n:['Sonce','Mars','Venera'], t:1 },
+  { v:'Koliko časa potrebuje Luna za pot okoli Zemlje?', o:'približno 27 dni', n:['en dan','eno leto','sto dni'], t:3 },
+  { v:'Zakaj je na morju plima in oseka?', o:'ker Luna s privlačno silo vleče morsko vodo', n:['ker piha veter','ker se morje segreva','ker reke prinesejo več vode'], t:2, zn:'Nekaj vpliva ima tudi Sonce.' },
+  { v:'Kolikokrat na dan sta na večini obal plima in oseka?', o:'dvakrat', n:['enkrat','štirikrat','desetkrat'], t:3 },
+  { v:'Kaj je Luna?', o:'Zemljin naravni satelit', n:['zvezda','planet','ognjenik'], t:2 },
+  { v:'Kaj je Sonce?', o:'zvezda', n:['planet','satelit','komet'], t:2 },
+  { v:'Kateri je tretji planet od Sonca?', o:'Zemlja', n:['Mars','Venera','Merkur'], t:2 },
+  { v:'Kaj se zgodi ob Sončevem mrku?', o:'Luna se postavi med Zemljo in Sonce', n:['Zemlja se postavi med Luno in Sonce','Sonce ugasne','Luna se razpolovi'], t:3 },
+  { v:'Zakaj je v Sloveniji poleti dan daljši kot pozimi?', o:'ker je severna polobla takrat nagnjena proti Soncu', n:['ker je Zemlja bližje Soncu','ker Sonce sveti močneje','ker se Zemlja vrti počasneje'], t:3 },
+
+  /* --- zemljevid kot orodje --- */
+  { v:'Kaj pomeni merilo 1 : 25 000?', o:'1 cm na zemljevidu je 250 m v naravi', n:['1 cm je 25 m','1 cm je 25 km','1 cm je 2,5 km'], t:3 },
+  { v:'Kaj je legenda na zemljevidu?', o:'razlaga znakov in barv', n:['naslov zemljevida','pravljica o kraju','seznam mest'], t:1 },
+  { v:'Kaj so plastnice na zemljevidu?', o:'črte, ki povezujejo točke z enako nadmorsko višino', n:['črte, ki kažejo ceste','meje med državami','poti rek'], t:3 },
+  { v:'Katera barva na zemljevidu pomeni najvišje gore?', o:'rjava in bela', n:['zelena','modra','rumena'], t:2 },
+  { v:'Kaj je nadmorska višina?', o:'višina kraja nad morsko gladino', n:['višina hiše','globina morja','razdalja do mesta'], t:2 },
+  { v:'Kje na zemljevidu je navadno sever?', o:'zgoraj', n:['spodaj','levo','desno'], t:1 },
+  { v:'Kaj je globus?', o:'zemljevid sveta na krogli', n:['zemljevid ene države','naprava za merjenje vetra','vrsta kompasa'], t:1 },
+  { v:'Zakaj so celine na ravnem zemljevidu popačene?', o:'ker okrogle Zemlje ni mogoče brez napake razgrniti na ravno ploskev', n:['ker so zemljevidi narisani na roko','ker se celine premikajo','ker fotoaparati slabo slikajo'], t:3, zn:'Zato je Grenlandija na mnogih zemljevidih videti veliko večja, kot je v resnici.' },
+  { v:'Kaj je satelitski posnetek?', o:'fotografija Zemlje iz vesolja', n:['ročno narisan zemljevid','načrt hiše','fotografija z drona v hiši'], t:2 }
 ];
 
 /* države Evropske unije – za igro »je v Evropski uniji?« */
@@ -1154,8 +1721,6 @@ function vZemljevid(zem, lat, lon){
   return [t[0] * zem.k + zem.dx, -t[1] * zem.k + zem.dy];
 }
 
-const ZEMLJEVIDI = { svet: ZEM_SVET, evropa: ZEM_EVROPA, slovenija: ZEM_SLO };
-
 /* okvir poti – da vemo, kje je država in kako velika je */
 const _okviri = {};
 function okvirPoti(d){
@@ -1168,6 +1733,127 @@ function okvirPoti(d){
     if (y < y0) y0 = y; if (y > y1) y1 = y;
   }
   return (_okviri[d] = { x:x0, y:y0, w:x1-x0, h:y1-y0, cx:(x0+x1)/2, cy:(y0+y1)/2 });
+}
+
+/* ---- celinski izrezi ------------------------------------------------------
+   Novih obrisov ne rišemo: vzamemo poti svetovnega zemljevida, jih premaknemo
+   in povečamo. Ker enako preračunamo tudi k, dx in dy, vZemljevid() na izrezu
+   deluje enako kot na svetovnem zemljevidu.                                  */
+function preslikajPot(d, x0, y0, s){
+  let i = 0;
+  return d.replace(/-?\d+(\.\d+)?/g, m => {
+    const v = +m, t = (i++ % 2 === 0) ? (v - x0) * s : (v - y0) * s;
+    return t.toFixed(1);
+  });
+}
+function izrez(vir, glavni, okvirni, sirina){
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  for (const id of glavni){
+    const p = vir.d[id]; if (!p) continue;
+    const o = okvirPoti(p);
+    if (o.x < x0) x0 = o.x; if (o.y < y0) y0 = o.y;
+    if (o.x + o.w > x1) x1 = o.x + o.w; if (o.y + o.h > y1) y1 = o.y + o.h;
+  }
+  const rob = Math.max(2, (x1 - x0) * 0.02);
+  x0 -= rob; y0 -= rob; x1 += rob; y1 += rob;
+  /* previsoke izreze razširimo, da karta ni ozek stolpič čez ves zaslon */
+  const najv = (y1 - y0) / 1.1;
+  if (x1 - x0 < najv){ const p = (najv - (x1 - x0)) / 2; x0 -= p; x1 += p; }
+  const s = (sirina || 1000) / (x1 - x0);
+  const d = {};
+  for (const id of glavni.concat(okvirni || [])) if (vir.d[id]) d[id] = preslikajPot(vir.d[id], x0, y0, s);
+  return { proj: vir.proj, k: vir.k * s, dx: (vir.dx - x0) * s, dy: (vir.dy - y0) * s,
+           w: Math.round((x1 - x0) * s), h: Math.round((y1 - y0) * s), d };
+}
+
+const IZ_AFRIKA = ['Morocco','W. Sahara','Algeria','Tunisia','Libya','Egypt','Mauritania','Mali','Niger',
+  'Chad','Sudan','S. Sudan','Eritrea','Djibouti','Somalia','Somaliland','Ethiopia','Central African Rep.',
+  'Cameroon','Nigeria','Benin','Togo','Ghana',"Côte d'Ivoire",'Liberia','Sierra Leone','Guinea',
+  'Guinea-Bissau','Senegal','Gambia','Burkina Faso','Eq. Guinea','Gabon','Congo','Dem. Rep. Congo',
+  'Uganda','Kenya','Rwanda','Burundi','Tanzania','Angola','Zambia','Malawi','Mozambique','Zimbabwe',
+  'Botswana','Namibia','South Africa','Lesotho','eSwatini','Madagascar'];
+const IZ_AZIJA = ['Turkey','Georgia','Armenia','Azerbaijan','Syria','Lebanon','Israel','Palestine','Jordan',
+  'Iraq','Iran','Saudi Arabia','Yemen','Oman','United Arab Emirates','Qatar','Kuwait','Afghanistan',
+  'Pakistan','India','Nepal','Bhutan','Bangladesh','Sri Lanka','Myanmar','Thailand','Laos','Cambodia',
+  'Vietnam','Malaysia','Brunei','Indonesia','Philippines','China','Taiwan','Mongolia','North Korea',
+  'South Korea','Japan','Kazakhstan','Uzbekistan','Turkmenistan','Tajikistan','Kyrgyzstan','Timor-Leste',
+  'Cyprus','N. Cyprus'];
+const IZ_JUZNA = ['Colombia','Venezuela','Guyana','Suriname','Ecuador','Peru','Brazil','Bolivia','Paraguay',
+  'Chile','Argentina','Uruguay','Falkland Is.'];
+const IZ_SEVERNA = ['Canada','United States of America','Mexico','Guatemala','Belize','Honduras',
+  'El Salvador','Nicaragua','Costa Rica','Panama','Cuba','Jamaica','Haiti','Dominican Rep.','Bahamas',
+  'Puerto Rico'];
+
+const ZEM_AFRIKA  = izrez(ZEM_SVET, IZ_AFRIKA, ['Spain','Portugal','Italy','Greece','Turkey','Syria',
+  'Lebanon','Israel','Palestine','Jordan','Iraq','Saudi Arabia','Yemen','Oman','Cyprus'], 1000);
+const ZEM_AZIJA   = izrez(ZEM_SVET, IZ_AZIJA, ['Russia','Ukraine','Egypt','Sudan','Eritrea','Papua New Guinea',
+  'Australia','Greece','Bulgaria','Romania'], 1000);
+const ZEM_JUZNA   = izrez(ZEM_SVET, IZ_JUZNA, ['Panama','Costa Rica','Nicaragua','Trinidad and Tobago'], 900);
+const ZEM_SEVERNA = izrez(ZEM_SVET, IZ_SEVERNA, ['Greenland','Colombia','Venezuela','Trinidad and Tobago'], 1000);
+
+const ZEMLJEVIDI = { svet: ZEM_SVET, evropa: ZEM_EVROPA, slovenija: ZEM_SLO,
+                     afrika: ZEM_AFRIKA, azija: ZEM_AZIJA,
+                     juznaAmerika: ZEM_JUZNA, severnaAmerika: ZEM_SEVERNA };
+
+/* ---- reke in jezera -------------------------------------------------------
+   Poenostavljene poti v zemljepisnih stopinjah; vsak zemljevid jih preračuna
+   po svoji projekciji, zato jih narišemo na katerikoli karti.               */
+const REKE = [
+  { n:'Sava',        t:[[46.36,14.17],[46.14,14.35],[46.05,14.51],[46.05,15.05],[45.96,15.49],[45.80,15.98],[45.10,17.50],[44.79,20.45]] },
+  { n:'Drava',       t:[[46.60,13.50],[46.62,14.40],[46.55,15.65],[46.42,15.87],[45.90,17.60],[45.55,18.90]] },
+  { n:'Mura',        t:[[47.10,14.30],[46.90,15.30],[46.66,16.17],[46.40,16.60]] },
+  { n:'Soča',        t:[[46.42,13.72],[46.25,13.58],[46.00,13.50],[45.80,13.40],[45.60,13.35]] },
+  { n:'Krka',        t:[[45.87,14.60],[45.90,15.00],[45.80,15.17],[45.85,15.55]] },
+  { n:'Kolpa',       t:[[45.48,14.70],[45.52,15.19],[45.60,15.60],[45.68,15.85]] },
+  { n:'Savinja',     t:[[46.38,14.70],[46.28,15.10],[46.10,15.30]] },
+  { n:'Donava',      t:[[48.00,8.20],[48.57,13.45],[48.21,16.37],[47.50,19.04],[45.90,18.80],[44.79,20.45],[44.60,22.50],[44.10,27.40],[45.20,29.60]] },
+  { n:'Ren',         t:[[46.50,8.50],[47.55,8.20],[48.60,7.80],[50.00,7.60],[51.40,6.60],[51.90,4.50]] },
+  { n:'Volga',       t:[[57.20,32.50],[56.32,44.00],[53.20,50.10],[48.70,44.50],[46.35,48.05]] },
+  { n:'Labe',        t:[[50.30,15.80],[50.08,14.44],[51.05,13.74],[52.40,10.00],[53.55,9.90]] },
+  { n:'Visla',       t:[[49.60,19.00],[50.05,19.95],[52.23,21.01],[53.00,18.60],[54.35,18.70]] },
+  { n:'Sena',        t:[[48.10,4.30],[48.86,2.35],[49.44,1.10],[49.45,0.20]] },
+  { n:'Nil',         t:[[0.50,33.00],[9.60,31.60],[15.60,32.56],[18.50,31.80],[24.10,32.90],[27.20,31.20],[30.05,31.23],[31.40,30.40]] },
+  { n:'Kongo',       t:[[-11.00,27.00],[-6.00,23.50],[-2.00,20.00],[-1.50,16.50],[-4.30,15.31],[-6.00,12.40]] },
+  { n:'Niger',       t:[[11.00,-9.00],[13.50,-6.00],[16.50,-3.00],[15.00,1.00],[11.90,3.50],[7.80,6.70],[4.70,6.30]] },
+  { n:'Zambezi',     t:[[-13.50,23.00],[-17.92,25.86],[-16.50,30.00],[-18.80,36.30]] },
+  { n:'Amazonka',    t:[[-4.50,-73.50],[-4.00,-70.00],[-3.30,-64.70],[-3.10,-60.00],[-2.50,-54.00],[-0.80,-50.00]] },
+  { n:'Parana',      t:[[-20.00,-51.00],[-25.50,-54.60],[-27.50,-58.80],[-32.50,-60.70],[-34.40,-58.50]] },
+  { n:'Mississippi', t:[[47.20,-95.20],[41.50,-90.50],[38.80,-90.20],[35.10,-90.00],[29.20,-89.30]] },
+  { n:'Kolorado',    t:[[40.20,-106.30],[36.10,-112.10],[32.70,-114.60]] },
+  { n:'Jangce',      t:[[32.50,98.00],[29.60,104.00],[30.60,111.30],[31.20,118.80],[31.40,121.50]] },
+  { n:'Rumena reka', t:[[35.00,102.00],[39.00,107.00],[37.50,110.50],[34.80,113.60],[37.80,118.90]] },
+  { n:'Ganges',      t:[[30.00,78.50],[25.44,81.85],[24.60,88.00],[22.50,90.50]] },
+  { n:'Ind',         t:[[33.00,74.00],[29.00,71.00],[25.40,68.40],[24.00,67.30]] },
+  { n:'Mekong',      t:[[32.00,95.00],[22.00,100.50],[15.00,105.80],[11.56,104.92],[10.00,106.20]] },
+  { n:'Ob',          t:[[52.50,85.00],[58.00,82.90],[62.00,72.00],[66.60,66.50]] },
+  { n:'Lena',        t:[[54.00,108.00],[60.70,114.90],[66.70,123.40],[72.00,127.00]] }
+];
+/* jezera: p = središče, d = premer v stopinjah zemljepisne dolžine */
+const JEZERA = [
+  { n:'Kaspijsko jezero', p:[41.80,50.60], d:7.5 },
+  { n:'Bajkalsko jezero', p:[53.50,108.00], d:3.0 },
+  { n:'Viktorijino jezero', p:[-1.00,33.00], d:3.4 },
+  { n:'Tanganjiško jezero', p:[-6.00,29.60], d:1.8 },
+  { n:'Zgornje jezero', p:[47.70,-87.50], d:6.0 },
+  { n:'Michigansko jezero', p:[44.00,-87.00], d:2.6 },
+  { n:'Titikaka', p:[-15.80,-69.30], d:1.8 },
+  { n:'Ženevsko jezero', p:[46.45,6.55], d:0.8 },
+  { n:'Blatno jezero', p:[46.85,17.75], d:1.1 },
+  { n:'Aralsko jezero', p:[45.00,59.50], d:2.4 },
+  { n:'Čadsko jezero', p:[13.20,14.30], d:2.0 },
+  { n:'Veliko medvedje jezero', p:[66.00,-121.00], d:5.0 }
+];
+
+/* skupen okvir več držav – da pogled zajame vse, kar mora otrok videti */
+function okvirVec(kljuc, idji){
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  for (const id of idji){
+    const o = okvirDrzave(kljuc, id); if (!o) continue;
+    if (o.x < x0) x0 = o.x; if (o.y < y0) y0 = o.y;
+    if (o.x + o.w > x1) x1 = o.x + o.w; if (o.y + o.h > y1) y1 = o.y + o.h;
+  }
+  if (x0 > x1) return null;
+  return { x:x0, y:y0, w:x1-x0, h:y1-y0, cx:(x0+x1)/2, cy:(y0+y1)/2 };
 }
 function okvirDrzave(kljuc, id){
   const z = ZEMLJEVIDI[kljuc]; return z.d[id] ? okvirPoti(z.d[id]) : null;
@@ -1192,6 +1878,34 @@ function tapljive(kljuc, najmanj){
   return out;
 }
 
+/* mirno = otrok (ali starš) je izklopil gibanje v sistemskih nastavitvah */
+const MIRNO = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+/* Reke in jezera kot dodaten sloj poti. Narišemo le tiste, ki na tej karti
+   sploh padejo v vidno polje – tako je slovenska karta brez Amazonke. */
+function vodeSvg(z){
+  const rob = { x0:-z.w * 0.15, y0:-z.h * 0.15, x1:z.w * 1.15, y1:z.h * 1.15 };
+  const vidna = (x, y) => x >= rob.x0 && x <= rob.x1 && y >= rob.y0 && y <= rob.y1;
+  let reke = '';
+  for (const r of REKE){
+    const tocke = r.t.map(p => vZemljevid(z, p[0], p[1]));
+    if (!tocke.some(p => vidna(p[0], p[1]))) continue;
+    const d = tocke.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('');
+    reke += '<path class="reka" d="' + d + '"><title>' + esc(r.n) + '</title></path>';
+  }
+  let jezera = '';
+  for (const j of JEZERA){
+    const s = vZemljevid(z, j.p[0], j.p[1]);
+    if (!vidna(s[0], s[1])) continue;
+    const b = vZemljevid(z, j.p[0], j.p[1] + j.d / 2);
+    const r = Math.max(1.2, Math.abs(b[0] - s[0]));
+    jezera += '<ellipse class="jezero" cx="' + s[0].toFixed(1) + '" cy="' + s[1].toFixed(1) +
+              '" rx="' + r.toFixed(1) + '" ry="' + (r * 0.85).toFixed(1) + '"><title>' +
+              esc(j.n) + '</title></ellipse>';
+  }
+  return '<g class="vode">' + jezera + reke + '</g>';
+}
+
 function novZemljevid(vsebnik, kljuc, nast){
   const z = ZEMLJEVIDI[kljuc];
   nast = nast || {};
@@ -1199,17 +1913,67 @@ function novZemljevid(vsebnik, kljuc, nast){
     let r = 'dz';
     if (nast.zive) r += (nast.zive.indexOf(id) < 0 ? ' zad' : ' igra');
     if (nast.poudari) r += (id === nast.poudari ? ' nas' : ' tuja');
+    if (nast.nas && id === nast.nas) r += ' nas';
     return '<path class="' + r + '" data-id="' + id.replace(/"/g, '') + '" d="' + z.d[id] + '"/>';
   }).join('');
   vsebnik.innerHTML =
-    '<div class="zem"><svg viewBox="0 0 ' + z.w + ' ' + z.h + '" preserveAspectRatio="xMidYMid meet">' +
-      '<g class="karta">' + poti + '</g><g class="tocke"></g><g class="napisi"></g></svg>' +
+    '<div class="zem"><svg preserveAspectRatio="xMidYMid meet">' +
+      '<g class="karta">' + poti + '</g>' + vodeSvg(z) +
+      '<g class="imena"></g><g class="tocke"></g><g class="napisi"></g></svg>' +
       '<div class="zoom"><button type="button" data-zoom="-1" aria-label="Pomanjšaj">–</button>' +
       '<button type="button" data-zoom="1" aria-label="Povečaj">+</button>' +
       '<button type="button" data-zoom="0" aria-label="Ves zemljevid">⤢</button></div></div>';
   const el = vsebnik.querySelector('.zem'), svg = el.querySelector('svg');
+  /* vb je *ciljni* izsek (računa se z njim takoj), risVB pa tisti, ki ga med
+     poletom trenutno vidimo. Zato so velikosti pik in napisov vedno pravilne,
+     tudi če animacija še teče. */
   const vb = { x:0, y:0, w:z.w, h:z.h };
-  function nastaviVB(){ svg.setAttribute('viewBox', vb.x + ' ' + vb.y + ' ' + vb.w + ' ' + vb.h); }
+  let risVB = { x:0, y:0, w:z.w, h:z.h }, raf = 0;
+  function zapisi(b){
+    svg.setAttribute('viewBox', b.x.toFixed(2) + ' ' + b.y.toFixed(2) + ' ' +
+                                b.w.toFixed(2) + ' ' + b.h.toFixed(2));
+  }
+  function takoj(){
+    if (raf){ cancelAnimationFrame(raf); raf = 0; }
+    risVB = { x:vb.x, y:vb.y, w:vb.w, h:vb.h };
+    zapisi(risVB); osveziImena();
+  }
+  function poleti(ms){
+    if (MIRNO) return takoj();
+    const zac = { x:risVB.x, y:risVB.y, w:risVB.w, h:risVB.h };
+    const cilj = { x:vb.x, y:vb.y, w:vb.w, h:vb.h }, t0 = performance.now(), d = ms || 350;
+    if (raf) cancelAnimationFrame(raf);
+    osveziImena();
+    const korak = t => {
+      const k = Math.min(1, (t - t0) / d);
+      const e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      risVB = { x:zac.x + (cilj.x - zac.x) * e, y:zac.y + (cilj.y - zac.y) * e,
+                w:zac.w + (cilj.w - zac.w) * e, h:zac.h + (cilj.h - zac.h) * e };
+      zapisi(risVB);
+      if (k < 1) raf = requestAnimationFrame(korak); else raf = 0;
+    };
+    raf = requestAnimationFrame(korak);
+  }
+  zapisi(vb);
+
+  /* imena držav se pokažejo šele pri veliki povečavi – in le, kadar niso odgovor */
+  function osveziImena(){
+    const g = svg.querySelector('.imena');
+    if (!g) return;
+    if (!nast.imena || vb.w > z.w * 0.55){ g.innerHTML = ''; return; }
+    const vel = Math.max(6, vb.w / 34);
+    let s = '';
+    for (const id in z.d){
+      const o = okvirPoti(z.d[id]);
+      if (o.cx < vb.x || o.cx > vb.x + vb.w || o.cy < vb.y || o.cy > vb.y + vb.h) continue;
+      if (Math.max(o.w, o.h) < vb.w / 22) continue;
+      const d = PO_ID[id];
+      if (!d) continue;
+      s += '<text class="ime" x="' + o.cx.toFixed(1) + '" y="' + o.cy.toFixed(1) +
+           '" font-size="' + vel.toFixed(1) + '" text-anchor="middle">' + esc(d.sl) + '</text>';
+    }
+    g.innerHTML = s;
+  }
 
   function priblizaj(f, cx, cy){
     const nw = Math.max(z.w * 0.12, Math.min(z.w, vb.w * f));
@@ -1220,23 +1984,23 @@ function novZemljevid(vsebnik, kljuc, nast){
     vb.w = nw; vb.h = nh;
     vb.x = Math.max(-10, Math.min(z.w - vb.w + 10, vb.x));
     vb.y = Math.max(-10, Math.min(z.h - vb.h + 10, vb.y));
-    nastaviVB();
+    poleti(300);
   }
   /* pokaži izbrani del zemljevida (npr. eno državo z okolico) */
-  function pokazi(okvir, obroba){
+  function pokazi(okvir, obroba, brezPoleta){
     const r = obroba === undefined ? 2.2 : obroba;
     const w = Math.max(z.w * 0.12, Math.min(z.w, Math.max(okvir.w, okvir.h * z.w / z.h) * r));
     vb.w = w; vb.h = w * z.h / z.w;
     vb.x = Math.max(0, Math.min(z.w - vb.w, okvir.cx - vb.w / 2));
     vb.y = Math.max(0, Math.min(z.h - vb.h, okvir.cy - vb.h / 2));
-    nastaviVB();
+    if (brezPoleta) takoj(); else poleti(380);
   }
 
   el.querySelector('.zoom').addEventListener('click', e => {
     const b = e.target.closest('[data-zoom]'); if (!b) return;
     e.stopPropagation();
     const v = +b.dataset.zoom;
-    if (v === 0){ vb.x = 0; vb.y = 0; vb.w = z.w; vb.h = z.h; nastaviVB(); }
+    if (v === 0){ vb.x = 0; vb.y = 0; vb.w = z.w; vb.h = z.h; poleti(300); }
     else priblizaj(v > 0 ? 0.62 : 1.6);
   });
 
@@ -1255,7 +2019,7 @@ function novZemljevid(vsebnik, kljuc, nast){
     if (!vlec.ujet){ try { svg.setPointerCapture(e.pointerId); } catch(err){} vlec.ujet = true; }
     vb.x = Math.max(-10, Math.min(z.w - vb.w + 10, vlec.vx - dx));
     vb.y = Math.max(-10, Math.min(z.h - vb.h + 10, vlec.vy - dy));
-    nastaviVB();
+    takoj();
   });
   svg.addEventListener('pointerup', e => {
     if (vlec && vlec.ujet){ try { svg.releasePointerCapture(e.pointerId); } catch(err){} }
@@ -1323,6 +2087,8 @@ function novZemljevid(vsebnik, kljuc, nast){
       return t;
     },
     mesto(lat, lon){ return vZemljevid(z, lat, lon); },
+    /* po odgovoru imena vklopimo – tedaj so pomoč, ne odgovor */
+    vklopiImena(){ nast.imena = true; osveziImena(); },
     pokazi, priblizaj, zemljevid: z
   };
   return api;
@@ -1530,6 +2296,163 @@ function gNajvecja(seznam, polje, vprasanje, enota){
              kljuc:'naj:' + izb.map(x => x.n).sort().join('|'), ucim:najb.n };
   };
 }
+/* Kje leži? – na karti ene celine (karta se izbere naključno) */
+const CELINSKE_KARTE = [
+  { kljuc:'afrika', nm:'Afrike', celina:'Afrika' },
+  { kljuc:'azija', nm:'Azije', celina:'Azija' },
+  { kljuc:'juznaAmerika', nm:'Južne Amerike', celina:'Južna Amerika' },
+  { kljuc:'severnaAmerika', nm:'Severne Amerike', celina:'Severna Amerika' }
+];
+function gCelinskaKarta(){
+  return function(st){
+    const k = ena(CELINSKE_KARTE);
+    const filter = d => d.celina === k.celina;
+    const veliki = tapljive(k.kljuc, 90);
+    const vse = nabor(k.kljuc, 5, filter).filter(d => veliki.indexOf(d.id) >= 0);
+    let mozne = nabor(k.kljuc, st, filter).filter(d => veliki.indexOf(d.id) >= 0);
+    if (!mozne.length) mozne = vse;
+    const d = ena(mozne);
+    const kolikoZivih = [4, 6, 8, 12, 0][st-1];
+    let zive = null;
+    if (kolikoZivih){
+      /* najprej sosede z iste celine, po potrebi še druge države s karte –
+         da je osvetljenih vedno točno toliko, kolikor zahteva stopnja */
+      const prve = premesaj(vse.filter(x => x.id !== d.id).map(x => x.id));
+      const ostale = premesaj(veliki.filter(id => id !== d.id && prve.indexOf(id) < 0));
+      zive = [d.id].concat(prve.concat(ostale).slice(0, kolikoZivih - 1));
+    }
+    return { tip:'zemljevid', karta:k.kljuc, cilj:d.id, zive,
+             v:'Kje na karti ' + k.nm + ' leži ' + d.sl + '?',
+             pod: zive ? 'Tapni pravo državo med osvetljenimi.' : 'Tapni pravo državo na zemljevidu.',
+             zn: d.zn, kljuc:'cel:' + k.kljuc + ':' + d.id, ucim:d.sl };
+  };
+}
+
+/* Vse sosede – otrok po vrsti tapne vse sosede dane države */
+function gVseSosede(){
+  const karta = 'evropa';
+  return function(st){
+    const veliki = tapljive(karta, 90);
+    const naKarti = d => d && ZEMLJEVIDI[karta].d[d.id] && veliki.indexOf(d.id) >= 0;
+    const sosedeNa = d => d.s.map(s => PO_IMENU[s]).filter(naKarti);
+    let zal = DRZAVE.filter(d => evropske(d) && naKarti(d) && sosedeNa(d).length >= 2);
+    const ozji = zal.filter(d => d.t <= najT(st));
+    if (ozji.length) zal = ozji;
+    const d = ena(zal);
+    /* koliko sosed mora najti – z višjo stopnjo več */
+    const koliko = Math.min(sosedeNa(d).length, [2, 2, 3, 3, 4][st-1] || 3);
+    const sosede = premesaj(sosedeNa(d)).slice(0, koliko);
+    /* motilke naj bodo blizu, sicer se zemljevid odpre na pol Evrope */
+    const sredina = okvirDrzave(karta, d.id);
+    const razdaljaOd = x => {
+      const o = okvirDrzave(karta, x.id);
+      return o && sredina ? Math.hypot(o.cx - sredina.cx, o.cy - sredina.cy) : 1e9;
+    };
+    const blizu = DRZAVE.filter(x => evropske(x) && naKarti(x) &&
+      x.id !== d.id && d.s.indexOf(x.sl) < 0).sort((p, q) => razdaljaOd(p) - razdaljaOd(q));
+    const motilke = premesaj(blizu.slice(0, Math.max(6, koliko * 3))).slice(0, Math.max(2, koliko));
+    const zive = premesaj(sosede.concat(motilke)).map(x => x.id);
+    return { tip:'sosede', karta, poudari:d.id, zap:sosede.map(x => x.id),
+             imena:sosede.map(x => x.sl), zive,
+             v:'Tapni vse sosede države ' + d.sl + '.',
+             pod:'Po vrsti, eno za drugo.',
+             zn: d.sl + ' meji na: ' + d.s.join(', ') + '.',
+             kljuc:'vsos:' + d.id, ucim:d.sl };
+  };
+}
+
+/* V kateri statistični regiji leži mesto? */
+function gStatRegija(){
+  return function(st){
+    const zal = SLO_MESTA.filter(x => x.sr && x.t <= najT(st));
+    const m = ena(zal.length ? zal : SLO_MESTA.filter(x => x.sr));
+    const druge = SLO_STAT_REGIJE.filter(r => r !== m.sr);
+    const mm = moznosti(m.sr, druge, stMoznosti(st));
+    return { tip:'izbira', v:'V kateri statistični regiji leži ' + m.n + '?',
+             opts: mm.opts.map(x => ({ txt:x })), a:mm.a,
+             zn: m.zn + (m.pr ? ' V mestu živi približno ' + stevilkaSLO(m.pr) + ' ljudi.' : ''),
+             kljuc:'sreg:' + m.n, ucim:m.n };
+  };
+}
+
+/* Merilo in legenda – otrok z merilno palico oceni razdaljo med krajema */
+function razdaljaKm(a, b){
+  const f1 = a[0] * RAD, f2 = b[0] * RAD;
+  const df = (b[0] - a[0]) * RAD, dl = (b[1] - a[1]) * RAD;
+  const x = Math.sin(df/2) * Math.sin(df/2) +
+            Math.cos(f1) * Math.cos(f2) * Math.sin(dl/2) * Math.sin(dl/2);
+  return 6371 * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1-x));
+}
+function slikaMerila(a, b){
+  const z = ZEM_SLO, o = okvirDrzave('slovenija', 'Slovenia');
+  const rob = Math.max(o.w, o.h) * 0.10;
+  const vw = o.w + 2*rob, vh = o.h + 2*rob;
+  const vx = o.cx - vw/2, vy = o.cy - vh/2;
+  const poti = Object.keys(z.d).map(id =>
+    '<path class="dz' + (id === 'Slovenia' ? ' nas' : ' tuja') + '" d="' + z.d[id] + '"/>').join('');
+  const pa = vZemljevid(z, a.p[0], a.p[1]), pb = vZemljevid(z, b.p[0], b.p[1]);
+  /* dolžina 50 km na tej karti */
+  const lat = (a.p[0] + b.p[0]) / 2;
+  const q1 = vZemljevid(z, lat, 14), q2 = vZemljevid(z, lat, 14 + 50 / (111.32 * Math.cos(lat * RAD)));
+  const pal = Math.abs(q2[0] - q1[0]);
+  const vel = vw / 34;
+  const px = vx + vw * 0.94 - pal, py = vy + vh * 0.93;
+  const palica =
+    '<g class="merilo">' +
+      '<rect x="' + px + '" y="' + py + '" width="' + pal/2 + '" height="' + vel*0.5 + '" fill="#12333a"/>' +
+      '<rect x="' + (px + pal/2) + '" y="' + py + '" width="' + pal/2 + '" height="' + vel*0.5 + '" fill="#ffffff" stroke="#12333a" stroke-width="1.5"/>' +
+      '<text x="' + px + '" y="' + (py - vel*0.45) + '" font-size="' + vel + '" text-anchor="middle">0</text>' +
+      '<text x="' + (px + pal/2) + '" y="' + (py - vel*0.45) + '" font-size="' + vel + '" text-anchor="middle">25</text>' +
+      '<text x="' + (px + pal) + '" y="' + (py - vel*0.45) + '" font-size="' + vel + '" text-anchor="middle">50 km</text>' +
+    '</g>';
+  const legenda =
+    '<g class="legenda">' +
+      '<circle cx="' + (vx + vw*0.075) + '" cy="' + (vy + vh*0.07) + '" r="' + vel*0.45 + '" fill="#ef6c3b" stroke="#fff" stroke-width="2"/>' +
+      '<text x="' + (vx + vw*0.11) + '" y="' + (vy + vh*0.07 + vel*0.38) + '" font-size="' + vel + '">kraj</text>' +
+      '<path d="M' + (vx + vw*0.05) + ' ' + (vy + vh*0.135) + 'h' + vw*0.05 + '" stroke="#ef6c3b" stroke-width="' + vel*0.28 + '" stroke-dasharray="' + vel*0.6 + ' ' + vel*0.4 + '" fill="none"/>' +
+      '<text x="' + (vx + vw*0.11) + '" y="' + (vy + vh*0.135 + vel*0.38) + '" font-size="' + vel + '">zračna razdalja</text>' +
+      '<path d="M' + (vx + vw*0.05) + ' ' + (vy + vh*0.20) + 'h' + vw*0.05 + '" stroke="var(--reka)" stroke-width="' + vel*0.28 + '" fill="none"/>' +
+      '<text x="' + (vx + vw*0.11) + '" y="' + (vy + vh*0.20 + vel*0.38) + '" font-size="' + vel + '">reka</text>' +
+    '</g>';
+  const oznaka = (p, n, zamik) =>
+    '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="' + vel*0.45 +
+      '" fill="#ef6c3b" stroke="#fff" stroke-width="2"/>' +
+    '<text class="oznaka" x="' + p[0].toFixed(1) + '" y="' + (p[1] + zamik).toFixed(1) +
+      '" font-size="' + (vel*1.15) + '" text-anchor="middle">' + esc(n) + '</text>';
+  return '<div class="zem zem-slika"><svg viewBox="' + vx.toFixed(1) + ' ' + vy.toFixed(1) + ' ' +
+      vw.toFixed(1) + ' ' + vh.toFixed(1) + '" preserveAspectRatio="xMidYMid meet">' +
+      '<g class="karta">' + poti + '</g>' + vodeSvg(z) +
+      '<path d="M' + pa[0].toFixed(1) + ' ' + pa[1].toFixed(1) + 'L' + pb[0].toFixed(1) + ' ' + pb[1].toFixed(1) +
+        '" stroke="#ef6c3b" stroke-width="' + (vel*0.28) + '" stroke-dasharray="' + vel*0.6 + ' ' + vel*0.4 + '" fill="none"/>' +
+      oznaka(pa, a.n, -vel*0.8) + oznaka(pb, b.n, vel*1.6) + palica + legenda +
+    '</svg></div>';
+}
+function gMerilo(){
+  return function(st){
+    let a = null, b = null, km = 0;
+    for (let i = 0; i < 60; i++){
+      const p = premesaj(SLO_MESTA.filter(m => m.t <= Math.max(2, najT(st))));
+      a = p[0]; b = p[1];
+      if (!a || !b) break;
+      km = razdaljaKm(a.p, b.p);
+      if (km >= 35) break;
+    }
+    const prav = Math.round(km / 5) * 5;
+    const zaloga = [Math.round(prav * 0.45 / 5) * 5, Math.round(prav * 1.7 / 5) * 5,
+                    Math.round(prav * 2.6 / 5) * 5, prav + 25, prav + 45,
+                    Math.max(5, prav - 20), Math.max(5, prav - 30)]
+                   .filter(x => x > 0 && x !== prav);
+    const m = moznosti(prav, zaloga, stMoznosti(st));
+    return { tip:'izbira',
+             v:'Približno koliko je po zračni črti od kraja ' + a.n + ' do kraja ' + b.n + '?',
+             pod:'Pomagaj si z merilno palico pod zemljevidom.',
+             slika: slikaMerila(a, b),
+             opts: m.opts.map(x => ({ txt: x + ' km' })), a:m.a,
+             zn:'Zračna razdalja je približno ' + prav + ' km. Palica na zemljevidu meri 50 km.',
+             kljuc:'mer:' + a.n + '|' + b.n, ucim:'merilo' };
+  };
+}
+
 /* Ponovi tisto, kar je delalo težave */
 function gPonovi(igre){
   return function(st, pod){
@@ -1570,6 +2493,10 @@ const IGRE = {
                  gen: gNajvecja(() => SLO_REKE, 'd', 'Katera od teh rek je v Sloveniji najdaljša?', 'km') },
   sloDejstva:  { nm:'Vse o Sloveniji', emo:'🇸🇮', sub:'vprašanja o naši državi', c:'#b91c1c', stopnje:5,
                  gen: gDejstva(() => SLO_DEJSTVA) },
+  sloRegije:   { nm:'Statistične regije', emo:'📊', sub:'dvanajst uradnih regij', c:'#7c3aed', stopnje:5,
+                 gen: gStatRegija() },
+  sloMerilo:   { nm:'Merilo in legenda', emo:'📏', sub:'izmeri razdaljo na zemljevidu', c:'#0369a1', stopnje:5,
+                 gen: gMerilo() },
 
   /* Evropa */
   evrZemljevid:{ nm:'Kje leži?', emo:'📍', sub:'tapni državo na zemljevidu', c:'#0e9488', stopnje:5,
@@ -1587,6 +2514,8 @@ const IGRE = {
   evrTocke:    { nm:'Gore, reke, morja', emo:'🏔️', sub:'tapni pravo lego', c:'#2f7d32', stopnje:5,
                  gen: gTocke('evropa', () => EVR_TOCKE, 'Kje je') },
   evrEu:       { nm:'Evropska unija', emo:'💶', sub:'je država članica?', c:'#1d4ed8', stopnje:5, gen: gEu() },
+  evrVseSosede:{ nm:'Vse sosede', emo:'🧩', sub:'tapni vse sosede po vrsti', c:'#c2410c', stopnje:5,
+                 gen: gVseSosede() },
 
   /* Svet */
   svetZemljevid:{ nm:'Kje leži?', emo:'📍', sub:'tapni državo na svetovnem zemljevidu', c:'#0e9488', stopnje:5,
@@ -1600,6 +2529,14 @@ const IGRE = {
                  gen: gTocke('svet', () => SVET_TOCKE, 'Kje je') },
   svetRekordi: { nm:'Rekordi sveta', emo:'🏆', sub:'največje, najvišje, najdaljše', c:'#ca8a04', stopnje:5,
                  gen: gDejstva(() => SVET_DEJSTVA) },
+  svetCelinske:{ nm:'Po celinah', emo:'🧭', sub:'karte Afrike, Azije in Amerik', c:'#0f766e', stopnje:5,
+                 gen: gCelinskaKarta() },
+  svetTapCelina:{ nm:'Tapni celino', emo:'🌎', sub:'najdi celino na svetovni karti', c:'#8a6d3b', stopnje:5,
+                 gen: gTocke('svet', () => CELINE_TOCKE, 'Kje je') },
+  svetTapOcean:{ nm:'Tapni ocean', emo:'🌊', sub:'najdi ocean ali morje na karti', c:'#0369a1', stopnje:5,
+                 gen: gTocke('svet', () => OCEANI_TOCKE, 'Kje je') },
+  svetVode:    { nm:'Reke in jezera', emo:'💧', sub:'velike reke in jezera sveta', c:'#0891b2', stopnje:5,
+                 gen: gTocke('svet', () => VODNE_TOCKE, 'Kje je') },
 
   /* Zemlja */
   zemCeline:   { nm:'Celine', emo:'🌍', sub:'prepoznaj celino po opisu', c:'#0e9488', stopnje:5,
@@ -1615,13 +2552,13 @@ const IGRE = {
 const PODROCJA = [
   { id:'slo', nm:'Slovenija', emo:'🇸🇮', c:'#b91c1c',
     sub:'mesta, pokrajine, gore in reke naše države',
-    igre:['sloMesta','sloNarava','sloDejstva','sloPokrajina','sloSosede','sloVrhovi','sloReke','ponovi'] },
+    igre:['sloMesta','sloNarava','sloDejstva','sloPokrajina','sloRegije','sloSosede','sloVrhovi','sloReke','sloMerilo','ponovi'] },
   { id:'evropa', nm:'Evropa', emo:'🏰', c:'#1d4ed8',
     sub:'države, zastave in glavna mesta naše celine',
-    igre:['evrZemljevid','evrZastave','evrMesta','evrZastave2','evrMesta2','evrSosede','evrTocke','evrEu','ponovi'] },
+    igre:['evrZemljevid','evrZastave','evrMesta','evrZastave2','evrMesta2','evrSosede','evrVseSosede','evrTocke','evrEu','ponovi'] },
   { id:'svet', nm:'Svet', emo:'🌍', c:'#0e9488',
     sub:'celine, oceani, države in rekordi sveta',
-    igre:['svetZemljevid','svetCeline','svetZastave','svetMesta','svetTocke','svetRekordi','ponovi'] },
+    igre:['svetZemljevid','svetCelinske','svetTapCelina','svetTapOcean','svetCeline','svetZastave','svetMesta','svetTocke','svetVode','svetRekordi','ponovi'] },
   { id:'zemlja', nm:'Zemlja in narava', emo:'🌋', c:'#ca8a04',
     sub:'kako deluje planet, kaj je kaj na zemljevidu',
     igre:['zemPojmi','zemCeline','zemOceani','ponovi'] }
@@ -1630,14 +2567,14 @@ IGRE.ponovi.gen = function(st, pod){ return gPonovi(pod.igre)(st, pod); };
 
 /* ======================= STANJE ========================================== */
 const LS = 'globko_geografija_v1';
-const SVEZE = { zvezde:0, zvok:true, nacin:'auto', st:{}, gor:{}, dol:{}, slabo:{}, krogi:0 };
+const SVEZE = { zvezde:0, zvok:true, nacin:'auto', st:{}, gor:{}, dol:{}, slabo:{}, znam:{}, krogi:0 };
 let STANJE = naloziStanje();
 function naloziStanje(){
   try{
     const raw = localStorage.getItem(LS);
     if (!raw) return Object.assign({}, SVEZE);
     const s = Object.assign({}, SVEZE, JSON.parse(raw));
-    for (const k of ['st','gor','dol','slabo']) if (!s[k] || typeof s[k] !== 'object') s[k] = {};
+    for (const k of ['st','gor','dol','slabo','znam']) if (!s[k] || typeof s[k] !== 'object') s[k] = {};
     return s;
   } catch(e){ return Object.assign({}, SVEZE); }
 }
@@ -1667,8 +2604,10 @@ function prilagodi(pod, gid, prav){
 }
 function zabelezi(ucim, prav){
   if (!ucim) return;
-  if (prav){ if (STANJE.slabo[ucim]){ STANJE.slabo[ucim]--; if (STANJE.slabo[ucim] <= 0) delete STANJE.slabo[ucim]; } }
-  else STANJE.slabo[ucim] = Math.min(3, (STANJE.slabo[ucim] || 0) + 2);
+  if (prav){
+    STANJE.znam[ucim] = 1;
+    if (STANJE.slabo[ucim]){ STANJE.slabo[ucim]--; if (STANJE.slabo[ucim] <= 0) delete STANJE.slabo[ucim]; }
+  } else STANJE.slabo[ucim] = Math.min(3, (STANJE.slabo[ucim] || 0) + 2);
 }
 
 /* ======================= ZVOK ============================================ */
@@ -1704,10 +2643,114 @@ const $ = id => document.getElementById(id);
 const scrPod = $('scrPodrocja'), scrIgre = $('scrIgre'), scrIgra = $('scrIgra');
 function pokaziZaslon(el){ [scrPod, scrIgre, scrIgra].forEach(s => s.hidden = (s !== el)); window.scrollTo(0, 0); }
 function narisiZvezde(){ $('zvezde').textContent = STANJE.zvezde; }
+function narisiZvok(){
+  const b = $('gumbZvok');
+  if (!b) return;
+  b.textContent = STANJE.zvok ? '🔊' : '🔇';
+  b.setAttribute('aria-pressed', STANJE.zvok ? 'true' : 'false');
+  b.title = STANJE.zvok ? 'Zvok je vklopljen' : 'Zvok je izklopljen';
+}
 function poskoci(emo){
   const d = document.createElement('div');
   d.className = 'pop'; d.textContent = emo; document.body.appendChild(d);
   setTimeout(() => d.remove(), 850);
+}
+
+/* ======================= MASKOTA GLOBKO ==================================
+   Globus z obrazom, narisan kot vgrajen SVG (brez slik in emojijev), s
+   štirimi razpoloženji, mežikanjem in rahlim zibanjem.                   */
+const GLOBKO_OBRAZ = {
+  pozdrav: {
+    oci:'<circle cx="37" cy="50" r="4.6" fill="#12333a"/><circle cx="63" cy="50" r="4.6" fill="#12333a"/>' +
+        '<circle cx="38.6" cy="48.4" r="1.6" fill="#fff"/><circle cx="64.6" cy="48.4" r="1.6" fill="#fff"/>',
+    usta:'<path d="M37 65q13 10 26 0" fill="none" stroke="#12333a" stroke-width="3.4" stroke-linecap="round"/>',
+    dodatek:'<path d="M28 40q5-6 11-3M61 37q6-3 11 3" fill="none" stroke="#12333a" stroke-width="2.6" stroke-linecap="round" opacity=".65"/>'
+  },
+  veselo: {
+    oci:'<path d="M30 52q7-10 14 0M56 52q7-10 14 0" fill="none" stroke="#12333a" stroke-width="3.6" stroke-linecap="round"/>',
+    usta:'<path d="M32 61q18 19 36 0q-18 8-36 0z" fill="#12333a"/><path d="M45 70q5 5 10-2q-5-2-10 2z" fill="#ef6c3b"/>',
+    dodatek:'<ellipse cx="26" cy="62" rx="6" ry="4" fill="#ef6c3b" opacity=".45"/>' +
+            '<ellipse cx="74" cy="62" rx="6" ry="4" fill="#ef6c3b" opacity=".45"/>'
+  },
+  zamisljeno: {
+    oci:'<circle cx="37" cy="48" r="4.6" fill="#12333a"/><circle cx="63" cy="48" r="4.6" fill="#12333a"/>' +
+        '<circle cx="38.6" cy="46.4" r="1.6" fill="#fff"/><circle cx="64.6" cy="46.4" r="1.6" fill="#fff"/>',
+    usta:'<path d="M39 68q7-5 13 0t10-1" fill="none" stroke="#12333a" stroke-width="3.2" stroke-linecap="round"/>',
+    dodatek:'<path d="M27 38q6-7 12-2" fill="none" stroke="#12333a" stroke-width="2.8" stroke-linecap="round"/>' +
+            '<path d="M60 33q7-2 12 5" fill="none" stroke="#12333a" stroke-width="2.8" stroke-linecap="round"/>'
+  },
+  zalostno: {
+    oci:'<circle cx="37" cy="53" r="4.4" fill="#12333a"/><circle cx="63" cy="53" r="4.4" fill="#12333a"/>' +
+        '<circle cx="38.4" cy="51.6" r="1.5" fill="#fff"/><circle cx="64.4" cy="51.6" r="1.5" fill="#fff"/>',
+    usta:'<path d="M38 71q12-10 24 0" fill="none" stroke="#12333a" stroke-width="3.4" stroke-linecap="round"/>',
+    dodatek:'<path d="M28 37q7 1 11 6M61 43q4-5 11-6" fill="none" stroke="#12333a" stroke-width="2.8" stroke-linecap="round"/>'
+  }
+};
+function globkoSvg(razp, velikost){
+  const o = GLOBKO_OBRAZ[razp] || GLOBKO_OBRAZ.pozdrav, v = velikost || 92;
+  return '<svg class="globko" viewBox="0 0 100 100" width="' + v + '" height="' + v +
+      '" role="img" aria-label="Globko"><g class="telo">' +
+    '<circle cx="50" cy="52" r="40" fill="#4bb3dd"/>' +
+    '<circle cx="50" cy="52" r="40" fill="none" stroke="#2b83a8" stroke-width="3"/>' +
+    '<g fill="#3fae62">' +
+      '<path d="M22 42q10-9 21-3t6 17-15 10-16-9 4-15z"/>' +
+      '<path d="M58 24q15 3 19 15t-11 16-16-8 8-23z"/>' +
+      '<path d="M39 72q15-7 23 2t-4 14-21 2-6-12z"/>' +
+      '<path d="M66 60q10 1 12 9t-9 9-7-8 4-10z"/>' +
+    '</g>' +
+    '<path d="M10 52h80M50 12v80" stroke="#ffffff" stroke-width="1.4" opacity=".45" fill="none"/>' +
+    '<ellipse cx="34" cy="28" rx="15" ry="9" fill="#ffffff" opacity=".28" transform="rotate(-25 34 28)"/>' +
+    o.dodatek +
+    '<ellipse cx="37" cy="50" rx="10" ry="11" fill="#ffffff"/>' +
+    '<ellipse cx="63" cy="50" rx="10" ry="11" fill="#ffffff"/>' +
+    o.oci +
+    '<g class="veka"><ellipse cx="37" cy="50" rx="10.5" ry="11.5" fill="#4bb3dd"/>' +
+      '<ellipse cx="63" cy="50" rx="10.5" ry="11.5" fill="#4bb3dd"/></g>' +
+    o.usta +
+    '</g></svg>';
+}
+function maskotaHtml(razp, besedilo, velikost){
+  return '<div class="maskota">' + globkoSvg(razp, velikost || 84) +
+    '<div class="oblacek">' + besedilo + '</div></div>';
+}
+/* razpoloženje maskote v glavi strani */
+function razpolozenje(razp, gib){
+  const el = $('globkoGlava');
+  if (!el) return;
+  el.innerHTML = globkoSvg(razp, 46);
+  const s = el.querySelector('.globko');
+  if (s && gib && !MIRNO){ s.classList.add(gib); setTimeout(() => s.classList.remove(gib), 700); }
+}
+
+/* ======================= KONFETI ========================================= */
+function konfeti(koliko){
+  const c = $('konfeti');
+  if (!c || MIRNO) return;
+  c.hidden = false;
+  c.width = window.innerWidth; c.height = window.innerHeight;
+  const ctx = c.getContext('2d');
+  const barve = ['#0e9488','#ef6c3b','#ffb703','#1eb872','#7c3aed','#4bb3dd'];
+  const kosi = [];
+  for (let i = 0; i < (koliko || 90); i++) kosi.push({
+    x: Math.random() * c.width, y: -20 - Math.random() * c.height * 0.5,
+    w: 6 + Math.random() * 7, h: 9 + Math.random() * 9,
+    v: 2 + Math.random() * 3.2, z: (Math.random() - 0.5) * 1.8,
+    kot: Math.random() * Math.PI, hitrostKota: (Math.random() - 0.5) * 0.24,
+    b: barve[R(barve.length)]
+  });
+  const konec = performance.now() + 2600;
+  (function risi(t){
+    ctx.clearRect(0, 0, c.width, c.height);
+    let zivi = 0;
+    for (const k of kosi){
+      k.y += k.v; k.x += k.z; k.kot += k.hitrostKota;
+      if (k.y < c.height + 30) zivi++;
+      ctx.save(); ctx.translate(k.x, k.y); ctx.rotate(k.kot);
+      ctx.fillStyle = k.b; ctx.fillRect(-k.w/2, -k.h/2, k.w, k.h); ctx.restore();
+    }
+    if (zivi && t < konec) requestAnimationFrame(risi);
+    else { ctx.clearRect(0, 0, c.width, c.height); c.hidden = true; }
+  })(performance.now());
 }
 function naziv(n){
   const t = [[0,'Popotnik 🎒'],[30,'Raziskovalec 🧭'],[80,'Kartograf 🗺️'],[160,'Poznavalec sveta 🌍'],
@@ -1717,43 +2760,63 @@ function naziv(n){
   return out;
 }
 
+const POZDRAVI = [
+  'Živjo! Jaz sem <b>Globko</b>. Kam pa danes – v Slovenijo, Evropo ali čez ocean?',
+  'Dober dan, popotnik! Kovček je pripravljen, zemljevid tudi. Kaj raziščeva?',
+  'Pozdravljen! Danes bova odkrila kakšno novo državo. Izberi področje.',
+  'Vsak zemljevid skriva zgodbo. Katero bi rad slišal danes?'
+];
+/* trije nivoji zvezdic na kartici igre: 2., 3. in 5. stopnja */
+const zvezdiceIgre = (st, stopnje) => (st >= stopnje ? 3 : st >= 3 ? 2 : st >= 2 ? 1 : 0);
+
 function narisiPodrocja(){
   scrPod.innerHTML =
     '<div class="card">' +
-      '<p class="lead">Živjo! Jaz sem <b>Globko</b> 🌍. Skupaj bova raziskala Slovenijo, Evropo in svet. ' +
-      'Izberi področje – naloge se same prilagodijo temu, kar že znaš.</p>' +
+      maskotaHtml('pozdrav', ena(POZDRAVI), 96) +
+      '<p class="lead">Naloge se same prilagodijo temu, kar že znaš.</p>' +
       '<div class="steps">' +
       PODROCJA.map(p =>
         '<button class="step" data-pod="' + p.id + '" style="--c:' + p.c + '">' +
-          '<span class="emo">' + p.emo + '</span>' +
-          '<span class="nm">' + esc(p.nm) + '</span>' +
-          '<span class="sub">' + esc(p.sub) + '</span>' +
+          '<span class="ikona">' + p.emo + '</span>' +
+          '<span class="besedilo"><span class="nm">' + esc(p.nm) + '</span>' +
+          '<span class="sub">' + esc(p.sub) + '</span></span>' +
         '</button>').join('') +
       '</div>' +
       '<p class="mini" style="margin-top:14px">Naziv: <b>' + naziv(STANJE.zvezde) + '</b> · odigranih krogov: <b>' + STANJE.krogi + '</b></p>' +
     '</div>';
+  razpolozenje('pozdrav');
   pokaziZaslon(scrPod);
 }
 
 function narisiIgre(pod){
   const kartice = pod.igre.map(gid => {
-    const g = IGRE[gid], st = stopnjaIgre(pod, gid);
+    const g = IGRE[gid], st = stopnjaIgre(pod, gid), zv = zvezdiceIgre(st, g.stopnje);
+    const delez = st / g.stopnje, obseg = 2 * Math.PI * 14;
+    const nova = !STANJE.st[kljucIgre(pod, gid)];
     return '<button class="mode" data-igra="' + gid + '" style="--c:' + g.c + '">' +
-      '<span class="emo">' + g.emo + '</span>' +
+      (nova ? '<span class="znacka">novo</span>' : '') +
+      '<svg class="obroc" viewBox="0 0 36 36" aria-hidden="true">' +
+        '<circle class="pod" cx="18" cy="18" r="14"/>' +
+        '<circle class="nad" cx="18" cy="18" r="14" stroke-dasharray="' +
+          (obseg * delez).toFixed(1) + ' ' + obseg.toFixed(1) + '"/>' +
+        '<text x="18" y="22" text-anchor="middle">' + st + '</text></svg>' +
+      '<span class="ikona">' + g.emo + '</span>' +
       '<span class="nm">' + esc(g.nm) + '</span>' +
       '<span class="sub">' + esc(g.sub) + '</span>' +
-      '<span class="lvl"><b>' + st + '/' + g.stopnje + '</b>' +
-        '<span class="bar"><i style="width:' + Math.round(st / g.stopnje * 100) + '%"></i></span></span>' +
+      '<span class="zvezdice" aria-label="stopnja ' + st + ' od ' + g.stopnje + '">' +
+        [0,1,2].map(i => '<i class="' + (i < zv ? 'on' : '') + '">⭐</i>').join('') + '</span>' +
     '</button>';
   }).join('');
   scrIgre.innerHTML =
     '<div class="row" style="margin:0 0 12px"><button class="btn btn-ghost" id="nazajDomov">⬅️ Nazaj</button>' +
       '<div class="pill">' + pod.emo + ' ' + esc(pod.nm) + '</div></div>' +
-    '<div class="card"><p class="lead">' + esc(pod.sub) + '</p>' +
+    '<div class="card">' +
+    maskotaHtml('zamisljeno', 'Področje <b>' + esc(pod.nm) + '</b>: ' + esc(pod.sub) +
+      '. Izberi igro – obroč na kartici pove, na kateri stopnji si.', 68) +
     '<h2 class="section" style="margin-top:0">Izberi igro</h2>' +
     '<div class="modes">' + kartice + '</div>' +
-    '<p class="mini" style="margin-top:14px">Številka na kartici pove, na kateri stopnji te igre si. ' +
-    'Ko ti gre dobro, se stopnja sama dvigne. 📈</p></div>';
+    '<p class="mini" style="margin-top:14px">Ko ti gre dobro, se stopnja sama dvigne in prislužiš zvezdico. 📈</p></div>';
+  razpolozenje('zamisljeno');
   pokaziZaslon(scrIgre);
 }
 
@@ -1794,7 +2857,8 @@ function narisiVprasanje(){
   if (q.tip === 'izbira'){
     telo = (q.slika ? '<div style="text-align:center;margin:0 0 14px">' + q.slika + '</div>' : '') +
       '<div class="opts' + (q.opts.length === 2 ? ' dva' : '') + '" id="opts">' +
-      q.opts.map((o, i) => '<button class="opt" data-i="' + i + '">' +
+      q.opts.map((o, i) => '<button class="opt" data-i="' + i +
+        '" style="animation-delay:' + (i * 55) + 'ms">' +
         (o.svg ? o.svg : '') + (o.txt ? '<span>' + esc(o.txt) + '</span>' : '') + '</button>').join('') +
       '</div>';
   } else {
@@ -1815,15 +2879,46 @@ function narisiVprasanje(){
     karta = novZemljevid($('karta'), q.karta, { zive: q.zive || Object.keys(ZEMLJEVIDI[q.karta].d) });
     karta.naTap(id => { if (!tek.odgovorjeno && id) odgovori(id === q.cilj, id); });
   } else if (q.tip === 'tocke'){
-    karta = novZemljevid($('karta'), q.karta, q.karta === 'slovenija' ? { poudari:'Slovenia' } : {});
+    karta = novZemljevid($('karta'), q.karta,
+      q.karta === 'slovenija' ? { poudari:'Slovenia', imena:false } : { imena:true });
     if (q.karta === 'slovenija'){
       const o = okvirDrzave('slovenija', 'Slovenia');
-      if (o) karta.pokazi(o, 1.12);       /* približaj na Slovenijo, šele nato pike – da so prave velikosti */
+      /* približaj na Slovenijo, šele nato pike – da so prave velikosti */
+      if (o) karta.pokazi(o, 1.12);
     }
     karta.tocke(q.tocke, i => { if (!tek.odgovorjeno) odgovori(i === q.a, i); });
+  } else if (q.tip === 'sosede'){
+    tek.korak = 0;
+    karta = novZemljevid($('karta'), q.karta, { zive:q.zive, nas:q.poudari });
+    /* pogled zajame državo in vse osvetljene sosede oziroma motilke */
+    const o = okvirVec(q.karta, [q.poudari].concat(q.zive));
+    if (o) karta.pokazi(o, 1.35);
+    karta.napis(q.poudari, PO_ID[q.poudari] ? PO_ID[q.poudari].sl : q.poudari);
+    osveziSosede();
+    karta.naTap(id => {
+      if (tek.odgovorjeno || !id) return;
+      if (id === q.zap[tek.korak]){
+        karta.oznaci(id, 'prav');
+        karta.napis(id, PO_ID[id] ? PO_ID[id].sl : id);
+        tek.korak++;
+        if (tek.korak >= q.zap.length) odgovori(true, null);
+        else { zvOk(); osveziSosede(); }
+      } else {
+        karta.oznaci(id, 'narobe');
+        odgovori(false, id);
+      }
+    });
   } else {
     karta = null;
   }
+}
+
+/* pri igri Vse sosede pove, katera soseda je zdaj na vrsti */
+function osveziSosede(){
+  const q = tek.q, el = document.querySelector('#scrIgra .q small');
+  if (!el || q.tip !== 'sosede') return;
+  el.textContent = 'Najdi: ' + q.imena[tek.korak] +
+    '  (' + (tek.korak + 1) + '. od ' + q.zap.length + ')';
 }
 
 function odgovori(prav, izbrano){
@@ -1852,12 +2947,28 @@ function odgovori(prav, izbrano){
     const o = okvirDrzave(q.karta, q.cilj);
     if (o) karta.pokazi(o, 4);          /* najprej približaj, potem napiši – da je napis prave velikosti */
     karta.napis(q.cilj, PO_ID[q.cilj] ? PO_ID[q.cilj].sl : q.cilj);
+    karta.vklopiImena();
+  } else if (q.tip === 'sosede'){
+    /* pokažemo tudi sosede, ki jih otrok še ni našel */
+    for (let i = tek.korak; i < q.zap.length; i++){
+      karta.oznaci(q.zap[i], prav ? 'prav' : 'nas');
+      karta.napis(q.zap[i], PO_ID[q.zap[i]] ? PO_ID[q.zap[i]].sl : q.zap[i]);
+    }
   } else if (q.tip === 'tocke'){
     karta.oznaciTocko(q.a, 'prav');
     if (!prav && izbrano !== null && izbrano !== q.a) karta.oznaciTocko(izbrano, 'narobe');
     const c = q.tocke[q.a], m = karta.mesto(c.p[0], c.p[1]);
     karta.napisNa(m[0], m[1] - Math.max(9, ZEMLJEVIDI[q.karta].w / 60), c.n);
   }
+
+  /* vidni odziv: zelen blisk ali tresenje kartice in razpoloženje maskote */
+  const kartica = document.querySelector('#scrIgra .card');
+  if (kartica && !MIRNO){
+    kartica.classList.remove('blisk', 'zmota');
+    void kartica.offsetWidth;
+    kartica.classList.add(prav ? 'blisk' : 'zmota');
+  }
+  razpolozenje(prav ? 'veselo' : 'zalostno', prav ? 'skoci' : 'trese');
 
   const zn = q.zn ? '<span class="zakaj">' + esc(q.zn) + '</span>' : '';
   $('odziv').innerHTML =
@@ -1870,31 +2981,78 @@ function odgovori(prav, izbrano){
   narisiZvezde();
 }
 
+/* Zemljevid »kaj že znaš«: kar je otrok že osvojil, je zeleno, kar mu še
+   nagaja (STANJE.slabo), pa oranžno. */
+function zemljevidZnanja(pod){
+  const kljuc = (pod.id === 'svet' || pod.id === 'zemlja') ? 'svet' : 'evropa';
+  const z = ZEMLJEVIDI[kljuc];
+  let znam = 0, vadi = 0;
+  const poti = Object.keys(z.d).map(id => {
+    const d = PO_ID[id];
+    let r = 'dz';
+    if (d && STANJE.slabo[d.sl]){ r += ' vadi'; vadi++; }
+    else if (d && STANJE.znam[d.sl]){ r += ' znam'; znam++; }
+    return '<path class="' + r + '" d="' + z.d[id] + '"/>';
+  }).join('');
+  if (!znam && !vadi) return '';
+  return '<div class="znam"><h2 class="section" style="text-align:left">Kaj že znaš</h2>' +
+    '<div class="zem zem-slika"><svg viewBox="0 0 ' + z.w + ' ' + z.h + '" preserveAspectRatio="xMidYMid meet">' +
+      '<g class="karta">' + poti + '</g></svg></div>' +
+    '<div class="legenda"><span><b style="background:var(--ok)"></b>znaš (' + znam + ')</span>' +
+      '<span><b style="background:var(--no)"></b>še vadiš (' + vadi + ')</span>' +
+      '<span><b style="background:var(--kopno)"></b>še neodkrito</span></div></div>';
+}
+
 function konecKroga(){
   STANJE.krogi++;
   const del = tek.ok / KROG;
-  const emo = del === 1 ? '🏆' : del >= 0.8 ? '🎉' : del >= 0.5 ? '👍' : '💪';
+  const zvezdic = del === 1 ? 3 : del >= 0.8 ? 2 : del >= 0.5 ? 1 : 0;
+  const razp = del >= 0.8 ? 'veselo' : del >= 0.5 ? 'pozdrav' : 'zamisljeno';
+  const beseda = del === 1 ? 'Brez napake! Pravi mojster zemljevida si.' :
+                 del >= 0.8 ? 'Odlično! Še malo in svet bo tvoj.' :
+                 del >= 0.5 ? 'Lepo napreduješ. Nekaj krajev si že osvojil.' :
+                 'Nič hudega – vsak raziskovalec se najprej izgubi. Poskusiva še enkrat.';
   const napake = tek.napake.length
-    ? '<h2 class="section">Kar si se naučil</h2><ul class="seznam">' +
+    ? '<h2 class="section" style="text-align:left">Kar si se naučil</h2><ul class="seznam">' +
       tek.napake.slice(0, 6).map(q => '<li>' + esc(q.v) + ' <b>' +
         esc(q.tip === 'izbira' ? q.opts[q.a].txt || q.ucim : q.ucim) + '</b></li>').join('') + '</ul>'
     : '<p class="mini" style="margin-top:12px">Brez napake – odlično! 🌟</p>';
   const konec = stopnjaIgre(tek.pod, tek.gid);
+  const obseg = 2 * Math.PI * 54;
   shrani();
   scrIgra.innerHTML =
     '<div class="card konec">' +
-      '<div class="big">' + emo + '</div>' +
+      '<svg class="krog" viewBox="0 0 132 132" aria-hidden="true">' +
+        '<circle class="pod" cx="66" cy="66" r="54"/>' +
+        '<circle class="nad" cx="66" cy="66" r="54" stroke-dasharray="' + obseg.toFixed(1) +
+          '" stroke-dashoffset="' + obseg.toFixed(1) + '"/>' +
+        '<text x="66" y="72" text-anchor="middle" font-size="30">' + Math.round(del * 100) + ' %</text>' +
+      '</svg>' +
+      '<div class="zvezde3">' + [0,1,2].map(i =>
+        '<i class="' + (i < zvezdic ? 'on' : '') + '" style="animation-delay:' + (250 + i * 260) + 'ms">⭐</i>'
+      ).join('') + '</div>' +
       '<h3>' + tek.ok + ' od ' + KROG + '</h3>' +
+      maskotaHtml(razp, beseda, 76) +
       '<p class="mini">' + (konec > tek.zacetna ? 'Stopnja se je dvignila na ' + konec + '. 📈' :
         konec < tek.zacetna ? 'Stopnja je zdaj ' + konec + ' – malo lažje bo. 🙂' :
         'Stopnja ostaja ' + konec + '.') + '</p>' +
       napake +
+      zemljevidZnanja(tek.pod) +
       '<div class="row" style="justify-content:center;margin-top:16px">' +
         '<button class="btn btn-acc" id="spet">Še en krog 🔁</button>' +
         '<button class="btn btn-ghost" id="nazajIgre2">Druga igra</button>' +
       '</div>' +
     '</div>';
   pokaziZaslon(scrIgra);
+  razpolozenje(razp, del >= 0.8 ? 'skoci' : '');
+  const obrocKonca = scrIgra.querySelector('.konec .krog .nad');
+  if (obrocKonca){
+    if (MIRNO) obrocKonca.setAttribute('stroke-dashoffset', (obseg * (1 - del)).toFixed(1));
+    else requestAnimationFrame(() => requestAnimationFrame(() => {
+      obrocKonca.style.strokeDashoffset = (obseg * (1 - del)).toFixed(1);
+    }));
+  }
+  if (del >= 0.8){ konfeti(del === 1 ? 130 : 80); zvZvezda(); }
 }
 
 /* ======================= NASTAVITVE ====================================== */
@@ -1936,15 +3094,16 @@ document.addEventListener('click', e => {
   if (e.target.closest('#naprej')){ tek.i++; naslednje(); return; }
   const o = e.target.closest('#opts .opt');
   if (o && !tek.odgovorjeno){ odgovori(+o.dataset.i === tek.q.a, +o.dataset.i); return; }
+  if (e.target.closest('#gumbZvok')){ STANJE.zvok = !STANJE.zvok; shrani(); narisiZvok(); return; }
   if (e.target.closest('#gumbNast')){ odpriNastavitve(); return; }
   const n = e.target.closest('[data-nacin]');
   if (n){ STANJE.nacin = n.dataset.nacin; shrani(); odpriNastavitve(); return; }
   const s = e.target.closest('[data-stikalo]');
-  if (s){ STANJE[s.dataset.stikalo] = !STANJE[s.dataset.stikalo]; shrani(); odpriNastavitve(); return; }
+  if (s){ STANJE[s.dataset.stikalo] = !STANJE[s.dataset.stikalo]; shrani(); narisiZvok(); odpriNastavitve(); return; }
   if (e.target.closest('#pobrisi')){
     if (confirm('Res izbrišem ves napredek in zvezdice?')){
-      STANJE = Object.assign({}, SVEZE, { st:{}, gor:{}, dol:{}, slabo:{} });
-      shrani(); narisiZvezde(); $('modal').hidden = true; narisiPodrocja();
+      STANJE = Object.assign({}, SVEZE, { st:{}, gor:{}, dol:{}, slabo:{}, znam:{} });
+      shrani(); narisiZvezde(); narisiZvok(); $('modal').hidden = true; narisiPodrocja();
     }
     return;
   }
@@ -1955,6 +3114,7 @@ document.addEventListener('keydown', e => {
 });
 
 narisiZvezde();
+narisiZvok();
 narisiPodrocja();
 
 </script>

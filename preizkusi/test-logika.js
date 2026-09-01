@@ -34,6 +34,16 @@ const NA_STOPNJO = Number(process.env.NA_STOPNJO || 45);
               v.jeNaKarti = !!ZEMLJEVIDI[q.karta].d[q.cilj];
               const o = okvirDrzave(q.karta, q.cilj);
               v.okvir = o ? { w:o.w, h:o.h, cx:o.cx, cy:o.cy } : null;
+            } else if (q.tip === 'sosede'){
+              /* zaporedno tapkanje: vsaka soseda mora biti na karti, dovolj velika,
+                 osvetljena in navedena z imenom */
+              v.karta = q.karta; v.zap = q.zap; v.imena = q.imena;
+              v.zive = q.zive; v.poudari = q.poudari;
+              v.jeNaKarti = !!ZEMLJEVIDI[q.karta].d[q.poudari];
+              v.okviri = q.zap.map(id => {
+                const o = okvirDrzave(q.karta, id);
+                return { id, jeNaKarti: !!ZEMLJEVIDI[q.karta].d[id], p: o ? o.w * o.h : 0 };
+              });
             } else if (q.tip === 'tocke'){
               v.karta = q.karta;
               /* Igra zemljevid Slovenije približa (pokazi(okvir, 1.12)), šele nato nariše pike;
@@ -64,7 +74,7 @@ const NA_STOPNJO = Number(process.env.NA_STOPNJO || 45);
   /* --- 1. sploh se generira --- */
   const t1 = preizkus('generatorji ne mečejo napak');
   t1.trdi(podatki.napakeGen.length === 0, 'napake generatorjev: ' + podatki.napakeGen.slice(0, 5).join(' | '));
-  t1.trdi(stVprasanj >= 25 * 5 * NA_STOPNJO * 0.9,
+  t1.trdi(stVprasanj >= 32 * 5 * NA_STOPNJO * 0.9,
     'premalo generiranih vprašanj: ' + stVprasanj);
   t1.trdi(napake.length === 0, 'napake strani: ' + napake.slice(0, 3).join(' | '));
 
@@ -74,7 +84,7 @@ const NA_STOPNJO = Number(process.env.NA_STOPNJO || 45);
     const kje = i.pod + '/' + i.gid + ' st' + i.st + ': ';
     t2.trdi(i.vzorci.length > 0, kje + 'nobenega vprašanja');
     for (const q of i.vzorci){
-      t2.trdi(['izbira','zemljevid','tocke'].indexOf(q.tip) >= 0, kje + 'neznana vrsta ' + q.tip);
+      t2.trdi(['izbira','zemljevid','tocke','sosede'].indexOf(q.tip) >= 0, kje + 'neznana vrsta ' + q.tip);
       t2.trdi(typeof q.v === 'string' && q.v.trim().length >= 5, kje + 'prekratko vprašanje: ' + q.v);
       t2.trdi(typeof q.kljuc === 'string' && q.kljuc.length > 0, kje + 'brez ključa: ' + q.v);
       t2.trdi(typeof q.ucim === 'string' && q.ucim.length > 0, kje + 'brez »ucim« (ponovi napake ne bo delal): ' + q.v);
@@ -117,6 +127,27 @@ const NA_STOPNJO = Number(process.env.NA_STOPNJO || 45);
       } else {
         if (i.gid !== 'ponovi') t4.enako(i.st, 5, kje + 'brez osvetljenih držav sme biti le peta stopnja');
       }
+    }
+  }
+
+  /* --- 4b. »Vse sosede«: zaporedje je rešljivo --- */
+  const t4b = preizkus('zaporedno tapkanje sosed je rešljivo');
+  for (const i of podatki.igre){
+    const kje = i.pod + '/' + i.gid + ' st' + i.st + ': ';
+    for (const q of i.vzorci.filter(x => x.tip === 'sosede')){
+      t4b.trdi(q.jeNaKarti, kje + 'države ' + q.poudari + ' ni na zemljevidu ' + q.karta);
+      t4b.trdi(q.zap.length >= 2, kje + 'manj kot dve sosedi: ' + q.v);
+      t4b.enako(q.imena.length, q.zap.length, kje + 'število imen se ne ujema s številom sosed');
+      t4b.trdi(new Set(q.zap).size === q.zap.length, kje + 'podvojena soseda pri: ' + q.v);
+      t4b.trdi(q.zap.indexOf(q.poudari) < 0, kje + 'država je navedena kot svoja soseda');
+      for (const o of q.okviri){
+        t4b.trdi(o.jeNaKarti, kje + 'sosede ' + o.id + ' ni na zemljevidu');
+        t4b.trdi(o.p >= 90, kje + 'soseda ' + o.id + ' je premajhna za tap (' + o.p.toFixed(1) + ')');
+        t4b.trdi(q.zive.indexOf(o.id) >= 0, kje + 'soseda ' + o.id + ' ni med osvetljenimi');
+      }
+      t4b.trdi(new Set(q.zive).size === q.zive.length, kje + 'podvojena osvetljena država');
+      t4b.trdi(q.zive.length > q.zap.length,
+        kje + 'brez motilk – vsaka osvetljena država je soseda, naloga je pretrivialna');
     }
   }
 
@@ -164,11 +195,11 @@ const NA_STOPNJO = Number(process.env.NA_STOPNJO || 45);
   }
 
   /* --- 6. pokritost: vsaka od 25 iger je res prišla na vrsto --- */
-  const t6 = preizkus('vseh 25 iger je preizkušenih');
+  const t6 = preizkus('vseh 32 iger je preizkušenih');
   const preizkusene = new Set(podatki.igre.map(i => i.gid));
   const vse = await stran.evaluate(() => Object.keys(IGRE));
   for (const gid of vse) t6.trdi(preizkusene.has(gid), 'igra ' + gid + ' ni bila preizkušena');
-  t6.enako(vse.length, 25, 'število iger v zbirki');
+  t6.enako(vse.length, 32, 'število iger v zbirki');
 
   await brskalnik.close();
   console.log('Preizkušenih vprašanj: ' + stVprasanj);
@@ -180,5 +211,5 @@ const NA_STOPNJO = Number(process.env.NA_STOPNJO || 45);
       ' (' + (prekrivanja.length / skupajParov * 100).toFixed(1) + ' %), ' + vrste.length + ' različnih parov:');
     for (const v of vrste.slice(0, 20)) console.log('   ' + skupine[v] + '× ' + v);
   }
-  process.exit(izpisi('Globko – logika', [t1, t2, t3, t4, t5, t6]) ? 1 : 0);
+  process.exit(izpisi('Globko – logika', [t1, t2, t3, t4, t4b, t5, t6]) ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(2); });

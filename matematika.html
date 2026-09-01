@@ -20,176 +20,286 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
   --ink:#26365e; --ink-soft:#5a6b95;
-  --card:#ffffff;
+  --card:#ffffff; --card-2:#f6f8ff;
   --line:#e4eaf7;
   --ok:#1eb872; --ok-d:#159a5e;
   --no:#f2762e; --no-d:#d55f1c;
   --acc:#5b6cff; --acc-d:#3f4fdd;
-  --gold:#ffb703;
+  --gold:#ffb703; --gold-ink:#a86b00;
   --r:22px;
+  --ozadje:#eaf1ff;
+  --p1:#d8e6ff; --p2:#ffe3f1; --p3:#dcfbe9;      /* barvni prelivi ozadja */
+  --mreza:#d7ddf5;                                /* črte v narisanih mrežah */
+  --polje:#e9eeff;                                /* prazno polje na risbi */
+  --prazno:#eef1f9;                               /* neizpolnjeni del obroča */
+  --namig-bg:#fffdf0; --namig-rob:#ffeeb8; --namig-ink:#a86b00;
+  --senca:rgba(38,54,94,.10);
+  --toast-bg:#26365e; --toast-ink:#ffffff;
+  --oko:#26365e;                                  /* obraz maskote */
+  --kozuh:#f97316; --kozuh-d:#e8590c; --trebuh:#fff4e6;
+  --risba:#26365e;                                /* motivi v ozadju */
+  --slabo:#fff1e7;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --ink:#e9edff; --ink-soft:#a6b2d6;
+    --card:#1e2442; --card-2:#262d50;
+    --line:#39426d;
+    --ok:#31cd88; --ok-d:#1c9c62;
+    --no:#ff9a5c; --no-d:#d96a2c;
+    --acc:#8c99ff; --acc-d:#5b68d6;
+    --gold:#ffcb57; --gold-ink:#ffcb57;
+    --ozadje:#141a30;
+    --p1:#1e2c56; --p2:#3a2040; --p3:#12362c;
+    --mreza:#3d4772; --polje:#2b3358; --prazno:#333c66;
+    --namig-bg:#2d2a1a; --namig-rob:#5f4f1f; --namig-ink:#ffd98a;
+    --senca:rgba(0,0,0,.5);
+    --toast-bg:#e9edff; --toast-ink:#141a30;
+    --oko:#151b33; --trebuh:#ffe9d5;
+    --risba:#c9d4ff;
+    --slabo:#3a2a20;
+  }
 }
 html,body{height:100%}
 body{
   margin:0;
   font-family:"Nunito","Trebuchet MS",system-ui,-apple-system,sans-serif;
   color:var(--ink);
-  background:#eaf1ff;
+  background:var(--ozadje);
   background-image:
-    radial-gradient(1100px 700px at 8% -10%, #d8e6ff 0%, transparent 60%),
-    radial-gradient(900px 620px at 100% 0%, #ffe3f1 0%, transparent 55%),
-    radial-gradient(900px 700px at 50% 115%, #dcfbe9 0%, transparent 60%);
+    radial-gradient(1100px 700px at 8% -10%, var(--p1) 0%, transparent 60%),
+    radial-gradient(900px 620px at 100% 0%, var(--p2) 0%, transparent 55%),
+    radial-gradient(900px 700px at 50% 115%, var(--p3) 0%, transparent 60%);
   background-attachment:fixed;
   min-height:100dvh;
   overflow-x:hidden;
 }
+/* ---------- ilustrirano ozadje ---------- */
+#ozadje{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
+#ozadje svg{width:100%;height:100%;display:block}
+#ozadje .m{fill:var(--risba);opacity:.055}
+#ozadje .c{fill:none;stroke:var(--risba);stroke-width:3;opacity:.05}
+
 .wrap{max-width:760px;margin:0 auto;position:relative;z-index:2;
   padding:calc(14px + env(safe-area-inset-top,0px)) calc(14px + env(safe-area-inset-right,0px))
           calc(34px + env(safe-area-inset-bottom,0px)) calc(14px + env(safe-area-inset-left,0px))}
 button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none}
+:focus-visible{outline:3px solid var(--acc);outline-offset:3px;border-radius:12px}
 
 /* ---------- splošni gumbi ---------- */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  background:var(--card);border-radius:18px;padding:14px 20px;
+  background:var(--card);border-radius:18px;padding:14px 20px;min-height:48px;
   font-weight:900;font-size:19px;line-height:1;
   box-shadow:0 5px 0 var(--line);transition:transform .08s,box-shadow .08s;
 }
-.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+.btn:active{transform:translateY(4px) scale(.98);box-shadow:0 1px 0 var(--line)}
 .btn-acc{background:var(--acc);color:#fff;box-shadow:0 5px 0 var(--acc-d)}
 .btn-acc:active{box-shadow:0 1px 0 var(--acc-d)}
 .btn-ok{background:var(--ok);color:#fff;box-shadow:0 5px 0 var(--ok-d)}
 .btn-ok:active{box-shadow:0 1px 0 var(--ok-d)}
-.btn-ghost{background:rgba(255,255,255,.75)}
+.btn-ghost{background:var(--card)}
 
 /* ---------- glava ---------- */
 .top{display:flex;align-items:center;gap:10px;margin:6px 0 16px}
-.brand{display:flex;align-items:center;gap:10px;font-size:26px;font-weight:900}
-.brand .fox{font-size:34px;filter:drop-shadow(0 4px 6px rgba(0,0,0,.15))}
+.brand{display:flex;align-items:center;gap:9px;font-size:26px;font-weight:900}
+.brand .glava{width:44px;height:41px;flex:none;filter:drop-shadow(0 4px 6px var(--senca))}
 .spacer{flex:1}
 .pill{
-  display:inline-flex;align-items:center;gap:7px;background:#fff;border-radius:999px;
+  display:inline-flex;align-items:center;gap:7px;background:var(--card);border-radius:999px;
   padding:9px 15px;font-weight:900;box-shadow:0 4px 0 var(--line);font-size:17px;white-space:nowrap;
 }
-.pill.gold{color:#a86b00}
-.icon-btn{width:46px;height:46px;border-radius:999px;background:#fff;box-shadow:0 4px 0 var(--line);
+.pill.gold{color:var(--gold-ink)}
+.icon-btn{width:46px;height:46px;border-radius:999px;background:var(--card);box-shadow:0 4px 0 var(--line);
   display:grid;place-items:center;font-size:21px}
 .icon-btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
 
+/* ---------- maskota ---------- */
+.lisjak{display:block;width:100%;height:100%}
+.lisjak .oko{fill:var(--oko);transform-box:fill-box;transform-origin:center;animation:mezik 5.4s infinite}
+.lisjak .crta{fill:none;stroke:var(--oko);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.lisjak .polna{fill:var(--oko);stroke:none}
+@keyframes mezik{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.12)}}
+.maskota{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+.maskota .lik{width:66px;height:62px;flex:none;animation:ziba 3.8s ease-in-out infinite;transform-origin:50% 92%}
+.maskota.velika .lik{width:104px;height:98px}
+@keyframes ziba{0%,100%{transform:rotate(-2.4deg)}50%{transform:rotate(2.4deg)}}
+.maskota.veseli .lik{animation:poskok .7s ease-out}
+@keyframes poskok{0%{transform:translateY(0)}30%{transform:translateY(-10px) rotate(-6deg)}
+                  60%{transform:translateY(0) rotate(4deg)}100%{transform:translateY(0)}}
+.maskota.zali .lik{animation:trese .5s}
+@keyframes trese{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.oblacek{position:relative;background:var(--card);border-radius:16px;padding:10px 14px;
+  font-weight:800;font-size:15.5px;line-height:1.35;box-shadow:0 4px 0 var(--line);
+  flex:0 1 auto;max-width:460px;
+  animation:vstop .22s ease-out}
+.oblacek::after{content:"";position:absolute;left:-9px;top:20px;
+  border:9px solid transparent;border-right-color:var(--card);border-left:0}
+.maskota.konec{flex-direction:column;text-align:center;gap:8px}
+.maskota.konec .oblacek::after{left:50%;top:-9px;margin-left:-9px;
+  border:9px solid transparent;border-bottom-color:var(--card);border-top:0}
+
 /* ---------- kartice ---------- */
-.card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:0 8px 24px rgba(38,54,94,.10)}
+.card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:0 8px 24px var(--senca)}
 h2.section{font-size:19px;margin:22px 4px 10px;font-weight:900;color:var(--ink-soft);letter-spacing:.2px}
 
 /* ---------- izbira težavnosti ---------- */
-.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px}
 .level{
-  background:#fff;border-radius:18px;padding:12px 8px;text-align:center;font-weight:900;
+  background:var(--card);border-radius:18px;padding:12px 8px;text-align:center;font-weight:900;
   box-shadow:0 5px 0 var(--line);transition:transform .08s;
 }
 .level small{display:block;font-weight:700;font-size:13px;color:var(--ink-soft);margin-top:3px}
 .level[aria-pressed="true"]{background:var(--acc);color:#fff;box-shadow:0 5px 0 var(--acc-d)}
 .level[aria-pressed="true"] small{color:#e6e9ff}
-.level:active{transform:translateY(3px)}
+.level:active{transform:translateY(3px) scale(.98)}
+.level.auto[aria-pressed="true"]{background:var(--ok);box-shadow:0 5px 0 var(--ok-d)}
+.level.auto[aria-pressed="true"] small{color:#dcf7ea}
 
-/* ---------- izbira igre ---------- */
-.modes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+/* ---------- starostna področja ---------- */
+.bands{display:grid;grid-template-columns:repeat(auto-fit,minmax(152px,1fr));gap:10px}
+.band{position:relative;overflow:hidden;background:var(--card);border-radius:18px;padding:13px 10px;
+  text-align:center;font-weight:900;box-shadow:0 5px 0 var(--line);transition:transform .08s;font-size:16px}
+.band::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(160deg,var(--c,var(--acc)) 0%,transparent 80%);opacity:.16}
+.band .e{font-size:25px;display:block;margin-bottom:2px;position:relative}
+.band small{display:block;font-weight:700;font-size:12.5px;color:var(--ink-soft);margin-top:3px;position:relative}
+.band span,.band small{position:relative}
+.band[aria-pressed="true"]{background:var(--acc);color:#fff;box-shadow:0 5px 0 var(--acc-d)}
+.band[aria-pressed="true"]::before{opacity:0}
+.band[aria-pressed="true"] small{color:#e3e7ff}
+.band:active{transform:translateY(3px) scale(.98)}
+
+/* ---------- kartice iger ---------- */
+.modes{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:12px}
 .mode{
-  position:relative;background:#fff;border-radius:20px;padding:16px 12px;text-align:center;
-  box-shadow:0 6px 0 var(--line);transition:transform .1s;overflow:hidden;
+  position:relative;background:var(--card);border-radius:20px;padding:14px 10px 12px;text-align:center;
+  box-shadow:0 6px 0 var(--line);transition:transform .1s,box-shadow .1s;overflow:hidden;
+  animation:vstop .26s backwards;
 }
-.mode:active{transform:translateY(4px);box-shadow:0 2px 0 var(--line)}
-.mode .emo{font-size:40px;display:block;margin-bottom:6px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.12))}
-.mode .nm{font-weight:900;font-size:17px;display:block}
-.mode .sub{font-size:12.5px;color:var(--ink-soft);font-weight:700;display:block;margin-top:2px}
-.mode .best{position:absolute;top:8px;right:10px;font-size:13px;font-weight:900;color:var(--gold)}
-.mode::after{content:"";position:absolute;inset:0 0 auto;height:6px;background:var(--c,var(--acc))}
+.mode::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(163deg,var(--c,var(--acc)) 0%,transparent 78%);opacity:.15}
+.mode:active{transform:translateY(4px) scale(.98);box-shadow:0 2px 0 var(--line)}
+.mode > *{position:relative}
+.obroc{width:58px;height:58px;border-radius:50%;margin:0 auto 8px;display:grid;place-items:center;
+  background:conic-gradient(var(--c,var(--acc)) calc(var(--p,0) * 1%), var(--prazno) 0)}
+.obroc i{width:46px;height:46px;border-radius:50%;background:var(--card);display:grid;place-items:center;
+  color:var(--c,var(--acc))}
+.obroc svg{width:26px;height:26px}
+.mode .nm{font-weight:900;font-size:16.5px;display:block;line-height:1.2}
+.mode .sub{font-size:12.5px;color:var(--ink-soft);font-weight:700;display:block;margin-top:3px}
+.mode .best{position:absolute;top:8px;right:9px;font-size:12px;font-weight:900;color:var(--gold);letter-spacing:-1px}
+.mode .step{display:block;font-size:11.5px;font-weight:900;color:var(--ink-soft);margin-top:7px}
 
 /* ---------- igra ---------- */
 .dots{display:flex;gap:6px;justify-content:center;margin:2px 0 14px;flex-wrap:wrap}
-.dot{width:15px;height:15px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 3px var(--line)}
+.dot{width:15px;height:15px;border-radius:50%;background:var(--card);box-shadow:inset 0 0 0 3px var(--line);
+  transition:background .2s,box-shadow .2s}
 .dot.ok{background:var(--ok);box-shadow:none}
 .dot.no{background:var(--no);box-shadow:none}
-.dot.now{background:var(--acc);box-shadow:0 0 0 4px rgba(91,108,255,.22)}
+.dot.now{background:var(--acc);box-shadow:0 0 0 4px rgba(91,108,255,.24)}
 
-.qcard{text-align:center;padding:26px 16px;min-height:190px;display:flex;flex-direction:column;justify-content:center;gap:12px}
+.qcard{text-align:center;padding:24px 16px;min-height:190px;display:flex;flex-direction:column;
+  justify-content:center;gap:12px;animation:vstop .2s ease-out}
+.qcard.prav{animation:zeleniblisk .5s}
+@keyframes zeleniblisk{0%{box-shadow:0 8px 24px var(--senca)}
+  30%{box-shadow:0 0 0 5px var(--ok),0 8px 24px var(--senca)}
+  100%{box-shadow:0 8px 24px var(--senca)}}
 .qtask{font-size:16px;font-weight:800;color:var(--ink-soft)}
 .qbig{font-size:clamp(40px,11vw,64px);font-weight:900;letter-spacing:1px;line-height:1.15}
 .qbig .miss{display:inline-grid;place-items:center;min-width:1.35em;height:1.15em;border-radius:14px;
-  background:#eef2ff;color:var(--acc);box-shadow:inset 0 0 0 4px #d7ddff}
+  background:var(--card-2);color:var(--acc);box-shadow:inset 0 0 0 4px var(--line)}
 .qbig .val{color:var(--acc)}
-.objects{display:flex;flex-wrap:wrap;gap:6px 8px;justify-content:center;max-width:420px;margin:0 auto;font-size:31px;line-height:1}
-.objects .grp{display:flex;gap:5px;padding:6px 8px;background:#f4f7ff;border-radius:14px}
+.objects{display:flex;flex-wrap:wrap;gap:6px 8px;justify-content:center;max-width:420px;margin:0 auto;
+  font-size:31px;line-height:1}
+.objects .grp{display:flex;gap:5px;padding:6px 8px;background:var(--card-2);border-radius:14px}
 .objects .grp.ten{display:grid;grid-template-columns:repeat(5,auto);gap:4px}
 .objects.many{font-size:24px;gap:8px}
 .answer-box{font-size:40px;font-weight:900;min-height:56px;display:grid;place-items:center;
-  background:#f6f8ff;border-radius:16px;max-width:230px;margin:0 auto;width:100%;box-shadow:inset 0 0 0 4px #e7ecff;
-  padding:6px 10px}
-.answer-box.empty{color:#b9c3e0}
+  background:var(--card-2);border-radius:16px;max-width:230px;margin:0 auto;width:100%;
+  box-shadow:inset 0 0 0 4px var(--line);padding:6px 10px}
+.answer-box.empty{color:var(--ink-soft);opacity:.55}
 
 /* tipkovnica */
-.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;max-width:420px;margin-left:auto;margin-right:auto}
-.key{background:#fff;border-radius:18px;padding:16px 0;font-size:27px;font-weight:900;box-shadow:0 5px 0 var(--line)}
-.key:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
-.key.wide{grid-column:span 1}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;max-width:420px;
+  margin-left:auto;margin-right:auto}
+.key{background:var(--card);border-radius:18px;padding:16px 0;font-size:27px;font-weight:900;
+  box-shadow:0 5px 0 var(--line);min-height:52px}
+.key:active{transform:translateY(4px) scale(.97);box-shadow:0 1px 0 var(--line)}
 .key.go{background:var(--ok);color:#fff;box-shadow:0 5px 0 var(--ok-d);font-size:21px}
 .key.go:active{box-shadow:0 1px 0 var(--ok-d)}
-.key.del{background:#ffeee3;color:var(--no-d)}
+.key.del{background:var(--slabo);color:var(--no-d)}
+.pad.extra{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px;
+  margin:10px auto 0;max-width:420px}
 
 /* izbire (< = >) */
-.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px;max-width:420px;margin-left:auto;margin-right:auto}
-.choice{background:#fff;border-radius:20px;padding:20px 0;font-size:34px;font-weight:900;box-shadow:0 5px 0 var(--line)}
-.choice:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px;max-width:420px;
+  margin-left:auto;margin-right:auto}
+.choice{background:var(--card);border-radius:20px;padding:20px 0;font-size:34px;font-weight:900;
+  box-shadow:0 5px 0 var(--line);animation:vstop .24s backwards;min-height:52px}
+.choice:active{transform:translateY(4px) scale(.97);box-shadow:0 1px 0 var(--line)}
 .choices.two{grid-template-columns:repeat(2,1fr)}
 .choices.two .choice{font-size:26px}
 
 .game-bar{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
 
 /* namig */
-.hint{margin-top:14px;background:#fffdf0;border-radius:18px;padding:14px;box-shadow:inset 0 0 0 3px #ffeeb8;text-align:center}
-.hint b{display:block;margin-bottom:8px;color:#a86b00}
+.hint{margin-top:14px;background:var(--namig-bg);border-radius:18px;padding:14px;
+  box-shadow:inset 0 0 0 3px var(--namig-rob);text-align:center;animation:vstop .2s ease-out}
+.hint b{display:block;margin-bottom:8px;color:var(--namig-ink)}
 .beads{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;font-size:22px;line-height:1}
-.beads .row{display:flex;gap:4px;background:#fff;border-radius:12px;padding:5px 7px}
+.beads .row{display:flex;gap:4px;background:var(--card);border-radius:12px;padding:5px 7px}
 .numline{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:6px}
-.numline span{width:30px;height:30px;border-radius:9px;background:#fff;display:grid;place-items:center;
-  font-weight:900;font-size:14px;box-shadow:inset 0 0 0 2px #ffeeb8}
+.numline span{width:30px;height:30px;border-radius:9px;background:var(--card);display:grid;place-items:center;
+  font-weight:900;font-size:14px;box-shadow:inset 0 0 0 2px var(--namig-rob)}
 .numline span.a{background:var(--acc);color:#fff;box-shadow:none}
-.numline span.b{background:#ffd9a8}
+.numline span.b{background:#ffd9a8;color:#26365e}
 
 /* povratna informacija */
-.flash{
-  position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;z-index:60;
-}
+.flash{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;z-index:60}
 .flash .bubble{
-  background:#fff;border-radius:26px;padding:22px 30px;text-align:center;
-  box-shadow:0 18px 44px rgba(38,54,94,.28);animation:pop .35s cubic-bezier(.2,1.5,.4,1);
-  max-width:88vw;
+  background:var(--card);border-radius:26px;padding:22px 30px;text-align:center;
+  box-shadow:0 18px 44px var(--senca);animation:pop .35s cubic-bezier(.2,1.5,.4,1);max-width:88vw;
 }
+.flash.good .bubble{box-shadow:0 0 0 5px var(--ok),0 18px 44px var(--senca)}
+.flash.bad .bubble{box-shadow:0 0 0 5px var(--no),0 18px 44px var(--senca)}
 .flash .big{font-size:52px;line-height:1}
 .flash .txt{font-size:24px;font-weight:900;margin-top:6px}
 .flash .sml{font-size:17px;font-weight:800;color:var(--ink-soft);margin-top:6px}
 .flash.bad .txt{color:var(--no-d)}
 @keyframes pop{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
 .shake{animation:shake .4s}
-@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(9px)}
+  60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
 
 /* rezultat */
-.stars{font-size:56px;letter-spacing:6px;text-align:center;margin:6px 0 2px}
+.krogodstotek{width:140px;height:140px;border-radius:50%;margin:4px auto 10px;display:grid;place-items:center;
+  background:conic-gradient(var(--ok) calc(var(--p,0) * 1%), var(--prazno) 0);animation:obrat .8s ease-out}
+@keyframes obrat{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.krogodstotek b{width:112px;height:112px;border-radius:50%;background:var(--card);display:grid;place-items:center;
+  font-size:31px;font-weight:900;color:var(--ink)}
+.stars{font-size:52px;letter-spacing:6px;text-align:center;margin:2px 0}
 .stars span{display:inline-block;animation:star .5s backwards}
 .stars span:nth-child(2){animation-delay:.18s}
 .stars span:nth-child(3){animation-delay:.36s}
-@keyframes star{0%{transform:scale(0) rotate(-40deg);opacity:0}70%{transform:scale(1.3) rotate(8deg)}100%{transform:scale(1);opacity:1}}
+@keyframes star{0%{transform:scale(0) rotate(-40deg);opacity:0}70%{transform:scale(1.3) rotate(8deg)}
+  100%{transform:scale(1);opacity:1}}
 .score{text-align:center;font-size:22px;font-weight:900}
 .score em{font-style:normal;color:var(--acc)}
 .review{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px;margin-top:14px}
-.review div{background:#f6f8ff;border-radius:14px;padding:9px 6px;text-align:center;font-weight:800;font-size:15px}
-.review div.no{background:#fff1e7;color:var(--no-d)}
+.review div{background:var(--card-2);border-radius:14px;padding:9px 6px;text-align:center;
+  font-weight:800;font-size:15px}
+.review div.no{background:var(--slabo);color:var(--no-d)}
 
 /* starši */
-.stat-row{display:flex;justify-content:space-between;padding:10px 4px;border-bottom:2px dashed var(--line);font-weight:800}
+.stat-row{display:flex;justify-content:space-between;padding:10px 4px;border-bottom:2px dashed var(--line);
+  font-weight:800;gap:10px}
 .stat-row:last-child{border:0}
-.stat-row .r{color:var(--ink-soft)}
+.stat-row .r{color:var(--ink-soft);white-space:nowrap}
 .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.badge{background:#fff7e0;border-radius:999px;padding:8px 14px;font-weight:900;font-size:14px;box-shadow:inset 0 0 0 3px #ffe3a3}
-.badge.off{background:#f3f5fb;color:#aab3cc;box-shadow:inset 0 0 0 3px #e6eaf5}
+.badge{background:var(--namig-bg);color:var(--namig-ink);border-radius:999px;padding:8px 14px;
+  font-weight:900;font-size:14px;box-shadow:inset 0 0 0 3px var(--namig-rob)}
+.badge.off{background:var(--card-2);color:var(--ink-soft);opacity:.7;box-shadow:inset 0 0 0 3px var(--line)}
 
 /* konfeti */
 #confetti{position:fixed;inset:0;pointer-events:none;z-index:70;overflow:hidden}
@@ -201,40 +311,28 @@ h2.section{font-size:19px;margin:22px 4px 10px;font-weight:900;color:var(--ink-s
   text-align:left;display:flex;flex-direction:column;gap:9px;letter-spacing:.2px}
 .story p{margin:0}
 .story .q{color:var(--acc)}
-.story .num{background:#eef2ff;border-radius:8px;padding:1px 6px;color:var(--acc)}
-.story .word{font-size:1.05em;letter-spacing:2px;background:#fff7e0;border-radius:8px;padding:1px 7px}
+.story .num{background:var(--card-2);border-radius:8px;padding:1px 6px;color:var(--acc)}
+.story .word{font-size:1.05em;letter-spacing:2px;background:var(--namig-bg);border-radius:8px;padding:1px 7px}
 .story.syl{letter-spacing:.6px;word-spacing:3px}
 .pic{font-size:40px;line-height:1.35;letter-spacing:5px;text-align:center;margin:4px auto;max-width:11ch}
-.pic.wide{max-width:100%;font-size:30px}
+.pic.wide{max-width:100%;font-size:30px;letter-spacing:2px}
+.pic svg{display:block;margin:6px auto;max-width:100%;height:auto}
+.pic svg text,.qbig svg text,.opt svg text{letter-spacing:normal}
 
 /* ---------- izbirni odgovori ---------- */
-.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px;max-width:460px;margin:14px auto 0}
-.opt{background:#fff;border-radius:18px;padding:15px 10px;font-size:22px;font-weight:900;
-  box-shadow:0 5px 0 var(--line);line-height:1.25}
-.opt:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px;max-width:460px;
+  margin:14px auto 0}
+.opt{background:var(--card);border-radius:18px;padding:15px 10px;font-size:22px;font-weight:900;
+  box-shadow:0 5px 0 var(--line);line-height:1.25;animation:vstop .24s backwards;min-height:52px}
+.opt:active{transform:translateY(4px) scale(.97);box-shadow:0 1px 0 var(--line)}
 .opt.txt{font-size:18px}
+.opt svg{display:block;margin:0 auto;max-width:100%;height:auto}
 
 /* ---------- stopnje ---------- */
-.stepbar{height:7px;border-radius:99px;background:#eef1f9;overflow:hidden;margin-top:9px}
-.stepbar i{display:block;height:100%;background:linear-gradient(90deg,#8f9bff,#5b6cff);transition:width .4s}
-.mode .step{display:block;font-size:11.5px;font-weight:900;color:var(--acc);margin-top:7px}
-.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#26365e;color:#fff;
-  padding:13px 20px;border-radius:999px;font-weight:900;z-index:80;box-shadow:0 12px 26px rgba(38,54,94,.35);
-  animation:up .35s;max-width:92vw;text-align:center}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--toast-bg);
+  color:var(--toast-ink);padding:13px 20px;border-radius:999px;font-weight:900;z-index:80;
+  box-shadow:0 12px 26px var(--senca);animation:up .35s;max-width:92vw;text-align:center}
 @keyframes up{from{transform:translate(-50%,20px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
-.levels{grid-template-columns:repeat(auto-fit,minmax(148px,1fr))}
-.level.auto[aria-pressed="true"]{background:var(--ok);box-shadow:0 5px 0 var(--ok-d)}
-.level.auto[aria-pressed="true"] small{color:#dcf7ea}
-
-/* ---------- starostna področja ---------- */
-.bands{display:grid;grid-template-columns:repeat(auto-fit,minmax(152px,1fr));gap:10px}
-.band{background:#fff;border-radius:18px;padding:12px 10px;text-align:center;font-weight:900;
-  box-shadow:0 5px 0 var(--line);transition:transform .08s;font-size:16px}
-.band .e{font-size:25px;display:block;margin-bottom:2px}
-.band small{display:block;font-weight:700;font-size:12.5px;color:var(--ink-soft);margin-top:3px}
-.band[aria-pressed="true"]{background:var(--acc);color:#fff;box-shadow:0 5px 0 var(--acc-d)}
-.band[aria-pressed="true"] small{color:#e3e7ff}
-.band:active{transform:translateY(3px)}
 
 /* ---------- ulomki, potence, znaki ---------- */
 .frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;
@@ -244,12 +342,20 @@ h2.section{font-size:19px;margin:22px 4px 10px;font-weight:900;color:var(--ink-s
 .opt .frac{font-size:1em}
 .qbig sup{font-size:.55em;vertical-align:super;line-height:0}
 .qbig.small{font-size:clamp(21px,5vw,29px);line-height:1.4}
-.qbig svg{display:block;margin:6px auto}
-.opt svg{display:block;margin:0 auto}
+.qbig svg{display:block;margin:6px auto;max-width:100%;height:auto}
 .objects.plus{align-items:center;gap:12px;font-size:29px}
 .objects .znak{font-size:32px;font-weight:900;color:var(--acc)}
-.pad.extra{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px;
-  margin:10px auto 0;max-width:420px}
+
+/* ---------- prehodi med zasloni ---------- */
+section{animation:vstop .18s ease-out}
+@keyframes vstop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* v temnem načinu so poudarki svetli, zato je na njih temna pisava bolj berljiva */
+@media (prefers-color-scheme:dark){
+  .btn-acc,.btn-ok,.key.go,.band[aria-pressed="true"],.level[aria-pressed="true"],
+  .numline span.a{color:#12172b}
+  .band[aria-pressed="true"] small,.level[aria-pressed="true"] small{color:#2c3560}
+}
 
 .hide{display:none !important}
 .center{text-align:center}
@@ -258,6 +364,7 @@ h2.section{font-size:19px;margin:22px 4px 10px;font-weight:900;color:var(--ink-s
 @media (max-width:400px){
   .brand{font-size:22px}
   .key{padding:14px 0;font-size:24px}
+  .maskota .lik{width:56px;height:53px}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation:none !important;transition:none !important}
@@ -265,13 +372,14 @@ h2.section{font-size:19px;margin:22px 4px 10px;font-weight:900;color:var(--ink-s
 </style>
 </head>
 <body>
+<div id="ozadje" aria-hidden="true"><svg viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice"><circle class="c" cx="70" cy="210" r="34"/><circle class="c" cx="345" cy="560" r="42"/><rect class="c" x="240" y="150" width="66" height="66" rx="10"/><rect class="c" x="30" y="600" width="54" height="54" rx="10" transform="rotate(18 57 627)"/><polygon class="c" points="150,470 190,540 110,540"/><polygon class="c" points="290,720 330,790 250,790"/><circle class="c" cx="200" cy="270" r="22"/><text class="m" x="28" y="110" font-size="54" font-weight="900" text-anchor="middle" transform="rotate(-12 28 110)">7</text><text class="m" x="320" y="74" font-size="62" font-weight="900" text-anchor="middle" transform="rotate(10 320 74)">+</text><text class="m" x="60" y="300" font-size="70" font-weight="900" text-anchor="middle" transform="rotate(-6 60 300)">△</text><text class="m" x="300" y="268" font-size="58" font-weight="900" text-anchor="middle" transform="rotate(8 300 268)">5</text><text class="m" x="150" y="150" font-size="46" font-weight="900" text-anchor="middle" transform="rotate(-14 150 150)">×</text><text class="m" x="24" y="470" font-size="66" font-weight="900" text-anchor="middle" transform="rotate(7 24 470)">3</text><text class="m" x="330" y="430" font-size="60" font-weight="900" text-anchor="middle" transform="rotate(0 330 430)">○</text><text class="m" x="180" y="600" font-size="58" font-weight="900" text-anchor="middle" transform="rotate(-9 180 600)">8</text><text class="m" x="44" y="700" font-size="52" font-weight="900" text-anchor="middle" transform="rotate(12 44 700)">÷</text><text class="m" x="300" y="660" font-size="64" font-weight="900" text-anchor="middle" transform="rotate(-7 300 660)">2</text><text class="m" x="190" y="380" font-size="48" font-weight="900" text-anchor="middle" transform="rotate(6 190 380)">−</text><text class="m" x="120" y="790" font-size="56" font-weight="900" text-anchor="middle" transform="rotate(10 120 790)">9</text><text class="m" x="330" y="800" font-size="54" font-weight="900" text-anchor="middle" transform="rotate(-8 330 800)">□</text><text class="m" x="210" y="40" font-size="44" font-weight="900" text-anchor="middle" transform="rotate(9 210 40)">4</text><text class="m" x="96" y="540" font-size="48" font-weight="900" text-anchor="middle" transform="rotate(-11 96 540)">6</text><text class="m" x="268" y="530" font-size="44" font-weight="900" text-anchor="middle" transform="rotate(6 268 530)">%</text></svg></div>
 <div id="confetti"></div>
 
 <div class="wrap">
 
   <!-- ============ GLAVA ============ -->
   <div class="top">
-    <div class="brand"><span class="fox">🦊</span><span>Matko</span></div>
+    <div class="brand"><span class="glava" id="maskotaGlava"></span><span>Matko</span></div>
     <div class="spacer"></div>
     <div class="pill gold" title="Zbrane zvezdice">⭐ <span id="starCount">0</span></div>
     <button class="icon-btn" id="soundBtn" title="Zvok vklop/izklop" aria-label="Zvok">🔊</button>
@@ -280,10 +388,13 @@ h2.section{font-size:19px;margin:22px 4px 10px;font-weight:900;color:var(--ink-s
 
   <!-- ============ DOMOV ============ -->
   <section id="scr-home">
-    <div class="card center">
-      <div style="font-size:19px;font-weight:900">Živjo! Kaj bova vadila danes?</div>
-      <div class="muted tiny" id="rankLine" style="margin-top:6px">Tvoj naziv: Začetnik</div>
-      <div class="muted tiny" id="readLine" style="margin-top:4px"></div>
+    <div class="card">
+      <div class="maskota" id="maskotaDomov">
+        <span class="lik" id="likDomov"></span>
+        <div class="oblacek" id="oblacekDomov">Živjo! Kaj bova vadila danes?</div>
+      </div>
+      <div class="center muted tiny" id="rankLine">Tvoj naziv: Začetnik</div>
+      <div class="center muted tiny" id="readLine" style="margin-top:4px"></div>
     </div>
 
     <h2 class="section">1. Izberi področje</h2>
@@ -305,6 +416,11 @@ h2.section{font-size:19px;margin:22px 4px 10px;font-weight:900;color:var(--ink-s
       <div class="pill" id="modeTitle">Seštevanje</div>
       <div class="spacer"></div>
       <div class="pill" id="streakPill">🔥 <span id="streakNum">0</span></div>
+    </div>
+
+    <div class="maskota" id="maskotaIgra">
+      <span class="lik" id="likIgra"></span>
+      <div class="oblacek" id="oblacekIgra">Gremo!</div>
     </div>
 
     <div class="dots" id="dots"></div>
@@ -331,8 +447,13 @@ h2.section{font-size:19px;margin:22px 4px 10px;font-weight:900;color:var(--ink-s
   <!-- ============ REZULTAT ============ -->
   <section id="scr-done" class="hide">
     <div class="card">
+      <div class="krogodstotek" id="resKrog" style="--p:0"><b id="resPct">0 %</b></div>
       <div class="stars" id="resStars">⭐⭐⭐</div>
       <div class="score" id="resScore">Pravilnih: <em>10</em> od 10</div>
+      <div class="maskota konec velika" id="maskotaKonec" style="margin-top:14px">
+        <span class="lik" id="likKonec"></span>
+        <div class="oblacek" id="oblacekKonec">Bravo!</div>
+      </div>
       <div class="center muted" id="resMsg" style="margin-top:8px">Odlično!</div>
       <div class="review" id="resReview"></div>
       <div class="game-bar" style="margin-top:20px">
@@ -456,6 +577,7 @@ const MODES = [
   {id:"shapes",   b:0, gen:"shapes",   nm:"Oblike",         emo:"🔺", sub:"krog, kvadrat",   c:"#14b8a6", min:1, max:4},
   {id:"compare0", b:0, gen:"compare",  nm:"Primerjaj",      emo:"⚖️", sub:"več ali manj",    c:"#ec4899", min:1, max:2},
   {id:"series0",  b:0, gen:"series",   nm:"Zaporedja",      emo:"🔢", sub:"1, 2, ?, 4",      c:"#f59e0b", min:1, max:2},
+  {id:"simetrija0",b:0, gen:"simetrija",nm:"Zrcalna slika",  emo:"🦋", sub:"poišči par",       c:"#8b5cf6", min:1, max:3, read:true},
   {id:"kenguru0", b:0, gen:"kenguru",  nm:"Kenguruček",     emo:"🦘", sub:"za razmislek",    c:"#e11d48", min:1, max:3, read:true},
 
   /* ---- 🌱 1.–3. razred ---- */
@@ -472,6 +594,11 @@ const MODES = [
   {id:"money",    b:1, gen:"money",    nm:"Denar",          emo:"💶", sub:"koliko plačaš?",  c:"#059669", min:1, max:6, read:true},
   {id:"units1",   b:1, gen:"units",    nm:"Merske enote",   emo:"📏", sub:"1 m = 100 cm",    c:"#d97706", min:1, max:3},
   {id:"besede",   b:1, gen:"besede",   nm:"Beri in računaj",emo:"📖", sub:"besedilne naloge",c:"#6366f1", read:true},
+  {id:"podatki1", b:1, gen:"podatki",  nm:"Preglednica",    emo:"📊", sub:"beri s stolpcev", c:"#0ea5e9", min:1, max:4, read:true},
+  {id:"simetrija1",b:1,gen:"simetrija",nm:"Simetrija",      emo:"🦋", sub:"zrcaljenje likov",c:"#8b5cf6", min:3, max:6, read:true},
+  {id:"rimske",   b:1, gen:"rimske",   nm:"Rimske številke",emo:"🏛️", sub:"I, V, X do 20",   c:"#a16207", min:1, max:6},
+  {id:"orient",   b:1, gen:"orientacija",nm:"Orientacija",  emo:"🧭", sub:"levo, desno, nad",c:"#0891b2", min:1, max:4, read:true},
+  {id:"ocena",    b:1, gen:"ocena",    nm:"Ocenjevanje",    emo:"🎯", sub:"približen izid",  c:"#e11d48", min:3, max:7},
   {id:"kenguru",  b:1, gen:"kenguru",  nm:"Kenguruček",     emo:"🦘", sub:"za razmislek",    c:"#e11d48", read:true},
 
   /* ---- 🌳 4.–5. razred ---- */
@@ -486,6 +613,10 @@ const MODES = [
   {id:"clock2",   b:2, gen:"clock",    nm:"Ura",            emo:"🕐", sub:"minute in računi", c:"#8b5cf6", min:5, max:9, read:true},
   {id:"stat1",    b:2, gen:"stats",    nm:"Povprečje",      emo:"📊", sub:"koliko je povprečje?", c:"#14b8a6", min:1, max:6},
   {id:"besede2",  b:2, gen:"besede",   nm:"Besedilne naloge",emo:"📖",sub:"beri in računaj", c:"#6366f1", min:5, max:9, read:true},
+  {id:"vrstni1",  b:2, gen:"vrstniRed",nm:"Vrstni red",     emo:"🧠", sub:"oklepaji",        c:"#5b6cff", min:1, max:5},
+  {id:"koord1",   b:2, gen:"koordinate",nm:"Koordinatna mreža",emo:"🗺️", sub:"beri točke",  c:"#7c3aed", min:1, max:4, read:true},
+  {id:"podatki2", b:2, gen:"podatki",  nm:"Podatki in grafi",emo:"📊",sub:"stolpčni prikaz", c:"#0ea5e9", min:3, max:7, read:true},
+  {id:"temperatura",b:2,gen:"temperatura",nm:"Temperatura", emo:"🌡️", sub:"tudi pod ničlo",  c:"#0891b2", min:1, max:6, read:true},
   {id:"kenguru2", b:2, gen:"kenguru",  nm:"Kenguruček",     emo:"🦘", sub:"za razmislek",    c:"#e11d48", min:5, max:9, read:true},
 
   /* ---- 🚀 6.–9. razred ---- */
@@ -499,6 +630,10 @@ const MODES = [
   {id:"ratio",     b:3, gen:"ratio",    nm:"Razmerja",      emo:"🔗", sub:"sorazmerje",      c:"#14b8a6", read:true},
   {id:"num3",      b:3, gen:"numbers",  nm:"Deljivost",     emo:"🔢", sub:"praštevila, D in v", c:"#f59e0b", min:7, max:9},
   {id:"stat2",     b:3, gen:"stats",    nm:"Podatki",       emo:"📊", sub:"povprečje, mediana", c:"#8b5cf6", min:4, max:9},
+  {id:"verjetnost",b:3, gen:"verjetnost",nm:"Verjetnost",  emo:"🎲", sub:"ugodni izidi",     c:"#e11d48", read:true},
+  {id:"koord2",    b:3, gen:"koordinate",nm:"Koordinatni sistem",emo:"📈", sub:"linearna funkcija", c:"#7c3aed", min:5, max:9, read:true},
+  {id:"podatki3",  b:3, gen:"podatki",  nm:"Statistika",   emo:"📊", sub:"grafi in odstotki",c:"#0ea5e9", min:6, max:9, read:true},
+  {id:"vrstni2",   b:3, gen:"vrstniRed",nm:"Vrstni red",   emo:"🧠", sub:"izrazi z oklepaji",c:"#5b6cff", min:5, max:9},
   {id:"kenguru3",  b:3, gen:"kenguru",  nm:"Kenguruček",    emo:"🦘", sub:"za razmislek",    c:"#e11d48", min:7, max:9, read:true}
 ];
 const MODE_BY_ID = {};
@@ -732,7 +867,115 @@ function genBesede(st){
             ključ:"Razdeli enako: vsak dobi enako veliko.", easy:0};
   });
 
-  const izbor = st <= 2 ? [0,1] : st <= 4 ? [0,1,2,3] : st <= 6 ? [1,2,3,4,5] : [3,4,5,6,7];
+  // 9. koliko še manjka
+  T.push(() => {
+    const p = pick(NAMES), c = rnd(5, Math.max(6, max)), a = rnd(1, c-1);
+    return {s:[p.n+" ima "+num(a)+" "+F(o.t,a)+".", "Skupaj "+(p.ž?"jih želi imeti":"jih želi imeti")+" "+num(c)+"."],
+            q:"Koliko "+G+" še potrebuje?", a:c-a,
+            ključ:"Vprašaj se, koliko manjka od "+a+" do "+c+". To je odštevanje."};
+  });
+  // 10. dvokoračna: nakup in vračilo
+  T.push(() => {
+    const p = pick(NAMES), c = rnd(2,4), k = rnd(2,4), pl = pick([20,50]);
+    return {s:["1 "+o.i[0]+" stane "+num(c)+" €.",
+               p.n+" kupi "+num(k)+" "+F(o.t,k)+" in plača z bankovcem za "+num(pl)+" €."],
+            q:"Koliko evrov "+(p.ž?"ji":"mu")+" vrnejo?", a:pl-c*k,
+            ključ:"Dva koraka: najprej ceno vseh ("+c+" · "+k+"), nato "+pl+" € minus ta cena."};
+  });
+  // 11. odvečni podatek
+  T.push(() => {
+    const p = pick(NAMES), o2 = NOUNS[(NOUNS.indexOf(o)+3) % NOUNS.length];
+    const a = rnd(4, Math.max(5, max)), b = rnd(1, a-1), c = rnd(2,9);
+    return {s:[p.n+" ima "+num(a)+" "+F(o.t,a)+" in "+num(c)+" "+F(o2.t,c)+".",
+               "Podari "+num(b)+" "+F(o.t,b)+"."],
+            q:"Koliko "+G+" "+(p.ž?"ji":"mu")+" ostane?", a:a-b,
+            ključ:"Vsi podatki niso potrebni. Koliko je "+o2.i[3]+", pri tem vprašanju ne šteje."};
+  });
+  // 12. dvokoračna: škatle in prodaja
+  T.push(() => {
+    const k = rnd(2,5), vsak = rnd(2,6), b = rnd(1, k*vsak-1);
+    const škatla = ["škatla","škatli","škatle","škatel"];
+    return {s:["V trgovini "+BE(k)+" "+num(k)+" "+F(škatla,k)+".",
+               "V vsaki škatli "+BE(vsak)+" "+num(vsak)+" "+F(o.i,vsak)+".",
+               "Prodajo "+num(b)+" "+F(o.t,b)+"."],
+            q:"Koliko "+G+" ostane?", a:k*vsak-b,
+            ključ:"Dva koraka: najprej "+k+" · "+vsak+", nato odštej "+b+"."};
+  });
+  // 13. dvokoračna: dvakrat toliko in še nekaj
+  T.push(() => {
+    const dve = twoNames(), p = dve[0], d = dve[1];
+    const a = rnd(2, Math.max(3, Math.floor(max/2))), c = rnd(1,5);
+    return {s:[p.n+" ima "+num(a)+" "+F(o.t,a)+".", d.n+" ima dvakrat toliko in še "+num(c)+" več."],
+            q:"Koliko "+G+" ima "+d.n+"?", a:2*a+c,
+            ključ:"Dva koraka: najprej podvoji "+a+", nato prištej "+c+"."};
+  });
+  // 14. odvečni podatek: starost pri nakupu
+  T.push(() => {
+    const p = pick(NAMES), leta = rnd(7,12), c = rnd(2,8), k = rnd(2,5);
+    const leto = ["leto","leti","leta","let"];
+    return {s:[p.n+" ima "+num(leta)+" "+F(leto,leta)+".", "1 "+o.i[0]+" stane "+num(c)+" €.",
+               p.n+" kupi "+num(k)+" "+F(o.t,k)+"."],
+            q:"Koliko evrov plača?", a:c*k,
+            ključ:"Starost pri tem vprašanju ni pomembna. Ceno pomnoži s številom kosov."};
+  });
+  // 15. dvokoračna: seštej in razdeli
+  T.push(() => {
+    const dve = twoNames(), p = dve[0], d = dve[1];
+    const vsak = rnd(2,8), a = rnd(1, 2*vsak-1), b = 2*vsak - a;
+    return {s:[p.n+" nabere "+num(a)+" "+F(o.t,a)+".", d.n+" nabere "+num(b)+" "+F(o.t,b)+".",
+               "Vse skupaj si enako razdelita."],
+            q:"Koliko "+G+" dobi vsak?", a:vsak,
+            ključ:"Dva koraka: najprej seštej oboje, nato vsoto deli z 2."};
+  });
+  // 16. dvokoračna: dve ceni od denarja
+  T.push(() => {
+    const p = pick(NAMES), a = rnd(3,12), b = rnd(2,10), pl = pick([20,50]);
+    return {s:[p.n+" ima "+num(pl)+" €.", "Kupi knjigo za "+num(a)+" € in svinčnik za "+num(b)+" €."],
+            q:"Koliko evrov "+(p.ž?"ji":"mu")+" ostane?", a:pl-a-b,
+            ključ:"Dva koraka: najprej seštej obe ceni, nato ju odštej od "+pl+" €."};
+  });
+  // 17. odvečni podatek pri deljenju
+  T.push(() => {
+    const k = rnd(2,5), vsak = rnd(2,8), a = k*vsak, c = rnd(7,11);
+    const otrokT = ["otroka","otroka","otroke","otrok"];
+    const leto = ["leto","leti","leta","let"];
+    return {s:[num(a)+" "+F(o.i,a)+" razdelimo med "+num(k)+" "+F(otrokT,k)+".",
+               "Vsak otrok ima "+num(c)+" "+F(leto,c)+"."],
+            q:"Koliko "+G+" dobi vsak otrok?", a:vsak,
+            ključ:"Podatek o letih ni potreben. Izračunaj "+a+" : "+k+"."};
+  });
+  // 18. dvokoračna: polovica in dodatek
+  T.push(() => {
+    const p = pick(NAMES), pol = rnd(2,9), a = 2*pol, c = rnd(1,6);
+    return {s:[p.n+" ima "+num(a)+" "+F(o.t,a)+".", "Polovico jih podari, nato dobi še "+num(c)+"."],
+            q:"Koliko "+G+" ima zdaj?", a:pol+c,
+            ključ:"Dva koraka: najprej razpolovi "+a+", nato prištej "+c+"."};
+  });
+  // 19. dvokoračna: dve vrsti blaga
+  T.push(() => {
+    const o2 = NOUNS[(NOUNS.indexOf(o)+5) % NOUNS.length], p = pick(NAMES);
+    const c1 = rnd(2,5), k1 = rnd(2,4), c2 = rnd(2,5), k2 = rnd(2,4);
+    return {s:["1 "+o.i[0]+" stane "+num(c1)+" €, 1 "+o2.i[0]+" pa "+num(c2)+" €.",
+               p.n+" kupi "+num(k1)+" "+F(o.t,k1)+" in "+num(k2)+" "+F(o2.t,k2)+"."],
+            q:"Koliko evrov plača skupaj?", a:c1*k1+c2*k2,
+            ključ:"Trije koraki: cena prvih ("+c1+" · "+k1+"), cena drugih ("+c2+" · "+k2+"), nato seštej."};
+  });
+  // 20. odvečni podatek: kilometri in starost kolesa
+  T.push(() => {
+    const p = pick(NAMES), a = rnd(3,9), b = rnd(2,8), c = rnd(10,40);
+    const km = ["kilometer","kilometra","kilometre","kilometrov"];
+    const mesec = ["mesec","meseca","mesece","mesecev"];
+    return {s:[p.n+" v soboto prekolesari "+num(a)+" "+F(km,a)+".",
+               "V nedeljo prekolesari "+num(b)+" "+F(km,b)+".",
+               "Kolo je staro "+num(c)+" "+F(mesec,c)+"."],
+            q:"Koliko kilometrov prekolesari v obeh dneh skupaj?", a:a+b,
+            ključ:"Starost kolesa ni pomembna. Seštej samo kilometra iz obeh dni."};
+  });
+
+  const izbor = st <= 2 ? [0,1,8]
+              : st <= 4 ? [0,1,2,3,8,9,10,13]
+              : st <= 6 ? [1,2,3,4,5,9,10,11,12,13,15,17]
+                        : [3,4,5,6,7,11,12,14,15,16,17,18,19];
   const t = T[pick(izbor)]();
   return {task:"Preberi in izračunaj", story:t.s, ask:t.q, type:"num", answer:t.a, read:true,
           line:"📖 "+t.s.join(" ").replace(/<[^>]+>/g,"")+" → "+t.a,
@@ -990,6 +1233,18 @@ function genWritten(st){
     return {task:"Zmnoži", big:a+" × "+b, type:"num", answer:a*b, line:a+" × "+b+" = "+(a*b),
             hint:"<b>Pisno množenje</b>Razstavi: "+a+" × "+b+" = ("+(Math.floor(a/10)*10)+" × "+b+") + ("+(a%10)+" × "+b+")"};
   }
+  if(st >= 7 && Math.random() < 0.45){                     /* pisno deljenje, tudi z ostankom */
+    if(Math.random() < 0.5){
+      const b = rnd(3,9), c = rnd(21,120), o = rnd(1,b-1), a = b*c+o;
+      return {task:"Koliko je ostanek?", big:a+" : "+b+" = "+c+", ostanek <span class='miss'>?</span>",
+              type:"num", answer:o, line:a+" : "+b+" = "+c+", ost. "+o, chk:{f:"mod", p:[a,b]},
+              hint:"<b>Pisno deljenje z ostankom</b>"+b+" × "+c+" = "+(b*c)+".<br>Do "+a+" manjka še "+o+" – to je ostanek. Ostanek je vedno manjši od delitelja."};
+    }
+    const b = rnd(11,25), c = rnd(11,60), a = b*c;
+    return {task:"Deli", big:a+" : "+b, type:"num", answer:c, line:a+" : "+b+" = "+c,
+            chk:{f:"div", p:[a,b]},
+            hint:"<b>Pisno deljenje z dvomestnim deliteljem</b>Deli po mestih od leve proti desni.<br>Preveri s protiračunom: "+b+" × "+c+" = "+a+"."};
+  }
   if(st <= 8){
     const a = rnd(12,99), b = rnd(11,49);
     return {task:"Zmnoži", big:a+" × "+b, type:"num", answer:a*b, line:a+" × "+b+" = "+(a*b),
@@ -1059,17 +1314,17 @@ function uraSVG(h, m){
     const a = i*30*Math.PI/180, dolga = i%3 === 0;
     črtice += '<line x1="'+(R+ (dolga?38:41)*Math.sin(a))+'" y1="'+(R-(dolga?38:41)*Math.cos(a))+
               '" x2="'+(R+44*Math.sin(a))+'" y2="'+(R-44*Math.cos(a))+
-              '" stroke="#9fb0dd" stroke-width="'+(dolga?3:1.6)+'" stroke-linecap="round"/>';
+              '" stroke="var(--mreza)" stroke-width="'+(dolga?3:1.6)+'" stroke-linecap="round"/>';
   }
   return '<svg viewBox="0 0 100 100" width="168" height="168" role="img" aria-label="ura">'+
-    '<circle cx="50" cy="50" r="47" fill="#fff" stroke="#5b6cff" stroke-width="3"/>'+ črtice +
-    '<text x="50" y="27" text-anchor="middle" font-size="10" font-weight="900" fill="#8494bd">12</text>'+
-    '<text x="76" y="54" text-anchor="middle" font-size="10" font-weight="900" fill="#8494bd">3</text>'+
-    '<text x="50" y="81" text-anchor="middle" font-size="10" font-weight="900" fill="#8494bd">6</text>'+
-    '<text x="24" y="54" text-anchor="middle" font-size="10" font-weight="900" fill="#8494bd">9</text>'+
-    '<line x1="50" y1="50" x2="'+xu+'" y2="'+yu+'" stroke="#26365e" stroke-width="5" stroke-linecap="round"/>'+
-    '<line x1="50" y1="50" x2="'+xm+'" y2="'+ym+'" stroke="#f2762e" stroke-width="3.2" stroke-linecap="round"/>'+
-    '<circle cx="50" cy="50" r="3.4" fill="#26365e"/></svg>';
+    '<circle cx="50" cy="50" r="47" fill="var(--card)" stroke="var(--acc)" stroke-width="3"/>'+ črtice +
+    '<text x="50" y="27" text-anchor="middle" font-size="10" font-weight="900" fill="var(--ink-soft)">12</text>'+
+    '<text x="76" y="54" text-anchor="middle" font-size="10" font-weight="900" fill="var(--ink-soft)">3</text>'+
+    '<text x="50" y="81" text-anchor="middle" font-size="10" font-weight="900" fill="var(--ink-soft)">6</text>'+
+    '<text x="24" y="54" text-anchor="middle" font-size="10" font-weight="900" fill="var(--ink-soft)">9</text>'+
+    '<line x1="50" y1="50" x2="'+xu+'" y2="'+yu+'" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/>'+
+    '<line x1="50" y1="50" x2="'+xm+'" y2="'+ym+'" stroke="var(--no)" stroke-width="3.2" stroke-linecap="round"/>'+
+    '<circle cx="50" cy="50" r="3.4" fill="var(--ink)"/></svg>';
 }
 const zapisiUro = (h,m) => h+":"+(m<10?"0":"")+m;
 function genClock(st){
@@ -1170,8 +1425,11 @@ function krajšaj(a,b){ const d=nsdF(a,b); return [a/d, b/d]; }
 function genFractions(st){
   if(st <= 2){                                     // kolikšen del je pobarvan
     const b = pick([2,3,4,4,5,6,8]), a = rnd(1,b-1);
-    let slika = "";
-    for(let i=0;i<b;i++) slika += (i<a ? "🟦" : "⬜");
+    let slika = '<svg viewBox="0 0 '+(b*26+2)+' 28" width="'+Math.min(320, b*26+2)+'" role="img" aria-label="deli celote">';
+    for(let i=0;i<b;i++)
+      slika += '<rect x="'+(i*26+2)+'" y="2" width="23" height="23" rx="4" fill="'+
+               (i<a ? "var(--acc)" : "var(--polje)")+'"/>';
+    slika += '</svg>';
     const možni = [[a,b],[b-a,b],[a,b+1],[a+1,b]].map(x => uTXT(x[0],x[1]));
     return {task:"Poglej sliko", story:["Lik je razdeljen na "+num(b)+" enakih delov."], pic:slika, picWide:1,
             ask:"Kolikšen del je pobarvan?", type:"choice", opts:true, read:true,
@@ -1295,12 +1553,59 @@ function genPercent(st){
             line:p+" % od "+n+" = "+(n*p/100), chk:{f:"pct", p:[p,n]},
             hint:"<b>Odstotki</b>Najprej izračunaj 1 % ("+n+" : 100 = "+(n/100)+"), nato pomnoži s "+p+"."};
   }
-  if(st <= 7){
-    const del = rnd(1,9)*5, celota = pick([20,25,50,100,200]);
+  if(st === 6){                                     /* pretvorbe ulomek – decimalno – odstotek */
+    const par = pick([[1,2,50],[1,4,25],[3,4,75],[1,5,20],[2,5,40],[3,5,60],[4,5,80],
+                      [1,10,10],[3,10,30],[7,10,70],[9,10,90],[1,20,5],[1,25,4],[1,100,1],[1,1,100]]);
+    const a1 = par[0], b1 = par[1], p1 = par[2], d1 = p1/100;
+    const vrsta = rnd(1,3);
+    if(vrsta === 1){                                /* ulomek -> odstotek */
+      const drugi = [p1*2, Math.round(p1/2), 100-p1, p1+10].filter(x => x !== p1 && x > 0);
+      return {task:"Pretvori", big:uHTML(a1,b1)+" = <span class='miss'>?</span> %", type:"choice", opts:true, txt:1,
+              choices:opts(p1+" %", drugi.map(x => x+" %")), answer:p1+" %",
+              line:"pretvorba: "+uTXT(a1,b1)+" = "+p1+" %", chk:{f:"pretvorba", p:[a1+"/"+b1, p1+"%"]},
+              hint:"<b>Ulomek v odstotke</b>Ulomek razširi na imenovalec 100 ali pa števec deli z imenovalcem in pomnoži s 100:<br>"+a1+" : "+b1+" · 100 = "+p1};
+    }
+    if(vrsta === 2){                                /* decimalno -> odstotek */
+      const drugi = [p1*10, Math.round(p1/10), 100-p1, p1+5].filter(x => x !== p1 && x > 0);
+      return {task:"Pretvori", big:dec(d1)+" = <span class='miss'>?</span> %", type:"choice", opts:true, txt:1,
+              choices:opts(p1+" %", drugi.map(x => x+" %")), answer:p1+" %",
+              line:"pretvorba: "+dec(d1)+" = "+p1+" %", chk:{f:"pretvorba", p:[String(d1), p1+"%"]},
+              hint:"<b>Decimalno število v odstotke</b>Pomnoži s 100 (vejico premakni za dve mesti v desno):<br>"+dec(d1)+" · 100 = "+p1};
+    }
+    const kraj = krajšaj(a1,b1);                    /* odstotek -> ulomek */
+    const prav = uTXT(kraj[0], kraj[1]);
+    const drugi = [uTXT(p1,100), uTXT(kraj[1],kraj[0]), uTXT(1,p1)].filter(x => x !== prav);
+    return {task:"Pretvori", big:p1+" % = <span class='miss'>?</span>", type:"choice", opts:true, frac:true,
+            choices:opts(prav, drugi), answer:prav,
+            line:"pretvorba: "+p1+" % = "+prav, chk:{f:"pretvorba", p:[p1+"%", prav]},
+            hint:"<b>Odstotek v ulomek</b>Odstotek zapiši kot ulomek s stotimi deli in ga okrajšaj:<br>"+p1+" % = "+p1+"/100"};
+  }
+  if(st === 7){
+    const celota = pick([20,25,50,100,200]);
+    const možni = [];
+    for(let d=5; d<=95; d+=5) if((celota*d) % 100 === 0) možni.push(d);
+    const del = pick(možni);
     const a = celota*del/100;
     return {task:"Koliko odstotkov?", big:"Koliko % je "+a+" od "+celota+"?", type:"num", answer:del,
             line:a+" od "+celota+" = "+del+" %", chk:{f:"pctOf", p:[a,celota]},
             hint:"<b>Namig</b>Del deli s celoto in pomnoži s 100:<br>"+a+" : "+celota+" · 100"};
+  }
+  if(st >= 9 && Math.random() < 0.6){               /* obrestni račun */
+    const g = pick([200,400,500,800,1000,1500,2000]), mera = pick([1,2,2.5,4,5,10]);
+    const obresti = ok2(g*mera/100);
+    if(Math.random() < 0.6)
+      return {task:"Obrestni račun",
+              story:["V banko vložiš "+num(g+" €")+".", "Letna obrestna mera je "+num(dec(mera)+" %")+"."],
+              ask:"Koliko evrov obresti dobiš po enem letu?", type:"num", answer:obresti, decimal:true, read:true,
+              line:"obresti: glavnica "+g+" €, "+dec(mera)+" % letno → "+dec(obresti)+" €",
+              chk:{f:"obresti", p:[g, mera]},
+              hint:"<b>Obresti</b>Obresti so odstotek glavnice:<br>"+g+" € : 100 · "+dec(mera)+" = "+dec(obresti)+" €."};
+    return {task:"Obrestna mera",
+            story:["V banko vložiš "+num(g+" €")+".", "Po enem letu dobiš "+num(dec(obresti)+" €")+" obresti."],
+            ask:"Kolikšna je letna obrestna mera v odstotkih?", type:"num", answer:mera, decimal:true, read:true,
+            line:"obrestna mera: glavnica "+g+" €, obresti "+dec(obresti)+" € → "+dec(mera)+" %",
+            chk:{f:"obrestnaMera", p:[g, obresti]},
+            hint:"<b>Obrestna mera</b>Obresti deli z glavnico in pomnoži s 100:<br>"+dec(obresti)+" : "+g+" · 100."};
   }
   const c = pick([40,60,80,120,200,250]), p = pick([10,20,25,50]);
   const nižje = Math.random() < 0.6;
@@ -1404,7 +1709,6 @@ function genEquations(st){
 
 /* ---------- Geometrija ---------- */
 function genGeometry(st){
-  const p = pick(NAMES);
   if(st <= 2){
     const a = rnd(2,20), kvadrat = Math.random() < 0.5;
     if(kvadrat)
@@ -1431,30 +1735,101 @@ function genGeometry(st){
             chk:{f:"geo", kind:"p_pravokotnik", p:[a,b]},
             hint:"<b>Ploščina pravokotnika</b>p = a · b = "+a+" · "+b};
   }
-  if(st <= 6){
-    const a = rnd(2,20), v = rnd(2,20)*2/2;
-    const c = 2*Math.ceil(a*v/2)/2;
-    return {task:"Geometrija", big:"Trikotnik ima osnovnico "+a+" cm in višino "+(v*2)+" cm.<br>Kolikšna je njegova ploščina?",
-            type:"num", answer:a*v, line:"trikotnik a="+a+", v="+(v*2)+" → ploščina "+(a*v)+" cm²",
-            chk:{f:"geo", kind:"p_trikotnik", p:[a, v*2]},
-            hint:"<b>Ploščina trikotnika</b>p = a · v : 2 = "+a+" · "+(v*2)+" : 2"};
+  if(st === 5){
+    if(Math.random() < 0.5){
+      const a = rnd(2,20), v = rnd(1,10)*2;
+      return {task:"Geometrija", big:"Trikotnik ima osnovnico "+a+" cm in višino "+v+" cm.<br>Kolikšna je njegova ploščina?",
+              type:"num", answer:a*v/2, line:"trikotnik a="+a+", v="+v+" → ploščina "+(a*v/2)+" cm²",
+              chk:{f:"geo", kind:"p_trikotnik", p:[a, v]},
+              hint:"<b>Ploščina trikotnika</b>p = a · v : 2 = "+a+" · "+v+" : 2"};
+    }
+    const r = rnd(2,20);
+    if(Math.random() < 0.5)
+      return {task:"Krog", big:"Krog ima polmer "+r+" cm.<br>Kolikšen je njegov premer?",
+              type:"num", answer:2*r, line:"krog r="+r+" → premer "+(2*r)+" cm",
+              chk:{f:"krog", kind:"premer", p:[r]},
+              hint:"<b>Polmer in premer</b>Premer je dvakrat daljši od polmera: d = 2 · r."};
+    return {task:"Krog", big:"Krog ima premer "+(2*r)+" cm.<br>Kolikšen je njegov polmer?",
+            type:"num", answer:r, line:"krog d="+(2*r)+" → polmer "+r+" cm",
+            chk:{f:"krog", kind:"polmer", p:[2*r]},
+            hint:"<b>Polmer in premer</b>Polmer je polovica premera: r = d : 2."};
+  }
+  if(st === 6){
+    if(Math.random() < 0.45){
+      const a = rnd(2,20), v = rnd(1,10)*2;
+      return {task:"Geometrija", big:"Trikotnik ima osnovnico "+a+" cm in višino "+v+" cm.<br>Kolikšna je njegova ploščina?",
+              type:"num", answer:a*v/2, line:"trikotnik a="+a+", v="+v+" → ploščina "+(a*v/2)+" cm²",
+              chk:{f:"geo", kind:"p_trikotnik", p:[a, v]},
+              hint:"<b>Ploščina trikotnika</b>p = a · v : 2 = "+a+" · "+v+" : 2"};
+    }
+    const r = rnd(2,10), obseg = Math.random() < 0.5;
+    if(obseg)
+      return {task:"Obseg kroga", big:"Krog ima polmer "+r+" cm.<br>Kolikšen je njegov obseg? (π ≈ 3,14)",
+              type:"num", answer:ok2(2*3.14*r), decimal:true,
+              line:"krog r="+r+" → obseg "+dec(ok2(2*3.14*r))+" cm",
+              chk:{f:"krog", kind:"obseg", p:[r]},
+              hint:"<b>Obseg kroga</b>o = 2 · π · r ≈ 2 · 3,14 · "+r};
+    return {task:"Ploščina kroga", big:"Krog ima polmer "+r+" cm.<br>Kolikšna je njegova ploščina? (π ≈ 3,14)",
+            type:"num", answer:ok2(3.14*r*r), decimal:true,
+            line:"krog r="+r+" → ploščina "+dec(ok2(3.14*r*r))+" cm²",
+            chk:{f:"krog", kind:"ploščina", p:[r]},
+            hint:"<b>Ploščina kroga</b>p = π · r · r ≈ 3,14 · "+r+" · "+r};
   }
   if(st === 7){
-    const a = rnd(2,12), b = rnd(2,12), c = rnd(2,12);
-    return {task:"Geometrija", big:"Kvader meri "+a+" cm, "+b+" cm in "+c+" cm.<br>Kolikšna je njegova prostornina?",
-            type:"num", answer:a*b*c, line:"kvader "+a+"×"+b+"×"+c+" → prostornina "+(a*b*c)+" cm³",
-            chk:{f:"geo", kind:"v_kvader", p:[a,b,c]},
-            hint:"<b>Prostornina kvadra</b>V = a · b · c"};
+    const izbira = rnd(1,4);
+    if(izbira === 1){
+      const a = rnd(2,12), b = rnd(2,12), c = rnd(2,12);
+      return {task:"Geometrija", big:"Kvader meri "+a+" cm, "+b+" cm in "+c+" cm.<br>Kolikšna je njegova prostornina?",
+              type:"num", answer:a*b*c, line:"kvader "+a+"×"+b+"×"+c+" → prostornina "+(a*b*c)+" cm³",
+              chk:{f:"geo", kind:"v_kvader", p:[a,b,c]},
+              hint:"<b>Prostornina kvadra</b>V = a · b · c"};
+    }
+    if(izbira === 2){
+      const a = rnd(2,12), b = rnd(2,12), c = rnd(2,12);
+      return {task:"Geometrija", big:"Kvader meri "+a+" cm, "+b+" cm in "+c+" cm.<br>Kolikšna je njegova površina?",
+              type:"num", answer:2*(a*b + a*c + b*c),
+              line:"kvader "+a+"×"+b+"×"+c+" → površina "+(2*(a*b+a*c+b*c))+" cm²",
+              chk:{f:"geo", kind:"s_kvader", p:[a,b,c]},
+              hint:"<b>Površina kvadra</b>S = 2 · (a · b + a · c + b · c)"};
+    }
+    const a = rnd(2,12);
+    if(izbira === 3)
+      return {task:"Geometrija", big:"Kocka ima rob "+a+" cm.<br>Kolikšna je njena prostornina?",
+              type:"num", answer:a*a*a, line:"kocka a="+a+" → prostornina "+(a*a*a)+" cm³",
+              chk:{f:"geo", kind:"v_kocka", p:[a]},
+              hint:"<b>Prostornina kocke</b>V = a · a · a = "+a+" · "+a+" · "+a};
+    return {task:"Geometrija", big:"Kocka ima rob "+a+" cm.<br>Kolikšna je njena površina?",
+            type:"num", answer:6*a*a, line:"kocka a="+a+" → površina "+(6*a*a)+" cm²",
+            chk:{f:"geo", kind:"s_kocka", p:[a]},
+            hint:"<b>Površina kocke</b>Kocka ima 6 enakih kvadratnih ploskev: S = 6 · a · a."};
   }
   if(st === 8){
-    const α = rnd(20,100), β = rnd(20, 160-α);
-    return {task:"Geometrija", big:"V trikotniku merita kota "+α+"° in "+β+"°.<br>Koliko meri tretji kot?",
-            type:"num", answer:180-α-β, line:"koti "+α+"°+"+β+"° → tretji "+(180-α-β)+"°",
-            chk:{f:"geo", kind:"kot", p:[α,β]},
-            hint:"<b>Vsota kotov v trikotniku</b>je vedno 180°.<br>180° − "+α+"° − "+β+"°"};
+    if(Math.random() < 0.5){
+      const α = rnd(20,100), β = rnd(20, 160-α);
+      return {task:"Geometrija", big:"V trikotniku merita kota "+α+"° in "+β+"°.<br>Koliko meri tretji kot?",
+              type:"num", answer:180-α-β, line:"koti "+α+"°+"+β+"° → tretji "+(180-α-β)+"°",
+              chk:{f:"geo", kind:"kot", p:[α,β]},
+              hint:"<b>Vsota kotov v trikotniku</b>je vedno 180°.<br>180° − "+α+"° − "+β+"°"};
+    }
+    const m = pick([50,100,200,500,1000]), d = rnd(2,9);
+    return {task:"Merilo", story:["Načrt je narisan v merilu "+num("1 : "+m)+".",
+                                  "Na načrtu je razdalja dolga "+num(d+" cm")+"."],
+            ask:"Kako dolga je ta razdalja v naravi? Odgovori v centimetrih.",
+            type:"num", answer:d*m, read:true,
+            line:"merilo 1 : "+m+", na načrtu "+d+" cm → v naravi "+(d*m)+" cm",
+            chk:{f:"merilo", p:[m, d]},
+            hint:"<b>Merilo</b>Merilo 1 : "+m+" pomeni, da je 1 cm na načrtu v naravi "+m+" cm.<br>Zato dolžino pomnoži z "+m+"."};
+  }
+  if(Math.random() < 0.5){
+    const r = rnd(2,8), v = rnd(2,12);
+    return {task:"Prostornina valja", big:"Valj ima polmer osnovne ploskve "+r+" cm in višino "+v+" cm.<br>Kolikšna je njegova prostornina? (π ≈ 3,14)",
+            type:"num", answer:ok2(3.14*r*r*v), decimal:true,
+            line:"valj r="+r+", v="+v+" → prostornina "+dec(ok2(3.14*r*r*v))+" cm³",
+            chk:{f:"valj", p:[r, v]},
+            hint:"<b>Prostornina valja</b>V = π · r · r · v ≈ 3,14 · "+r+" · "+r+" · "+v};
   }
   const trojice = [[3,4,5],[6,8,10],[5,12,13],[9,12,15],[8,15,17],[12,16,20],[7,24,25]];
-  const t = pick(trojice), k = Math.random() < 0.5;
+  const t = pick(trojice);
   return {task:"Pitagorov izrek",
           big:"Pravokotni trikotnik ima kateti "+t[0]+" cm in "+t[1]+" cm.<br>Kolikšna je hipotenuza?",
           type:"num", answer:t[2], line:"kateti "+t[0]+", "+t[1]+" → hipotenuza "+t[2],
@@ -1636,13 +2011,615 @@ function genPlusPic(st){
           hint:"<b>Namig</b>Najprej preštej levo skupino, nato štej naprej po desni."};
 }
 
+/* ============================================================
+   NOVI SKLOPI (druga prenova): verjetnost, koordinatni sistem,
+   obdelava podatkov, vrstni red operacij, simetrija, rimske
+   številke, orientacija v prostoru, ocenjevanje in temperature.
+   Vse risbe so vgrajen SVG; barve so spremenljivke CSS, zato
+   delujejo tudi v temnem načinu.
+   ============================================================ */
+
+const zn = v => v < 0 ? "−" + Math.abs(v) : String(v);      /* −4 s pravim minusom */
+
+/* ---------- risanje: koordinatna mreža ---------- */
+function koordSVG(mx, my, tocke, premica){
+  const K = 26, L = 32, T = 28;
+  const W = L + mx*K + 30, H = T + my*K + 26;
+  const px = x => L + x*K, py = y => T + (my - y)*K;
+  let s = '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="koordinatna mreža">';
+  for(let i=0;i<=mx;i++) s += '<line x1="'+px(i)+'" y1="'+py(0)+'" x2="'+px(i)+'" y2="'+py(my)+'" stroke="var(--mreza)" stroke-width="1"/>';
+  for(let j=0;j<=my;j++) s += '<line x1="'+px(0)+'" y1="'+py(j)+'" x2="'+px(mx)+'" y2="'+py(j)+'" stroke="var(--mreza)" stroke-width="1"/>';
+  if(premica) s += premica;
+  s += '<line x1="'+px(0)+'" y1="'+py(0)+'" x2="'+(px(mx)+13)+'" y2="'+py(0)+'" stroke="var(--acc)" stroke-width="2.6" stroke-linecap="round"/>';
+  s += '<line x1="'+px(0)+'" y1="'+py(0)+'" x2="'+px(0)+'" y2="'+(py(my)-13)+'" stroke="var(--acc)" stroke-width="2.6" stroke-linecap="round"/>';
+  s += '<text x="'+(px(mx)+16)+'" y="'+(py(0)+5)+'" font-size="12" font-weight="900" fill="var(--acc)">x</text>';
+  s += '<text x="'+(px(0)-8)+'" y="'+(py(my)-14)+'" font-size="12" font-weight="900" fill="var(--acc)" text-anchor="end">y</text>';
+  s += '<text x="'+(px(0)-7)+'" y="'+(py(0)+16)+'" font-size="10" font-weight="700" fill="var(--ink-soft)" text-anchor="end">0</text>';
+  for(let i=1;i<=mx;i++) s += '<text x="'+px(i)+'" y="'+(py(0)+16)+'" text-anchor="middle" font-size="10" font-weight="700" fill="var(--ink-soft)">'+i+'</text>';
+  for(let j=1;j<=my;j++) s += '<text x="'+(px(0)-7)+'" y="'+(py(j)+4)+'" text-anchor="end" font-size="10" font-weight="700" fill="var(--ink-soft)">'+j+'</text>';
+  (tocke||[]).forEach(t => {
+    s += '<circle cx="'+px(t.x)+'" cy="'+py(t.y)+'" r="5.6" fill="'+(t.b||"var(--no)")+'" stroke="var(--card)" stroke-width="1.8"/>';
+    if(t.n) s += '<text x="'+(px(t.x)+9)+'" y="'+(py(t.y)-8)+'" font-size="13" font-weight="900" fill="var(--ink)">'+t.n+'</text>';
+  });
+  return s + '</svg>';
+}
+
+/* ---------- risanje: stolpčni prikaz ---------- */
+function stolpciSVG(oznake, vrednosti, barva){
+  const n = oznake.length, Š = 34, R = 16, V = 108, L = 34, T = 14;
+  const naj = Math.max.apply(null, vrednosti) || 1;
+  const korak = naj <= 10 ? 2 : naj <= 30 ? 5 : 10;
+  const vrh = Math.ceil(naj/korak)*korak;
+  const W = L + n*(Š+R) + 12, H = T + V + 28;
+  const py = v => T + V - v/vrh*V;
+  let s = '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="stolpčni prikaz">';
+  for(let v=0; v<=vrh; v+=korak){
+    s += '<line x1="'+L+'" y1="'+py(v)+'" x2="'+(W-8)+'" y2="'+py(v)+'" stroke="var(--mreza)" stroke-width="1"/>';
+    s += '<text x="'+(L-6)+'" y="'+(py(v)+4)+'" text-anchor="end" font-size="10" font-weight="700" fill="var(--ink-soft)">'+v+'</text>';
+  }
+  oznake.forEach((o,i) => {
+    const x = L + R/2 + i*(Š+R), v = vrednosti[i];
+    s += '<rect x="'+x+'" y="'+py(v)+'" width="'+Š+'" height="'+(T+V-py(v))+'" rx="5" fill="'+barva+'"/>';
+    s += '<text x="'+(x+Š/2)+'" y="'+(py(v)-5)+'" text-anchor="middle" font-size="11" font-weight="900" fill="var(--ink)">'+v+'</text>';
+    s += '<text x="'+(x+Š/2)+'" y="'+(T+V+16)+'" text-anchor="middle" font-size="11" font-weight="800" fill="var(--ink-soft)">'+o+'</text>';
+  });
+  s += '<line x1="'+L+'" y1="'+(T+V)+'" x2="'+(W-8)+'" y2="'+(T+V)+'" stroke="var(--ink-soft)" stroke-width="2"/>';
+  return s + '</svg>';
+}
+
+/* ---------- risanje: tortni prikaz ---------- */
+function tortaSVG(deli){
+  const vsota = deli.reduce((a,d) => a + d.v, 0) || 1;
+  let kot = -Math.PI/2;
+  let s = '<svg viewBox="0 0 130 130" width="164" height="164" role="img" aria-label="tortni prikaz">';
+  deli.forEach(d => {
+    const del = d.v/vsota*2*Math.PI, k2 = kot + del;
+    const x1 = 65 + 56*Math.cos(kot), y1 = 65 + 56*Math.sin(kot);
+    const x2 = 65 + 56*Math.cos(k2),  y2 = 65 + 56*Math.sin(k2);
+    s += '<path d="M65,65 L'+x1.toFixed(2)+','+y1.toFixed(2)+' A56,56 0 '+(del > Math.PI ? 1 : 0)+
+         ' 1 '+x2.toFixed(2)+','+y2.toFixed(2)+' Z" fill="'+d.b+'" stroke="var(--card)" stroke-width="2.5"/>';
+    kot = k2;
+  });
+  return s + '</svg>';
+}
+
+/* ---------- risanje: mreža polj (simetrija) ---------- */
+function vzorecSVG(vrstice, osDesno){
+  const K = 22, w = vrstice[0].length, h = vrstice.length;
+  const W = w*K + 4 + (osDesno ? 8 : 0), H = h*K + 4;
+  let s = '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="vzorec">';
+  for(let r=0;r<h;r++) for(let c=0;c<w;c++)
+    s += '<rect x="'+(c*K+2)+'" y="'+(r*K+2)+'" width="'+(K-3)+'" height="'+(K-3)+'" rx="4" fill="'+
+         (vrstice[r][c] === "1" ? "var(--acc)" : "var(--polje)")+'"/>';
+  if(osDesno) s += '<line x1="'+(w*K+5)+'" y1="0" x2="'+(w*K+5)+'" y2="'+H+'" stroke="var(--no)" stroke-width="2.4" stroke-dasharray="5 4"/>';
+  return s + '</svg>';
+}
+
+/* ---------- risanje: mreža z dvema predmetoma (orientacija) ---------- */
+function orientSVG(mreza, a, b){
+  const K = 44, W = mreza*K + 4, H = mreza*K + 4;
+  let s = '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="mreža s predmetoma">';
+  for(let r=0;r<mreza;r++) for(let c=0;c<mreza;c++)
+    s += '<rect x="'+(c*K+2)+'" y="'+(r*K+2)+'" width="'+(K-4)+'" height="'+(K-4)+'" rx="7" fill="var(--polje)"/>';
+  [a,b].forEach(t => {
+    s += '<text x="'+(t.x*K + K/2)+'" y="'+(t.y*K + K/2 + 10)+'" text-anchor="middle" font-size="26">'+t.e+'</text>';
+  });
+  return s + '</svg>';
+}
+
+/* ---------- Verjetnost (6.–9. razred) ---------- */
+const KROGLICE = [{e:"🔴", ed:"rdečo", rod:"rdečih"}, {e:"🔵", ed:"modro", rod:"modrih"},
+                  {e:"🟢", ed:"zeleno", rod:"zelenih"}, {e:"🟡", ed:"rumeno", rod:"rumenih"}];
+const KROGLICA_F = ["kroglica","kroglici","kroglice","kroglic"];
+const ulomekOd = (u, n) => { const d = krajšaj(u, n); return uTXT(d[0], d[1]); };
+
+function genVerjetnost(st){
+  if(st <= 2){                                       /* gotov, mogoč, nemogoč */
+    const n = pick([
+      {s:"Vržeš igralno kocko s pikami od 1 do 6.", d:"Padlo bo število, manjše od 7.", u:6, v:6},
+      {s:"Vržeš igralno kocko s pikami od 1 do 6.", d:"Padlo bo število 8.",            u:0, v:6},
+      {s:"Vržeš igralno kocko s pikami od 1 do 6.", d:"Padla bo šestica.",              u:1, v:6},
+      {s:"V vreči je pet rdečih kroglic.",          d:"Izvlekel boš rdečo kroglico.",   u:5, v:5},
+      {s:"V vreči je pet rdečih kroglic.",          d:"Izvlekel boš modro kroglico.",   u:0, v:5},
+      {s:"Vržeš kovanec.",                          d:"Padel bo grb.",                  u:1, v:2},
+      {s:"Danes je torek.",                         d:"Jutri bo sreda.",                u:1, v:1}
+    ]);
+    const odg = n.u === 0 ? "nemogoč" : (n.u === n.v ? "gotov" : "mogoč");
+    return {task:"Verjetnost", story:[n.s, n.d], ask:"Kakšen je ta dogodek?",
+            type:"choice", opts:true, txt:1, read:true,
+            choices:["gotov","mogoč","nemogoč"], answer:odg,
+            line:"dogodek: "+n.u+" ugodnih od "+n.v+" → "+odg, chk:{f:"dogodek", p:[n.u, n.v]},
+            hint:"<b>Namig</b>Dogodek je <b>gotov</b>, če se zgodi vedno, in <b>nemogoč</b>, če se ne more zgoditi. Če se lahko zgodi ali pa tudi ne, je <b>mogoč</b>."};
+  }
+  if(st <= 4){                                       /* kocka: ulomek */
+    const d = pick([
+      {t:"pade sodo število", u:3}, {t:"pade liho število", u:3},
+      {t:"pade število, večje od 4", u:2}, {t:"pade šestica", u:1},
+      {t:"pade število, manjše od 3", u:2}, {t:"pade število, deljivo s 3", u:2}
+    ]);
+    const odg = ulomekOd(d.u, 6);
+    const napačni = [uTXT(d.u, 6), uTXT(6 - d.u, 6), uTXT(1, 6), uTXT(d.u + 1, 6)].filter(x => x !== odg);
+    return {task:"Verjetnost", story:["Vržeš igralno kocko s pikami od 1 do 6."], pic:"🎲", picWide:1,
+            ask:"Kolikšna je verjetnost, da "+d.t+"?", type:"choice", opts:true, frac:true, read:true,
+            choices:opts(odg, napačni), answer:odg,
+            line:"verjetnost: "+d.u+" ugodnih od 6 = "+odg, chk:{f:"verjetnost", p:[d.u, 6]},
+            hint:"<b>Verjetnost</b>Verjetnost = število ugodnih izidov : število vseh izidov.<br>Ugodnih izidov je "+d.u+", vseh pa 6. Ulomek na koncu okrajšaj."};
+  }
+  if(st <= 6){                                       /* vreča kroglic: ulomek */
+    const mešano = KROGLICE.slice().sort(() => Math.random()-0.5);
+    const c1 = mešano[0], c2 = mešano[1];
+    const a = rnd(1,5);
+    let b = rnd(1,5);
+    if(a + b < 3) b = 2;
+    const n = a + b;
+    const odg = ulomekOd(a, n);
+    const napačni = [uTXT(a, n), uTXT(b, n), ulomekOd(b, n), uTXT(a, n+1), uTXT(1, n)]
+                    .filter(x => x !== odg);
+    return {task:"Verjetnost",
+            story:["V vreči "+BE(n)+" "+num(n)+" "+F(KROGLICA_F,n)+": "+num(a)+" "+c1.rod+" in "+num(b)+" "+c2.rod+"."],
+            pic:c1.e.repeat(a) + c2.e.repeat(b), picWide:1,
+            ask:"Kolikšna je verjetnost, da na slepo izvlečeš "+c1.ed+" kroglico?",
+            type:"choice", opts:true, frac:true, read:true, choices:opts(odg, napačni), answer:odg,
+            line:"verjetnost: "+a+" ugodnih od "+n+" = "+odg, chk:{f:"verjetnost", p:[a, n]},
+            hint:"<b>Verjetnost</b>Ugodnih izidov je "+a+" (toliko je "+c1.rod+"), vseh kroglic pa "+n+".<br>Zapiši ulomek "+a+"/"+n+" in ga okrajšaj."};
+  }
+  if(st <= 7){                                       /* odstotki */
+    const n = pick([4,5,10,20,25]);
+    const a = rnd(1, n-1), p = a/n*100;
+    const mešano = KROGLICE.slice().sort(() => Math.random()-0.5);
+    return {task:"Verjetnost v odstotkih",
+            story:["V škatli "+BE(n)+" "+num(n)+" "+F(KROGLICA_F,n)+".", num(a)+" od njih "+BE(a)+" "+mešano[0].rod+"."],
+            ask:"Kolikšna je verjetnost, da izvlečeš "+mešano[0].ed+" kroglico? Odgovori v odstotkih.",
+            type:"num", answer:p, read:true,
+            line:"verjetnost: "+a+" ugodnih od "+n+" = "+p+" %", chk:{f:"verjetnostPct", p:[a, n]},
+            hint:"<b>Namig</b>Najprej zapiši ulomek "+a+"/"+n+", nato ga pomnoži s 100, da dobiš odstotke."};
+  }
+  const b2 = pick([4,5,6,8,10,12]);                  /* nasprotni dogodek */
+  const a2 = rnd(1, b2-1);
+  const dogodek = ulomekOd(a2, b2);
+  const nasprotni = ulomekOd(b2 - a2, b2);
+  const drugi = [dogodek, uTXT(b2 - a2, b2), uTXT(a2, b2), uTXT(1, b2)].filter(x => x !== nasprotni);
+  return {task:"Nasprotni dogodek",
+          story:["Verjetnost, da avtobus zamudi, je "+num(uHTML(dogodek.split("/")[0], dogodek.split("/")[1]))+"."],
+          ask:"Kolikšna je verjetnost, da avtobus ne zamudi?",
+          type:"choice", opts:true, frac:true, read:true, choices:opts(nasprotni, drugi), answer:nasprotni,
+          line:"nasprotni dogodek: 1 − "+dogodek+" = "+nasprotni, chk:{f:"nasprotni", p:[a2, b2]},
+          hint:"<b>Nasprotni dogodek</b>Verjetnosti dogodka in njegovega nasprotja se seštejeta v 1.<br>Zato računaj 1 − "+dogodek+"."};
+}
+
+/* ---------- Koordinatni sistem in linearna funkcija ---------- */
+const TOCKE_IMENA = ["A","B","C","D"];
+/* zapis predpisa brez odvečnih enic in ničel: y = x + 4, y = 2x, y = 3x − 8 */
+const predpisFn = (k, n) => "y = " + (k === 1 ? "x" : k+"x") +
+                            (n === 0 ? "" : (n < 0 ? " − "+Math.abs(n) : " + "+n));
+function genKoordinate(st){
+  if(st <= 2){                                       /* preberi koordinati točke */
+    const mx = 6, my = 6, x = rnd(1,mx), y = rnd(1,my);
+    const prav = "("+x+", "+y+")";
+    const drugi = ["("+y+", "+x+")", "("+x+", "+(y % my + 1)+")",
+                   "("+(x % mx + 1)+", "+y+")", "("+(x % mx + 1)+", "+(y % my + 1)+")"]
+                  .filter(s => s !== prav);
+    return {task:"Koordinatna mreža", story:["V mreži je z oranžno piko označena točka T."],
+            pic:koordSVG(mx, my, [{x:x, y:y, n:"T"}]), picWide:1,
+            ask:"Katere koordinate ima točka T?", type:"choice", opts:true, txt:1, read:true,
+            choices:opts(prav, drugi), answer:prav,
+            line:"koordinate: točka T("+x+", "+y+") → "+prav, chk:{f:"koordTocka", p:[x, y]},
+            hint:"<b>Namig</b>Najprej preberi, koliko korakov je točka od izhodišča v desno – to je x.<br>Nato koliko korakov navzgor – to je y. Zapišemo (x, y)."};
+  }
+  if(st <= 4){                                       /* poišči točko z danima koordinatama */
+    const mx = 6, my = 6, tocke = [], vzeti = {};
+    while(tocke.length < 4){
+      const x = rnd(0,mx), y = rnd(0,my), k = x+"|"+y;
+      if(vzeti[k]) continue;
+      vzeti[k] = 1; tocke.push({x:x, y:y, n:TOCKE_IMENA[tocke.length]});
+    }
+    const t = tocke[rnd(0,3)];
+    return {task:"Koordinatna mreža", story:["V mreži so označene štiri točke."],
+            pic:koordSVG(mx, my, tocke), picWide:1,
+            ask:"Katera točka leži pri ("+t.x+", "+t.y+")?", type:"choice", opts:true, txt:1, read:true,
+            choices:TOCKE_IMENA.slice(), answer:t.n,
+            line:"koordinate: "+tocke.map(p => p.n+"("+p.x+","+p.y+")").join(" ")+
+                 ", iskana ("+t.x+","+t.y+") → "+t.n,
+            chk:{f:"koordIsci", p:[t.x, t.y]},
+            hint:"<b>Namig</b>Od izhodišča pojdi "+t.x+" korakov v desno in nato "+t.y+" korakov navzgor."};
+  }
+  if(st <= 6){                                       /* vrednost linearne funkcije */
+    const mx = 5, my = 12;
+    const k = rnd(1,2), n = rnd(0, my - mx*k);
+    const x = rnd(1,mx), y = k*x + n;
+    const K = 26, L = 32, T = 28;
+    const px = v => L + v*K, py = v => T + (my - v)*K;
+    const premica = '<line x1="'+px(0)+'" y1="'+py(n)+'" x2="'+px(mx)+'" y2="'+py(k*mx+n)+
+                    '" stroke="var(--ok)" stroke-width="3.2" stroke-linecap="round"/>';
+    return {task:"Linearna funkcija", story:["Premica na sliki ustreza predpisu "+predpisFn(k,n)+"."],
+            pic:koordSVG(mx, my, [], premica), picWide:1,
+            ask:"Kolikšna je vrednost y, če je x = "+x+"?", type:"num", answer:y, read:true,
+            line:"funkcija: "+predpisFn(k,n)+", x = "+x+" → y = "+y, chk:{f:"linVrednost", p:[k, n, x]},
+            hint:"<b>Namig</b>V predpis vstavi x = "+x+":<br>y = "+k+" · "+x+(n === 0 ? "" : " + "+n)+"."};
+  }
+  if(st === 7){                                      /* presečišče z osjo y */
+    const k = rnd(1,5), n = pick([1,-1])*rnd(1,9);
+    const prav = "(0, "+zn(n)+")";
+    const drugi = ["("+zn(n)+", 0)", "(0, "+zn(k)+")", "("+zn(k)+", "+zn(n)+")", "(0, "+zn(n+k)+")"]
+                  .filter(s => s !== prav);
+    return {task:"Linearna funkcija", story:["Dana je linearna funkcija "+predpisFn(k,n)+"."],
+            ask:"V kateri točki premica seka os y?", type:"choice", opts:true, txt:1, read:true,
+            choices:opts(prav, drugi), answer:prav,
+            line:"funkcija: "+predpisFn(k,n)+" → presečišče (0, "+zn(n)+")",
+            chk:{f:"linPresek", p:[k, n]},
+            hint:"<b>Namig</b>Na osi y je x = 0. Vstavi x = 0 in izračunaj y.<br>Presečišče je vedno pri (0, n)."};
+  }
+  const k2 = rnd(2,5), x0 = rnd(1,6), n2 = -k2*x0;   /* ničla funkcije */
+  return {task:"Linearna funkcija", story:["Dana je linearna funkcija "+predpisFn(k2,n2)+"."],
+          ask:"Pri katerem x je vrednost y enaka 0?", type:"num", answer:x0, read:true,
+          line:"funkcija: "+predpisFn(k2,n2)+" → ničla x = "+x0, chk:{f:"linNicla", p:[k2, n2]},
+          hint:"<b>Namig</b>Reši enačbo "+k2+"x − "+Math.abs(n2)+" = 0.<br>Torej "+k2+"x = "+Math.abs(n2)+", nato deli s "+k2+"."};
+}
+
+/* ---------- Obdelava podatkov ---------- */
+const DNEVI_L = ["v ponedeljek","v torek","v sredo","v četrtek","v petek"];
+const DNEVI_K = ["pon","tor","sre","čet","pet"];
+const PODATKI_TEME = [
+  {nas:"prodane sladolede", enota:"sladoledov", vpr:"Koliko sladoledov so prodali", b:"#f2762e"},
+  {nas:"prebrane strani",   enota:"strani",     vpr:"Koliko strani je Maja prebrala", b:"#5b6cff"},
+  {nas:"dosežene gole",     enota:"golov",      vpr:"Koliko golov so dali", b:"#1eb872"},
+  {nas:"obiskovalce",       enota:"obiskovalcev", vpr:"Koliko obiskovalcev je prišlo", b:"#8b5cf6"}
+];
+
+function genPodatki(st){
+  if(st >= 8 && Math.random() < 0.5){                /* tortni prikaz z odstotki */
+    const vseh = pick([20,25,50,100,200,400]);
+    const del = Math.round(vseh * pick([10,15,20,25,30,40,50,60,75])/100);
+    const p = del/vseh*100;
+    const deli = [{v:del, b:"#5b6cff"}, {v:vseh-del, b:"#ffd0a8"}];
+    return {task:"Tortni prikaz",
+            story:["V šoli je "+num(vseh)+" učencev.", "Modri del prikaza so tisti, ki hodijo v šolo peš, teh je "+num(del)+"."],
+            pic:tortaSVG(deli), picWide:1,
+            ask:"Koliko odstotkov učencev hodi v šolo peš?", type:"num", answer:p, read:true,
+            line:"tortni prikaz: "+del+" od "+vseh+" = "+p+" %", chk:{f:"tortni", p:[del, vseh]},
+            hint:"<b>Namig</b>Delež izračunaš tako, da del deliš s celoto in pomnožiš s 100:<br>"+del+" : "+vseh+" · 100."};
+  }
+  const t = pick(PODATKI_TEME);
+  const n = st <= 3 ? rnd(3,4) : st <= 6 ? rnd(4,5) : 5;
+  const naj = st <= 3 ? 9 : st <= 6 ? 24 : 40;
+  const oznake = DNEVI_K.slice(0, n);
+  let v = [];
+  for(let i=0;i<n;i++) v.push(rnd(1, naj));
+  const vsota = v.reduce((a,b) => a+b, 0);
+  const največ = Math.max.apply(null, v), najmanj = Math.min.apply(null, v);
+
+  const možne = st <= 3 ? ["mesto","največ","najmanj"]
+              : st <= 6 ? ["mesto","največ","najmanj","vsota","razlika"]
+                        : ["vsota","razlika","povprečje","povprečje"];
+  let kaj = pick(možne);
+  if(kaj === "povprečje"){                           /* povprečje naj bo celo število */
+    const pov = rnd(4, Math.floor(naj/2));
+    v = [];
+    for(let i=0;i<n-1;i++) v.push(Math.max(1, pov + pick([-3,-2,-1,0,1,2,3])));
+    const zadnje = pov*n - v.reduce((a,b) => a+b, 0);
+    if(zadnje < 1) return genPodatki(st);
+    v.push(zadnje);
+  }
+  const vsota2 = v.reduce((a,b) => a+b, 0);
+  const največ2 = Math.max.apply(null, v), najmanj2 = Math.min.apply(null, v);
+  const slika = stolpciSVG(oznake, v, t.b);
+  const uvod = "Prikaz kaže "+t.nas+" po dneh.";
+  let ask, odgovor, podpis;
+  if(kaj === "mesto"){
+    const i = rnd(0, n-1);
+    ask = t.vpr+" "+DNEVI_L[i]+"?"; odgovor = v[i]; podpis = "mesto "+(i+1);
+  }else if(kaj === "največ"){
+    ask = t.vpr+" največ v enem dnevu?"; odgovor = največ2; podpis = "največ";
+  }else if(kaj === "najmanj"){
+    ask = t.vpr+" najmanj v enem dnevu?"; odgovor = najmanj2; podpis = "najmanj";
+  }else if(kaj === "vsota"){
+    ask = t.vpr+" v vseh dneh skupaj?"; odgovor = vsota2; podpis = "vsota";
+  }else if(kaj === "razlika"){
+    ask = "Za koliko se razlikujeta največja in najmanjša vrednost na prikazu?";
+    odgovor = največ2 - najmanj2; podpis = "razlika";
+  }else{
+    ask = t.vpr+" povprečno na dan?"; odgovor = vsota2/n; podpis = "povprečje";
+  }
+  const namigi = {
+    "mesto":"Poišči stolpec z ustrezno oznako in preberi število nad njim.",
+    "največ":"Poišči najvišji stolpec in preberi njegovo vrednost.",
+    "najmanj":"Poišči najnižji stolpec in preberi njegovo vrednost.",
+    "vsota":"Preberi vrednosti vseh stolpcev in jih seštej.",
+    "razlika":"Od največje vrednosti odštej najmanjšo.",
+    "povprečje":"Seštej vse vrednosti in vsoto deli s številom stolpcev ("+n+")."
+  };
+  return {task:"Preberi prikaz", story:[uvod], pic:slika, picWide:1, ask:ask,
+          type:"num", answer:odgovor, read:true,
+          line:"podatki ["+v.join(", ")+"]: "+podpis+" = "+odgovor,
+          chk:{f:"podatki", p:[v, podpis]},
+          hint:"<b>Namig</b>"+namigi[kaj]};
+}
+
+/* ---------- Vrstni red operacij in oklepaji ---------- */
+function genVrstniRed(st){
+  let izraz, v;
+  if(st <= 2){
+    const a = rnd(2,10), b = rnd(2,9), c = rnd(2,5);
+    izraz = Math.random() < 0.5 ? a+" + "+b+" · "+c : b+" · "+c+" + "+a;
+    v = a + b*c;
+  }else if(st <= 4){
+    const a = rnd(2,9), b = rnd(2,9), c = rnd(2,6);
+    if(Math.random() < 0.5){ izraz = "("+a+" + "+b+") · "+c; v = (a+b)*c; }
+    else { const d = rnd(1, a*b-1); izraz = a+" · "+b+" − "+d; v = a*b - d; }
+  }else if(st <= 6){
+    const c = rnd(2,9), q = rnd(2,9), a = c*q, b = rnd(2,20);
+    if(Math.random() < 0.5){ izraz = a+" : "+c+" + "+b; v = q + b; }
+    else { izraz = b+" + "+a+" : "+c; v = b + q; }
+  }else if(st <= 8){
+    const a = rnd(2,9), b = rnd(2,9), c = rnd(2,9), d = rnd(2,9);
+    if(Math.random() < 0.5){ izraz = a+" · ("+b+" + "+c+") − "+d; v = a*(b+c) - d; }
+    else { izraz = a+" + "+b+" · "+c+" − "+d; v = a + b*c - d; }
+  }else{
+    const q = rnd(2,9), c = rnd(2,9), a = c*q, b = rnd(2,9), d = rnd(2,9);
+    izraz = "("+a+" : "+c+" + "+b+") · "+d;
+    v = (q + b)*d;
+  }
+  return {task:"Vrstni red računskih operacij", big:izraz, type:"num", answer:v,
+          line:"izraz: "+izraz+" = "+v, chk:{f:"izraz", p:[izraz]},
+          hint:"<b>Vrstni red</b>Najprej računamo v oklepaju, nato množenje in deljenje, na koncu seštevanje in odštevanje."};
+}
+
+/* ---------- Simetrija in zrcaljenje ---------- */
+function zrcaliVzorec(vrstice){ return vrstice.map(r => r.split("").reverse().join("")); }
+function genSimetrija(st){
+  const w = st <= 3 ? 3 : 4, h = st <= 3 ? 3 : 4;
+  const polnih = st <= 3 ? rnd(3,4) : rnd(5,7);
+  let vrstice;
+  for(let poskus=0; poskus<40; poskus++){
+    const polja = [];
+    for(let i=0;i<w*h;i++) polja.push("0");
+    let dano = 0;
+    while(dano < polnih){
+      const i = rnd(0, w*h-1);
+      if(polja[i] === "0"){ polja[i] = "1"; dano++; }
+    }
+    vrstice = [];
+    for(let r=0;r<h;r++) vrstice.push(polja.slice(r*w, r*w+w).join(""));
+    if(vrstice.join(",") !== zrcaliVzorec(vrstice).join(",")) break;   /* lik ne sme biti sam sebi zrcalen */
+  }
+  const prav = zrcaliVzorec(vrstice).join(",");
+  const izvirnik = vrstice.join(",");
+  const obrnjen = vrstice.slice().reverse().join(",");
+  const zasukan = zrcaliVzorec(vrstice.slice().reverse()).join(",");
+  const zamaknjen = vrstice.map(r => r.slice(1) + r.charAt(0)).join(",");
+  const napačni = [izvirnik, obrnjen, zasukan, zamaknjen].filter(x => x !== prav);
+  const izbor = opts(prav, napačni);
+  const oznake = {};
+  izbor.forEach(k => oznake[k] = vzorecSVG(k.split(","), false));
+  return {task:"Zrcalna slika", story:["Ob liku je narisana navpična os (črtkana črta)."],
+          pic:vzorecSVG(vrstice, true), picWide:1,
+          ask:"Katera slika nastane, če lik prezrcalimo čez to os?",
+          type:"choice", opts:true, read:true, choices:izbor, labels:oznake, answer:prav,
+          line:"zrcaljenje: "+izvirnik+" → "+prav, chk:{f:"zrcaljenje", p:[izvirnik]},
+          hint:"<b>Namig</b>Pri zrcaljenju čez navpično os se vsaka vrstica obrne po dolgem: kar je bilo skrajno desno, postane skrajno levo."};
+}
+
+/* ---------- Rimske številke ---------- */
+const RIMSKE = [[50,"L"],[40,"XL"],[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]];
+function vRimsko(n){
+  let s = "";
+  RIMSKE.forEach(r => { while(n >= r[0]){ s += r[1]; n -= r[0]; } });
+  return s;
+}
+function genRimske(st){
+  const največ = st <= 3 ? 12 : st <= 6 ? 20 : 50;
+  const n = rnd(1, največ), r = vRimsko(n);
+  if(Math.random() < 0.5)
+    return {task:"Rimske številke", big:r, type:"num", answer:n,
+            line:"rimsko "+r+" = "+n, chk:{f:"rimsko", p:[r, n]},
+            hint:"<b>Rimske številke</b>I = 1, V = 5, X = 10, L = 50.<br>Manjši znak pred večjim se odšteje (IV = 4, IX = 9), sicer se znaki seštevajo."};
+  const drugi = [];
+  while(drugi.length < 3){
+    const d = rnd(1, največ);
+    if(d !== n && drugi.indexOf(d) < 0) drugi.push(d);
+  }
+  return {task:"Rimske številke", big:"Kako z rimskimi številkami zapišemo "+n+"?",
+          type:"choice", opts:true, txt:1, choices:opts(r, drugi.map(vRimsko)), answer:r,
+          line:"rimsko "+r+" = "+n, chk:{f:"rimsko", p:[r, n]},
+          hint:"<b>Rimske številke</b>I = 1, V = 5, X = 10, L = 50.<br>Najprej zapiši desetice (X), nato enice; 4 je IV, 9 pa IX."};
+}
+
+/* ---------- Orientacija v prostoru ---------- */
+const ORIENT_PREDMETI = ["🐟","🐈","🌳","⭐","🍎","🚗","🦋","🎈"];
+function genOrientacija(st){
+  const mreza = st <= 2 ? 3 : 4;
+  const p = ORIENT_PREDMETI.slice().sort(() => Math.random()-0.5);
+  const vodoravno = Math.random() < 0.5;
+  let a, b;
+  if(vodoravno){
+    const y = rnd(0, mreza-1);
+    const x = [rnd(0, mreza-1), rnd(0, mreza-1)];
+    if(x[0] === x[1]) return genOrientacija(st);
+    a = {e:p[0], x:x[0], y:y}; b = {e:p[1], x:x[1], y:y};
+  }else{
+    const x = rnd(0, mreza-1);
+    const y = [rnd(0, mreza-1), rnd(0, mreza-1)];
+    if(y[0] === y[1]) return genOrientacija(st);
+    a = {e:p[0], x:x, y:y[0]}; b = {e:p[1], x:x, y:y[1]};
+  }
+  const odg = vodoravno ? (a.x < b.x ? "levo" : "desno") : (a.y < b.y ? "nad" : "pod");
+  return {task:"Orientacija", story:["Poglej mrežo s predmetoma "+a.e+" in "+b.e+"."],
+          pic:orientSVG(mreza, a, b), picWide:1,
+          ask:"Kje je "+a.e+" glede na "+b.e+"?", type:"choice", opts:true, txt:1, read:true,
+          choices:["levo","desno","nad","pod"], answer:odg,
+          line:"orientacija: ("+a.x+","+a.y+") proti ("+b.x+","+b.y+") → "+odg,
+          chk:{f:"orientacija", p:[a.x, a.y, b.x, b.y]},
+          hint:"<b>Namig</b>Če sta predmeta v isti vrstici, je eden <b>levo</b> ali <b>desno</b> od drugega.<br>Če sta v istem stolpcu, je eden <b>nad</b> ali <b>pod</b> drugim."};
+}
+
+/* ---------- Ocenjevanje rezultata ---------- */
+function genOcena(st){
+  const naSto = st >= 6;
+  const osnova = naSto ? 100 : 10;
+  const zaokr = n => Math.round(n/osnova)*osnova;
+  let a, b;
+  do { a = naSto ? rnd(120, 890) : rnd(12, 89); } while(a % osnova === osnova/2);
+  do { b = naSto ? rnd(120, 890) : rnd(12, 89); } while(b % osnova === osnova/2);
+  const plus = st <= 4 ? true : Math.random() < 0.5;
+  if(!plus && a < b){ const t = a; a = b; b = t; }
+  const za = zaokr(a), zb = zaokr(b);
+  if(!plus && za - zb <= 0) return genOcena(st);
+  const v = plus ? za + zb : za - zb;
+  return {task:"Oceni rezultat", big:a+(plus?" + ":" − ")+b+" ≈ ?", type:"num", answer:v,
+          line:"ocena: "+a+(plus?" + ":" − ")+b+" ≈ "+za+(plus?" + ":" − ")+zb+" = "+v,
+          chk:{f:"ocena", p:[a, b, plus?1:0, osnova]},
+          hint:"<b>Ocenjevanje</b>Obe števili najprej zaokroži na "+(naSto?"stotice":"desetice")+
+               ": "+a+" ≈ "+za+" in "+b+" ≈ "+zb+".<br>Nato zaokroženi števili "+(plus?"seštej":"odštej")+"."};
+}
+
+/* ---------- Temperature pod ničlo ---------- */
+function genTemperatura(st){
+  if(st <= 3 || Math.random() < 0.5){                /* razlika dveh temperatur */
+    const nizka = -rnd(1, st <= 3 ? 10 : 20);
+    const visoka = rnd(0, st <= 3 ? 10 : 20);
+    return {task:"Temperatura", story:["Zjutraj je bilo "+num(zn(nizka)+" °C")+".",
+                                       "Popoldne je bilo "+num(zn(visoka)+" °C")+"."],
+            ask:"Za koliko stopinj se je ogrelo?", type:"num", answer:visoka - nizka, read:true,
+            line:"temperatura: od "+zn(nizka)+" °C do "+zn(visoka)+" °C → razlika "+(visoka-nizka)+" °C",
+            chk:{f:"tempRazlika", p:[nizka, visoka]},
+            hint:"<b>Namig</b>Na številski premici preštej korake od "+zn(nizka)+" do 0 ("+Math.abs(nizka)+
+                 ") in nato od 0 do "+visoka+" ("+visoka+"). Koraka seštej."};
+  }
+  const zac = pick([-1,1])*rnd(1,15);                /* sprememba temperature */
+  const d = rnd(2, 18), gor = Math.random() < 0.5;
+  const konec = gor ? zac + d : zac - d;
+  return {task:"Temperatura", story:["Termometer kaže "+num(zn(zac)+" °C")+".",
+                                     "Temperatura se "+(gor ? "zviša" : "zniža")+" za "+num(d+" °C")+"."],
+          ask:"Koliko kaže termometer zdaj?", type:"num", answer:konec, negative:true, read:true,
+          line:"temperatura: "+zn(zac)+" °C se "+(gor?"zviša":"zniža")+" za "+d+" °C → "+zn(konec)+" °C",
+          chk:{f:"tempSprememba", p:[zac, d, gor?1:0]},
+          hint:"<b>Namig</b>Zvišanje pomeni korake v desno po številski premici, znižanje pa korake v levo."};
+}
+
 const GEN = {plus:genPlus, minus:genMinus, mix:genMix, missing:genMissing, compare:genCompare,
              count:genCount, series:genSeries, times:genTimes, besede:genBesede, kenguru:genKenguru,
              divide:genDivide, written:genWritten, units:genUnits, money:genMoney, clock:genClock,
              numbers:genNumbers, fractions:genFractions, decimals:genDecimals, percent:genPercent,
              integers:genIntegers, powers:genPowers, equations:genEquations, geometry:genGeometry,
              ratio:genRatio, stats:genStats, numword:genNumWord, words0:genWords0, shapes:genShapes,
+             verjetnost:genVerjetnost, koordinate:genKoordinate, podatki:genPodatki,
+             vrstniRed:genVrstniRed, simetrija:genSimetrija, rimske:genRimske,
+             orientacija:genOrientacija, ocena:genOcena, temperatura:genTemperatura,
              pluspic:genPlusPic};
+
+/* ================= maskota: lisjak Matko =================
+   Vgrajen SVG s štirimi razpoloženji. Mežikanje in zibanje sta v CSS,
+   odziv na odgovor pa doda razred na ovoj .maskota. */
+function lisjakSVG(razp){
+  const R = razp || "pozdrav";
+  const oko = (x,y,r) => '<circle class="oko" cx="'+x+'" cy="'+y+'" r="'+r+'"/>';
+  let oci, usta, dodatki = "";
+  if(R === "veselo"){
+    oci = '<path class="crta" d="M36 57 q8 -11 16 0"/><path class="crta" d="M68 57 q8 -11 16 0"/>';
+    usta = '<path class="polna" d="M47 80 q13 15 26 0 q-13 5 -26 0 Z"/>';
+    dodatki = '<circle cx="31" cy="70" r="7" fill="#fb7185" opacity=".55"/>'+
+              '<circle cx="89" cy="70" r="7" fill="#fb7185" opacity=".55"/>';
+  }else if(R === "zamisljeno"){
+    oci = oko(45,57,5.2) + oko(77,57,5.2);
+    usta = '<path class="crta" d="M51 84 h18"/>';
+    dodatki = '<path class="crta" d="M35 43 l16 -6"/><path class="crta" d="M87 41 l-16 -3"/>';
+  }else if(R === "zalostno"){
+    oci = oko(45,60,4.6) + oko(77,60,4.6);
+    usta = '<path class="crta" d="M49 88 q11 -10 22 0"/>';
+    dodatki = '<path class="crta" d="M34 47 l16 6"/><path class="crta" d="M88 47 l-16 6"/>';
+  }else{
+    oci = oko(45,57,5.5) + oko(77,57,5.5);
+    usta = '<path class="crta" d="M48 82 q13 11 26 0"/>';
+  }
+  return '<svg class="lisjak" viewBox="0 0 120 112" role="img" aria-label="lisjak Matko">'+
+    '<path d="M22 46 L27 7 L56 27 Z" fill="var(--kozuh-d)"/>'+
+    '<path d="M98 46 L93 7 L64 27 Z" fill="var(--kozuh-d)"/>'+
+    '<path d="M30 41 L33 19 L48 31 Z" fill="var(--trebuh)"/>'+
+    '<path d="M90 41 L87 19 L72 31 Z" fill="var(--trebuh)"/>'+
+    '<path d="M60 18 C93 18 107 43 107 62 C107 89 86 106 60 106 C34 106 13 89 13 62 C13 43 27 18 60 18 Z" '+
+      'fill="var(--kozuh)"/>'+
+    '<path d="M60 50 C81 50 94 63 94 76 C94 93 79 104 60 104 C41 104 26 93 26 76 C26 63 39 50 60 50 Z" '+
+      'fill="var(--trebuh)"/>'+
+    dodatki + oci +
+    '<ellipse cx="60" cy="71" rx="7.5" ry="5.4" fill="var(--oko)"/>' + usta +
+    '</svg>';
+}
+const POZDRAVI = ["Živjo! Kaj bova vadila danes?", "Lepo, da si tu. Izberi igro!",
+                  "Danes bova spet malo računala.", "Pripravljen? Izberi področje in igro."];
+const SPODBUDE = ["Vzemi si čas.", "Zmoreš!", "Če ne veš, pritisni 💡 Namig.",
+                  "Preberi počasi in razmisli.", "Zbrano naprej!"];
+const POHVALE_M = ["Odlično!", "Bravo!", "Tako je!", "Imenitno!", "Super si!"];
+const TOLAŽBE  = ["Nič hudega, gremo naprej.", "Skoraj! Poskusiva še eno.",
+                  "Napake so del učenja.", "Naslednja bo šla."];
+
+function maskota(likId, razp){
+  const el = document.getElementById(likId);
+  if(el) el.innerHTML = lisjakSVG(razp);
+}
+function povej(oblacekId, besedilo){
+  const el = document.getElementById(oblacekId);
+  if(el) el.textContent = besedilo;
+}
+/* odziv maskote: kratka animacija ob pravilnem oziroma napačnem odgovoru */
+function odzivMaskote(ovojId, likId, razp, razred){
+  const ovoj = document.getElementById(ovojId);
+  maskota(likId, razp);
+  if(!ovoj) return;
+  ovoj.classList.remove("veseli", "zali");
+  void ovoj.offsetWidth;                       /* ponovni zagon animacije */
+  if(razred) ovoj.classList.add(razred);
+}
+
+/* ================= ikone kartic (vgrajen SVG) ================= */
+const črka = t => '<text x="12" y="16.4" text-anchor="middle" font-size="10.5" font-weight="900" ' +
+                  'fill="currentColor" stroke="none">'+t+'</text>';
+const IKONE = {
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  minus:'<path d="M5 12h14"/>',
+  mix:'<path d="M4 8h11M12 5l3 3-3 3M20 16H9M12 13l-3 3 3 3"/>',
+  missing:'<path d="M9 9.5a3 3 0 116 0c0 2-3 2.2-3 4.5M12 18h.01"/>',
+  compare:'<path d="M9 6L4 12l5 6M15 6l5 6-5 6"/>',
+  count:'<path d="M12 8c-3-4-8-1-8 4s5 9 8 9 8-4 8-9-5-8-8-4z"/><path d="M12 8V4"/>',
+  series:'<path d="M4 12h.01M9 12h.01M14 12h.01M18 9l3 3-3 3"/>',
+  times:'<path d="M6 6l12 12M18 6L6 18"/>',
+  divide:'<path d="M5 12h14M12 7h.01M12 17h.01"/>',
+  besede:'<path d="M4 5h6a2 2 0 012 2v12a2 2 0 00-2-2H4z"/><path d="M20 5h-6a2 2 0 00-2 2v12a2 2 0 012-2h6z"/>',
+  words0:'<path d="M4 5h6a2 2 0 012 2v12a2 2 0 00-2-2H4z"/><path d="M20 5h-6a2 2 0 00-2 2v12a2 2 0 012-2h6z"/>',
+  kenguru:'<path d="M20 11.5a8 8 0 10-3.2 6.4L20 19z"/><path d="M10 10a2 2 0 113 1.7c-.7.4-1 .8-1 1.6M12 16h.01"/>',
+  written:'<path d="M6 4v16M12 4v16M18 4v16"/><circle cx="6" cy="9" r="1.7"/><circle cx="12" cy="14" r="1.7"/><circle cx="18" cy="7" r="1.7"/>',
+  units:'<rect x="3" y="9" width="18" height="6" rx="1.5"/><path d="M7 9v3M11 9v4M15 9v3M19 9v4"/>',
+  money:'<circle cx="12" cy="12" r="8"/><path d="M15.5 9.5a4 4 0 100 5M8 11h5M8 13h5"/>',
+  clock:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4.2l3 1.8"/>',
+  numbers:črka("123"),
+  fractions:'<path d="M8 17L16 7"/><circle cx="8.5" cy="8" r="1.8"/><circle cx="15.5" cy="16" r="1.8"/>',
+  decimals:črka("0,5"),
+  percent:'<path d="M6 18L18 6"/><circle cx="7.6" cy="7.6" r="2.2"/><circle cx="16.4" cy="16.4" r="2.2"/>',
+  integers:'<path d="M3 13h18M6 10v6M12 10v6M18 10v6M4 6h4"/>',
+  powers:črka("x²"),
+  equations:črka("x="),
+  geometry:'<polygon points="12,5 20,19 4,19"/>',
+  ratio:črka("1:2"),
+  stats:'<path d="M4 20V11M10 20V5M16 20v-7M2 20h20"/>',
+  podatki:'<path d="M4 20V11M10 20V5M16 20v-7M2 20h20"/>',
+  numword:črka("A 1"),
+  shapes:'<circle cx="7" cy="8" r="3.4"/><rect x="13" y="4.6" width="7" height="7" rx="1.2"/><polygon points="12,14 18,20 6,20"/>',
+  pluspic:'<circle cx="5.5" cy="12" r="2.6"/><circle cx="18.5" cy="12" r="2.6"/><path d="M10 12h4M12 10v4"/>',
+  verjetnost:'<rect x="4" y="4" width="16" height="16" rx="3.5"/><circle cx="9" cy="9" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="15" cy="15" r="1.4"/>',
+  koordinate:'<path d="M5 20V4M5 20h15"/><circle cx="14" cy="10" r="2.1"/>',
+  vrstniRed:'<path d="M9 4a10 10 0 000 16M15 4a10 10 0 010 16"/><path d="M12 12h.01"/>',
+  simetrija:'<path d="M12 3v18" stroke-dasharray="3 3"/><polygon points="9.2,7 9.2,17 3.5,12"/><polygon points="14.8,7 14.8,17 20.5,12"/>',
+  rimske:črka("XI"),
+  orientacija:'<circle cx="12" cy="12" r="8.5"/><path d="M15.5 8.5l-2.2 5.3-5.3 2.2 2.2-5.3z"/>',
+  ocena:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/>',
+  temperatura:'<path d="M14 14.2V5a2 2 0 10-4 0v9.2a4 4 0 104 0z"/><path d="M12 9v5.5"/>',
+  privzeto:'<circle cx="12" cy="12" r="8"/>'
+};
+function ikonaSVG(g){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '+
+         'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+         (IKONE[g] || IKONE.privzeto)+'</svg>';
+}
+const BARVE_PODROČIJ = ["#1eb872", "#5b6cff", "#0ea5e9", "#e11d48"];
 
 /* ================= stanje igre ================= */
 const ROUND = 10;
@@ -1727,19 +2704,24 @@ function renderHome(){
   $("#starCount").textContent = P.stars;
   $("#rankLine").textContent = "Tvoj naziv: " + rank();
   $("#readLine").textContent = P.read ? "📖 Prebranih nalog: " + P.read : "";
+  maskota("maskotaGlava", "pozdrav");
+  maskota("likDomov", "pozdrav");
+  povej("oblacekDomov", pick(POZDRAVI));
   $("#bands").innerHTML = BANDS.map(b =>
-    '<button class="band" data-band="'+b.b+'" aria-pressed="'+(P.band === b.b)+'">'+
-    '<span class="e">'+b.emo+'</span>'+b.nm+'<small>'+b.sub+'</small></button>').join("");
-  $("#modes").innerHTML = MODES.filter(m => m.b === P.band).map(m => {
+    '<button class="band" data-band="'+b.b+'" style="--c:'+BARVE_PODROČIJ[b.b]+'" '+
+    'aria-pressed="'+(P.band === b.b)+'">'+
+    '<span class="e">'+b.emo+'</span><span>'+b.nm+'</span><small>'+b.sub+'</small></button>').join("");
+  $("#modes").innerHTML = MODES.filter(m => m.b === P.band).map((m, i) => {
     const b = P.best[m.id+"-"+(P.lvl===0?"a":P.lvl)] || 0;
     const st = stopnjaOd(m.id), vseh = stopnjaVseh(m.id);
-    return '<button class="mode" data-mode="'+m.id+'" style="--c:'+m.c+'">'+
+    /* obroč kaže napredek: pri samodejni težavnosti doseženo stopnjo, sicer zbrane zvezdice */
+    const delež = P.lvl === 0 ? Math.round(st/vseh*100) : Math.round(b/3*100);
+    return '<button class="mode" data-mode="'+m.id+'" style="--c:'+m.c+';animation-delay:'+(Math.min(i,18)*22)+'ms">'+
       (b ? '<span class="best">'+"⭐".repeat(b)+'</span>' : '')+
-      '<span class="emo">'+m.emo+'</span>'+
+      '<span class="obroc" style="--p:'+delež+'"><i>'+ikonaSVG(m.gen || m.id)+'</i></span>'+
       '<span class="nm">'+m.nm+'</span>'+
       '<span class="sub">'+m.sub+'</span>'+
-      (P.lvl===0 ? '<span class="step">Stopnja '+st+' od '+vseh+'</span>'+
-                 '<span class="stepbar"><i style="width:'+Math.round(st/vseh*100)+'%"></i></span>' : '')+
+      (P.lvl===0 ? '<span class="step">Stopnja '+st+' od '+vseh+'</span>' : '')+
       '</button>';
   }).join("");
   document.querySelectorAll("#levels .level").forEach(b =>
@@ -1788,7 +2770,9 @@ function renderQ(){
     : "Težavnost: " + ["","Lahko","Srednje","Težko"][P.lvl];
   $("#qtask").textContent = q.task;
   $("#hintArea").innerHTML = "";
-  $("#qcard").classList.remove("shake");
+  $("#qcard").classList.remove("shake", "prav");
+  odzivMaskote("maskotaIgra", "likIgra", "zamisljeno", "");
+  povej("oblacekIgra", G.i === 0 ? "Začniva! " + q.task : pick(SPODBUDE));
 
   $("#qbig").classList.remove("small");
   if(q.story){
@@ -1811,12 +2795,13 @@ function renderQ(){
   }else if(q.opts){
     $("#ansWrap").innerHTML = "";
     $("#inputArea").innerHTML = '<div class="opts">'+
-      q.choices.map(c => '<button class="opt'+(q.txt?" txt":"")+'" data-c="'+c.replace(/"/g,"&quot;")+'">'+
-        oznaka(q, c)+'</button>').join("")+'</div>';
+      q.choices.map((c, i) => '<button class="opt'+(q.txt?" txt":"")+'" style="animation-delay:'+(i*70)+
+        'ms" data-c="'+c.replace(/"/g,"&quot;")+'">'+oznaka(q, c)+'</button>').join("")+'</div>';
   }else{
     $("#ansWrap").innerHTML = "";
     $("#inputArea").innerHTML = '<div class="choices">'+
-      q.choices.map(c => '<button class="choice" data-c="'+c+'">'+c+'</button>').join("")+'</div>';
+      q.choices.map((c, i) => '<button class="choice" style="animation-delay:'+(i*70)+
+        'ms" data-c="'+c+'">'+c+'</button>').join("")+'</div>';
   }
   posodobiBralneGumbe();
 }
@@ -1914,6 +2899,10 @@ function answer(val){
     G.right++; G.streak++;
     P.stars++; P.correct++; P.perMode[G.mode].c++;
     S.good();
+    $("#qcard").classList.add("prav");
+    odzivMaskote("maskotaIgra", "likIgra", "veselo", "veseli");
+    maskota("maskotaGlava", "veselo");
+    povej("oblacekIgra", pick(POHVALE_M));
     flash("good", G.streak >= 4 ? "🔥" : "🎉", pick(PRAISE),
           G.streak >= 3 ? ("Zapored: "+G.streak+" ✔") : pick(CHEER));
     $("#starCount").textContent = P.stars;
@@ -1922,6 +2911,9 @@ function answer(val){
     P.wrong++; P.perMode[G.mode].w++;
     S.bad();
     $("#qcard").classList.add("shake");
+    odzivMaskote("maskotaIgra", "likIgra", "zalostno", "zali");
+    maskota("maskotaGlava", "zalostno");
+    povej("oblacekIgra", pick(TOLAŽBE));
     flash("bad", "🙈", "Skoraj!", "Pravilno je: " + prikaži(q.answer));
   }
   prilagodi(ok);
@@ -1945,6 +2937,14 @@ function finish(){
   P.best[key] = Math.max(P.best[key] || 0, stars);
   P.plays++;
   save();
+  const odstotek = Math.round(r/ROUND*100);
+  $("#resKrog").style.setProperty("--p", odstotek);
+  $("#resPct").textContent = odstotek + " %";
+  maskota("likKonec", r >= 7 ? "veselo" : (r >= 4 ? "pozdrav" : "zalostno"));
+  maskota("maskotaGlava", r >= 7 ? "veselo" : "pozdrav");
+  povej("oblacekKonec", r === 10 ? "Vse pravilno! Res si mojster." :
+        r >= 7 ? "Zelo dobro ti gre!" : r >= 4 ? "Dobro. Še malo vaje in bo odlično." :
+        "Nič hudega. Vsak mojster je začel tako.");
   $("#resStars").innerHTML = stars ? "<span>⭐</span>".repeat(stars) : "<span>🌱</span>";
   $("#resScore").innerHTML = "Pravilnih: <em>"+r+"</em> od "+ROUND;
   $("#resMsg").textContent = r === 10 ? "Popolno! Vse pravilno! 🏆"
@@ -2044,6 +3044,7 @@ $("#hintBtn").addEventListener("click", () => {
   const a = $("#hintArea");
   if(a.innerHTML){ a.innerHTML = ""; return; }
   a.innerHTML = '<div class="hint">' + (G.q.hint || "Poskusi počasi, korak za korakom.") + '</div>';
+  povej("oblacekIgra", "Poglej namig spodaj 💡");
   S.tap();
 });
 $("#sylBtn").addEventListener("click", () => {
@@ -2069,6 +3070,8 @@ $("#skipBtn").addEventListener("click", () => {
   G.locked = true; G.log[G.i] = false; G.lines[G.i] = G.q.line; G.streak = 0;
   P.wrong++; P.perMode[G.mode] = P.perMode[G.mode] || {c:0,w:0}; P.perMode[G.mode].w++;
   prilagodi(false); save(); renderDots();
+  odzivMaskote("maskotaIgra", "likIgra", "zamisljeno", "");
+  povej("oblacekIgra", "Ta preskočiva, gremo naprej.");
   flash("bad", "🤔", "Ta preskočiva.", "Pravilno je: " + prikaži(G.q.answer));
   setTimeout(next, 1900);
 });
