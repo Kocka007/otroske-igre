@@ -281,6 +281,14 @@ Ko se pridruži Tuli, se tipkovnica razdeli:
   v brlogu, kresničke ponoči, pršec ob jezu, prah v soli in katedrali. V daljavi
   se nekaj dogaja: čreda gnujev na hribu, karavana s svetilkami ponoči, ognji
   hijen v brlogu.
+- **Vgrajene slike.** Naslovnica, slika zgodbe pred 1. nivojem in portreta Kita
+  in Tuli v HUD-u so edine slike v igri; nastale so po konceptnih listih,
+  narejenih za to igro, in so vgrajene v datoteko kot WebP v base64 (skupaj
+  okoli 250 KB), zato igra še vedno deluje brez zunanjih datotek. Ikona igre v
+  zbirki je iz istega portreta. Liki v igri ostajajo narisani iz kode; po
+  konceptih so usklajene barve (zlata dlaka, kremast trebuh, temna notranjost
+  uhljev, pikice za brke, griva s svetlim vrhom, Tulina oranžna dlaka z velikimi
+  pegami), zato animacija ostane, kakršna je.
 - **Tla** niso opeka: prst se navzdol temni, plasti tečejo čez ploščice, kamenčki
   imajo svetel rob, izpostavljeni robovi senco, pod previsi visijo korenine, trava
   raste v šopih ukrivljenih bilk, ki se v vetru upognejo; skala je lomljena, z

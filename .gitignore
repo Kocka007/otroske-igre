@@ -4,3 +4,4 @@ package-lock.json
 # delovne mape orodij, ne del zbirke
 .omc/
 .claude-flow/
+prenosi/
