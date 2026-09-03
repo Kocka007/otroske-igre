@@ -78,6 +78,20 @@ sploh ne ubije, ampak drevo zbudi z darom nabranih skarabejev.
   z udarcem ob tla podre vse, kar stoji, na koncu pljuva. Nad glavo pokaže, koliko
   udarcev še prenese.
 
+### Tuli, gepardka (drugi igralec)
+| Poteza | Kako | Kaj naredi |
+|---|---|---|
+| Tek | ← → | hitrejša od Kita, pospeši že v prvi sekundi |
+| Skok | `preslednica` | višji in daljši kot Kitov |
+| Odskok od stene | proti steni v zraku, nato skok | oprime se vsake navpične stene, odrine se največ dvakrat v enem letu |
+| Drsanje | `↓` med tekom | zniža se in zdrsne pod nizke ovire |
+| Skok na plen | `.` | kot mladičev, le hitrejši in bolj plosk |
+| Žvižg | `Enter` | omami kobre in kuščarje za dolgo, druge za kratko, ustavi izstrelke; **ne** podre lažnih tal in ne obrne čred |
+| Dolgi tek | po Slanem krstu | po dveh sekundah teka je skok za tretjino daljši |
+
+Tuli ima le dve luskini oklepa in se pri Slanem krstu ne preobrazi: gepardi
+ne rastejo v moč, rastejo v hitrost.
+
 ### Prijatelji (dodatne sobe)
 - **N'punkt (medojed)** – koplje skozi blato in krhko zemljo, prenese pike in strupe.
 - **Gobo (bradavičar)** – zalet z glavo, lovi padajoče sadje.
@@ -157,6 +171,33 @@ obarvanem krogu, napredek, najboljši čas in tri medalje.
 
 ---
 
+## Igra za dva
+
+Dva igralca ob istem zaslonu, brez interneta. Drugi igralec vodi gepardko
+**Tuli**, ki so jo karavane prodale istega dne kot Kita.
+
+- **Pridružitev kadar koli.** Med igro pritisni tipko `.` ali kateri koli gumb
+  na drugem ploščku (ali v premoru gumb »Pridruži se Tuli«) – Tuli priteče z
+  roba zaslona. Nivoja ni treba začeti znova. V premoru lahko tudi odide.
+  V dodatnih sobah (jazbec, Gobo, volovka, skarabej) je ni.
+- **Ena kamera** gleda težišče obeh in naprej v smeri vodilnega. Kdor zaostane
+  za več kot zaslon, po treh sekundah **priteče** k vodilnemu (tek, ne
+  teleport; med njim je neranljiv).
+- **Oživljanje z glasom.** Kdor pade, obleži, ne izgine. Drugi stopi k njemu
+  in dve sekundi drži svoj glas (Kito rjovenje, Tuli žvižg); nad ležečim se
+  polni kolobar, potem vstane z eno luskino. Ležanje ne stane življenja.
+  Šele ko ležita oba – ali če ležečega 15 sekund nihče ne zbudi – se oba
+  vrneta k termitnjaku (v načinu Zgodba se čas zavrti nazaj).
+- **Skupno je vse:** življenja, skarabeji, denarnica, medalje in čas. Nivo se
+  konča, ko izhod doseže kateri koli od njiju; prijatelji z dialogom se
+  oglasijo ob dotiku katerega koli.
+- **Vsak nasprotnik gleda najbližjega.** Bitja, stožci straž, pobiranje in
+  kontrolne točke delujejo z obema brez posebnih pravil.
+- V nastavitvah je stikalo **Igra za dva**, s katerim se pridružitev izklopi,
+  če tipka `.` koga moti.
+
+Enojna igra ostane, kakršna je bila: puščice in WASD oboje vodijo Kita.
+
 ## Kaj je narejeno drugače kot v igrah iz devetdesetih
 
 Navdih so stare ploščadne igre, ne pa njihove slabe navade:
@@ -195,6 +236,17 @@ Navdih so stare ploščadne igre, ne pa njihove slabe navade:
 | Premor | Esc ali P | | ❚❚ |
 | Čas nazaj | R (samo v načinu Zgodba) | | v premoru |
 
+Ko se pridruži Tuli, se tipkovnica razdeli:
+
+| | Kito (igralec 1) | Tuli (igralec 2) |
+|---|---|---|
+| Hoja | A D (W S gor, dol) | ← → (↑ ↓) |
+| Skok | J (ali Z) | preslednica |
+| Napad | K (ali X, Shift) | . |
+| Glas | L (ali C) | Enter |
+| Plošček | prvi | drugi |
+| Zaslon na dotik | gumbi na zaslonu | – (drugi igralec s ploščkom) |
+
 ---
 
 ## Tehnično
@@ -221,6 +273,11 @@ Navdih so stare ploščadne igre, ne pa njihove slabe navade:
 - Glasba in učinki nastanejo z Web Audio: trije kanali (glasba, učinki,
   rjovenje); ob rjovenju se glasba za hip umakne.
 - Napredek se hrani v `localStorage` (tri shrambe), nič se ne pošilja na splet.
+- **Dva igralca brez podvajanja kode.** Svet ima seznam `igralci`, `igralec`
+  pa med korakom kaže na tistega, ki je bitju najbližji – zato vsa bitja,
+  straže, pobiranje in točke delujejo z obema, ne da bi jih bilo treba pisati
+  dvakrat. Vhod je dva objekta (`V`, `V2`), korak sveta ju sprejme oba; kdor
+  ga kliče z enim, dobi enojno igro.
 
 ### Kako je preizkušeno
 
@@ -263,7 +320,15 @@ v brskalniku in preveri:
 * da **stara shramba brez polj za medalje** ne podre izbora nivojev in ne podeli
   medalj, nova pa jih pravilno prešteje,
 * da se po finalu res pokaže **epilog** z besedilom, ki se razlikuje glede na izid,
-  in da se medalje in najboljši čas v načinu na čas zapišejo v shrambo.
+  in da se medalje in najboljši čas v načinu na čas zapišejo v shrambo,
+* **igra za dva**: v vseh desetih glavnih nivojih se Tuli pridruži in se ne rodi
+  v steni, oba prehodita 900 korakov brez napak in neveljavnih koordinat; v
+  dodatnih sobah se ne more pridružiti; zaostali po treh sekundah priteče k
+  vodilnemu; padli obleži brez izgube življenja in ga Kito z dve sekundi
+  držanim glasom zbudi z eno luskino, brez glasu pa ostane ležati; ko ležita
+  oba, ju svet oživi pri točki in odšteje eno življenje; stara shramba brez polja
+  za igro za dva se naloži nespremenjena; v enojni igri puščice vodijo Kita, po
+  pritisku na `.` pa Tuli, Kito pa obdrži WASD.
 
 Poleg tega je ročno preverjeno v brskalniku (Playwright): rjovenje res podre lažna
 tla skrite sobe, Kito pade vanjo, pobere nagrado in skoči nazaj ven; sončni cvet

@@ -10,7 +10,7 @@ brez pošiljanja podatkov na internet:
 | 🌍 | **Globko** | geografija – 130 držav na pravem zemljevidu, karte Slovenije, Evrope, sveta in štirih celin, reke, merilo in legenda; 32 iger | 6–15 let | [`geografija.html`](geografija.html) |
 | 🧠 | **Vseved** | kviz s 555 vprašanji z razlago iz štirinajstih področij: lestvica, hitri ogenj, dvoboj za dva, izziv dneva | 7 let in več | [`kviz.html`](kviz.html) |
 | 🎨 | **Barvica** | pobarvanka: 219 slik v 21 temah (letni časi, črke in številke, Slovenija, mandale za odrasle), 7 načinov barvanja, risanje z Apple Pencil | za vse | [`pobarvanka.html`](pobarvanka.html) |
-| 🦁 | **Kito** | ploščadna igra: 10 nivojev savane s šefi, skritimi sobami in medaljami, 4 dodatne sobe, izvirna zgodba z epilogom | 7 let in več | [`kito.html`](kito.html) |
+| 🦁 | **Kito** | ploščadna igra: 10 nivojev savane s šefi, skritimi sobami in medaljami, 4 dodatne sobe, izvirna zgodba z epilogom; za enega ali dva igralca (Kito in gepardka Tuli) | 7 let in več | [`kito.html`](kito.html) |
 
 Podroben opis: [matematika.md](matematika.md) · [anglescina.md](anglescina.md) · [geografija.md](geografija.md) · [kviz.md](kviz.md) · [pobarvanka.md](pobarvanka.md) · [kito.md](kito.md)
 

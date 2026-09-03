@@ -385,6 +385,139 @@ const KORAKOV = Number(process.env.KORAKOV || 900);   /* 900 korakov = 15 sekund
   }
   preizkusi.push(t12);
 
+  /* --- igra za dva: Tuli, pritek, oživljanje, vhod --- */
+  const t13 = preizkus('igra za dva deluje');
+  const dva = await stran.evaluate((korakov) => {
+    const out = { nivoji: [], napake: [] };
+    const prazen = VHOD_PRAZEN;
+    const nov = () => ({ levo: 0, desno: 0, gor: 0, dol: 0, skok: 0, napad: 0, rjov: 0,
+                         skokPritisnjen: 0, napadPritisnjen: 0, rjovPritisnjen: 0 });
+    /* (a, b) vsak nivo z dvema: Tuli ni v steni, oba prehodita 900 korakov brez napak */
+    for (const st of STOPNJE){
+      const sv = new Svet(st, { oblika: st.lik || (st.st >= 6 ? 'odrasel' : 'mladic'), zivljenja: 5 });
+      const t = sv.dodajIgralca2(true);
+      const r = { id: st.id, bonus: !!st.lik, tuli: !!t, vSteni: false, napaka: null, nan: 0, konec: null };
+      if (t) r.vSteni = vTrdnem(sv.karta, t.x - t.w / 2, t.y - t.h, t.w, t.h);
+      const v1 = nov(), v2 = nov();
+      try {
+        for (let i = 0; i < korakov; i++){
+          v1.desno = 1; v2.desno = 1;
+          v1.skok = v2.skok = (i % 24 < 3) ? 1 : 0;
+          v1.skokPritisnjen = v2.skokPritisnjen = (i % 24 === 0) ? 1 : 0;
+          v1.rjovPritisnjen = (i % 90 === 0) ? 1 : 0; v2.rjovPritisnjen = (i % 70 === 0) ? 1 : 0;
+          v2.dol = (i % 50 < 6) ? 1 : 0;
+          sv.korak(v1, v2);
+          for (const p of sv.igralci) if (!isFinite(p.x) || !isFinite(p.y) || !isFinite(p.vx) || !isFinite(p.vy)) r.nan++;
+          if (sv.stanje === 'zmaga' || sv.stanje === 'konec') break;
+        }
+      } catch (e){ r.napaka = e.message; }
+      r.konec = sv.stanje; r.igralcev = sv.igralci.length;
+      out.nivoji.push(r);
+    }
+    /* (c) zaostali po treh sekundah priteče k vodilnemu */
+    {
+      const sv = new Svet(STOPNJE[0], {});
+      const t = sv.dodajIgralca2(true);
+      t.x = sv.igralec.x + 400;
+      let pritekal = 0;
+      for (let i = 0; i < 400; i++){ sv.korak(prazen, prazen); if (sv.igralci[0].priteka) pritekal++; }
+      out.pritek = { razdalja: Math.abs(sv.igralci[0].x - sv.igralci[1].x), pritekal, zivi: sv.igralci.every(p => p.zivi) };
+    }
+    /* (d) oživljanje z glasom: Tuli obleži, Kito jo v dveh sekundah zbudi */
+    {
+      const sv = new Svet(STOPNJE[0], {});
+      const t = sv.dodajIgralca2(true);
+      t.x = sv.igralec.x + 4; t.oklep = 1; t.neranljiv = 0;
+      t.rani(sv, 5, t.x + 2);
+      const lezi = { zivi: t.zivi, stanje: t.stanje, zivljenja: sv.zivljenja };
+      const rjov = Object.assign(nov(), { rjov: 1 });
+      let n = 0; while (n++ < 240 && !t.zivi) sv.korak(rjov, prazen);
+      out.ozivljanje = { lezi, zivi: t.zivi, oklep: t.oklep, korakov: n, zivljenja: sv.zivljenja };
+      /* brez glasu se ne zbudi */
+      t.neranljiv = 0; t.rani(sv, 5, t.x + 2);
+      let m = 0; while (m++ < 240 && !t.zivi) sv.korak(prazen, prazen);
+      out.ozivljanje.brezGlasu = !t.zivi;
+    }
+    /* (e) če ležita oba, ju svet oživi pri kontrolni točki */
+    {
+      const sv = new Svet(STOPNJE[0], { tezavnost: 'prah' });
+      const t = sv.dodajIgralca2(true);
+      sv.igralec.umri(sv); t.umri(sv);
+      const stanji = [sv.igralec.stanje, t.stanje];
+      let m = 0; while (m++ < 200 && !(sv.igralec.zivi && t.zivi)) sv.korak(prazen, prazen);
+      out.oba = { stanji, zivi: sv.igralec.zivi && t.zivi, zivljenja: sv.zivljenja };
+    }
+    /* (f) stara shramba brez polja dvojno se naloži */
+    try {
+      const staro = { mesta: [{ odklenjeno: 3, hrosci: 10, oblika: 'mladic', oklepMax: 4, rjovMax: 100,
+                                zivljenja: 3, koncani: {}, izidFinala: null, cas: 0 }, null, null], nast: {} };
+      localStorage.setItem(KLJUC, JSON.stringify(staro));
+      beriShrambo(); nast.mesto = 0;
+      const m = mesto();
+      sestaviIzbor();
+      out.shramba = { odklenjeno: m.odklenjeno, dvojno: m.dvojno === undefined ? 'ni' : 'je', pridruzitev: nast.pridruzitev };
+    } catch (e){ out.shramba = { napaka: e.message }; }
+    /* (g) enojna igra: puščice in WASD vodijo Kita; po pridružitvi puščice vodijo Tuli */
+    try {
+      nast.vsiNivoji = true;
+      zacniNivo(0, false, false);
+      const tipka = (code, dol) => window.dispatchEvent(new KeyboardEvent(dol ? 'keydown' : 'keyup', { code }));
+      tipka('ArrowRight', true); osveziVhod();
+      const enojno = { desno: V.desno, desno2: V2.desno, igralcev: sv.igralci.length };
+      tipka('ArrowRight', false); osveziVhod();
+      tipka('Period', true); tipka('Period', false);
+      const pridruzeno = sv.igralci.length;
+      tipka('ArrowRight', true); tipka('KeyA', true); osveziVhod();
+      const dvojno = { desno: V.desno, levo: V.levo, desno2: V2.desno, hud2: !document.getElementById('hud2').hidden };
+      tipka('ArrowRight', false); tipka('KeyA', false); osveziVhod();
+      /* v dodatni sobi se Tuli ne more pridružiti */
+      tece = false;
+      const rov = STOPNJE.findIndex(s => s.lik === 'npunkt');
+      zacniNivo(rov, false, false);
+      tipka('Period', true); tipka('Period', false);
+      const soba = { igralcev: sv.igralci.length, hud2: !document.getElementById('hud2').hidden };
+      tece = false;
+      out.vhod = { enojno, pridruzeno, dvojno, soba };
+    } catch (e){ out.vhod = { napaka: e.message }; }
+    return out;
+  }, KORAKOV);
+  for (const r of dva.nivoji){
+    const kje = r.id + ': ';
+    if (r.bonus){ t13.trdi(!r.tuli && r.igralcev === 1, kje + 'v dodatni sobi se Tuli ne bi smela pridružiti'); continue; }
+    t13.trdi(r.tuli, kje + 'Tuli se ni pridružila');
+    t13.trdi(!r.vSteni, kje + 'Tuli se rodi v steni');
+    t13.trdi(!r.napaka, kje + 'napaka med igro v dvoje: ' + r.napaka);
+    t13.enako(r.nan, 0, kje + 'neveljavne koordinate v dvoje');
+    t13.enako(r.igralcev, 2, kje + 'drugi igralec je med igro izginil');
+  }
+  t13.trdi(dva.pritek.pritekal > 0, 'zaostali ni pritekel k vodilnemu');
+  t13.trdi(dva.pritek.razdalja < 30, 'po priteku sta še vedno narazen: ' + dva.pritek.razdalja);
+  t13.trdi(dva.pritek.zivi, 'pritek je koga ubil');
+  t13.enako(dva.ozivljanje.lezi.stanje, 'lezi', 'padli v dvoje ne obleži, ampak: ' + dva.ozivljanje.lezi.stanje);
+  t13.enako(dva.ozivljanje.lezi.zivljenja, 3, 'ležanje je vzelo življenje');
+  t13.trdi(dva.ozivljanje.zivi, 'Kito Tuli z glasom ni zbudil');
+  t13.trdi(dva.ozivljanje.korakov >= 100 && dva.ozivljanje.korakov <= 150, 'oživljanje ne traja dve sekundi: ' + dva.ozivljanje.korakov + ' korakov');
+  t13.enako(dva.ozivljanje.oklep, 1, 'zbujeni nima ene luskine oklepa');
+  t13.trdi(dva.ozivljanje.brezGlasu, 'Tuli se je zbudila brez glasu');
+  t13.trdi(dva.oba.zivi, 'ko ležita oba, ju svet ni oživil');
+  t13.enako(dva.oba.zivljenja, 2, 'skupno življenje se ni odštelo enkrat');
+  t13.enako(dva.shramba.dvojno, 'ni', 'stara shramba se ni naložila nespremenjena');
+  t13.enako(dva.shramba.odklenjeno, 3, 'stara shramba je izgubila napredek');
+  t13.trdi(dva.shramba.pridruzitev === true, 'privzeta nastavitev za igro za dva ni vklopljena');
+  t13.trdi(!dva.vhod.napaka, 'vhod: ' + dva.vhod.napaka);
+  if (!dva.vhod.napaka){
+    t13.enako(dva.vhod.enojno.desno, 1, 'v enojni igri puščica ne vodi Kita');
+    t13.enako(dva.vhod.enojno.desno2, 0, 'v enojni igri puščica vodi drugega igralca');
+    t13.enako(dva.vhod.pridruzeno, 2, 'tipka . ni priklicala Tuli');
+    t13.enako(dva.vhod.dvojno.desno2, 1, 'po pridružitvi puščica ne vodi Tuli');
+    t13.enako(dva.vhod.dvojno.desno, 0, 'po pridružitvi puščica še vedno vodi Kita');
+    t13.enako(dva.vhod.dvojno.levo, 1, 'po pridružitvi tipka A ne vodi Kita');
+    t13.trdi(dva.vhod.dvojno.hud2, 'HUD drugega igralca ni viden');
+    t13.enako(dva.vhod.soba.igralcev, 1, 'v dodatni sobi se je Tuli pridružila');
+    t13.trdi(!dva.vhod.soba.hud2, 'v dodatni sobi je HUD drugega igralca viden');
+  }
+  preizkusi.push(t13);
+
   await brskalnik.close();
   console.log('Platno: ' + hitrost.platno + ' (nadvzorčenje ' + hitrost.nad + '×), izris ' +
     hitrost.out.map(h => h.ms.toFixed(1)).join(' / ') + ' ms na sličico');
