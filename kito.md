@@ -267,9 +267,24 @@ Ko se pridruži Tuli, se tipkovnica razdeli:
   štirih členov, ki zaostajajo drug za drugim.
 - **Stisk in razteg**: ob doskoku se lik splošči (bolj, hitreje ko je padel),
   ob odrivu raztegne. Ob obratu sredi teka zadrsa in dvigne prah.
-- **Globina prizora**: šest slojev, ki drsijo z različnimi hitrostmi – oblaki,
-  daljne gore, hribi, akacije, bližnje grmovje in igralna ravnina – z meglo med
-  njimi, nizko meglo nad tlemi in mehkim robom prizora.
+- **Globina prizora**: osem slojev, ki drsijo z različnimi hitrostmi – oblaki,
+  dve gorski verigi, hribi, drevesa, bližnje grmovje, igralna ravnina in ospredje
+  s šopi trave – z meglo med njimi, nizko meglo nad tlemi in mehkim robom prizora.
+  Gore in hribi so vsota sinusov s celoštevilskimi frekvencami, narisani enkrat
+  na pomožno platno, široko dva zaslona, ki se brez šiva ponavlja; daljni sloji
+  so barvno primešani nebu (zračna perspektiva). Drevesa so po biomu: akacije z
+  razcepljenim deblom in plosko krošnjo, baobabi, suha drevesa v brlogu, trstje
+  ob jezu.
+- **Svetloba in ozračje**: sonce z mehkim sijem, ki obarva obzorje, in snopi
+  žarkov, ki počasi dihajo (v Termitni katedrali skozi odprtine v stropu); vsak
+  biom ima svoj barvni ton čez cel prizor in svoje delce: pelod v zori, žerjavico
+  v brlogu, kresničke ponoči, pršec ob jezu, prah v soli in katedrali. V daljavi
+  se nekaj dogaja: čreda gnujev na hribu, karavana s svetilkami ponoči, ognji
+  hijen v brlogu.
+- **Tla** niso opeka: prst se navzdol temni, plasti tečejo čez ploščice, kamenčki
+  imajo svetel rob, izpostavljeni robovi senco, pod previsi visijo korenine, trava
+  raste v šopih ukrivljenih bilk, ki se v vetru upognejo; skala je lomljena, z
+  razpokami in svetlimi ploskvami.
 - Glasba in učinki nastanejo z Web Audio: trije kanali (glasba, učinki,
   rjovenje); ob rjovenju se glasba za hip umakne.
 - Napredek se hrani v `localStorage` (tri shrambe), nič se ne pošilja na splet.
